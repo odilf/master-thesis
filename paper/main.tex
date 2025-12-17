@@ -1,0 +1,254 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{todonotes}
+
+\usepackage[T1]{fontenc}
+\usepackage{libertinus,libertinust1math}
+
+\usepackage[a4paper, total={5.5in, 9.5in}]{geometry}
+
+\usepackage[style=alphabetic]{biblatex}
+\addbibresource{references.bib}
+
+\title{parallel. Forced and time-dependent}
+\author{David Martin de Diego}
+\date{December 2025}
+
+
+\begin{document}
+
+\newcommand{\Diff}{\textrm{D}}
+\newcommand{\diff}{\textrm{d}}
+
+\maketitle
+
+\section{Dissipative forces}
+
+The method in the \cite{ferraroParallelIterativeMethod2025} works for equations of the style 
+
+\[ \Diff_2 L_d (q_{k-1}, q_k) + \Diff_1 L_d (q_k, q_{k+1}) = 0 \]
+
+But what if we have a force?
+
+\[ \Diff_2 L_d (q_{k-1}, q_k) + \Diff_1 L_d (q_k, q_{k+1}) = F \]
+
+This is a dissipative force \todo{creo, vamos}. 
+
+We want to figure out when solving problems with dissipative forces using this method \todo{más o menos} converges. At a glance, we expect that it should always converge, because you can just modify the lagrangian by adding a $e^{-Ft}$ factor to convert it to a non-dissipative problem \todo{no se si esto siempre pasa}. 
+
+However, how can we properly verify if it converges?
+
+\subsection{Duplicating dimensions}
+
+Given some state\todo{es state space?} space of dimension $n$, we can pose a new problem of dimension $2n$ where we have $q_k$ for $k = 1,...,n$ but also $Q_k$ for $k = 1,...,n$ and with no force. When $q_k = Q_k$ for all $k$, then $q_k$ is a solution to the original (forced) problem.
+
+And here we can use the converge criteria we have from \cite{ferraroParallelIterativeMethod2025}! Namely, we need the following matrix to be positive-definite:
+
+\[
+    H(\mathring{q}_d^{[\gamma-1]}) = \begin{pmatrix}
+        \mathcal{D}_1 & \mathcal{C}_1 \\
+        \mathcal{C}_1^T & \mathcal{D}_2 & \mathcal{C}_2 \\
+        & \ddots & \ddots & \ddots & \\
+        & & \mathcal{C}_{N-3}^T & \mathcal{D}_{N-2} & \mathcal{C}_{N-2} \\ 
+        & & & \mathcal{C}_{N-2}^T & \mathcal{D}_{N-1} \\ 
+        
+    \end{pmatrix}
+\]
+
+where 
+
+\begin{align*}    
+    \mathcal{D}_k &= \Diff_{22} L_d (q_{k-1}^{[\gamma - 1]}, q_k^{[\gamma - 1]}) + \Diff_{1 1} L_d (q_k^{[\gamma - 1]}, q_{k+1}^{[\gamma - 1]}) \\
+    \mathcal{C}_k &= \Diff_{12} L_d (q_k^{[\gamma - 1]}, q_{k+1}^{[\gamma - 1]})
+\end{align*}
+
+Note that this condition is not necessary, but it is sufficient \todo{is it?}.
+
+The superscripts indicate iteration index, but we're not interested in that, so we can just straight up ignore them. What we want to see is that if the non-forced version of the equation converges, then if this will converge too. 
+
+Let's start with a simple example, with a $1$-dimensional state space. The Lagrangian we are going to take is the following (note that $D$ here is the dissipation force, not $\Diff$, the derivative):
+
+\todo{habría que cambiar $q_0 \to q_k, q_1 \to q_{k+1}$?}
+
+\[ L_d (q_0, Q_0, q_1, Q_1) = - \frac{D h \left(Q_{0} - q_{0}\right) \left(\frac{- Q_{0} + Q_{1}}{h} + \frac{- q_{0} + q_{1}}{h}\right)}{2} + \frac{\left(- Q_{0} + Q_{1}\right)^{2}}{2 h} - \frac{\left(- q_{0} + q_{1}\right)^{2}}{2 h} \]
+
+We are going to first look at what happens, first, if we solve the non forced equation, pretending we only have the $n$-dimensional (in this case, 1-dimensional) state space. We do this by taking the derivatives with respect to $q$ and $Q$ independently, and by the nature of the construction we obtain the same result. 
+
+\textcolor{red}{En verdad estoy confundido con qué estoy haciendo aquí exactamente. Es verdad que siempre va a salir lo mismo?}
+
+The first derivative with respect to $q_0$ is
+
+\[
+\frac{D h \left(\frac{- Q_{0} + Q_{1}}{h} + \frac{- q_{0} + q_{1}}{h}\right)}{2} + \frac{D \left(Q_{0} - q_{0}\right)}{2} - \frac{2 q_{0} - 2 q_{1}}{2 h}
+\]
+
+The second derivative with respect to $q_0$ is
+
+\[
+    - D - \frac{1}{h}
+\]
+
+We get the same with opposite signs for $Q$. Notice that it doesn't depend on $q$ nor $Q$. Therefore, all $\mathcal{D}_k$s and $\mathcal{C}_k$s are going to be identical. Thus, the submatrices we are left with are
+
+\begin{align}    
+    \mathcal{D}_k & = - D - \frac{2}{h} \\
+    \mathcal{C}_k & = \frac{D}{2} + \frac{1}{h}
+\end{align}
+
+So then, if we construct the matrix and we take a factor of $\frac{D}{2} + \frac{1}{h}$, we get
+
+
+\[
+    H(q) = \left(\frac{D}{2}+ \frac{1}{h}\right) \begin{pmatrix}
+        -2 & 1 \\
+        1 & -2 & 1 \\
+        & \ddots & \ddots & \ddots & \\
+        & & 1 & -2 & 1 \\ 
+        & & & 1 & -2 \\  
+    \end{pmatrix}
+\]
+
+The inside matrix is negative definite so the whole matrix is positive definite if the factor is negative, i.e., if
+
+\begin{align}
+    \frac{D}{2} + \frac{1}{h} \le 0 \Rightarrow h \le - \frac{2}{D}
+\end{align}
+
+This makes sense, in the sense that $D$ first needs to be negative to be an actual dissipation force (otherwise the energy (?) exponentially increases and it leads to instability) and, given a negative $D$, $h$ needs to be small enough to be able to capture the ``effect'' of $D$.
+
+Now, if we compute the Hessian using ``extended'' state space, using a $L(q_0, q_1)$-type Lagrangian with inputs, $\begin{pmatrix} q_0 \\ Q_0 \end{pmatrix}$ and $\begin{pmatrix} q_1 \\ Q_1 \end{pmatrix}$. The Hessian is
+
+\[
+    \left[\begin{matrix}- D - \frac{1}{h} & 0 & \frac{D}{2} + \frac{1}{h} & \frac{D}{2}\\0 & D + \frac{1}{h} & - \frac{D}{2} & - \frac{D}{2} - \frac{1}{h}\\\frac{D}{2} + \frac{1}{h} & - \frac{D}{2} & - \frac{1}{h} & 0\\\frac{D}{2} & - \frac{D}{2} - \frac{1}{h} & 0 & \frac{1}{h}\end{matrix}\right]
+\]
+
+so,
+
+\begin{align}    
+    \mathcal{D}_k & = \left[\begin{matrix}- D - \frac{2}{h} & 0\\0 & D + \frac{2}{h}\end{matrix}\right] \\
+    \mathcal{C}_k & = \left[\begin{matrix}\frac{D}{2} + \frac{1}{h} & \frac{D}{2}\\- \frac{D}{2} & - \frac{D}{2} - \frac{1}{h}\end{matrix}\right]
+\end{align}
+
+Again, this is independent of $k$. However, this time it's not so easy to write out the matrix because it doesn't factor out cleanly into one matrix, but we can write it as a sum. Namely,
+
+\begin{align*}    
+    H(q) & = \begin{pmatrix}
+        \mathcal{D}_1 & \mathcal{C}_1 \\
+        \mathcal{C}_1^T & \mathcal{D}_2 & \mathcal{C}_2 \\
+        & \ddots & \ddots & \ddots & \\
+        & & \mathcal{C}_{N-3}^T & \mathcal{D}_{N-2} & \mathcal{C}_{N-2} \\ 
+        & & & \mathcal{C}_{N-2}^T & \mathcal{D}_{N-1} \\  
+    \end{pmatrix} \\
+    & = \begin{pmatrix}
+        - D - \frac{2}{h} & 0 & \frac{D}{2} + \frac{1}{h} & \frac{D}{2} & 0 & 0\\
+        0 & D + \frac{2}{h} & - \frac{D}{2} & - \frac{D}{2} - \frac{1}{h} & 0 & 0\\
+        \frac{D}{2} + \frac{1}{h} & - \frac{D}{2} & - D - \frac{2}{h} & 0 & \frac{D}{2} + \frac{1}{h} & \frac{D}{2}\\
+        \frac{D}{2} & - \frac{D}{2} - \frac{1}{h} & 0 & D + \frac{2}{h} & - \frac{D}{2} & - \frac{D}{2} - \frac{1}{h}\\
+        & \ddots & \ddots & \ddots & \ddots \\
+ 0 & 0 & \frac{D}{2} + \frac{1}{h} & - \frac{D}{2} & - D - \frac{2}{h} & 0\\0 & 0 & \frac{D}{2} & - \frac{D}{2} - \frac{1}{h} & 0 & D + \frac{2}{h}
+    \end{pmatrix} \\
+    & = \begin{pmatrix}
+        - D & 0 & \frac{D}{2} & \frac{D}{2} & 0 & 0\\
+        0 & D & - \frac{D}{2} & - \frac{D}{2}  & 0 & 0\\
+        \frac{D}{2} & - \frac{D}{2} & - D & 0 & \frac{D}{2}  & \frac{D}{2}\\
+        \frac{D}{2} & - \frac{D}{2}  & 0 & D & - \frac{D}{2} & - \frac{D}{2} \\
+        & \ddots & \ddots & \ddots & \ddots \\
+ 0 & 0 & \frac{D}{2} & - \frac{D}{2} & - D & 0\\0 & 0 & \frac{D}{2} & - \frac{D}{2}  & 0 & D
+    \end{pmatrix} + \begin{pmatrix}
+        - \frac{2}{h} & 0 & \frac{1}{h} & 0 & 0 & 0\\
+        0 & \frac{2}{h} & 0 &- \frac{1}{h} & 0 & 0\\
+         \frac{1}{h} & 0 & - \frac{2}{h} & 0 &  + \frac{1}{h} & 0\\
+       0 &  - \frac{1}{h} & 0 & \frac{2}{h} & 0 & - \frac{1}{h}\\
+        & \ddots & \ddots & \ddots & \ddots \\
+ 0 & 0 & \frac{1}{h} & 0 & - \frac{2}{h} & 0\\0 & 0 & 0 & - \frac{1}{h} & 0 & \frac{2}{h}
+    \end{pmatrix} \\
+    & = \frac{-D}{2} \begin{pmatrix}
+        2 & 0 & -1 & -1 & 0 & 0\\
+        0 & -2 & 1 & 1  & 0 & 0\\
+        -1 & 1 & 2 & 0 & -1  & -1\\
+        -1 & 1  & 0 & -2 & 1 & 1 \\
+        & \ddots & \ddots & \ddots & \ddots \\
+ 0 & 0 & -1 & 1 & 2 & 0\\0 & 0 & -1 & 1  & 0 & -2
+    \end{pmatrix} - \frac{1}{h} \begin{pmatrix}
+        2  & 0 & -1 & 0 & 0 & 0\\
+        0 & -2  & 0 &1 & 0 & 0\\
+         -1 & 0 & 2  & 0 &  + -1 & 0\\
+       0 &  1 & 0 & -2  & 0 & 1\\
+        & \ddots & \ddots & \ddots & \ddots \\
+ 0 & 0 & -1 & 0 & 2 & 0\\0 & 0 & 0 & 1 & 0 & -2 
+    \end{pmatrix} 
+\end{align*}
+
+It seems that this matrix, though, is never positive definite.
+
+\subsection{Time-dependent Lagrangian}
+
+Theoretically, this is all very easy to extend to time-dependent Lagragians, but there are some complications with the indices.
+
+First, note that $k$ indicates the time, since $q_k$ are points of the path in time. Then, the discrete Lagrangian now has an index $k$ like $L_k (q_k, q_{k+1})$. Note that here the $k$ of the $q$ \textbf{is} relevant.
+
+The discrete Euler-Lagrange equations now become: 
+
+\[ \Diff_2 L_{k-1} (q_{k-1}, q_k) + \Diff_1 L_k (q_k, q_{k+1}) = 0 \]
+
+and with a force,
+
+\[ \Diff_2 L_{k-1} (q_{k-1}, q_k) + \Diff_1 L_k (q_k, q_{k+1}) = F \]
+
+Honestly, I'm not sure why I said it was confusing lol.
+
+\subsection{Exponential decay}
+
+Ok so the explicit discrete Lagrangian with a dissipative force $D$ is:
+
+\[
+    L_k(q_k, q_{k+1}) = h e^{D h k} \left(\frac{1}{2} \left(\frac{q_{k+1} - q_k}{h}\right)^2\right)
+\]
+
+Given the Hessian components:
+
+\begin{align*}    
+    \mathcal{D}_k &= \frac{2}{h} e^{D h k} \\
+    \mathcal{C}_k &= - \frac{1}{h} e^{D h k}
+\end{align*}
+
+we can compute the big hessian:
+
+\[
+    H(q) = \frac{1}{h} \left[\begin{matrix}
+        2 & -1 & 0 & 0 & 0\\
+        -1 & 2 e^{D} & - e^{D} & 0 & 0\\
+        0 & - e^{D} & 2 e^{2 D} & - e^{2 D} & 0\\
+          & \ddots & \ddots & \ddots \\
+        0 & 0 & - e^{(N-3) D} & 2 e^{(N-2) D} & - e^{(N-2) D}\\
+        0 & 0 & 0 & - e^{(N-2) D} & 2 e^{(N-1) D}
+    \end{matrix}\right]
+\]
+
+I don't immediately see if this matrix is positive definite.
+
+But what if we look at Sylvester's criterion? Iff every leading principal minor is positive, then the matrix is p.d..
+
+
+\subsection{Continuous Lagrangian}
+
+So, we are essentially solving the system
+
+\[
+    \ddot{q} + D \dot{q} = 0
+\]
+
+which has Lagrangian
+
+\[
+    L = e^{D t} \left(\frac{1}{2} \dot{q}\right)
+\]
+
+what can we see from this?
+
+
+
+\break
+\printbibliography
+
+\end{document}

@@ -1,0 +1,19 @@
+[[language]]
+name = "python"
+language-id = "python"
+roots = ["pyproject.toml", "setup.py", "poetry.lock", ".git", ".jj", ".venv/"]
+language-servers = ["ruff", "ty"]
+auto-format = true
+formatter = { command = "uv", args = ["run", "ruff", "format", "-" ] }
+file-types = ["py", "ipynb"]
+comment-token = "#"
+shebangs = ["python"]
+
+[language-server.ty]
+command = "uv"
+args = ["run","ty","server"]
+
+[language-server.ruff]
+command = "uv"
+args = ["run","ruff","server"]
+environment = { "RUFF_TRACE" = "messages" }

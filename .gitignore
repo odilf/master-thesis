@@ -1,0 +1,9 @@
+.envrc
+.direnv
+*.pkl
+.cache/
+**/__marimo__/**
+**/__pycache__/**
+.olauth
+*.pdf
+*.egg-info

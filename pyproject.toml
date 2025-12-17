@@ -1,0 +1,59 @@
+[project]
+name = "tfm"
+version = "0.1.0"
+description = "Code for my Master's thesis"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "beartype>=0.22.9",
+    "jax>=0.8.1",
+    "jaxtyping>=0.3.4",
+    "joblib>=1.5.3",
+    "matplotlib>=3.10.8",
+    "pyperclip>=1.11.0",
+    "pyside6>=6.7,<6.9",
+    "sympy>=1.14.0",
+]
+
+[dependency-groups]
+dev = [
+    # "localleaf>=1.1.1",
+    "marimo>=0.18.4",
+    "overleaf-sync",
+    "pdoc>=16.0.0",
+    "platformdirs>=4.5.1",
+    "ruff>=0.14.9",
+    "ty>=0.0.2",
+]
+
+[tool.ruff]
+line-length = 99
+include = ["src/**"]
+exclude = ["notebooks/**"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "I", "RUF", "N", "LOG", "ERA",
+    "W", "D", "UP", "ANN", "ASYNC", "S", "RET", "ARG",
+    "PTH", "DOC"
+    ]
+ignore = [
+    "DOC201", "D401", "D107", "D203", "D212",
+    # Allow non-lowercase variables
+    "N802", "N803", "N806",
+    # Forward-error name in jaxtyping: https://docs.kidger.site/jaxtyping/faq/#flake8-or-ruff-are-throwing-an-error
+    "F722",
+]
+preview = true
+fixable = ["ALL"]
+
+[tool.ty.src]
+include = ["src/**", "notebooks/**"]
+
+[tool.uv.workspace]
+members = [
+    "notebooks",
+]
+
+[tool.uv.sources]
+overleaf-sync = { git = "https://github.com/zzjjzzgggg/overleaf-sync" }
+

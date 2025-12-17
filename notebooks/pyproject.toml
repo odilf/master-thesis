@@ -1,0 +1,20 @@
+[project]
+name = "notebooks"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "odilf", email = "odysseas.maheras@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "pyperclip>=1.11.0",
+    "tfm",
+]
+
+[tool.uv.sources]
+tfm.workspace = true
+
+[build-system]
+requires = ["uv_build>=0.9.15,<0.10.0"]
+build-backend = "uv_build"
