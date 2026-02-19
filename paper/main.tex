@@ -18,7 +18,9 @@
 \begin{document}
 
 \newcommand{\Diff}{\textrm{D}}
+\newcommand{\Dif}{\textrm{D}}
 \newcommand{\diff}{\textrm{d}}
+\newcommand{\dif}{\textrm{d}}
 
 \maketitle
 
@@ -72,6 +74,8 @@ Let's start with a simple example, with a $1$-dimensional state space. The Lagra
 
 \[ L_d (q_0, Q_0, q_1, Q_1) = - \frac{D h \left(Q_{0} - q_{0}\right) \left(\frac{- Q_{0} + Q_{1}}{h} + \frac{- q_{0} + q_{1}}{h}\right)}{2} + \frac{\left(- Q_{0} + Q_{1}\right)^{2}}{2 h} - \frac{\left(- q_{0} + q_{1}\right)^{2}}{2 h} \]
 
+\subsubsection{Non-dissipative case}
+
 We are going to first look at what happens, first, if we solve the non forced equation, pretending we only have the $n$-dimensional (in this case, 1-dimensional) state space. We do this by taking the derivatives with respect to $q$ and $Q$ independently, and by the nature of the construction we obtain the same result. 
 
 \textcolor{red}{En verdad estoy confundido con qué estoy haciendo aquí exactamente. Es verdad que siempre va a salir lo mismo?}
@@ -79,7 +83,9 @@ We are going to first look at what happens, first, if we solve the non forced eq
 The first derivative with respect to $q_0$ is
 
 \[
-\frac{D h \left(\frac{- Q_{0} + Q_{1}}{h} + \frac{- q_{0} + q_{1}}{h}\right)}{2} + \frac{D \left(Q_{0} - q_{0}\right)}{2} - \frac{2 q_{0} - 2 q_{1}}{2 h}
+\frac{1}{h} \left(
+\frac{D h \left(Q_{1} - 2 q_{0} + q_{1}\right)}{2} - q_{0} + q_{1}
+\right)
 \]
 
 The second derivative with respect to $q_0$ is
@@ -88,7 +94,7 @@ The second derivative with respect to $q_0$ is
     - D - \frac{1}{h}
 \]
 
-We get the same with opposite signs for $Q$. Notice that it doesn't depend on $q$ nor $Q$. Therefore, all $\mathcal{D}_k$s and $\mathcal{C}_k$s are going to be identical. Thus, the submatrices we are left with are
+We get the same with opposite signs for $Q$. Notice that it doesn't depend on $q$ nor $Q$. Therefore, all $\mathcal{D}_k$s and $\mathcal{C}_k$s are going to be identical. If we compute $\Dif_{12}$ and $\Dif_{22}$ we are left with submatrices:
 
 \begin{align}    
     \mathcal{D}_k & = - D - \frac{2}{h} \\
@@ -111,10 +117,15 @@ So then, if we construct the matrix and we take a factor of $\frac{D}{2} + \frac
 The inside matrix is negative definite so the whole matrix is positive definite if the factor is negative, i.e., if
 
 \begin{align}
-    \frac{D}{2} + \frac{1}{h} \le 0 \Rightarrow h \le - \frac{2}{D}
+    \frac{D}{2} + \frac{1}{h} & \le 0 \\
+    % h & \le - \frac{2}{D} \\
+    Dh & \le -2
 \end{align}
 
-This makes sense, in the sense that $D$ first needs to be negative to be an actual dissipation force (otherwise the energy (?) exponentially increases and it leads to instability) and, given a negative $D$, $h$ needs to be small enough to be able to capture the ``effect'' of $D$.
+
+This makes sense, in the sense that $D$ first needs to be negative to be an actual dissipation force (otherwise the energy (?) exponentially increases and it leads to instability). However, the timestep needs to be small if the dissipation is small, which does seem a bit weird to me.
+
+\subsubsection{Dissipative case}
 
 Now, if we compute the Hessian using ``extended'' state space, using a $L(q_0, q_1)$-type Lagrangian with inputs, $\begin{pmatrix} q_0 \\ Q_0 \end{pmatrix}$ and $\begin{pmatrix} q_1 \\ Q_1 \end{pmatrix}$. The Hessian is
 
@@ -181,6 +192,49 @@ Again, this is independent of $k$. However, this time it's not so easy to write 
 
 It seems that this matrix, though, is never positive definite.
 
+In fact, in the joint matrix, if we use Sylvester's criterion, the first minor would give the $-D - \frac{2}{h} > 0$ condition which is the one we had in the non-dissipative case ($Dh < -2$); but for the second already you get 
+
+\[\begin{aligned}
+    \left(-D - \frac{2}{h}\right) \left(D + \frac{2}{h}\right) & > 0 \\
+    -\left(D + \frac{2}{h}\right) \left(D + \frac{2}{h}\right) & > 0 \\
+    -\left(D + \frac{2}{h}\right)^2 &> 0 \\
+\end{aligned}\]
+
+which can never happen. Therefore, this matrix is \emph{not} p.d..
+
+\subsubsection{Constrained positive definiteness}
+
+A matrix is p.d. if, for all $x$, $x^T A x > 0$. However, here our $x$s are 
+
+\[
+    \begin{pmatrix}
+        q_0 \\
+        Q_0 \\
+        q_1 \\
+        Q_1 \\
+        q_2 \\
+        Q_2 \\
+        \vdots
+    \end{pmatrix}
+\]
+
+but perhaps we're giving too much freedom to this vector spanning the entirety of $\mathbb{R}^{2n}$, since we only care about solutions where $q_0 = Q_0$. So what if we allow $x$ to be only in $\mathbb{R}^{2n} \land x_{2i} = x_{2i+1}$ for $i = 0, ..., n-1$? 
+
+Let's call these type of matrices \emph{constrained p.d.} or CPD. Is $H$ CPD?
+
+Well, if we carry out this calculation for this matrix on the computer we get this monstrosity...
+
+\[
+\begin{aligned}    
+x_{0} \left(- \frac{D x_{1}}{2} + x_{0} \left(- D - \frac{2}{h}\right) + x_{1} \left(\frac{D}{2} + \frac{1}{h}\right)\right) \\ - x_{0} \left(- \frac{D x_{1}}{2} - x_{0} \left(D + \frac{2}{h}\right) - x_{1} \left(- \frac{D}{2} - \frac{1}{h}\right)\right) \\ - x_{1} \left(\frac{D x_{0}}{2} - \frac{D x_{2}}{2} - x_{0} \left(- \frac{D}{2} - \frac{1}{h}\right) - x_{1} \left(D + \frac{2}{h}\right) - x_{2} \left(- \frac{D}{2} - \frac{1}{h}\right)\right) \\ + x_{1} \left(\frac{D x_{0}}{2} - \frac{D x_{2}}{2} + x_{0} \left(\frac{D}{2} + \frac{1}{h}\right) + x_{1} \left(- D - \frac{2}{h}\right) + x_{2} \left(\frac{D}{2} + \frac{1}{h}\right)\right) \\ - x_{2} \left(\frac{D x_{1}}{2} - \frac{D x_{3}}{2} - x_{1} \left(- \frac{D}{2} - \frac{1}{h}\right) - x_{2} \left(D + \frac{2}{h}\right) - x_{3} \left(- \frac{D}{2} - \frac{1}{h}\right)\right) \\ + x_{2} \left(\frac{D x_{1}}{2} - \frac{D x_{3}}{2} + x_{1} \left(\frac{D}{2} + \frac{1}{h}\right) + x_{2} \left(- D - \frac{2}{h}\right) + x_{3} \left(\frac{D}{2} + \frac{1}{h}\right)\right) \\ - x_{3} \left(\frac{D x_{2}}{2} - x_{2} \left(- \frac{D}{2} - \frac{1}{h}\right) - x_{3} \left(D + \frac{2}{h}\right)\right) \\ + x_{3} \left(
+\frac{D x_{2}}{2} + x_{2} \left(\frac{D}{2} + \frac{1}{h}\right) + x_{3} \left(- D - \frac{2}{h}\right)\right)
+\end{aligned}
+\]
+
+...which turns out to be exactly $0$. This might happen in general when you do this duplicating of dimensions to convert a dissipative problem into a non-dissipative one, because this seems to unlikely.
+
+Still, not constrained positive definite. If anything, constrained semi-positive definite, but really we've just shown that the solution vectors are the null space of this matrix, for some reason. Maybe this is interesting.
+
 \subsection{Time-dependent Lagrangian}
 
 Theoretically, this is all very easy to extend to time-dependent Lagragians, but there are some complications with the indices.
@@ -215,20 +269,30 @@ Given the Hessian components:
 we can compute the big hessian:
 
 \[
-    H(q) = \frac{1}{h} \left[\begin{matrix}
-        2 & -1 & 0 & 0 & 0\\
-        -1 & 2 e^{D} & - e^{D} & 0 & 0\\
-        0 & - e^{D} & 2 e^{2 D} & - e^{2 D} & 0\\
-          & \ddots & \ddots & \ddots \\
-        0 & 0 & - e^{(N-3) D} & 2 e^{(N-2) D} & - e^{(N-2) D}\\
-        0 & 0 & 0 & - e^{(N-2) D} & 2 e^{(N-1) D}
-    \end{matrix}\right]
+    H(q) = \frac{1}{h} \left[\begin{matrix}2 & -1 & 0 & 0 & 0\\-1 & 2 e^{D h} & - e^{D h} & 0 & 0\\0 & - e^{D h} & 2 e^{2 D h} & - e^{2 D h} & 0\\0 & 0 & - e^{2 D h} & 2 e^{3 D h} & - e^{3 D h}\\0 & 0 & 0 & - e^{3 D h} & 2 e^{4 D h}\end{matrix}\right]
 \]
 
 I don't immediately see if this matrix is positive definite.
 
-But what if we look at Sylvester's criterion? Iff every leading principal minor is positive, then the matrix is p.d..
+\subsubsection{Sylvester's criterion}
 
+But what if we look at Sylvester's criterion? Iff every leading principal minor is positive, then the matrix is p.d.. So, we need the following to be positive (skipping the division over power of $h$, since that preserves positivity):
+
+\begin{align*}
+    & 2 \\
+    & 4 e^{D h} - 1 \\
+    & \left(8 e^{D h} - 4\right) e^{2 D h} \\
+    & \left(16 e^{2 D h} - 12 e^{D h} + 1\right) e^{4 D h} \\
+    & \left(32 e^{2 D h} - 32 e^{D h} + 6\right) e^{8 D h} \\
+\end{align*}
+
+\begin{enumerate}
+    \item $2 > 0$ imposes no condition
+    \item $4 e^{D h} - 1 > 0$ implies $D h > \log \frac{1}{4} \approx -1.38$
+    \item $\left(8 e^{D h} - 4\right) e^{2 D h} > 0$ implies $8 e^{D h} - 4 > 0 \Rightarrow D h > \log \frac{1}{2} \approx -0.693$
+\end{enumerate}
+
+From this we see that the converging criteria don't seem to be the same than for the non-dissipative case. There, we needed $Dh \leq -2$, but here we have the equality the wrong way around.
 
 \subsection{Continuous Lagrangian}
 
