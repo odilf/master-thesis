@@ -17,20 +17,37 @@
       ];
       perSystem =
         { pkgs, ... }:
+        let
+          code = [
+            pkgs.pnpm_10
+            pkgs.nodejs_25
+            pkgs.python314
+            pkgs.uv
+            pkgs.watchexec
+          ];
+
+          tex = [
+            pkgs.just
+            pkgs.watchexec
+            pkgs.texlab
+            (pkgs.texlive.combine {
+              inherit (pkgs.texlive)
+                scheme-small
+                biblatex
+                geometry
+                libertinus
+                libertinust1math
+                todonotes
+                ;
+            })
+            pkgs.watchexec
+          ];
+        in
         {
-          devShells.default = pkgs.mkShell {
-            packages = [
-              pkgs.typst
-              pkgs.pnpm_10
-              pkgs.nodejs_25
-              pkgs.python314
-              pkgs.uv
-              pkgs.texlab
-              (pkgs.texlive.combine {
-                inherit (pkgs.texlive) scheme-medium todonotes;
-              })
-              pkgs.watchexec
-            ];
+          devShells = {
+            code = pkgs.mkShell { packages = code; };
+            tex = pkgs.mkShell { packages = tex; };
+            default = pkgs.mkShell { packages = code ++ tex; };
           };
         };
     };

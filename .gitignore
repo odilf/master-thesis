@@ -4,7 +4,4 @@
 .cache/
 **/__marimo__/**
 **/__pycache__/**
-.olauth
-.olcli.json
-*.pdf
 *.egg-info

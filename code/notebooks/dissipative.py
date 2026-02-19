@@ -144,9 +144,12 @@ def _(L, Matrix, Q0, Q1, c, q0, q1, sp):
 
 @app.cell
 def _(Hk_ext, c):
-    Dk_ext = Hk_ext[:2, :2] + Hk_ext[2:, 2:]
+    Ak_ext = Hk_ext[:2, :2]
+    Bk_ext = Hk_ext[2:, 2:]
+    # Dk_ext = Hk_ext[:2, :2] + Hk_ext[2:, 2:]
+    Dk_ext = Ak_ext + Bk_ext
     c(Dk_ext)
-    return (Dk_ext,)
+    return Ak_ext, Bk_ext, Dk_ext
 
 
 @app.cell
@@ -219,14 +222,42 @@ def _(mo):
 @app.cell
 def _(H_ext_big, Matrix, symbols):
     xs = symbols(f"x_{{0:{H_ext_big.shape[0] // 2}}}")
-    x = Matrix([y for x in xs for y in [x, -x]])
+    x = Matrix([y for x in xs for y in [x, x]])
     x
     return (x,)
 
 
 @app.cell
-def _(H_ext_big, c, x):
-    c(x.T * H_ext_big * x)
+def _(H_ext_big, c, simplify, x):
+    c(simplify(x.T * H_ext_big * x))
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Paper criterion
+    """)
+    return
+
+
+@app.cell
+def _(Matrix, symbols):
+    _xs = symbols("x_{0:4}")
+    _x = Matrix(_xs)
+    # simplify(_x.T * Hk_ext * _x)
+    return
+
+
+@app.cell
+def _(Hk_ext):
+    Hk_ext
+    return
+
+
+@app.cell
+def _(Ak_ext, Bk_ext):
+    Bk_ext, Ak_ext
     return
 
 
@@ -298,6 +329,19 @@ def _(simplify):
 @app.cell
 def _(h, hk_big_explicit, silvester_criterion):
     silvester_criterion(hk_big_explicit * h)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ### Explicit lagrangian sufficiency conditions
+    """)
+    return
+
+
+@app.cell
+def _():
     return
 
 

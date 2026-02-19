@@ -1,3 +1,4 @@
+# Code
 [[language]]
 name = "python"
 language-id = "python"
@@ -17,3 +18,36 @@ args = ["run","ty","server"]
 command = "uv"
 args = ["run","ruff","server"]
 environment = { "RUFF_TRACE" = "messages" }
+
+# Paper
+[language-server.typos]
+command = "typos-lsp"
+config.diagnosticSeverity = "Warning"
+
+[language-server.harper-ls]
+command = "harper-ls"
+args = ["--stdio"]
+
+[[language]]
+name = "markdown"
+language-servers = ["typos", "harper-ls", "marksman"]
+
+[[language]]
+name = "typst"
+language-servers = ["tinymist", "typos"]
+formatter = ["typstyle"]
+
+[language-server.tinymist]
+command = "tinymist"
+
+[language-server.tinymist.config]
+exportPdf = "onSave"
+rootPath = "./paper"
+typstExtraArgs = ["entrypoint.typ"]
+outputPath = "$root/build/paper-debug.pdf"
+preview.background.enabled = true
+preview.background.args = ["--data-plane-host=127.0.0.1:23635", "--invert-colors=never", "--open"]
+
+# [language-server.harper-ls.config.harper-ls.linters]
+# SpelledNumbers = true
+# BoringWords = false

@@ -52,14 +52,14 @@ def _(N, T, jnp, plt):
 
 
 @app.cell
-def _(LagrangianZermelo, q_initial):
-    LagrangianZermelo(h=0.638).converges_strong(q_initial)
+def _():
+    # LagrangianZermelo(h=0.638).converges_strong(q_initial)
     return
 
 
 @app.cell
-def _(LagrangianZermelo, q_initial):
-    LagrangianZermelo(h=0.637).converges_strong(q_initial)
+def _():
+    # LagrangianZermelo(h=0.637).converges_strong(q_initial)
     return
 
 

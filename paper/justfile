@@ -1,0 +1,5 @@
+watch:
+    watchexec -e tex lualatex main.tex -output-directory build
+
+open:
+    xdg-open build/main.pdf
