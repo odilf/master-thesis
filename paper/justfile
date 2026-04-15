@@ -1,5 +1,8 @@
+[parallel]
+watch-open: watch open
+    
 watch:
-    watchexec -e tex lualatex main.tex -output-directory build
+    watchexec -e tex latexmk -pdf main.tex
 
 open:
-    xdg-open build/main.pdf
+    xdg-open build/main.pdf &> /dev/null

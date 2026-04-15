@@ -1,52 +1,34 @@
-\documentclass{article}
+\input{uc3m-preamble.tex}
+
 \usepackage{graphicx}
-\usepackage{todonotes}
-\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{derivative}
 
-\usepackage[T1]{fontenc}
-% \usepackage{libertinus,libertinust1math}
+\usepackage{soul}
+\definecolor{lightblue}{rgb}{.90,.95,1}
+\sethlcolor{lightblue}
 
-\usepackage[a4paper, total={6.5in, 9.5in}]{geometry}
-
-\usepackage[style=alphabetic]{biblatex}
-\addbibresource{./references.bib}
-
-\title{Parallel geometric integrators in forced systems and Lie groups.}
+\title{Parallel variational integrators in forced systems and Lie groups.}
 \author{}
 \date{June 2026}
 
 \begin{document}
-\include{utils}
+\pagenumbering{roman}
 
-\maketitle
+\input{frontmatter/main.tex}
 
-\tableofcontents
+\clearpage
+\pagenumbering{arabic}
 
-\newpage
-
-\section{Introduction}
-
-In the Lagrangian formulation of physics, possible trajectories of a system in a configuration space ($q(t) \in Q$) are given as the stationary points of the action, defined as $S =\int L(q(t), \dot{q}(t)) \dif t$. Of course, it's often nice to work analytically with these equations. In practice, however, the Lagrangian is either too complicated or fundamentally numerical-based. These cases are untractable to handle analytically, so it's very common to instead find approximations numerically.
-
-In \autoref{sec:background} we summarize geometric integration methods which can preserve geometric properties of the configuration manifold, and showcase an algorithm to carry out the computations efficiently and in parallel. Then, we explain how to generalize this method and algorithm to forced systems in \autoref{sec:forced-systems} and to Lie groups in \autoref{sec:lie-groups}.
-
-\section{Background} \label{sec:background}
-
-\subsection{Euler-Lagrange equations}
-\subsection{Discrete Euler-Lagrange equations}
-\subsection{Parallel algorithm}
-
-This algorithm is shown in \cite{ferraroParallelIterativeMethod2025}.
-
-\section{Forced systems} \label{sec:forced-systems}
-\subsection{Convergence}
-\subsection{Examples}
-
-\section{Lie groups} \label{sec:lie-groups}
-\subsection{Convergence}
-\subsection{Examples}
+\input{body/main.tex}
 
 \newpage
+\addcontentsline{toc}{chapter}{Bibliography}
 \printbibliography
+
+\chapter* {Annex A. Additional mathematical results}
+\label{apx:additional-mathematical-results}
+\pagenumbering{gobble}
 
 \end{document}

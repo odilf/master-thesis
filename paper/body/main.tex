@@ -1,0 +1,185 @@
+\include{utils}
+
+\chapter{Introduction}
+
+In the Lagrangian formulation of physics, possible trajectories of a system in a configuration space ($q(t) \in Q$) are given as the stationary points of the action, defined as $S =\int L(q(t), \dot{q}(t)) \odif{t}$. Of course, it's often nice to work analytically with these equations. In practice, however, the Lagrangian is either too complicated or fundamentally numerical-based. These cases are untractable to handle analytically, so it's very common to instead find approximations numerically.
+
+The aim of this paper is to \begin{itemize}
+	\item explain discretization approaches to the Euler-Lagrange equations
+	\item showcase a parallel algorithm to compute numerical solutions for discrete Euler-Lagrange equations
+	\item showcase how to extend the parallel algorithm to forced systems and Lie groups
+\end{itemize}
+
+This paper is meant to be a motivated introduction to numerical computations of Euler-Lagrange equations. Specifically, on the computational side, to parallel algorithms; and on the mathematical side, to forced systems and Lie groups. Most of the concepts and results showcased in the paper are not novel, except for the convergence criteria in \autoref{sec:forced-systems-convergence} and \ref{sec:lie-groups-convergence}
+
+\todo{Write about that a computer scientist should be able to implement this algorithm by reading the paper.}
+\todo{Write about how this is meant to be a motivated introduction to Lagrangian systems.}
+
+In \autoref{sec:background} we summarize variational integration methods which can preserve geometric properties of the configuration manifold, and showcase an algorithm to carry out the computations efficiently and in parallel. Then, we explain how to generalize this method and algorithm to forced systems in \autoref{sec:forced-systems} and to Lie groups in \autoref{sec:lie-groups}.
+
+\chapter{Theoretical Background}
+\label{sec:background}
+
+\section{Basic mathematical notions}
+
+In this section we give a brief overview of the mathematical tools that will be used, as well as clarification on the meaning of certain terms (like ``smooth''). This paper is not meant to be an introduction to the mathematical tools used, so some familiarity with smooth manifold and Lie groups/algebras from the reader would be useful. However, as explained in the introduction, it is meant to be a motivated introductions as to \emph{why} we would choose to apply these tools in this way. 
+
+Whenever a new term is introduced, it is \newterm{highlighted like this}. Additional results used occasionally in the paper are available in \autoref{apx:additional-mathematical-results}.
+
+\section{Physical systems, configuration space and Lagrangians}
+
+A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we are always going to use the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
+
+ The simplest (and likely most common) example of a configuration space is $\RR^n$. A models with an uncontrained particle would use $\RR^3$ as the configuration space, or $\RR^{3N}$ for $N$ particles. However, the configuration space being a more general manifold can encode constraints about periodicity, topology or other types of global constraints. For instance, one can try to encode the state of a pendumul with $\RR^1$, using the angle as a number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are clearly different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity, and also reveals facts such as the configuration space being compact, which $\RR$ is not.
+
+Another example to illuminate why having different manifolds as configuration spaces is useful is $SO(3)$ (or in general $SO(n)$). Since $SO(3)$ has an isomorphism with $\RR^3$ \tc it might be tempting to use $\RR^3$ directly as the configuration space, but doing this not only loses the geometry of $SO(3)$, but it also \emph{adds} new geometric structure that is sensless when interpted as elements of $SO(3)$. Specifically, $\RR^3$ is a vector space and $SO(3)$ is not!
+
+\newcommand{\action}{\mathfrak{G}}
+
+On the other hand, the Lagrangian encodes the laws of the physical system by governing how states in $Q$ evolve. Namely, we can talk about \newterm{paths} in configuration space $q(t): [0, T] \to Q \in C^2([0, T], Q)$ which define the \newterm{path space of $Q$}, $\mathcal{C}(Q) = C^2([0, T], Q)$. Not all paths are realizable in the physical system, and in fact a path can only occur if it extremizes the \newterm{action} $\action: C(Q) \to \RR$, defined as:
+
+\begin{equation}
+	\action(q) = \int_0^T L(q(t), \dot{q}(t)) \dif t.
+\end{equation}
+
+% We can define the \newterm{second order sub-manifold} of $T(TQ)$ as
+
+% \[
+% 	\ddot{Q} = { \ddot{q} = (q, \dot{q}, \ddot{q}) : \pi_{T(TQ)} = T \pi_{TQ} \subset T(TQ) }.
+% \]
+
+% What this does is filter elements of $T(TQ)$ to be possible trajectories. That is, if $Q$ has elements $q \in Q$, and $TQ$ has elements $(q, v) \in Q$ (where $v$ can be thought of as velocity), then $T(TQ)$ has elements $w = ((q, v), (\dot{q}, \dot{v})) \in T(TQ)$ and the condition $T_{\pi_Q} (w) = \pi_{TQ} (w)$ translates to
+
+% \begin{align*}
+% 	T_{\pi_Q} (w) &= \pi_{TQ} (w) \\
+% 	T_{\pi_Q} (((q, v), (\dot{q}, \dot{v}))) &= \pi_{TQ} (((q, v), (\dot{q}, \dot{v}))) \\
+% 	(q, \dot{q}) &=  (q, v) \\
+% \end{align*}
+
+% that is, that the velocity should be equal to the rate of change of the path, which is what we want. \todo{lolazo.}
+
+% Then, we can take the \newterm{action} of a path $q(t): [0, T] \to Q \in C^2([0, T])$ by integrating the Lagrangian:
+
+
+While the above definition is enought to model any closed system, sometimes it's more practical to model some open part of a larger system. For instance, we might want to model some pressure \todo{how to say ``stuff about temperature''??} dynamics in a box that loses a non-neglible amount of heat. Techinically, the box and the environment together formed a closed form system, but it would be nice to have a physical model for just the box.
+
+Cases like these are where a \newterm{time-dependent Lagrangian} can be useful. We can define a Lagrangian as $L(t, q, \dot{q}): \RR \times TQ \to \RR$, where the first argument is interpreted as a time parameter. This can be thought of as a system where the effective laws of physics change over time. In the example of the heat radiating box, as time advances there is a loss of energy. \todo{write out specific example.}
+
+\section{Euler-Lagrange equations}
+
+The paths that extremize the action are the paths occur in a physical system. we can find these extrema by taking a variation of the action and equating it to $0$. Namely, we consider paths $q(t) + \delta q(t)$, where $\delta q(0) = \delta q(T) = 0$. Then, we define the variation of the action $\delta S(q)$ as the linear term of $S(q + \delta q)$ with respect to $\delta q$. If we apply this to the action, we get:
+
+\begin{align*}	
+	\delta S(q) &= \delta \int_0^T L(q(t), \dot{q}(t)) \dif t \\
+	& = \int_0^T \left(\frac{\partial L}{\partial q} \delta q + \frac{\partial L}{\partial \dot{q}} \delta \dot{q}\right) \dif t \\
+	\text{\faint{(by parts)}} \quad & = \int_0^T \left(\frac{\partial L}{\partial q} \delta q - \frac{\dif}{\dif t}\frac{\partial L}{\partial \dot{q}} \delta q \right) \dif t + \frac{\partial L}{\partial \dot{q}} \underbrace{\delta q \big|_0^T}_{0} \\
+	& = \int_0^T \left(\frac{\partial L}{\partial q} - \frac{\dif}{\dif t}\frac{\partial L}{\partial \dot{q}} \right) \delta q \, \dif t \\
+\end{align*}
+and for this to hold given any variation $\delta q$, we need the integrand to be identically $0$. This is how we derive the Euler-Lagrange equation:
+
+\begin{equation}
+	\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} = 0
+	\label{eq:euler-lagrange}
+\end{equation}
+
+Computing the relevant derivatives of the Lagrangian provides us with a second order differential equation with respect to $q(t)$. A path that satisfies this differential equation is a path that can occur in the system.
+
+In general, we can define the \emph{Euler-Lagrange map} $D_\text{EL} L: \ddot{Q} \to T^*Q$ as
+
+\[ D_\text{EL} L = \pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \]
+
+and the realizable paths are those such that $D_\text{EL} L(q) = 0$
+
+ We can try to solve this ODE analytically; but often, numerical methods are used, because it is intractable to do solve it analytically (either because the Lagrangian is too large, or the Lagragian is computed based on some numerical, often real-life, data). In the next section we discuss approaches to discretizing and solving numerically the Euler-Lagrange equations. This is the topic of \autoref{sec:discretization-euler-lagrange}.
+
+\chapter{Discretization and numerical computation of Euler-Lagrange solutions}
+\label{sec:discretization-euler-lagrange}
+
+Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange (\autoref{eq:euler-lagrange}), and then use some numerical ODE computation scheme based on the underlying type of manifold. For example if $Q = \RR^n$ (or is, in general, a vector space) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaan.
+
+However, discretization the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the geometric information of the configuration manifold $Q$. These will be explained in \autoref{sec:pitfalls-discrete-el-ode}.
+
+Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration} \todo{is it?} will be explained in \autoref{sec:discretizing-configuration-space}
+
+But, to understand the tradeoffs between the approaches, we first need to examine some important geometric properties Euler-Lagrange.
+
+\section{Geometric properties Euler-Lagrange}
+
+These are discussed more in depth in \cite[Chapter 1.2]{marsden_discrete_2001}.
+
+\subsubsection{Simpleticity}
+
+Given a Lagrangian $L: TQ \to \RR$, we can define the \newterm{Lagrangian vector field} $X_L: TQ \to T(TQ)$ as the second order vector field that satisfies:
+
+\[
+	D_{EL} L \circ X_L = 0
+\]
+
+\subsubsection{Preservation of momentum maps}
+
+
+\section{Pitfalls of discretizing the Euler-Lagrange ODE}
+\label{sec:pitfalls-discrete-el-ode}
+
+The fundamental problem of integrating numerically the Euler-Lagrange ODE is, essentially, that we lose the geometry of the configuration manifold $Q$. The numerical inaccuracies can ``go out'' of what should be possible in $Q$ and keep degenerating since there is no correction mechanism.
+
+Let's look at an example. 
+
+\todo{Talk about how energy goes down.}
+
+\section{Discretizing the configuration space}
+\label{sec:discretizing-configuration-space}
+
+The alternative of discretizing and solving numerically the ODE that results from applying the Euler-Lagrange equations is to directly work on a discretized version of $TQ$. A discretization requires a step $h$, so we indicate that the discrete version of $TQ$ with step $h$ is $(TQ)_h$. The map that discretizes the space has therefore signature $D: \RR -> TQ -> (TQ)_h$, and we can speak about a the map that discretizes a space using some specific step $h$ as $D_h: TQ \to (TQ)_h = D(h)$.
+
+And now, to actually define how the discretization works, the discrete analog of $TQ$ is given by $Q \times Q$, where a point $(q, v) \in Q$ is discretized as $(q_0, q_1) \in Q \times Q$, where $q(0) = q_0$ and $q(h) = q_1$. So, $TQ_h = (h, Q \times Q)$. \footnote{In the literature it is more common to directly define that the discretization of $TQ$ as exactly $Q \times Q$, and then pass a parameter $h$ to all relevant objects. While, in the end, both approaches are isomorphic in the sense that they describe the same system, passing around the parameter $h$ allows for mismatches that don't have any meaning. Here, the parameter is embedded in the discretization, in a way where $L_d (0.1)$ acts on a \emph{different space} than $L_d(0.5)$, for instance. Of course, the two spaces are isomorphic, but you would need to convert one to the other, which makes explicit this conversion. This distinction is essentially the difference between nominal and structural types in type theory \tc. We have decided to go with the nominal approach to increase clarity.}
+
+Then, we can talk about the \newterm{discrete path space} $\mathcal{C}_d (Q)$, which is now:
+
+\[
+	\mathcal{C}_d (Q) = \{ q_d : \{t_k\}_{k=0}^N \to Q \}
+\]
+
+For the case of $\RR^n$, we have that $T \RR^n = \RR^{2n}$
+
+\todo{fill in}
+
+Up to this point, there is no information loss. In fact, if we defined an exact discrete Lagragian as
+
+\begin{equation}
+	L_d^e (q_0, q_1, h) = \int_0^h L(q_{0, 1}(t), \dot{q}_{0, 1}(t)) \odif{t}
+\end{equation}
+
+Finally, the discrete Euler-Lagrange equations become:
+
+\begin{equation}
+	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0
+	\label{eq:discrete-euler-lagrange}
+\end{equation}
+
+\section{Parallel algorithm}
+
+In \cite{ferraro_parallel_2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The idea is to treat the (discrete) action as a function of which we want to find roots. We start with a guess, which is likely not very close to $0$, but we use some algorithm to iteratively get closer to the root.
+
+% To be more concrete, given a path ${}
+
+
+\chapter{Forced systems}
+\label{sec:forced-systems}
+
+
+
+\section{Convergence}
+\label{sec:forced-systems-convergence}
+
+\section{Examples}
+
+\chapter{Lie groups}
+\label{sec:lie-groups}
+
+\section{Convergence}
+\label{sec:lie-groups-convergence}
+
+\section{Examples}
+
+

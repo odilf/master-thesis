@@ -2,3 +2,4 @@
 .olcli.json
 *.pdf
 build
+template/

@@ -1,0 +1,5 @@
+[language-servers.texlab.config.build]
+logDirectory = "build"
+auxDirectory = "build"
+pdfDirectory = "build"
+
