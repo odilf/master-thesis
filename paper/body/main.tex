@@ -30,6 +30,8 @@ Whenever a new term is introduced, it is \newterm{highlighted like this}. Additi
 
 A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we are always going to use the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
 
+\todo{try with: Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, having manifolds with some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states.}
+
  The simplest (and likely most common) example of a configuration space is $\RR^n$. A models with an uncontrained particle would use $\RR^3$ as the configuration space, or $\RR^{3N}$ for $N$ particles. However, the configuration space being a more general manifold can encode constraints about periodicity, topology or other types of global constraints. For instance, one can try to encode the state of a pendumul with $\RR^1$, using the angle as a number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are clearly different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity, and also reveals facts such as the configuration space being compact, which $\RR$ is not.
 
 Another example to illuminate why having different manifolds as configuration spaces is useful is $SO(3)$ (or in general $SO(n)$). Since $SO(3)$ has an isomorphism with $\RR^3$ \tc it might be tempting to use $\RR^3$ directly as the configuration space, but doing this not only loses the geometry of $SO(3)$, but it also \emph{adds} new geometric structure that is sensless when interpted as elements of $SO(3)$. Specifically, $\RR^3$ is a vector space and $SO(3)$ is not!
@@ -64,6 +66,8 @@ On the other hand, the Lagrangian encodes the laws of the physical system by gov
 While the above definition is enought to model any closed system, sometimes it's more practical to model some open part of a larger system. For instance, we might want to model some pressure \todo{how to say ``stuff about temperature''??} dynamics in a box that loses a non-neglible amount of heat. Techinically, the box and the environment together formed a closed form system, but it would be nice to have a physical model for just the box.
 
 Cases like these are where a \newterm{time-dependent Lagrangian} can be useful. We can define a Lagrangian as $L(t, q, \dot{q}): \RR \times TQ \to \RR$, where the first argument is interpreted as a time parameter. This can be thought of as a system where the effective laws of physics change over time. In the example of the heat radiating box, as time advances there is a loss of energy. \todo{write out specific example.}
+
+Another extension to the Lagrangian are forced systems, which are non-trivial. Forced Lagrangian systems are one of the main topics of this paper, explores in \autoref{sec:forced-systems}. Other extensions that can be considered but weren't in this paper are constrained Lagrangian systems and higher order Lagrangians (even though, in principle, any result of a $2$-order Lagrangian can be applied to a Lagrangian of arbitrary order \todo{igual este remark sobra}).
 
 \section{Euler-Lagrange equations}
 
@@ -105,7 +109,7 @@ But, to understand the tradeoffs between the approaches, we first need to examin
 
 \section{Geometric properties Euler-Lagrange}
 
-These are discussed more in depth in \cite[Chapter 1.2]{marsden_discrete_2001}.
+These are discussed more in depth in \cite[Chapter 1.2]{marsdenDiscreteMechanicsVariational2001}.
 
 \subsubsection{Simpleticity}
 
@@ -154,28 +158,158 @@ Finally, the discrete Euler-Lagrange equations become:
 
 \begin{equation}
 	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0
-	\label{eq:discrete-euler-lagrange}
+	\label{eq:euler-lagrange-discrete}
 \end{equation}
 
 \section{Parallel algorithm}
 
-In \cite{ferraro_parallel_2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The idea is to treat the (discrete) action as a function of which we want to find roots. We start with a guess, which is likely not very close to $0$, but we use some algorithm to iteratively get closer to the root.
+\todo{write about the unsuitability of sequantially getting the path, in \cite{ferraroParallelIterativeMethod2025} after def 2.4}
 
-% To be more concrete, given a path ${}
+In \cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The idea is to treat the (discrete) action as a function of which we want to find roots. We start with a guess, which is likely not very close to $0$, but we use some algorithm to iteratively get closer to the root.
+
+\todo{Use some command to write out discrete Lagrangians}
+
+To be more concrete, given a path $\mathbf{q} = \{q_k\}_{k=0}^N$ and a discrete Lagrangian $\text{Ld}_h : G \times G \to \RR$, we calculate the residual of the DEL equations:
+
+\[
+	r(\mathbf{q}) = \sum_{k=1}^{N-1} 
+	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0
+\]
+
+Then, we can make a Jacobi update step to get a new path $\bar{\mathbf{q}} = \{ \bar{q}_k \}_{k=0}^N$ which has a smaller residual. Under certain conditions, this algorithm can produce path with an arbitrarily low residual.
+
+Each point $q_k$ in $\mathbf{q}$ contributes to the residual as:
+
+\[
+	r_k(\mathbf{q}) = \mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})
+\]
+
+And, we can find a new path $\bar{\mathbf{q}} = \{ \bar{q}_k \}_{k=1}^{N-1}$ by using the update:
+
+\begin{equation}
+	\mdif{2} L_d (q_{k-1}, \bar{q_k}) + \mdif{1} L_d (\bar{q_k}, q_{k+1}) = 0
+	\tag{Jacobi}
+	\label{eq:jacobi}
+\end{equation}
+and the endpoints are kept fixed at $q_0 = \bar{q}_0$ and $q_N = \bar{q}_N$. Essentially, this will give $N-2$ equations for the $N-2$ inner points, which we can solve with any linear solver. Crucially, each $q_k \to \bar{q}_k$ update is made taking into account only the original path $\mathbf{q}$, so all updates can be calculated in parallel.
+
+Now, how do we calculate the value $\bar{q}_k$ that satisfies \autoref{eq:jacobi}? Given a Lagrangian, we can evaluate if it is possible to find an anaytical solution in general. However, it would be nicer to find a solution in general for problems that have a certain kind of structure.
+
+In \cite{ferraroParallelIterativeMethod2025}, the structure they assume is that $Q$ is a vector space. Then, instead of trying to find the exact solution, they do a Newton-Raphson step, which is the exact solution of the linear approximation of the problem. The resulting update step is the following:
+
+\begin{equation}
+	(\mdif{22} \text{Ld}_h (q_{k-1}, q_k) + \mdif{11} \text{Ldhttps://github.com/retorquere/zotero-better-bibtex/releases/download/v9.0.19/zotero-better-bibtex-9.0.19.xpi}_h (q_k, q_{k + 1}))(\mdif{2} \text{Ld}_h (q_{k-1}, q_k) + \mdif{1} \text{Ld}_h (q_k, q_{k + 1}))\tag{Jacobi-Newton}
+	\label{eq:jacobi-newton-update}
+\end{equation}
+
+The convergence criteria is also analyzed, and we get the following:
+
+\todo{Write out convergence criteria}
+
+
 
 
 \chapter{Forced systems}
 \label{sec:forced-systems}
 
+Forced systems generally appear as a specific type of constraint in constrained systems (e.g., )
+What if we modify the Euler-Lagrange equations to have a new term?
 
+\begin{equation}
+	\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} + F(q, \dot{q}) = 0
+\end{equation}
+
+This is a \newterm{forced system}.
+
+In \cite{marsdenDiscreteMechanicsVariational2001}, they show forced systems as a variation/specific case of \newterm{constrained systems} \todo{but I think we are not going to do this here.}
+
+The discretization of a forced system results in the discrete Euler-Lagrange equations as:
+
+\[
+	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = F(q_{k-1}, q_k, q_{k+1})
+\]
+
+\[ L_d : Q \times Q \to \RR \]
+
+\[ \mdif{2} L_d : Q \times Q \to T_{q_k} \RR \]
+
+where $F: Q \times Q \times Q \to \RR$
 
 \section{Convergence}
 \label{sec:forced-systems-convergence}
 
 \section{Examples}
 
+
+
+
+
+
+
+
+
+
+
 \chapter{Lie groups}
 \label{sec:lie-groups}
+
+In this section we are going to examine what happens to the parallel algorithm when $Q$ is a \newterm{Lie group}. In the previous sections, we were assuming that $Q$ had a vector space structure, but here we are going to lift that restriction and only require a more elemental kind of structure: for $Q$ to be a group.
+
+Precisely, a Lie group $G$ is a smooth manifold that is also a group under some operation $\cdot : G \times G \to G$. Technically, vector spaces are Lie groups so $\RR^n$ is a Lie group, but the classical examples of Lie groups are not vector spaces, such as $S_1$, $SO(3)$, $SO(n)$ and $SE(n)$.
+
+The key of Lie groups is that you can move to the \newterm{Lie algebra}, which \emph{is} a vector space, and in the vector space we can apply a familiar method.
+
+\todo{Explain how the group method can be applied to $\RR^n$.}
+
+Namely, the Jacobi update step in a vector space consisted of
+
+\[
+	\mdif{2} L_d (g_{k-1}, \bar{g_k}) + \mdif{1} L_d (\bar{g_k}, g_{k+1}) = 0
+\]
+
+Notice that the objects being added are real numbers, not Lie groups, so this equation is still well-defined. The trouble is that solving this is not straightforward. In the parallel method, we applied one or more Newton-Raphson steps, but that only works for linear spaces.
+
+At this point, we proceed similarly to how we proceed when generalizing FEM to Lie groups. We can come up with some scheme that works directly with Lie groups, or we can do some manipulation to work in the Lie algebra, where the original methods are known and well-studied. Here, we are choosing the latter. That is, we are going to apply Newton-Raphson steps in the Lie algebra, and move the result back to the original Lie group.
+
+Given a discrete Lagrangian $\text{Ld}_h (g_k, g_{k + 1})$ applied to Lie groups we can construct a discrete Lagrangian $\text{Ld}_h^\text{alg} (\xi_k, \xi_{k+1})$ that is applied to the corresponding Lie algebra:
+
+\begin{equation}
+	\text{Ld}_h^\text{alg} (\xi_k, \xi_{k+1}) = \text{Ld}_h (\exp(\xi_k), \exp(\xi_{k+1}))
+\end{equation}
+
+Now, $\xi_k \in \mathfrak{g}$, which is a vector space, so the Jacobi step can be directly applied. The question is how to convert to and from the Lie algebra.
+
+To actually work with $\text{Ld}_h^\text{alg}$, we need to have one more restriction, which that the Lagrangian needs to be invariant. Specifically, the Lagrangian is \newterm{left-invariant} if, for all $f \in G$,
+
+\[ \text{Ld}_h (g_k, g_{k + 1}) = \text{Ld}_h (f g_k, f g_{k + 1}) \]
+
+so, effectively, $\text{Ld}_h (g_k, g_{k + 1})$ depends only on $g_k^{-1} g_{k+1}$. Using the symmetry interpretation of groups, this encodes that the Lagrangian is symmetric over the symmetry of the group in question. For example, in $SO(3)$, this means that the Lagrangian has no preference of one initial orientation over another.
+
+This lets us write the \newterm{reduced discrete Lagrangian}, only depending on one element:
+
+\begin{equation}
+	\ell(f_k = g_k^{-1} g_{k +1}) = \text{Ld}_h (g_k, g_{k + 1})
+\end{equation}
+
+This $f_k$ is a quotient. In the method, we are going to generate a sequence of quotients, which we can apply to any initial condition to get a path of elements $\mathbf{g} = \{g_k\}$.
+
+In \cite[Theorem 2.1]{marsdenDiscreteEulerPoincareLiePoisson1999} \todo{this is actually for right-invariant systems}, we see that the discrete Euler-Lagrange equations can be applied specifically for left-(or right-)invariant Lie groups as
+
+\begin{equation}
+	-\ell' (f_{k-1}) \text{Ad}_{f_{k-1}} TR_{f_{k-1}} + \ell' (f_k) TR_{f_k} = 0
+	\tag{DEP}
+	\label{eq:euler-poincare-discrete}
+\end{equation}
+these are the \newterm{discrete Euler-Poincaré} equations. If a sequence $\mathbf{f}$ satisfies these equations, then any sequence $\mathbf{g}$ derived from $\mathbf{f}$ satisfies the original discrete Euler-Lagrange equations.
+
+Then, we can write the \newterm{reduced discrete Lagrangian} in the Lie algebra as:
+
+\[
+	\ell^\text{alg} (\xi) = \text{Ld}_h (e, \exp(\xi))
+\]
+
+
+
 
 \section{Convergence}
 \label{sec:lie-groups-convergence}

@@ -1,7 +1,4 @@
 .envrc
 .direnv
-*.pkl
-.cache/
-**/__marimo__/**
-**/__pycache__/**
-*.egg-info
+.stfolder
+.stignore
