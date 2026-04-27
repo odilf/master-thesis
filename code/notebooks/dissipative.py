@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.18.4"
+__generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
 
@@ -23,6 +23,7 @@ def _():
     )
     import marimo as mo
     import pyperclip
+
     return (
         BlockMatrix,
         Matrix,
@@ -43,6 +44,7 @@ def _():
 def _():
     from lagrangian.dissipative import Standardized, SimpleDissipativeLagrangian
     from lagrangian import snapshot
+
     return SimpleDissipativeLagrangian, Standardized, snapshot
 
 
@@ -51,6 +53,7 @@ def _(latex, pyperclip):
     def c(expr):
         pyperclip.copy(latex(expr))
         return expr
+
     return (c,)
 
 
@@ -68,7 +71,7 @@ def _(SimpleDissipativeLagrangian, latex, mo, symbols):
         lambda _: print(latex(L)), tooltip="Copy as LaTeX", label="Copy"
     )
     mo.hstack(
-        [mo.md(f"\[ {latex(L)} \]"), button], justify="center", align="center"
+        [mo.md(f"\\[ {latex(L)} \\]"), button], justify="center", align="center"
     )
     return D, L, Q0, Q1, Qk, Qkm1, Qkp1, h, q0, q1, qk, qkm1, qkp1
 
@@ -113,6 +116,7 @@ def _(BlockMatrix, ZeroMatrix, k):
                 for j in range(n)
             ] for i in range(n)
         ])
+
     return (build_big_hessian,)
 
 
@@ -323,6 +327,7 @@ def _(Ck_explicit, Dk_explicit, Matrix, build_big_hessian, c, h):
 def _(simplify):
     def silvester_criterion(matrix, n=None):
         return [simplify(matrix[:i+1, :i+1].det()) for i in range(matrix.shape[0] if n is None else n)]
+
     return (silvester_criterion,)
 
 
