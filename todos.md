@@ -22,6 +22,7 @@
     - [ ] La h me parece muy inelegante. No debería estar incluida en la discretización QxQ? En plan, si la discretización y la h que se pasa a L_d no son iguales, estamos jodidos?
     - [ ] En general me he rallado un poco con los detalles de la discretización
     - [ ] Como es que QxQ es (localmente) isomorpho a TQ? O sea, si, tienen la misma dimension localmente, pero no veo cual sería la transformación en sí.
+    - [ ] Como se relaciona el Lagrangiano discreto al real en cuanto a solutiones? Una solucion del lagrangiano real siempre pasara por los puntos de una solución del discreto? Si no, cómo de lejos puede estar?
   - Sistemas forzados:
     - [ ] Porqué no puedes meter la fuerza en el Lagrangiano?
   - Grupos de Lie:
