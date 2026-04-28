@@ -4,5 +4,10 @@ watch-open: watch open
 watch:
     watchexec -e tex latexmk -pdf main.tex
 
+[linux]
 open:
-    xdg-open build/main.pdf &> /dev/null
+    xdg-open .build/main.pdf &> /dev/null
+
+[macos]
+open:
+    open .build/main.pdf

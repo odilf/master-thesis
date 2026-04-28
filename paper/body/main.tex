@@ -1,5 +1,3 @@
-\include{utils}
-
 \chapter{Introduction}
 
 In the Lagrangian formulation of physics, possible trajectories of a system in a configuration space ($q(t) \in Q$) are given as the stationary points of the action, defined as $S =\int L(q(t), \dot{q}(t)) \odif{t}$. Of course, it's often nice to work analytically with these equations. In practice, however, the Lagrangian is either too complicated or fundamentally numerical-based. These cases are untractable to handle analytically, so it's very common to instead find approximations numerically.
@@ -67,7 +65,7 @@ While the above definition is enought to model any closed system, sometimes it's
 
 Cases like these are where a \newterm{time-dependent Lagrangian} can be useful. We can define a Lagrangian as $L(t, q, \dot{q}): \RR \times TQ \to \RR$, where the first argument is interpreted as a time parameter. This can be thought of as a system where the effective laws of physics change over time. In the example of the heat radiating box, as time advances there is a loss of energy. \todo{write out specific example.}
 
-Another extension to the Lagrangian are forced systems, which are non-trivial. Forced Lagrangian systems are one of the main topics of this paper, explores in \autoref{sec:forced-systems}. Other extensions that can be considered but weren't in this paper are constrained Lagrangian systems and higher order Lagrangians (even though, in principle, any result of a $2$-order Lagrangian can be applied to a Lagrangian of arbitrary order \todo{igual este remark sobra}).
+Another extension to the Lagrangian are forced systems, which are non-trivial. Forced Lagrangian systems are one of the main topics of this paper, and explored in \autoref{sec:forced-systems}. Other extensions that can be considered but weren't in this paper are constrained Lagrangian systems and higher order Lagrangians (even though, in principle, any result of a $2$-order Lagrangian can be applied to a Lagrangian of arbitrary order \todo{igual este remark sobra}).
 
 \section{Euler-Lagrange equations}
 
@@ -134,71 +132,83 @@ Let's look at an example.
 \section{Discretizing the configuration space}
 \label{sec:discretizing-configuration-space}
 
-The alternative of discretizing and solving numerically the ODE that results from applying the Euler-Lagrange equations is to directly work on a discretized version of $TQ$. A discretization requires a step $h$, so we indicate that the discrete version of $TQ$ with step $h$ is $(TQ)_h$. The map that discretizes the space has therefore signature $D: \RR -> TQ -> (TQ)_h$, and we can speak about a the map that discretizes a space using some specific step $h$ as $D_h: TQ \to (TQ)_h = D(h)$.
+The discrete analog of continuous paths $q(t) : \RR \to TQ$ are sequences of points in $Q$. Generally, we like to work  Then, the discrete analog of the Lagrangian $L_d$ takes two consecutive points instead of one point in $TQ$.
 
-And now, to actually define how the discretization works, the discrete analog of $TQ$ is given by $Q \times Q$, where a point $(q, v) \in Q$ is discretized as $(q_0, q_1) \in Q \times Q$, where $q(0) = q_0$ and $q(h) = q_1$. So, $TQ_h = (h, Q \times Q)$. \footnote{In the literature it is more common to directly define that the discretization of $TQ$ as exactly $Q \times Q$, and then pass a parameter $h$ to all relevant objects. While, in the end, both approaches are isomorphic in the sense that they describe the same system, passing around the parameter $h$ allows for mismatches that don't have any meaning. Here, the parameter is embedded in the discretization, in a way where $L_d (0.1)$ acts on a \emph{different space} than $L_d(0.5)$, for instance. Of course, the two spaces are isomorphic, but you would need to convert one to the other, which makes explicit this conversion. This distinction is essentially the difference between nominal and structural types in type theory \tc. We have decided to go with the nominal approach to increase clarity.}
+\[ L: TQ \to \RR \Rightarrow L_d : Q \times Q \to \RR \]
 
-Then, we can talk about the \newterm{discrete path space} $\mathcal{C}_d (Q)$, which is now:
-
-\[
-	\mathcal{C}_d (Q) = \{ q_d : \{t_k\}_{k=0}^N \to Q \}
-\]
-
-For the case of $\RR^n$, we have that $T \RR^n = \RR^{2n}$
-
-\todo{fill in}
-
-Up to this point, there is no information loss. In fact, if we defined an exact discrete Lagragian as
+Then, the discrete action is now composed of sums of these discrete Lagrangians. That is, for a path $\mathbb{q} = \{ q_i \in Q \}_{i=0}^{N-1}$, the discrete action $S_d$ is:
 
 \begin{equation}
-	L_d^e (q_0, q_1, h) = \int_0^h L(q_{0, 1}(t), \dot{q}_{0, 1}(t)) \odif{t}
+	S_d = \sum_{i=0}^N \mdif{2} \Ld(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1})
 \end{equation}
 
-Finally, the discrete Euler-Lagrange equations become:
+If we define an \newterm{exact discrete Lagrangian} $\Ld^e$ as
+\begin{equation}
+	L_d^e (q_0, q_1) = \int_0^h L(q_{0, 1}(t), \dot{q}_{0, 1}(t)) \odif{t}
+\end{equation}
+where $q_{0, 1}$ is the path that minimizes the action along all the paths that connect $q_0$ and $q_1$, then the discrete formulation gives identical results to the discrete one.
 
+Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; but in practice we often define the discrete Lagrangian $\Ld$ using some quadrature rule that approximates the integral of the exact discrete Lagrangian. 
+
+If we apply Hamilton's principle to the discrete action, we find the discrete Euler-Lagrange (DEL) equations:
 \begin{equation}
 	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0
-	\label{eq:euler-lagrange-discrete}
+	\label{eq:euler-lagrange-discrete}\
+	\tag{DEL}
 \end{equation}
+
+
 
 \section{Parallel algorithm}
 
 \todo{write about the unsuitability of sequantially getting the path, in \cite{ferraroParallelIterativeMethod2025} after def 2.4}
 
-In \cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The idea is to treat the (discrete) action as a function of which we want to find roots. We start with a guess, which is likely not very close to $0$, but we use some algorithm to iteratively get closer to the root.
+In \cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The presentation here is a bit different from the original one, so that it is more in line with the extensions proposed later.
 
-\todo{Use some command to write out discrete Lagrangians}
-
-To be more concrete, given a path $\mathbf{q} = \{q_k\}_{k=0}^N$ and a discrete Lagrangian $\text{Ld}_h : G \times G \to \RR$, we calculate the residual of the DEL equations:
-
+The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = \{q_k\}_{k=0}^N$ and a discrete Lagrangian $\Ld$, we define its residual as
 \[
 	r(\mathbf{q}) = \sum_{k=1}^{N-1} 
 	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0
 \]
+and we want to find the path $\mathbf{q}^*$ such that $r(\mathbf{q}^*) = 0$.
 
-Then, we can make a Jacobi update step to get a new path $\bar{\mathbf{q}} = \{ \bar{q}_k \}_{k=0}^N$ which has a smaller residual. Under certain conditions, this algorithm can produce path with an arbitrarily low residual.
+At a high level, two schemes are used to find this root. First, we pose a block Jacobi update step that can be done in parallel. However, the Jacobi update is still not directly computable, so we use one or more Newton-Raphson steps to compute the Jacobi update.
+
+The Jacobi update step consists of finding a new path $\overline{\mathbf{q}} = \{ \overline{q}_k \}_{k=0}^N$ that makes each summand of the residual $0$ with respect to the previous path. That is, we define the \newterm{residual term} as
+\begin{equation}
+	r_k (\mathbf{q}, \overline{q}) = 
+	\mdif{2} L_d (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1}) = 0
+\end{equation}
+which is 
 
 Each point $q_k$ in $\mathbf{q}$ contributes to the residual as:
-
 \[
-	r_k(\mathbf{q}) = \mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})
+	r_k(\mathbf{q}) = \mdif{2} \Ld(q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})
 \]
 
-And, we can find a new path $\bar{\mathbf{q}} = \{ \bar{q}_k \}_{k=1}^{N-1}$ by using the update:
+The algorithm is based on reducing these residuals by finding a $\overline{q_k}$ using the update rule
+\begin{equation}
+	\mdif{2} L_d (q_{k-1}, \overline{q_k}) + \mdif{1} L_d (\overline{q_k}, q_{k+1}) = 0
+	\label{eq:jacobi-del}
+\end{equation}
+
+This is known as a \newterm{block Jacobi update}, 
+
+And, we can find a new path $\overline{\mathbf{q}} = \{ \overline{q}_k \}_{k=1}^{N-1}$ by using the update:
 
 \begin{equation}
-	\mdif{2} L_d (q_{k-1}, \bar{q_k}) + \mdif{1} L_d (\bar{q_k}, q_{k+1}) = 0
+	\mdif{2} L_d (q_{k-1}, \overline{q_k}) + \mdif{1} L_d (\overline{q_k}, q_{k+1}) = 0
 	\tag{Jacobi}
 	\label{eq:jacobi}
 \end{equation}
-and the endpoints are kept fixed at $q_0 = \bar{q}_0$ and $q_N = \bar{q}_N$. Essentially, this will give $N-2$ equations for the $N-2$ inner points, which we can solve with any linear solver. Crucially, each $q_k \to \bar{q}_k$ update is made taking into account only the original path $\mathbf{q}$, so all updates can be calculated in parallel.
+and the endpoints are kept fixed at $q_0 = \overline{q}_0$ and $q_N = \overline{q}_N$. Essentially, this will give $N-2$ equations for the $N-2$ inner points, which we can solve with any linear solver. Crucially, each $q_k \to \overline{q}_k$ update is made taking into account only the original path $\mathbf{q}$, so all updates can be calculated in parallel.
 
-Now, how do we calculate the value $\bar{q}_k$ that satisfies \autoref{eq:jacobi}? Given a Lagrangian, we can evaluate if it is possible to find an anaytical solution in general. However, it would be nicer to find a solution in general for problems that have a certain kind of structure.
+Now, how do we calculate the value $\overline{q}_k$ that satisfies \autoref{eq:jacobi}? Given a Lagrangian, we can evaluate if it is possible to find an anaytical solution in general. However, it would be nicer to find a solution in general for problems that have a certain kind of structure.
 
 In \cite{ferraroParallelIterativeMethod2025}, the structure they assume is that $Q$ is a vector space. Then, instead of trying to find the exact solution, they do a Newton-Raphson step, which is the exact solution of the linear approximation of the problem. The resulting update step is the following:
 
 \begin{equation}
-	(\mdif{22} \text{Ld}_h (q_{k-1}, q_k) + \mdif{11} \text{Ldhttps://github.com/retorquere/zotero-better-bibtex/releases/download/v9.0.19/zotero-better-bibtex-9.0.19.xpi}_h (q_k, q_{k + 1}))(\mdif{2} \text{Ld}_h (q_{k-1}, q_k) + \mdif{1} \text{Ld}_h (q_k, q_{k + 1}))\tag{Jacobi-Newton}
+	(\mdif{22} \text{Ld}_h (q_{k-1}, q_k) + \mdif{11} \text{Ld}_h (q_k, q_{k + 1}))(\mdif{2} \text{Ld}_h (q_{k-1}, q_k) + \mdif{1} \text{Ld}_h (q_k, q_{k + 1}))\tag{Jacobi-Newton}
 	\label{eq:jacobi-newton-update}
 \end{equation}
 
@@ -212,28 +222,44 @@ The convergence criteria is also analyzed, and we get the following:
 \chapter{Forced systems}
 \label{sec:forced-systems}
 
-Forced systems generally appear as a specific type of constraint in constrained systems (e.g., )
-What if we modify the Euler-Lagrange equations to have a new term?
-
-\begin{equation}
-	\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} + F(q, \dot{q}) = 0
-\end{equation}
-
-This is a \newterm{forced system}.
-
-In \cite{marsdenDiscreteMechanicsVariational2001}, they show forced systems as a variation/specific case of \newterm{constrained systems} \todo{but I think we are not going to do this here.}
-
-The discretization of a forced system results in the discrete Euler-Lagrange equations as:
+Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually a map $f^L : TQ \to T^* Q$ \cite[section 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}. This gives rise to the \newterm{Lagrange-D'Alembert principle} \cite[Definition 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}, which is the forced analogue to the Euler-Lagrange equations:
 
 \[
-	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = F(q_{k-1}, q_k, q_{k+1})
+	 \odv{}{t} \pdv{L}{\dot{q}} - \pdv{L}{q} = f^L (q(t), \dot{q}(t))
 \]
 
-\[ L_d : Q \times Q \to \RR \]
+\todo{Maybe talk about virtual work and derivation of discrete forced EL?}
 
-\[ \mdif{2} L_d : Q \times Q \to T_{q_k} \RR \]
+Finally, we have the \newterm{discrete forced Euler-Lagrange equations}:
 
-where $F: Q \times Q \times Q \to \RR$
+\begin{equation}
+	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1}) = 0
+	\label{eq:euler-lagrange-discrete-forced}
+\end{equation}
+
+where $f^\pm_d : Q \times Q \to T^* Q$.
+
+Extending the parallel algorithm to use these forces is very straightforward. There is a forced Jacobi step which is very similar to \eqref{eq:jacobi}:
+
+\begin{equation}
+	\mdif{2} L_d (q_{k-1}, \overline{q_k}) + f_d^+ (q_{k-1}, \overline{q_k}) + \mdif{1} L_d (\overline{q_k}, q_{k+1}) + f_d^- (\overline{q_k}, q_{k+1}) = 0
+	\label{eq:jacobi-forced}
+	\tag{Forced jacboi}
+\end{equation}
+
+Then, it's a matter of doing the Newton-Raphson step, by finding the root of the linearized problem, such that
+
+\begin{equation}
+	(
+		\mdif{22} \Ld(q_{k-1}, q_k) + \mdif{2} f_d^+ (q_{k-1}, q_k) +
+		\mdif{11} \Ld(q_k, q_{k + 1}) + \mdif{1} f_d^- (q_k, q_{k+1})
+	)
+	(
+		\mdif{2} \text{Ld}_h (q_{k-1}, q_k) + \mdif{1} \text{Ld}_h (q_k, q_{k + 1})
+	)
+	\tag{Forced Jacobi-Newton}
+	\label{eq:jacobi-newton-forced}
+\end{equation}
 
 \section{Convergence}
 \label{sec:forced-systems-convergence}
@@ -264,7 +290,7 @@ The key of Lie groups is that you can move to the \newterm{Lie algebra}, which \
 Namely, the Jacobi update step in a vector space consisted of
 
 \[
-	\mdif{2} L_d (g_{k-1}, \bar{g_k}) + \mdif{1} L_d (\bar{g_k}, g_{k+1}) = 0
+	\mdif{2} L_d (g_{k-1}, \overline{g_k}) + \mdif{1} L_d (\overline{g_k}, g_{k+1}) = 0
 \]
 
 Notice that the objects being added are real numbers, not Lie groups, so this equation is still well-defined. The trouble is that solving this is not straightforward. In the parallel method, we applied one or more Newton-Raphson steps, but that only works for linear spaces.
