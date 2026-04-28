@@ -24,6 +24,11 @@ In this section we give a brief overview of the mathematical tools that will be 
 
 Whenever a new term is introduced, it is \newterm{highlighted like this}. Additional results used occasionally in the paper are available in \autoref{apx:additional-mathematical-results}.
 
+\todo{Write about:
+- smooth manifolds, tangent spaces
+- lie groups, lie algebras
+- discretization?}
+
 \section{Physical systems, configuration space and Lagrangians}
 
 A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we are always going to use the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
@@ -94,7 +99,7 @@ and the realizable paths are those such that $D_\text{EL} L(q) = 0$
 
  We can try to solve this ODE analytically; but often, numerical methods are used, because it is intractable to do solve it analytically (either because the Lagrangian is too large, or the Lagragian is computed based on some numerical, often real-life, data). In the next section we discuss approaches to discretizing and solving numerically the Euler-Lagrange equations. This is the topic of \autoref{sec:discretization-euler-lagrange}.
 
-\chapter{Discretization and numerical computation of Euler-Lagrange solutions}
+\chapter{Computation of Euler-Lagrange solutions}
 \label{sec:discretization-euler-lagrange}
 
 Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange (\autoref{eq:euler-lagrange}), and then use some numerical ODE computation scheme based on the underlying type of manifold. For example if $Q = \RR^n$ (or is, in general, a vector space) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaan.
@@ -104,6 +109,8 @@ However, discretization the resulting ODE based on $q(t)$ can have undesirable e
 Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration} \todo{is it?} will be explained in \autoref{sec:discretizing-configuration-space}
 
 But, to understand the tradeoffs between the approaches, we first need to examine some important geometric properties Euler-Lagrange.
+
+\todo{Think about how much I want to explain these things...}
 
 \section{Geometric properties Euler-Lagrange}
 
@@ -157,62 +164,69 @@ If we apply Hamilton's principle to the discrete action, we find the discrete Eu
 	\tag{DEL}
 \end{equation}
 
-
+These equations are well-defined for any manifold, since both $\mdif{2} L_d (q_{k-1}, q_k)$ and $\mdif{1} L_d (q_k, q_{k+1})$ live in $T_{q_k} Q$, and the local tangent space of any smooth manifold always forms a vector space, so we are free to add elements (notice, however, that the global tangent space $TQ$ is only a vector space if $Q$ itself is a vector space!).
 
 \section{Parallel algorithm}
+\label{sec:parallel-algorithm}
 
 \todo{write about the unsuitability of sequantially getting the path, in \cite{ferraroParallelIterativeMethod2025} after def 2.4}
 
 In \cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The presentation here is a bit different from the original one, so that it is more in line with the extensions proposed later.
 
-The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = \{q_k\}_{k=0}^N$ and a discrete Lagrangian $\Ld$, we define its residual as
-\[
-	r(\mathbf{q}) = \sum_{k=1}^{N-1} 
+The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = \{q_k\}_{k=0}^N$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
+\begin{equation}
+	R(\mathbf{q}) = \sum_{k=1}^{N-1} 
 	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0
-\]
+	\label{eq:residual-global}
+\end{equation}
 and we want to find the path $\mathbf{q}^*$ such that $r(\mathbf{q}^*) = 0$.
 
 At a high level, two schemes are used to find this root. First, we pose a block Jacobi update step that can be done in parallel. However, the Jacobi update is still not directly computable, so we use one or more Newton-Raphson steps to compute the Jacobi update.
 
-The Jacobi update step consists of finding a new path $\overline{\mathbf{q}} = \{ \overline{q}_k \}_{k=0}^N$ that makes each summand of the residual $0$ with respect to the previous path. That is, we define the \newterm{residual term} as
-\begin{equation}
-	r_k (\mathbf{q}, \overline{q}) = 
-	\mdif{2} L_d (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1}) = 0
-\end{equation}
-which is 
+\subsection{Algorithm description}
 
-Each point $q_k$ in $\mathbf{q}$ contributes to the residual as:
+The Jacobi update step consists of finding a new path $\overline{\mathbf{q}} = \{ \overline{q}_k \}_{k=0}^N$ that makes each summand of the residual $0$ with respect to the previous path. That is, we define the \newterm{local residual} as
+\begin{equation}
+	r_k(\mathbf{q}, \overline{q}) = 
+	\mdif{2} L_d (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1}) = 0
+	\label{eq:residual-local}
+\end{equation}
+which is a term of the sum, replacing the central $q_k$ by some new value $\overline{q}$. If we find a new path $\overline{\mathbf{q}}$ such that, for all inner points $k$, $r_k(\mathbf{q}, \overline{q_k}) = 0$, that does not mean that the global residual will be $0$. However, under certain conditions, repeating this step will get the global residual arbitrarily $0$.
+
+\todo{Cite stuff about Jacobi in \cite[sec 4.1]{ferraroParallelIterativeMethod2025}}
+
+Since the Lagrangian can be arbitrarily complex, this step does not have a general way to be computed. Specific kinds of Lagrangians, such as quadratic or cubic ones, have clear closed-form solutions. In lieu of knowing if the Lagrangian has one of this forms ahead of time, we use the Newton-Raphson method to solve a linearization of the problem. So, instead of consider the residual $r_k(\mathbf{q}, \overline{q})$, we consider the linearization $\rho_k$ around $q_k$:
 \[
-	r_k(\mathbf{q}) = \mdif{2} \Ld(q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})
+	\rho_k (\mathbf{q}, \overline{q}) = r_k(\mathbf{q}, q_k) + \mdif{2} r_k(\mathbf{q}, q_k) (\overline{q} - q_k)
 \]
 
-The algorithm is based on reducing these residuals by finding a $\overline{q_k}$ using the update rule
+Notice this is the step where we have to apply the hypothesis that $Q$ is a vector space, since we are doing a linear combination based on the increment.
+
+Finding this root is easy, since this is can be solved as the linear system:
+\begin{align*}
+	r_k(\mathbf{q}, q_k) + \mdif{2} r_k(\mathbf{q}, q_k) (\overline{q} - q_k) &= 0 \\
+	  \overline{q} - q_k &= \left(\mdif{2} r_k(\mathbf{q}, q_k)\right)^{-1} \left(-r_k(\mathbf{q}, q_k)\right) \\
+\end{align*}
+from which we get the general Jacobi-Newton update rule:
 \begin{equation}
-	\mdif{2} L_d (q_{k-1}, \overline{q_k}) + \mdif{1} L_d (\overline{q_k}, q_{k+1}) = 0
-	\label{eq:jacobi-del}
+	\overline{q} = q_k - \left(\mdif{2} r_k(\mathbf{q}, q_k)\right)^{-1} r_k(\mathbf{q}, q_k)
+	\tag{Jacobi-Newton}
+	\label{eq:jacobi-newton}
 \end{equation}
 
-This is known as a \newterm{block Jacobi update}, 
+In a standard discrete Lagrangian system, the terms are:
 
-And, we can find a new path $\overline{\mathbf{q}} = \{ \overline{q}_k \}_{k=1}^{N-1}$ by using the update:
+\begin{align*}
+	\mdif{2} r_k (\mathbf{q}, q_k) &= \mdif{22} \Ld(q_{k-1}, q_k) + \mdif{11} \Ld(q_k, q_{k+1}) \\
+	         r_k (\mathbf{q}, q_k) &= \mdif{2} \Ld(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1}) \\
+\end{align*}
+(note that in \cite{ferraroParallelIterativeMethod2025}, they call $\mathcal{D}_k$ what we call $\mdif{2} r_k (\mathbf{q}, q_k)$).
 
-\begin{equation}
-	\mdif{2} L_d (q_{k-1}, \overline{q_k}) + \mdif{1} L_d (\overline{q_k}, q_{k+1}) = 0
-	\tag{Jacobi}
-	\label{eq:jacobi}
-\end{equation}
-and the endpoints are kept fixed at $q_0 = \overline{q}_0$ and $q_N = \overline{q}_N$. Essentially, this will give $N-2$ equations for the $N-2$ inner points, which we can solve with any linear solver. Crucially, each $q_k \to \overline{q}_k$ update is made taking into account only the original path $\mathbf{q}$, so all updates can be calculated in parallel.
+Equation \eqref{eq:jacobi-newton} is finally easily computable, using any linear solver.
 
-Now, how do we calculate the value $\overline{q}_k$ that satisfies \autoref{eq:jacobi}? Given a Lagrangian, we can evaluate if it is possible to find an anaytical solution in general. However, it would be nicer to find a solution in general for problems that have a certain kind of structure.
+Of course, the question now is to verify under what conditions this algorithm produces the correct solution.
 
-In \cite{ferraroParallelIterativeMethod2025}, the structure they assume is that $Q$ is a vector space. Then, instead of trying to find the exact solution, they do a Newton-Raphson step, which is the exact solution of the linear approximation of the problem. The resulting update step is the following:
-
-\begin{equation}
-	(\mdif{22} \text{Ld}_h (q_{k-1}, q_k) + \mdif{11} \text{Ld}_h (q_k, q_{k + 1}))(\mdif{2} \text{Ld}_h (q_{k-1}, q_k) + \mdif{1} \text{Ld}_h (q_k, q_{k + 1}))\tag{Jacobi-Newton}
-	\label{eq:jacobi-newton-update}
-\end{equation}
-
-The convergence criteria is also analyzed, and we get the following:
+\subsection{Convergence criteria}
 
 \todo{Write out convergence criteria}
 
@@ -239,27 +253,22 @@ Finally, we have the \newterm{discrete forced Euler-Lagrange equations}:
 
 where $f^\pm_d : Q \times Q \to T^* Q$.
 
-Extending the parallel algorithm to use these forces is very straightforward. There is a forced Jacobi step which is very similar to \eqref{eq:jacobi}:
-
+In this section we show how to extend the parallel algorithm (\autoref{sec:parallel-algorithm}) to use these forces. The only difference is in the residual, where we have to insert \autoref{eq:euler-lagrange-discrete-forced} instead of \autoref{eq:euler-lagrange-discrete}. The global residual is modified form \autoref{eq:residual-global} to
 \begin{equation}
-	\mdif{2} L_d (q_{k-1}, \overline{q_k}) + f_d^+ (q_{k-1}, \overline{q_k}) + \mdif{1} L_d (\overline{q_k}, q_{k+1}) + f_d^- (\overline{q_k}, q_{k+1}) = 0
-	\label{eq:jacobi-forced}
-	\tag{Forced jacboi}
+	R(\mathbf{q}) = \sum_{k=1}^{N-1} 
+	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})
+	\label{eq:residual-global-forced}
 \end{equation}
-
-Then, it's a matter of doing the Newton-Raphson step, by finding the root of the linearized problem, such that
-
+and the local residual, from \autoref{eq:residual-local} to
 \begin{equation}
-	(
-		\mdif{22} \Ld(q_{k-1}, q_k) + \mdif{2} f_d^+ (q_{k-1}, q_k) +
-		\mdif{11} \Ld(q_k, q_{k + 1}) + \mdif{1} f_d^- (q_k, q_{k+1})
-	)
-	(
-		\mdif{2} \text{Ld}_h (q_{k-1}, q_k) + \mdif{1} \text{Ld}_h (q_k, q_{k + 1})
-	)
-	\tag{Forced Jacobi-Newton}
-	\label{eq:jacobi-newton-forced}
+	r_k(\mathbf{q}, \overline{q}) = 
+	\mdif{2} L_d (q_{k-1}, \overline{q}) + f_d^+ (q_{k-1}, \overline{q})  \mdif{1} L_d (\overline{q}, q_{k+1}) + f_d^- (\overline{q}, q_{k+1})
 \end{equation}
+locally.
+
+Utilizing these definitions for the residual, and supposing that $Q$ is a vector space, the computation based on the parallel algorithm is the exact same (which is, incidentally, why we introduced the method based on residuals in \autoref{sec:parallel-algorithm}). Not only that, but there is also a direct analogy in terms of the computation for the convergence criteria.
+
+
 
 \section{Convergence}
 \label{sec:forced-systems-convergence}
