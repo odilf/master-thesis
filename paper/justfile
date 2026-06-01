@@ -1,5 +1,8 @@
 [parallel]
 watch-open: watch open
+
+build:
+    latexmk -pdf main.tex
     
 watch:
     watchexec -e tex latexmk -pdf main.tex
