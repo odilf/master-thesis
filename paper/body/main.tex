@@ -387,29 +387,29 @@ The remainder of this section is therefore not concerned with finding the cheape
 
 The first step necessary to get an expression for $J^f$ is to calculate the derivative of~\eqref{eq:euler-lagrange-discrete-forced}, $\mdif* f$, which we will name $H^f$, as it is the forced analogue of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function $F$, just $\mdif* f$). The result is the following (similar to~\eqref{eq:hessian-matrix}):
 \begin{align*}
-	\mdif* f = H^f_{ij} (\mathbf{q}) & = \mdif{q_j} \left(
+	H^f_{ij} (\mathbf{q}) & = \mdif* f                                                                                                                                   \\ & = \mdif{q_j} \left(
 	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1}) = 0
-	\right)                                                                                                                                                                                     \\
-	                                 & = \delta_{i, j} \left( \mdif{22} \Ld(q_{i - 1}, q_i) + \mdif{2} f_d^+(q_{i-1}, q_i) + \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{1} f_d^-(q_i, q_{i+1}) \right) \\
-	                                 & + \delta_{i+1,j} \left(\mdif{12} \Ld(q_i, q_{i+1}) + \mdif{2} f_d^-(q_i, q_{i+1}) \right)                                                                \\
-	                                 & + \delta_{i-1,j} \left(\mdif{21} \Ld(q_{i-1}, q_i) + \mdif{1} f_d^+(q_{i-1}, q_i) \right).
+	\right)                                                                                                                                                             \\
+	         & = \delta_{i, j} \left( \mdif{22} \Ld(q_{i - 1}, q_i) + \mdif{2} f_d^+(q_{i-1}, q_i) + \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{1} f_d^-(q_i, q_{i+1}) \right) \\
+	         & + \delta_{i+1,j} \left(\mdif{12} \Ld(q_i, q_{i+1}) + \mdif{2} f_d^-(q_i, q_{i+1}) \right)                                                                \\
+	         & + \delta_{i-1,j} \left(\mdif{21} \Ld(q_{i-1}, q_i) + \mdif{1} f_d^+(q_{i-1}, q_i) \right).
 \end{align*}
 
-This again has a tridiagonal structure, but is not (necessarilly) symmetric. In \eqref{eq:hessian-terms-1} we only had to define the diagonal and the off-diagonal matrices, but now we need three matrices
+This again has a tridiagonal structure, but is not (necessarilly) symmetric. In~\eqref{eq:hessian-terms-1} we only had to define the diagonal and the off-diagonal matrices, but now we need three matrices
 \begin{align*}
-	\mathcal{D}_k   & = \mdif{22} \Ld(q_{k-1}, q_k) + \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{11} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^-(q_k, q_{k+1}) \\
-	\mathcal{C}^+_k & = \mdif{12} \Ld(q_k, q_{k+1}) + \mdif{2} f_d^-(q_k, q_{k+1})                                                              \\
-	\mathcal{C}^-_k & = \mdif{21} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^+(q_k, q_{k+1})
+	\hat{\mathcal{D}}_k   & = \mdif{22} \Ld(q_{k-1}, q_k) + \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{11} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^-(q_k, q_{k+1}) \\
+	\hat{\mathcal{C}}^+_k & = \mdif{12} \Ld(q_k, q_{k+1}) + \mdif{2} f_d^-(q_k, q_{k+1})                                                              \\
+	\hat{\mathcal{C}}^-_k & = \mdif{21} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^+(q_k, q_{k+1})
 \end{align*}
 
 The resulting global Hessian matrix is, then:
 \begin{equation}
 	H^f (\mathbf{q}) = \begin{pmatrix}
-		\mathcal{D}_1     & \mathcal{C}^+_{1} &                       &                       &                       \\
-		\mathcal{C}^-_{1} & \mathcal{D}_2     & \mathcal{C}^+_{2}     &                       &                       \\
-		                  & \ddots            & \ddots                & \ddots                &                       \\
-		                  &                   & \mathcal{C}^-_{N - 3} & \mathcal{D}_{N - 2}   & \mathcal{C}^+_{N - 2} \\
-		                  &                   &                       & \mathcal{C}^-_{N - 2} & \mathcal{D}_{N - 1}
+		\hat{\mathcal{D}}_1     & \hat{\mathcal{C}}^+_{1} &                             &                             &                             \\
+		\hat{\mathcal{C}}^-_{1} & \hat{\mathcal{D}}_2     & \hat{\mathcal{C}}^+_{2}     &                             &                             \\
+		                        & \ddots                  & \ddots                      & \ddots                      &                             \\
+		                        &                         & \hat{\mathcal{C}}^-_{N - 3} & \hat{\mathcal{D}}_{N - 2}   & \hat{\mathcal{C}}^+_{N - 2} \\
+		                        &                         &                             & \hat{\mathcal{C}}^-_{N - 2} & \hat{\mathcal{D}}_{N - 1}
 	\end{pmatrix}
 	\label{eq:hessian-matrix-forced}
 \end{equation}
@@ -417,12 +417,12 @@ The resulting global Hessian matrix is, then:
 We also define auxiliary matrices, similar to~\eqref{eq:hessian-terms-2}:
 \begin{equation}
 	\begin{aligned}
-		\mathcal{A}_k & = \mdif{11} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^-(q_k, q_{k+1}) \\
-		\mathcal{B}_k & = \mdif{22} \Ld(q_k, q_{k+1}) + \mdif{2} f_d^+(q_k, q_{k+1}) \\
+		\hat{\mathcal{A}}_k & = \mdif{11} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^-(q_k, q_{k+1}) \\
+		\hat{\mathcal{B}}_k & = \mdif{22} \Ld(q_k, q_{k+1}) + \mdif{2} f_d^+(q_k, q_{k+1}) \\
 	\end{aligned}
 	\label{eq:hessian-terms-forced-2}
 \end{equation}
-(where we still have that $\mathcal{D}_k = \mathcal{B}_{k-1} + \mathcal{A}_k$).
+(where we still have that $\hat{\mathcal{D}}_k = \hat{\mathcal{B}}_{k-1} + \hat{\mathcal{A}}_k$).
 
 There are two ways to proceed from here. On one hand, we can try to find come criteria of the forced system directly that imply convergence; or we can search for some criteria on the type of forces that, when added to a converged unforced Lagrangian, would also converge with these forces. In the next two subsections we develop both approaches respectively.
 
@@ -434,55 +434,55 @@ One might expect that an analogue of \autoref{thm:hessian-pd-convergence} (that 
 
 % All of this is pointless. Maybe I could mention it.
 % \begin{theorem}[Local sym-positivity implies global]\label{thm:forced-local-implies-global}
-% 	If $\Sym(H_k^f)$ is positive definite for every $k$, then $\Sym(H^f)$ is positive definite, and each diagonal block $\mathcal{D}_k$ is invertible.
+% 	If $\Sym(H_k^f)$ is positive definite for every $k$, then $\Sym(H^f)$ is positive definite, and each diagonal block $\hat{\mathcal{D}}_k$ is invertible.
 % \end{theorem}
 % \begin{proof}
 % 	Since $z^T M z = z^T \Sym(M) z$ for any square $M$ and vector $z$, it suffices to show $x^T H^f x > 0$. Append $x_0 = x_N = 0$ and set $y_k = (x_k, x_{k+1})^T$. The identity
 % 	\[
 % 		x^T H^f x = \sum_{k=0}^{N-1} y_k^T H_k^f\, y_k
 % 	\]
-% 	follows by expanding each $y_k^T H_k^f y_k$ and collecting terms using $\mathcal{D}_k = \mathcal{A}_k + \mathcal{B}_{k-1}$ (see \texttt{notes/forced-systems-convergence.tex} for the full expansion). If $x \neq 0$, some $x_j \neq 0$, making $y_{j-1}$ and $y_j$ nonzero; the hypothesis then gives a strictly positive sum. Invertibility of $\mathcal{D}_k$ follows because diagonal blocks of a matrix with p.d.\ symmetric part inherit the same property.
+% 	follows by expanding each $y_k^T H_k^f y_k$ and collecting terms using $\hat{\mathcal{D}}_k = \hat{\mathcal{A}}_k + \hat{\mathcal{B}}_{k-1}$ (see \texttt{notes/forced-systems-convergence.tex} for the full expansion). If $x \neq 0$, some $x_j \neq 0$, making $y_{j-1}$ and $y_j$ nonzero; the hypothesis then gives a strictly positive sum. Invertibility of $\hat{\mathcal{D}}_k$ follows because diagonal blocks of a matrix with p.d.\ symmetric part inherit the same property.
 % \end{proof}
 
 % This reduces checking $\Sym(H^f) > 0$ from an $(N\!-\!1)$-block computation to $N$ local $2\times 2$-block checks, exactly as in the unforced case. The remaining step for convergence would be to conclude $\rho(J^f) < 1$ from $\Sym(H^f) > 0$. In the symmetric case this is automatic (the skew part of $H$ vanishes). In the forced case it is \textbf{not}: the implication fails for matrices whose skew part is large relative to their symmetric part.
 
-At this point, to motivate the result that will be shown shortly, it might be useful to get a better mental model of what each matrix block represents. The update at an interior node $q_j$ is a Newton step on $R_j^f$ as a function of $q_j$, with the current values of the neighbors $q_{j-1}, q_{j+1}$ held as data. The diagonal block $\mathcal{D}_j$ captures how the residual at node $j$ depends on $q_j$ alone, while the off-diagonal blocks $\mathcal{C}^+_j$ and $\mathcal{C}^-_{j-1}$ capture how it depends on the neighbors. Linearizing $R_j^f$ at $\mathbf{q}^*$, the $j$th component of the global residual at the current path reads $\mathcal{D}_j e_j + \mathcal{C}^-_{j-1} e_{j-1} + \mathcal{C}^+_j e_{j+1}$, where $e_i$ denotes the error at node $i$. The Newton step sets this to zero (to first order) and solves for the new error at $j$: the neighbor errors are multiplied forward by $\mathcal{C}^\pm$ (data side), and the resulting residual is converted back into a coordinate update at $j$ by inverting $\mathcal{D}_j$ (unknown side). The error transfer factor from a neighbor to $j$ is therefore $\mathcal{D}_j^{-1}\mathcal{C}^\pm$ (which, incidentally, gives an intuition of why $J^f$ is defined as $-D^{-1} C$).
+At this point, to motivate the result that will be shown shortly, it might be useful to get a better mental model of what each matrix block represents. The update at an interior node $q_j$ is a Newton step on $R_j^f$ as a function of $q_j$, with the current values of the neighbors $q_{j-1}, q_{j+1}$ held as data. The diagonal block $\hat{\mathcal{D}}_j$ captures how the residual at node $j$ depends on $q_j$ alone, while the off-diagonal blocks $\hat{\mathcal{C}}^+_j$ and $\hat{\mathcal{C}}^-_{j-1}$ capture how it depends on the neighbors. Linearizing $R_j^f$ at $\mathbf{q}^*$, the $j$th component of the global residual at the current path reads $\hat{\mathcal{D}}_j e_j + \hat{\mathcal{C}}^-_{j-1} e_{j-1} + \hat{\mathcal{C}}^+_j e_{j+1}$, where $e_i$ denotes the error at node $i$. The Newton step sets this to zero (to first order) and solves for the new error at $j$: the neighbor errors are multiplied forward by $\hat{\mathcal{C}}^\pm$ (data side), and the resulting residual is converted back into a coordinate update at $j$ by inverting $\hat{\mathcal{D}}_j$ (unknown side). The error transfer factor from a neighbor to $j$ is therefore $\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^\pm$ (which, incidentally, gives an intuition of why $J^f$ is defined as $-D^{-1} C$).
 
-Crucially, when $\mathcal{D}_j$ is ``large enough'' to dominate $\mathcal{C}^\pm$, this factor has norm $<1$. That is, $\mathcal{D}_j^{-1}$ attenuates the incoming error and the global error contracts at every step, which is what $\rho(J^f) < 1$ means.
+Crucially, when $\hat{\mathcal{D}}_j$ is ``large enough'' to dominate $\hat{\mathcal{C}}^\pm$, this factor has norm $<1$. That is, $\hat{\mathcal{D}}_j^{-1}$ attenuates the incoming error and the global error contracts at every step, which is what $\rho(J^f) < 1$ means.
 
 Of course, the question is how to make ``large enough'' precise. The natural approach is to ask whether $\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2$ (this confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half-plane and is another natural generalization of $M \succ 0$ to a non-symmetric setting). This is provable in the scalar $n = 1$, $N = 3$ case (see \texttt{notes/forced-systems-convergence.tex}, Appendix~A) but open in the general block case. What we can prove is a stronger condition \emph{per edge}: ask the symmetric part of each diagonal sub-block of $H_k^f$ to strictly dominate the corresponding cross sub-block in spectral norm. This way, we arrive at the following theorem.
 
 \begin{theorem}[Local edge dominance implies convergence]\label{thm:forced-local-dominance}
 	Suppose that, at $\mathbf{q}^*$, for every edge $k \in \{0, 1, \ldots, N-1\}$,
 	\begin{equation}
-		\lambda_{\min}(\Sym(\mathcal{A}_k)) > \|\mathcal{C}^+_k\|_2,
+		\lambda_{\min}(\Sym(\hat{\mathcal{A}}_k)) > \|\hat{\mathcal{C}}^+_k\|_2,
 		\qquad
-		\lambda_{\min}(\Sym(\mathcal{B}_k)) > \|\mathcal{C}^-_k\|_2,
+		\lambda_{\min}(\Sym(\hat{\mathcal{B}}_k)) > \|\hat{\mathcal{C}}^-_k\|_2,
 		\label{eq:local-edge-dominance}
 	\end{equation}
-	with the boundary convention $\mathcal{C}^+_{N-1} = \mathcal{C}^-_0 = 0$ (these blocks do not appear in $H^f$). Then each diagonal block $\mathcal{D}_j$ is invertible, $\rho(J^f(\mathbf{q}^*)) < 1$, and the forced Jacobi--Newton method converges locally to $\mathbf{q}^*$.
+	with the boundary convention $\hat{\mathcal{C}}^+_{N-1} = \hat{\mathcal{C}}^-_0 = 0$ (these blocks do not appear in $H^f$). Then each diagonal block $\hat{\mathcal{D}}_j$ is invertible, $\rho(J^f(\mathbf{q}^*)) < 1$, and the forced Jacobi--Newton method converges locally to $\mathbf{q}^*$.
 \end{theorem}
 \begin{proof}
-	Recall that $\mathcal{D}_j = \mathcal{A}_j + \mathcal{B}_{j-1}$. Since taking $\Sym$ is linear, we also have that $\Sym(\mathcal{D}_j) = \Sym(\mathcal{A}_j) + \Sym(\mathcal{B}_{j-1})$.
+	Recall that $\hat{\mathcal{D}}_j = \hat{\mathcal{A}}_j + \hat{\mathcal{B}}_{j-1}$. Since taking $\Sym$ is linear, we also have that $\Sym(\hat{\mathcal{D}}_j) = \Sym(\hat{\mathcal{A}}_j) + \Sym(\hat{\mathcal{B}}_{j-1})$.
 	By Weyl's inequality and then by hypothesis:
 	\[
-		\lambda_{\min}(\Sym(\mathcal{D}_j))
-		\geq \lambda_{\min}(\Sym(\mathcal{A}_j)) + \lambda_{\min}(\Sym(\mathcal{B}_{j-1}))
-		> \|\mathcal{C}^+_j\|_2 + \|\mathcal{C}^-_{j-1}\|_2 \geq 0,
+		\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))
+		\geq \lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))
+		> \|\hat{\mathcal{C}}^+_j\|_2 + \|\hat{\mathcal{C}}^-_{j-1}\|_2 \geq 0,
 	\]
-	so $\Sym(\mathcal{D}_j) \succ 0$. Then, for any $v \neq 0$, Cauchy-Schwarz gives $\|\mathcal{D}_j v\|_2 \|v\|_2 \geq v^T \mathcal{D}_j v = v^T \Sym(\mathcal{D}_j) v \geq \lambda_{\min}(\Sym(\mathcal{D}_j)) \|v\|_2^2$, hence $\mathcal{D}_j$ is invertible with
+	so $\Sym(\hat{\mathcal{D}}_j) \succ 0$. Then, for any $v \neq 0$, Cauchy-Schwarz gives $\|\hat{\mathcal{D}}_j v\|_2 \|v\|_2 \geq v^T \hat{\mathcal{D}}_j v = v^T \Sym(\hat{\mathcal{D}}_j) v \geq \lambda_{\min}(\Sym(\hat{\mathcal{D}}_j)) \|v\|_2^2$, hence $\hat{\mathcal{D}}_j$ is invertible with
 	\begin{equation}
-		\|\mathcal{D}_j^{-1}\|_2 \;\leq\; \frac{1}{\lambda_{\min}(\Sym(\mathcal{D}_j))}.
+		\|\hat{\mathcal{D}}_j^{-1}\|_2 \;\leq\; \frac{1}{\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))}.
 		\label{eq:diag-block-inv-bound}
 	\end{equation}
 
-	Now, recall that $J^f = -D^{-1}(L+U)$, where $D$ is the block-diagonal of $H^f$ and $L+U$ is its off-diagonal part. Since $H^f$ is block-tridiagonal, so is $L+U$, with $(L+U)_{j,j-1} = \mathcal{C}^-_{j-1}$ and $(L+U)_{j,j+1} = \mathcal{C}^+_j$. Left-multiplying by the block-diagonal matrix $-D^{-1}$ acts row-block-by-row-block: the $j$th row-block of $D^{-1}(L+U)$ picks up only the $(j,j)$-block of $D^{-1}$, namely $\mathcal{D}_j^{-1}$, since every other column of row $j$ of $D^{-1}$ is zero. So the entire $j$th row of $L+U$ is just rescaled on the left by $\mathcal{D}_j^{-1}$, and its sparsity pattern is preserved. Reading this off, $J^f$ is block-tridiagonal with $(J^f)_{j,j-1} = -\mathcal{D}_j^{-1}\mathcal{C}^-_{j-1}$ and $(J^f)_{j,j+1} = -\mathcal{D}_j^{-1}\mathcal{C}^+_j$:
+	Now, recall that $J^f = -D^{-1}(L+U)$, where $D$ is the block-diagonal of $H^f$ and $L+U$ is its off-diagonal part. Since $H^f$ is block-tridiagonal, so is $L+U$, with $(L+U)_{j,j-1} = \hat{\mathcal{C}}^-_{j-1}$ and $(L+U)_{j,j+1} = \hat{\mathcal{C}}^+_j$. Left-multiplying by the block-diagonal matrix $-D^{-1}$ acts row-block-by-row-block: the $j$th row-block of $D^{-1}(L+U)$ picks up only the $(j,j)$-block of $D^{-1}$, namely $\hat{\mathcal{D}}_j^{-1}$, since every other column of row $j$ of $D^{-1}$ is zero. So the entire $j$th row of $L+U$ is just rescaled on the left by $\hat{\mathcal{D}}_j^{-1}$, and its sparsity pattern is preserved. Reading this off, $J^f$ is block-tridiagonal with $(J^f)_{j,j-1} = -\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^-_{j-1}$ and $(J^f)_{j,j+1} = -\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^+_j$:
 	\[
 		J^f = \begin{pmatrix}
-			0                                  & -\mathcal{D}_1^{-1}\mathcal{C}^+_1 &                                            &        \\
-			-\mathcal{D}_2^{-1}\mathcal{C}^-_1 & 0                                  & -\mathcal{D}_2^{-1}\mathcal{C}^+_2         &        \\
-			                                   & \ddots                             & \ddots                                     & \ddots \\
-			                                   &                                    & -\mathcal{D}_{N-1}^{-1}\mathcal{C}^-_{N-2} & 0
+			0                                              & -\hat{\mathcal{D}}_1^{-1}\hat{\mathcal{C}}^+_1 &                                                        &        \\
+			-\hat{\mathcal{D}}_2^{-1}\hat{\mathcal{C}}^-_1 & 0                                              & -\hat{\mathcal{D}}_2^{-1}\hat{\mathcal{C}}^+_2         &        \\
+			                                               & \ddots                                         & \ddots                                                 & \ddots \\
+			                                               &                                                & -\hat{\mathcal{D}}_{N-1}^{-1}\hat{\mathcal{C}}^-_{N-2} & 0
 		\end{pmatrix}
 	\]
 	Since $\rho(J^f) \leq \|J^f\|$ in any induced operator norm, it suffices to bound $\|J^f\|$ in one convenient choice. The block-tridiagonal structure suggests the block max-norm $\|x\|_{\infty,2} = \max_j \|x_j\|_2$, where $x_j \in \RR^n$ is the $j$th size-$n$ block of $x$. Its induced operator norm is
@@ -491,31 +491,31 @@ Of course, the question is how to make ``large enough'' precise. The natural app
 	\]
 
 	Therefore, bounding $\|{(J^f x)}_j\|_2$ by a multiple of $\|x\|_{\infty,2}$ uniformly in $j$ bounds $\rho(J^f)$ by the same constant. Each row of $J^f$ has form
-	\[ {(J^f x)}_j = -\mathcal{D}_j^{-1} \mathcal{C}^-_{j-1} x_{j-1} - \mathcal{D}_j^{-1} \mathcal{C}^+_j x_{j+1}, \]
+	\[ {(J^f x)}_j = -\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1} x_{j-1} - \hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j x_{j+1}, \]
 	and submultiplicativity of the spectral norm together with~\eqref{eq:diag-block-inv-bound} give
 	\begin{align*}
 		\|(J^f x)_j\|_2
-		&\leq \|\mathcal{D}_j^{-1} \mathcal{C}^-_{j-1}\|_2 \|x_{j-1}\|_2 + \|\mathcal{D}_j^{-1} \mathcal{C}^+_j\|_2 \|x_{j+1}\|_2 \\
-		&\leq \bigl(\|\mathcal{D}_j^{-1} \mathcal{C}^-_{j-1}\|_2 + \|\mathcal{D}_j^{-1} \mathcal{C}^+_j\|_2\bigr) \|x\|_{\infty, 2} \\
-		&\leq \bigl(\|\mathcal{D}_j^{-1}\|_2\|\mathcal{C}^-_{j-1}\|_2 + \|\mathcal{D}_j^{-1}\|_2\|\mathcal{C}^+_j\|_2\bigr) \|x\|_{\infty, 2} \\
-		&\leq \frac{\|\mathcal{C}^-_{j-1}\|_2 + \|\mathcal{C}^+_j\|_2}{\lambda_{\min}(\Sym(\mathcal{A}_j)) + \lambda_{\min}(\Sym(\mathcal{B}_{j-1}))} \|x\|_{\infty, 2}.
+		 & \leq \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 \|x_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2 \|x_{j+1}\|_2                            \\
+		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                          \\
+		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                \\
+		 & \leq \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \|x\|_{\infty, 2}.
 	\end{align*}
 	By~\eqref{eq:local-edge-dominance} applied at edges $j$ and $j - 1$, the fraction is strictly less than $1$. Taking $\max_j$,
 	\[
-		\rho(J^f) \;\leq\; \|J^f\|_{\infty, 2} \;\leq\; \max_j \frac{\|\mathcal{C}^-_{j-1}\|_2 + \|\mathcal{C}^+_j\|_2}{\lambda_{\min}(\Sym(\mathcal{A}_j)) + \lambda_{\min}(\Sym(\mathcal{B}_{j-1}))} \;<\; 1.
+		\rho(J^f) \;\leq\; \|J^f\|_{\infty, 2} \;\leq\; \max_j \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \;<\; 1.
 	\]
-	Invertibility of every $\mathcal{D}_j$ and $\rho(J^f) < 1$ are exactly the hypotheses of~\autoref{lem:jacobi-newton-convergence}, which gives local convergence of the forced Jacobi--Newton method to $\mathbf{q}^*$.
+	Invertibility of every $\hat{\mathcal{D}}_j$ and $\rho(J^f) < 1$ are exactly the hypotheses of~\autoref{lem:jacobi-newton-convergence}, which gives local convergence of the forced Jacobi--Newton method to $\mathbf{q}^*$.
 \end{proof}
 
 \begin{remark}[Reduction to the unforced case]\label{rem:forced-local-recovery}
 	When $f_d^\pm \equiv 0$, the forced blocks reduce to
 	\[
-		\mathcal{A}_k = \mdif{11}\Ld(q_k, q_{k+1}),\quad
-		\mathcal{B}_k = \mdif{22}\Ld(q_k, q_{k+1}),\quad
-		\mathcal{C}^+_k = \mdif{12}\Ld(q_k, q_{k+1}),\quad
-		\mathcal{C}^-_k = (\mathcal{C}^+_k)^T.
+		\hat{\mathcal{A}}_k = \mdif{11}\Ld(q_k, q_{k+1}),\quad
+		\hat{\mathcal{B}}_k = \mdif{22}\Ld(q_k, q_{k+1}),\quad
+		\hat{\mathcal{C}}^+_k = \mdif{12}\Ld(q_k, q_{k+1}),\quad
+		\hat{\mathcal{C}}^-_k = (\hat{\mathcal{C}}^+_k)^T.
 	\]
-	All four are symmetric or transposes of each other, so $\Sym(\mathcal{A}_k) = \mathcal{A}_k$, $\Sym(\mathcal{B}_k) = \mathcal{B}_k$, and $\|\mathcal{C}^+_k\|_2 = \|\mathcal{C}^-_k\|_2$. The two inequalities of~\eqref{eq:local-edge-dominance} therefore collapse to the single per-edge condition
+	All four are symmetric or transposes of each other, so $\Sym(\hat{\mathcal{A}}_k) = \hat{\mathcal{A}}_k$, $\Sym(\hat{\mathcal{B}}_k) = \hat{\mathcal{B}}_k$, and $\|\hat{\mathcal{C}}^+_k\|_2 = \|\hat{\mathcal{C}}^-_k\|_2$. The two inequalities of~\eqref{eq:local-edge-dominance} therefore collapse to the single per-edge condition
 	\[
 		\min\!\bigl(\lambda_{\min}(\mdif{11}\Ld),\, \lambda_{\min}(\mdif{22}\Ld)\bigr) > \|\mdif{12}\Ld\|_2,
 	\]
@@ -523,7 +523,7 @@ Of course, the question is how to make ``large enough'' precise. The natural app
 \end{remark}
 
 \begin{remark}[Time complexity]\label{rem:forced-local-complexity}
-	Checking~\eqref{eq:local-edge-dominance} reduces to, per edge $k$, two smallest-eigenvalue computations on $\Sym(\mathcal{A}_k)$ and $\Sym(\mathcal{B}_k)$ (both $n \times n$ symmetric, $O(n^3)$ each) and two spectral-norm computations on $\mathcal{C}^+_k$ and $\mathcal{C}^-_k$ ($O(n^3)$ each via SVD, cheaper via power iteration). Total cost: $O(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section.
+	Checking~\eqref{eq:local-edge-dominance} reduces to, per edge $k$, two smallest-eigenvalue computations on $\Sym(\hat{\mathcal{A}}_k)$ and $\Sym(\hat{\mathcal{B}}_k)$ (both $n \times n$ symmetric, $O(n^3)$ each) and two spectral-norm computations on $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_k$ ($O(n^3)$ each via SVD, cheaper via power iteration). Total cost: $O(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section.
 \end{remark}
 
 \subsection{A perturbation condition}
@@ -535,9 +535,9 @@ In this section we obtain a condition on forces such that, if the unforced probl
 \end{equation}
 where $H$ is the unforced Hessian~\eqref{eq:hessian-matrix} and $\Delta F$ is a block-tridiagonal \newterm{force-perturbation matrix}, with blocks
 \begin{align*}
-	\Delta\mathcal{D}_k   & = \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{1} f_d^-(q_k, q_{k+1}), \\
-	\Delta\mathcal{C}^+_k & = \mdif{2} f_d^-(q_k, q_{k+1}),                                \\
-	\Delta\mathcal{C}^-_k & = \mdif{1} f_d^+(q_k, q_{k+1}).
+	\Delta\hat{\mathcal{D}}_k   & = \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{1} f_d^-(q_k, q_{k+1}), \\
+	\Delta\hat{\mathcal{C}}^+_k & = \mdif{2} f_d^-(q_k, q_{k+1}),                                \\
+	\Delta\hat{\mathcal{C}}^-_k & = \mdif{1} f_d^+(q_k, q_{k+1}).
 \end{align*}
 Notice that $\Delta F = 0$ when all forces vanish, recovering $H^f = H$, so $\Delta F$ is a measure of the deviation from the unforced problem.
 
@@ -613,7 +613,7 @@ This perturbation bound is checkable in terms of derivatives of the discrete for
 \begin{remark}[Time complexity]\label{rem:forced-perturbation-complexity}
 	Let $m := n(N-1)$ be the dimension of the iteration matrix, with $n = \dim Q$ and $N$ the path length. Checking the bound~\eqref{eq:forced-perturbation-epsilon} requires:
 	\begin{itemize}
-		\item $\|D^{-1}\|_2 = \max_k \|\mathcal{D}_k^{-1}\|_2$: $N$ independent $n \times n$ block inversions, costing $O(N n^3)$.
+		\item $\|D^{-1}\|_2 = \max_k \|\hat{\mathcal{D}}_k^{-1}\|_2$: $N$ independent $n \times n$ block inversions, costing $O(N n^3)$.
 		\item $\|J\|_2$ via power iteration on $J^T J$: $O(m^2 k)$ for $k$ iterations.
 		\item $\|\Delta F\|_2$ at the chosen point: same cost as $\|J\|_2$, $O(m^2 k)$.
 	\end{itemize}
