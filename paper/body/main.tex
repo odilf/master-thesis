@@ -346,9 +346,9 @@ Utilizing these definitions for the residual, and supposing that $Q$ is a vector
 
 \section{Convergence}\label{sec:forced-systems-convergence}
 
-Figuring out the convergence criteria is trickier. If we were able to write forces as a gradient $f_\pm = \nabla V^\pm_d$, then the proof in~\cite{ferraroParallelIterativeMethod2025} carries over identically. Of course, this is hardly surprisingly. Forces that can be written as a gradient are called \newterm{conservative forces}, and can be trivially be written as a modified, ``forced'', Lagrangian; to which we can apply the unforced criteria just like any other Lagrangian.
+Figuring out the convergence criteria is trickier. If we were able to write forces as a gradient $f_\pm = \nabla V^\pm_d$, then the proof in~\cite{ferraroParallelIterativeMethod2025} carries over identically. This is hardly surprisingly: forces that can be written as a gradient are called \newterm{conservative forces}, and can be trivially be written as a modified, ``forced'', Lagrangian; to which we can apply the unforced criteria just like any other Lagrangian.
 
-For generic forces, we have to follow \cite[Lemma 4.4]{ferraroParallelIterativeMethod2025} (convergence of 1-step Jacobi-Newton): For a general smooth system $f(x) = 0$ (not necessarily a gradient system), the 1-step block Jacobi-Newton method converges locally to $x^$ if the diagonal blocks of $Df(x^)$ are regular and $\rho(J(x^*)) < 1$, where $J = -D^{-1}C$, $D$ = block-diagonal part of $Df$, $C$ = off-diagonal part.
+For generic forces, we have to follow \cite[Lemma 4.4]{ferraroParallelIterativeMethod2025} (convergence of 1-step Jacobi-Newton): For a general smooth system $f(x) = 0$ (not necessarily a gradient system), the 1-step block Jacobi-Newton method converges locally to $x^*$ if the diagonal blocks of $Df(x^*)$ are regular and $\rho(J(x^*)) < 1$, where $J = -D^{-1}C$, $D$ = block-diagonal part of $Df$, $C$ = off-diagonal part.
 
 In terms of convergence, we have to calculate one more derivative of \autoref{eq:euler-lagrange-discrete-forced} to get the hessian matrix (similar to \autoref{eq:hessian-matrix})
 \begin{align*}
@@ -392,41 +392,115 @@ We start by defining auxilary matrices analogous to \autoref{eq:hessian-terms-2}
 	\end{aligned}
 	\label{eq:hessian-terms-forced-2}
 \end{equation}
-(where we still have that $\mathcal{D}_k = \mathcal{B}_{k-1} + \mathcal{A}_k$). Then, we can state the an more general alternative of \autoref{thm:small-hessian-pd}.
+(where we still have that $\mathcal{D}_k = \mathcal{B}_{k-1} + \mathcal{A}_k$).
 
-\begin{theorem}\label{thm:local-hessian-pd-forced}
-	Given the local Hessian matrices $\mathcal{A}_k$, $\mathcal{B}_k$ as defined in \autoref{eq:hessian-terms-forced-2}, the global Hessian matrix $H^f$ is positive definite if and only if	
-	\begin{itemize}
-		\setlength\itemsep{0.1em}
-		\item for all $k$, the local Hessian $H_k$ is positive definite, or
-		\item \todo{I'm not sure about the second thingy}
-	\end{itemize}
+\subsection{Jacobi vs.\ Jacobi-Newton}\label{sec:forced-jacobi-vs-newton}
+
+Before stating any convergence result, it is worth separating the two methods that get conflated in the unforced setting. The convergence proof for the pure Jacobi iteration in~\cite[Prop.~4.3]{ferraroParallelIterativeMethod2025} relies on the residual being a gradient field: $R = \nabla S_d$, with $S_d$ the discrete action. In the unforced case this is automatic, since Hamilton's principle says exactly that the residual is the gradient of the action. With non-conservative forces, however, the discrete Lagrange-D'Alembert principle is \emph{not} the extremization of any modified action; in particular, $R^f$ is not generally a gradient. So Prop.~4.3 does not extend directly.
+
+The Jacobi-Newton method is structurally different. Its convergence proof~\cite[Lemma~4.4]{ferraroParallelIterativeMethod2025} treats the problem as a generic root-finding problem $R^f(\mathbf{q}^*) = 0$ and requires only
+\begin{enumerate}
+    \setlength\itemsep{0.1em}
+    \item the diagonal blocks $\mathcal{D}_k$ of $DR^f(\mathbf{q}^*) = H^f(\mathbf{q}^*)$ are invertible, and
+    \item $\rho(J^f(\mathbf{q}^*)) < 1$, where $J^f = -D^{-1}(L + U)$ is the block Jacobi iteration matrix, $D$ is the block-diagonal of $H^f$ and $L + U = H^f - D$ is the off-diagonal part.
+\end{enumerate}
+No gradient structure is needed. The rest of this section is dedicated to finding sufficient conditions for these two hypotheses to hold in the forced case.
+
+\subsection{Symmetric forces}\label{sec:forced-symmetric}
+
+There is a natural class of forces for which $H^f$ retains the symmetry of the unforced Hessian, and for which Ferraro's convergence results apply verbatim.
+
+\begin{theorem}[Symmetric-forces reduction]\label{thm:forced-symmetric-reduction}
+    Suppose that, for all $k$,
+    \begin{equation}
+        {(\mdif{2} f_d^-(q_k, q_{k+1}))}^T = \mdif{1} f_d^+(q_k, q_{k+1}).
+        \label{eq:force-symmetry}
+    \end{equation}
+    Then $\mathcal{C}^+_k = {(\mathcal{C}^-_k)}^T$ for all $k$, so $H^f$ is symmetric. Consequently~\cite[Prop.~4.5, Thm.~4.10, Thm.~4.12]{ferraroParallelIterativeMethod2025} apply to the forced system with $H$ replaced by $H^f$.
 \end{theorem}
-
 \begin{proof}
+    From the definitions in~\eqref{eq:hessian-matrix-forced}, in local coordinates
+    \[
+        \mathcal{C}^+_k = \mdif{12} L_d(q_k, q_{k+1}) + \mdif{2} f_d^-(q_k, q_{k+1}), \quad
+        \mathcal{C}^-_k = \mdif{21} L_d(q_k, q_{k+1}) + \mdif{1} f_d^+(q_k, q_{k+1}).
+    \]
+    For a $C^2$ Lagrangian, Schwarz's theorem \tc{} gives $\mdif{21} L_d = {(\mdif{12} L_d)}^T$. Together with~\eqref{eq:force-symmetry}, this gives $\mathcal{C}^-_k = {(\mathcal{C}^+_k)}^T$. The diagonal blocks $\mathcal{D}_k$ involve only $\mdif{ii}$ derivatives, which are symmetric. Given a symmetric tridiagonal $H^f$, the proof of  Dapply verbatim with $H$ replaced by $H^f$.
 \end{proof}
 
-\subsection{Convergence in terms of the unforced system}
+\begin{remark}[Conservative forces]\label{rem:forced-conservative}
+    The condition~\eqref{eq:force-symmetry} is satisfied whenever the discrete forces admit a \newterm{discrete potential}: a function $V_d: Q \times Q \to \RR$ with $f_d^+(q_k, q_{k+1}) = \mdif{2} V_d(q_k, q_{k+1})$ and $f_d^-(q_k, q_{k+1}) = \mdif{1} V_d(q_k, q_{k+1})$. In that case
+    \[
+        \mdif{1} f_d^+ = \mdif{12} V_d, \qquad \mdif{2} f_d^- = \mdif{21} V_d = {(\mdif{12} V_d)}^T,
+    \]
+    by Schwarz, so~\eqref{eq:force-symmetry} holds. Moreover, in this case the forced discrete Euler-Lagrange equations~\eqref{eq:euler-lagrange-discrete-forced} become exactly the unforced discrete Euler-Lagrange equations~\eqref{eq:euler-lagrange-discrete} for the modified Lagrangian $\Ld' = \Ld + V_d$. So conservative forces are not really an extension at all: they reduce to a standard variational problem with a modified Lagrangian.
+\end{remark}
 
-We can write the global Hessian matrix as a sum of two matrices, with one of them being the Hessian of the unforced system (i.e., \autoref{eq:hessian-matrix}):
+\subsection{General case}\label{sec:forced-general}
 
+When~\eqref{eq:force-symmetry} fails, $H^f$ is genuinely non-symmetric and Ferraro's symmetric proofs do not apply. We give two complementary sufficient conditions, both partial.
+
+\subsubsection{A local condition (partial result)}
+
+Write $\operatorname{Sym}(M) = \tfrac{1}{2}(M + M^T)$. The natural analog of \autoref{thm:small-hessian-pd} for the non-symmetric case is:
+
+\begin{theorem}[Local sym-positivity implies global]\label{thm:forced-local-implies-global}
+    If $\operatorname{Sym}(H_k^f)$ is positive definite for every $k$, then $\operatorname{Sym}(H^f)$ is positive definite, and each diagonal block $\mathcal{D}_k$ is invertible.
+\end{theorem}
+\begin{proof}
+    Since $z^T M z = z^T \operatorname{Sym}(M) z$ for any square $M$ and vector $z$, it suffices to show $x^T H^f x > 0$. Append $x_0 = x_N = 0$ and set $y_k = (x_k, x_{k+1})^T$. The identity
+    \[
+        x^T H^f x = \sum_{k=0}^{N-1} y_k^T H_k^f\, y_k
+    \]
+    follows by expanding each $y_k^T H_k^f y_k$ and collecting terms using $\mathcal{D}_k = \mathcal{A}_k + \mathcal{B}_{k-1}$ (see \texttt{notes/forced-systems-convergence.tex} for the full expansion). If $x \neq 0$, some $x_j \neq 0$, making $y_{j-1}$ and $y_j$ nonzero; the hypothesis then gives a strictly positive sum. Invertibility of $\mathcal{D}_k$ follows because diagonal blocks of a matrix with p.d.\ symmetric part inherit the same property.
+\end{proof}
+
+This reduces checking $\operatorname{Sym}(H^f) > 0$ from an $(N\!-\!1)$-block computation to $N$ local $2\times 2$-block checks, exactly as in the unforced case. The remaining step for convergence would be to conclude $\rho(J^f) < 1$ from $\operatorname{Sym}(H^f) > 0$. In the symmetric case this is automatic (the skew part of $H$ vanishes). In the forced case it is \textbf{not}: the implication fails for matrices whose skew part is large relative to their symmetric part, and the precise condition needed is open. \todo{Either prove that $\lambda_{\min}(\operatorname{Sym}(H^f)) > \|\operatorname{Skew}(H^f)\|_2$ suffices, find a citation in $H$-matrix or accretive-operator theory, or accept that \autoref{thm:forced-local-implies-global} is a partial result. See \texttt{notes/forced-systems-convergence.tex} for the counter-example and conjecture.}
+
+\subsubsection{A perturbation condition (rigorous)}
+
+The second route is more conservative but does not depend on the missing lemma above. The idea is to decompose
 \begin{equation}
-	H^f(\mathbf{q}) = H(\mathbf{q}) + \Delta F(\mathbf{q}),
-	\label{eq:hessian-matrix-forced-relative}
+    H^f(\mathbf{q}) = H(\mathbf{q}) + \Delta F(\mathbf{q}),
+    \label{eq:hessian-matrix-forced-relative}
 \end{equation}
-where $\Delta F(\mathbf{q})$ is the block-tridiagonal force-perturbation matrix with blocks
+where $H$ is the unforced Hessian~\eqref{eq:hessian-matrix} and $\Delta F$ is the block-tridiagonal force-perturbation matrix with blocks
 \begin{align*}
-	\Delta\mathcal{D}_k &= \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{1} f_d^-(q_k, q_{k+1}), \\
-	\Delta\mathcal{C}^+_k &= \mdif{2} f_d^-(q_k, q_{k+1}), \\
-	\Delta\mathcal{C}^-_k &= \mdif{1} f_d^+(q_k, q_{k+1}).
+    \Delta\mathcal{D}_k &= \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{1} f_d^-(q_k, q_{k+1}), \\
+    \Delta\mathcal{C}^+_k &= \mdif{2} f_d^-(q_k, q_{k+1}), \\
+    \Delta\mathcal{C}^-_k &= \mdif{1} f_d^+(q_k, q_{k+1}).
 \end{align*}
-Note that $\Delta F = 0$ when all forces vanish, recovering $H^f = H$.
+Note that $\Delta F = 0$ when all forces vanish, recovering $H^f = H$, so $\Delta F$ measures exactly the deviation from the unforced problem.
 
+\begin{theorem}[Perturbation condition]\label{thm:forced-perturbation}
+    Suppose the unforced Jacobi-Newton method converges at $\mathbf{q}^*$: the diagonal $D$ of $H(\mathbf{q}^*)$ is invertible and $\rho(J(\mathbf{q}^*)) < 1$. Then there exists $\varepsilon > 0$ such that, whenever $\|\Delta F(\mathbf{q}^*)\|_2 < \varepsilon$, the forced Jacobi-Newton method also converges locally to $\mathbf{q}^*$.
+\end{theorem}
+\begin{proof}
+    Write $H^f = H + \Delta F = (D + \Delta D) - (-(L + U) - (\Delta L + \Delta U))$, where $D, L, U$ are the block-diagonal, strict block-lower, and strict block-upper parts of $H$, and similarly for $\Delta F$.
 
+    \emph{Invertibility of the diagonal.} Each $D_k$ is invertible by hypothesis, so $\|D^{-1}\|_2 < \infty$ (block-wise). For $\|\Delta D\|_2 < \|D^{-1}\|_2^{-1}$, the Neumann series gives that $D + \Delta D$ is invertible with
+    \[
+        {(D + \Delta D)}^{-1} = D^{-1}\sum_{n \geq 0} (-\Delta D \, D^{-1})^n,
+    \]
+    and $\|{(D + \Delta D)}^{-1}\|_2 \leq \|D^{-1}\|_2 / (1 - \|D^{-1}\|_2 \|\Delta D\|_2)$.
 
+    \emph{Continuity of the spectral radius.} The iteration matrix
+    \[
+        J^f = -{(D + \Delta D)}^{-1}\bigl( (L + U) + (\Delta L + \Delta U) \bigr)
+    \]
+    is a continuous function of $\Delta F$ at $\Delta F = 0$ (by the bound above, plus continuity of matrix products). The spectral radius $\rho$ is upper-semicontinuous on $M_n(\RR)$~\tc, so
+    \[
+        \limsup_{\|\Delta F\| \to 0} \rho(J^f) \leq \rho(J) < 1.
+    \]
+    Hence for any $\eta$ with $\rho(J) < \eta < 1$ there is $\varepsilon > 0$ such that $\|\Delta F\|_2 < \varepsilon$ implies $\rho(J^f) < \eta < 1$, which together with invertibility of $D + \Delta D$ is exactly the hypothesis of~\cite[Lemma~4.4]{ferraroParallelIterativeMethod2025}.
+\end{proof}
+
+\begin{remark}[A checkable bound]\label{rem:forced-perturbation-checkable}
+    Unlike the conditions of~\autoref{thm:forced-local-implies-global}, the perturbation bound is checkable in terms of derivatives of the discrete forces $f_d^\pm$ alone---which depend on the discrete Lagrangian and the chosen discretization of the force, but not on the (unknown) solution trajectory. The constant $\varepsilon$ in the theorem is explicit but cumbersome to write down; the cleanest form is via a contractive norm. If there exists a norm $\|\cdot\|_*$ in which $\|J\|_* \leq 1 - \delta$, then $\|J^f\|_* < 1$ as soon as $\|J^f - J\|_* < \delta$, and the latter can be bounded by elementary estimates on $\|D^{-1}\Delta D\|$ and $\|D^{-1}(\Delta L + \Delta U)\|$.
+\end{remark}
 
 \section{Examples}
 
+\todo{Construct (i) a concrete example of symmetric forces from \autoref{thm:forced-symmetric-reduction} (e.g., a discrete potential that is not a discrete Lagrangian); and (ii) a non-symmetric example where the perturbation bound of \autoref{thm:forced-perturbation} can be checked numerically against the actual $\rho(J^f)$.}
 
 
 

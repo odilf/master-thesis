@@ -1,0 +1,151 @@
+\documentclass{article}
+\usepackage{amsmath,amsfonts,amsthm}
+\usepackage{derivative}
+\usepackage[a4paper, total={6.5in, 9.5in}]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\Ld}{L_d}
+\newcommand{\mdif}[1]{\partial_{#1}}
+\newcommand{\todo}[1]{\textbf{[TODO: #1]}}
+
+\title{Notes on forced-systems convergence (local condition)}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+These notes develop the ``local condition'' approach to convergence of the Jacobi-Newton
+method for forced variational integrators, which did not fit cleanly into the main text.
+The key result (\autoref{thm:forced-local-implies-global}) is rigorous; the
+follow-on implication to $\rho(J^f) < 1$ is not, and the gap is explained in detail.
+
+\section{Setup and notation}
+
+Recall the forced Hessian $H^f$ is block-tridiagonal with diagonal blocks
+$\mathcal{D}_k = \mathcal{B}_{k-1} + \mathcal{A}_k$ and off-diagonal blocks
+$\mathcal{C}^+_k$ (upper) and $\mathcal{C}^-_k$ (lower), where
+\begin{align*}
+    \mathcal{A}_k &= \mdif{11} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^-(q_k, q_{k+1}), \\
+    \mathcal{B}_k &= \mdif{22} \Ld(q_k, q_{k+1}) + \mdif{2} f_d^+(q_k, q_{k+1}), \\
+    \mathcal{C}^+_k &= \mdif{12} \Ld(q_k, q_{k+1}) + \mdif{2} f_d^-(q_k, q_{k+1}), \\
+    \mathcal{C}^-_k &= \mdif{21} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^+(q_k, q_{k+1}).
+\end{align*}
+The local Hessian at each step is
+\[
+    H_k^f = \begin{pmatrix} \mathcal{A}_k & \mathcal{C}^+_k \\ \mathcal{C}^-_k & \mathcal{B}_k \end{pmatrix}.
+\]
+Since $H^f$ is generally non-symmetric, ``positive definite'' is interpreted as
+$x^T H^f x > 0$ for all $x \neq 0$, equivalently $\operatorname{Sym}(H^f) = \tfrac{1}{2}(H^f + (H^f)^T)$ is
+positive definite in the usual sense.
+
+\section{Local implies global: the rigorous part}
+
+\begin{theorem}[Local sym-positivity implies global]\label{thm:forced-local-implies-global}
+    If $\operatorname{Sym}(H_k^f)$ is positive definite for every $k$, then $\operatorname{Sym}(H^f)$ is positive definite.
+\end{theorem}
+\begin{proof}
+    Let $x = (x_1, \ldots, x_{N-1})$ with $x_j \in \RR^n$, extended by $x_0 = x_N = 0$.
+    For $k = 0, \ldots, N-1$, define edge vectors $y_k = (x_k,\, x_{k+1})^T \in \RR^{2n}$.
+    A direct expansion gives
+    \begin{align*}
+        \sum_{k=0}^{N-1} y_k^T H_k^f\, y_k
+        &= \sum_{k=0}^{N-1} \Bigl(
+            x_k^T \mathcal{A}_k x_k
+            + x_{k+1}^T \mathcal{B}_k x_{k+1}
+            + x_k^T \mathcal{C}^+_k x_{k+1}
+            + x_{k+1}^T \mathcal{C}^-_k x_k
+           \Bigr) \\
+        &= \sum_{k=1}^{N-1} x_k^T (\mathcal{A}_k + \mathcal{B}_{k-1}) x_k
+           + \sum_{k=1}^{N-2} \Bigl( x_k^T \mathcal{C}^+_k x_{k+1} + x_{k+1}^T \mathcal{C}^-_k x_k \Bigr) \\
+        &= \sum_{k=1}^{N-1} x_k^T \mathcal{D}_k x_k
+           + \sum_{k=1}^{N-2} \Bigl( x_k^T \mathcal{C}^+_k x_{k+1} + x_{k+1}^T \mathcal{C}^-_k x_k \Bigr) \\
+        &= x^T H^f x.
+    \end{align*}
+    The second equality uses $x_0 = x_N = 0$ (boundary terms drop out) and
+    re-indexes the $\mathcal{B}$ sum; the third uses $\mathcal{D}_k = \mathcal{A}_k + \mathcal{B}_{k-1}$.
+
+    Since $z^T M z = z^T \operatorname{Sym}(M) z$ for any square $M$, the hypothesis
+    gives $y_k^T H_k^f y_k > 0$ whenever $y_k \neq 0$. If $x \neq 0$, some
+    $x_j \neq 0$, making both $y_{j-1}$ and $y_j$ nonzero, so the sum is strictly
+    positive. Hence $x^T H^f x > 0$ for all $x \neq 0$.
+\end{proof}
+
+\section{The gap: Sym$(H^f) > 0$ does not imply $\rho(J^f) < 1$}
+
+To complete the convergence argument from local data, one would need:
+
+\medskip
+\textbf{Desired lemma.} \textit{If $\operatorname{Sym}(H^f)$ is positive definite, then each diagonal
+block $\mathcal{D}_k$ is invertible and $\rho(J^f) < 1$.}
+\medskip
+
+The invertibility of $\mathcal{D}_k$ does follow. Diagonal blocks of a matrix with p.d.\
+symmetric part are themselves positive in the same sense (restrict $x$ to the
+corresponding block), and any matrix with p.d.\ symmetric part is invertible (since
+$x^T M x > 0$ excludes a nontrivial kernel). Hence each $\mathcal{D}_k$ is invertible.
+
+The implication $\operatorname{Sym}(H^f) > 0 \Rightarrow \rho(J^f) < 1$ is, however, \textbf{false}
+in general. A minimal counter-example:
+\[
+    M = \begin{pmatrix} 1 & a \\ -a & 1 \end{pmatrix},
+    \quad D = I,
+    \quad J = I - D^{-1}M = \begin{pmatrix} 0 & -a \\ a & 0 \end{pmatrix}.
+\]
+Here $\operatorname{Sym}(M) = I$ is positive definite for any $a$, but $\rho(J) = |a|$,
+which is unbounded. The trouble is that the Jacobi iteration couples the off-diagonal
+block of $M$ back into the iteration; if that block is large and skew-symmetric, the
+iteration can spiral.
+
+In the unforced (symmetric) case $\mathcal{C}^+_k = (\mathcal{C}^-_k)^T$, so the skew
+part of $H$ is zero and this failure mode is excluded. In the forced case it can arise
+whenever $\mathcal{C}^+_k \neq (\mathcal{C}^-_k)^T$ with large asymmetry.
+
+\section{A plausible strengthening}
+
+To salvage the local approach, one can add a quantitative bound on the skew part.
+Write $H^f = S + A$ with $S = \operatorname{Sym}(H^f)$ and $A = \operatorname{Skew}(H^f)$,
+and let $D, L, U$ be the block-diagonal and strict off-diagonal parts of $H^f$
+(so $D = \operatorname{diag}(H^f)$, $L + U = H^f - D$). The Jacobi matrix is
+$J^f = -D^{-1}(L + U)$.
+
+\medskip
+\textbf{Working conjecture.}
+\textit{If $\lambda_{\min}(S) > \|A\|_2$, then $\rho(J^f) < 1$.}
+\medskip
+
+Motivation: the condition $\lambda_{\min}(S) > \|A\|_2$ implies that $H^f$ is
+``more symmetric than skew-symmetric'', which intuitively should prevent the
+spiral effect. For the scalar case ($n = 1$ per block) it can be checked directly;
+the block case requires more care.
+
+This type of statement would follow from a block analogue of the Gershgorin
+circle theorem applied to $J^f$, or from the theory of $H$-matrices (specifically,
+an $H$-matrix with positive diagonal comparison entries has $\rho < 1$ for its
+Jacobi iteration matrix). However, translating the present setup into $H$-matrix
+language seems non-trivial because $H^f$ is not in general strictly diagonally
+dominant by the entries of $\mathcal{D}_k$ alone.
+
+Alternatively, accretive-operator theory (a matrix $M$ is \emph{accretive} if
+$\operatorname{Re}\langle Mx, x\rangle \geq 0$ for all $x$, i.e., $\operatorname{Sym}(M) \geq 0$)
+provides a rich toolbox. Convergence of splitting methods for accretive systems is
+classical, but the standard results apply to $M = D - N$ with $M$ \emph{maximal}
+accretive and $D$ \emph{uniformly} accretive; the precise conditions are stronger
+than what we have here.
+
+\section{Conclusion}
+
+The rigorous result is:
+\begin{itemize}
+    \item Local sym-pd $\Rightarrow$ global sym-pd (\autoref{thm:forced-local-implies-global}). ✓
+    \item Local sym-pd $\Rightarrow$ each $\mathcal{D}_k$ invertible. ✓
+    \item Global sym-pd $\Rightarrow$ $\rho(J^f) < 1$. \textbf{Open.}
+\end{itemize}
+The perturbation condition (Theorem~B in the main text) sidesteps the open step
+entirely by working directly with the spectral radius via continuity.
+
+\end{document}
