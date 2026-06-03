@@ -286,7 +286,6 @@ where
 
 \begin{theorem}[Small Hessian convergence~{\cite[thm. 4.1]{ferraroParallelComputingVariational}}]\label{thm:small-hessian-pd}
 	Given the local Hessian matrix, if either \begin{itemize}
-		\setlength\itemsep{0.1em}
 		\item for all $k$, the local Hessian $H_k$ is positive definite, or
 		\item \todo{I'm not sure about the second thingy}
 	\end{itemize}
@@ -329,6 +328,8 @@ Unlike Hamilton's principle, this is \emph{not} the extremization of any action:
 
 where $f^\pm_d : Q \times Q \to T^* Q$.
 
+\section{Algorithm}
+
 In this section we show how to extend the parallel algorithm (\autoref{sec:parallel-algorithm}) to use these forces. The only difference is in the residual, where we have to insert \autoref{eq:euler-lagrange-discrete-forced} instead of \autoref{eq:euler-lagrange-discrete}. The global residual is modified form \autoref{eq:residual-global} to
 \begin{equation}
 	R(\mathbf{q}) = \sum_{k=1}^{N-1} 
@@ -348,7 +349,11 @@ Utilizing these definitions for the residual, and supposing that $Q$ is a vector
 
 Figuring out the convergence criteria is trickier. If we were able to write forces as a gradient $f_\pm = \nabla V^\pm_d$, then the proof in~\cite{ferraroParallelIterativeMethod2025} carries over identically. This is hardly surprisingly: forces that can be written as a gradient are called \newterm{conservative forces}, and can be trivially be written as a modified, ``forced'', Lagrangian; to which we can apply the unforced criteria just like any other Lagrangian.
 
-For generic forces, we have to follow \cite[Lemma 4.4]{ferraroParallelIterativeMethod2025} (convergence of 1-step Jacobi-Newton): For a general smooth system $f(x) = 0$ (not necessarily a gradient system), the 1-step block Jacobi-Newton method converges locally to $x^*$ if the diagonal blocks of $Df(x^*)$ are regular and $\rho(J(x^*)) < 1$, where $J = -D^{-1}C$, $D$ = block-diagonal part of $Df$, $C$ = off-diagonal part.
+For generic forces, we have to follow \cite[Lemma 4.4]{ferraroParallelIterativeMethod2025} which we restate here:
+
+\begin{lemma}[Convergence of 1-step Jacobi-Newton]
+	For a general smooth system $f(x) = 0$ (not necessarily a gradient system), the 1-step block Jacobi-Newton method converges locally to $x^*$ if the diagonal blocks of $\mdif{1} f(x^*)$ are regular and $\rho(J(x^*)) < 1$, where $J = -D^{-1}C$, and $D$ and $C$ are the diagonal and off-diagonal parts of $\mdif{} F$ respectively.
+\end{lemma}
 
 In terms of convergence, we have to calculate one more derivative of \autoref{eq:euler-lagrange-discrete-forced} to get the hessian matrix (similar to \autoref{eq:hessian-matrix})
 \begin{align*}
@@ -400,7 +405,6 @@ Before stating any convergence result, it is worth separating the two methods th
 
 The Jacobi-Newton method is structurally different. Its convergence proof~\cite[Lemma~4.4]{ferraroParallelIterativeMethod2025} treats the problem as a generic root-finding problem $R^f(\mathbf{q}^*) = 0$ and requires only
 \begin{enumerate}
-    \setlength\itemsep{0.1em}
     \item the diagonal blocks $\mathcal{D}_k$ of $DR^f(\mathbf{q}^*) = H^f(\mathbf{q}^*)$ are invertible, and
     \item $\rho(J^f(\mathbf{q}^*)) < 1$, where $J^f = -D^{-1}(L + U)$ is the block Jacobi iteration matrix, $D$ is the block-diagonal of $H^f$ and $L + U = H^f - D$ is the off-diagonal part.
 \end{enumerate}
@@ -424,7 +428,7 @@ There is a natural class of forces for which $H^f$ retains the symmetry of the u
         \mathcal{C}^+_k = \mdif{12} L_d(q_k, q_{k+1}) + \mdif{2} f_d^-(q_k, q_{k+1}), \quad
         \mathcal{C}^-_k = \mdif{21} L_d(q_k, q_{k+1}) + \mdif{1} f_d^+(q_k, q_{k+1}).
     \]
-    For a $C^2$ Lagrangian, Schwarz's theorem \tc{} gives $\mdif{21} L_d = {(\mdif{12} L_d)}^T$. Together with~\eqref{eq:force-symmetry}, this gives $\mathcal{C}^-_k = {(\mathcal{C}^+_k)}^T$. The diagonal blocks $\mathcal{D}_k$ involve only $\mdif{ii}$ derivatives, which are symmetric. Given a symmetric tridiagonal $H^f$, the proof of  Dapply verbatim with $H$ replaced by $H^f$.
+    For a $C^2$ Lagrangian, Schwarz's theorem \tc{} gives $\mdif{21} L_d = {(\mdif{12} L_d)}^T$. Together with~\eqref{eq:force-symmetry}, this gives $\mathcal{C}^-_k = {(\mathcal{C}^+_k)}^T$. The diagonal blocks $\mathcal{D}_k$ involve only $\mdif{ii}$ derivatives, which are symmetric. Given a symmetric tridiagonal $H^f$, the proof of \tc{} apply verbatim with $H$ replaced by $H^f$.
 \end{proof}
 
 \begin{remark}[Conservative forces]\label{rem:forced-conservative}
@@ -456,46 +460,97 @@ Write $\operatorname{Sym}(M) = \tfrac{1}{2}(M + M^T)$. The natural analog of \au
 
 This reduces checking $\operatorname{Sym}(H^f) > 0$ from an $(N\!-\!1)$-block computation to $N$ local $2\times 2$-block checks, exactly as in the unforced case. The remaining step for convergence would be to conclude $\rho(J^f) < 1$ from $\operatorname{Sym}(H^f) > 0$. In the symmetric case this is automatic (the skew part of $H$ vanishes). In the forced case it is \textbf{not}: the implication fails for matrices whose skew part is large relative to their symmetric part, and the precise condition needed is open. \todo{Either prove that $\lambda_{\min}(\operatorname{Sym}(H^f)) > \|\operatorname{Skew}(H^f)\|_2$ suffices, find a citation in $H$-matrix or accretive-operator theory, or accept that \autoref{thm:forced-local-implies-global} is a partial result. See \texttt{notes/forced-systems-convergence.tex} for the counter-example and conjecture.}
 
-\subsubsection{A perturbation condition (rigorous)}
+\subsubsection{A perturbation condition}
 
-The second route is more conservative but does not depend on the missing lemma above. The idea is to decompose
+In this section we obtain a condition on forces such that, if the unforced problem converges, then the forced system will too. The main idea is to decompose the Hessian as
 \begin{equation}
     H^f(\mathbf{q}) = H(\mathbf{q}) + \Delta F(\mathbf{q}),
     \label{eq:hessian-matrix-forced-relative}
 \end{equation}
-where $H$ is the unforced Hessian~\eqref{eq:hessian-matrix} and $\Delta F$ is the block-tridiagonal force-perturbation matrix with blocks
+where $H$ is the unforced Hessian~\eqref{eq:hessian-matrix} and $\Delta F$ is a block-tridiagonal \newterm{force-perturbation matrix}, with blocks
 \begin{align*}
     \Delta\mathcal{D}_k &= \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{1} f_d^-(q_k, q_{k+1}), \\
     \Delta\mathcal{C}^+_k &= \mdif{2} f_d^-(q_k, q_{k+1}), \\
     \Delta\mathcal{C}^-_k &= \mdif{1} f_d^+(q_k, q_{k+1}).
 \end{align*}
-Note that $\Delta F = 0$ when all forces vanish, recovering $H^f = H$, so $\Delta F$ measures exactly the deviation from the unforced problem.
+Notice that $\Delta F = 0$ when all forces vanish, recovering $H^f = H$, so $\Delta F$ measures exactly the deviation from the unforced problem.
+
+The following theorem states in a rigourous and quantitative manner the intuitive idea that, if the algorithm already converges without forces, then it still converges when you add forces \textbf{as long as the forces are weak enough} (i.e., the derivatives $\mdif{i} f_d^\pm$ that appear in the Jacobian are small enough).
 
 \begin{theorem}[Perturbation condition]\label{thm:forced-perturbation}
-    Suppose the unforced Jacobi-Newton method converges at $\mathbf{q}^*$: the diagonal $D$ of $H(\mathbf{q}^*)$ is invertible and $\rho(J(\mathbf{q}^*)) < 1$. Then there exists $\varepsilon > 0$ such that, whenever $\|\Delta F(\mathbf{q}^*)\|_2 < \varepsilon$, the forced Jacobi-Newton method also converges locally to $\mathbf{q}^*$.
+    Suppose the unforced Jacobi-Newton method converges at $\mathbf{q}^*$: the diagonal $D$ of $H(\mathbf{q}^*)$ is invertible and $\rho(J(\mathbf{q}^*)) < 1$. Then there exists an $\varepsilon > 0$ such that, whenever $\|\Delta F(\mathbf{q}^*)\|_2 < \varepsilon$, the forced Jacobi-Newton method also converges locally to $\mathbf{q}^*$.
 \end{theorem}
 \begin{proof}
-    Write $H^f = H + \Delta F = (D + \Delta D) - (-(L + U) - (\Delta L + \Delta U))$, where $D, L, U$ are the block-diagonal, strict block-lower, and strict block-upper parts of $H$, and similarly for $\Delta F$.
+    Let $D, L, U$ denote the block-diagonal, strict block-lower, and strict block-upper parts of the unforced Hessian $H$, and similarly $\Delta D, \Delta L, \Delta U$ for the perturbation $\Delta F$. Then the forced iteration matrix is
+    \[
+        J^f = -{(D + \Delta D)}^{-1}\bigl( (L + U) + (\Delta L + \Delta U) \bigr),
+    \]
+    and the unforced one ($\Delta F = 0$) is $J = -D^{-1}(L + U)$ with $\rho(J) < 1$ by hypothesis.
 
-    \emph{Invertibility of the diagonal.} Each $D_k$ is invertible by hypothesis, so $\|D^{-1}\|_2 < \infty$ (block-wise). For $\|\Delta D\|_2 < \|D^{-1}\|_2^{-1}$, the Neumann series gives that $D + \Delta D$ is invertible with
+	First, notice that the map $\Delta F \mapsto J^f$ is continuous at $\Delta F = 0$. This is because each $D_k$ is invertible by hypothesis, so $\|D^{-1}\|_2$ is finite block-wise. Since $\Delta D$ is the block-diagonal part of $\Delta F$, the spectral norm satisfies $\|\Delta D\|_2 \leq \|\Delta F\|_2$ (block-diagonal projection does not increase the spectral norm). Hence for $\|\Delta F\|_2 < \|D^{-1}\|_2^{-1}$, we have that $\|\Delta D\|_2 < \|D^{-1}\|_2^{-1}$. Then, we can write the Neumann series (\cite[Corollary 5.6.16]{hornMatrixAnalysis2012})
     \[
-        {(D + \Delta D)}^{-1} = D^{-1}\sum_{n \geq 0} (-\Delta D \, D^{-1})^n,
+        {(D + \Delta D)}^{-1} = D^{-1}\sum_{n \geq 0} {(-\Delta D \, D^{-1})}^n
     \]
-    and $\|{(D + \Delta D)}^{-1}\|_2 \leq \|D^{-1}\|_2 / (1 - \|D^{-1}\|_2 \|\Delta D\|_2)$.
+    which converges uniformly on a neighborhood of $\Delta F = 0$. The series itself is the inverse, establishing that $D + \Delta D$ is invertible there; and since each partial sum is a polynomial (hence, continuous) function of $\Delta D$, uniform convergence implies that ${(D + \Delta D)}^{-1}$ depends continuously on $\Delta F$. Matrix multiplication and addition are continuous, so $J^f$ also depends continuously on $\Delta F$ on the same neighborhood. In particular, $J^f \to J$ in any matrix norm as $\|\Delta F\| \to 0$.
 
-    \emph{Continuity of the spectral radius.} The iteration matrix
+	Notice also that the spectral radius $\rho$ cannot jump upward under small perturbations of its matrix argument. By Gelfand's formula~\cite[Cor.~5.6.14]{hornMatrixAnalysis2012},
     \[
-        J^f = -{(D + \Delta D)}^{-1}\bigl( (L + U) + (\Delta L + \Delta U) \bigr)
+        \rho(A) = \inf_{k \geq 1} \|A^k\|^{1/k}.
     \]
-    is a continuous function of $\Delta F$ at $\Delta F = 0$ (by the bound above, plus continuity of matrix products). The spectral radius $\rho$ is upper-semicontinuous on $M_n(\RR)$~\tc, so
+    Each $A \mapsto \|A^k\|^{1/k}$ is continuous in $A$, and an infimum of continuous functions is upper semicontinuous. Concretely, for any matrix $A_0$ and any $\eta > \rho(A_0)$, there is a neighborhood of $A_0$ (in $M_n(\RR)$) where $\rho(A) < \eta$.
+
+	
+	Combining these two observations, since $\rho(J) < 1$, choose $\eta$ with $\rho(J) < \eta < 1$. Step~2 applied at $A_0 = J$ gives a neighborhood $U \subset M_n(\RR)$ of $J$ on which $\rho(A) < \eta$. By continuity of $\Delta F \mapsto J^f$ (Step~1), the preimage $V' = (J^f)^{-1}(U)$ is open in perturbation-space and contains $\Delta F = 0$. Invertibility of $D + \Delta D$ holds on the open set $V'' = \{\|\Delta F\|_2 < \|D^{-1}\|_2^{-1}\}$, also a neighborhood of $\Delta F = 0$. Their intersection $V = V' \cap V''$ is therefore an open neighborhood of $\Delta F = 0$ on which both $J^f \in U$ and $D + \Delta D$ is invertible. Since $V$ is open and contains $0$, it contains an open ball of some radius $\varepsilon > 0$ around $0$, so $\|\Delta F\|_2 < \varepsilon$ implies
     \[
-        \limsup_{\|\Delta F\| \to 0} \rho(J^f) \leq \rho(J) < 1.
+        \rho(J^f) < \eta < 1 \quad\text{and}\quad D + \Delta D \text{ is invertible.}
     \]
-    Hence for any $\eta$ with $\rho(J) < \eta < 1$ there is $\varepsilon > 0$ such that $\|\Delta F\|_2 < \varepsilon$ implies $\rho(J^f) < \eta < 1$, which together with invertibility of $D + \Delta D$ is exactly the hypothesis of~\cite[Lemma~4.4]{ferraroParallelIterativeMethod2025}.
+    These are exactly the hypotheses of~\cite[Lemma~4.4]{ferraroParallelIterativeMethod2025}, which then gives local convergence of the forced Jacobi-Newton method to $\mathbf{q}^*$.
+
 \end{proof}
 
-\begin{remark}[A checkable bound]\label{rem:forced-perturbation-checkable}
-    Unlike the conditions of~\autoref{thm:forced-local-implies-global}, the perturbation bound is checkable in terms of derivatives of the discrete forces $f_d^\pm$ alone---which depend on the discrete Lagrangian and the chosen discretization of the force, but not on the (unknown) solution trajectory. The constant $\varepsilon$ in the theorem is explicit but cumbersome to write down; the cleanest form is via a contractive norm. If there exists a norm $\|\cdot\|_*$ in which $\|J\|_* \leq 1 - \delta$, then $\|J^f\|_* < 1$ as soon as $\|J^f - J\|_* < \delta$, and the latter can be bounded by elementary estimates on $\|D^{-1}\Delta D\|$ and $\|D^{-1}(\Delta L + \Delta U)\|$.
+In~\autoref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exists. In the following lemma, we find an explicit computation, under the mild additional assumption that $\|J\| < 1$ holds in some submultiplicative matrix norm (i.e., a norm such that $|A B| \leq |A| |B|$). This condition is stricter than $\rho(J) < 1$, but is typically satisfied for stable variational integrators.
+
+\begin{lemma}[Explicit perturbation bound]\label{lem:forced-perturbation-explicit}
+    Assume the hypotheses of \autoref{thm:forced-perturbation}, and further that $\|J\| < 1$ in a submultiplicative norm $\|\cdot\|$ in which the block-diagonal projection is contractive (e.g.\ the spectral norm). Then the conclusion of the theorem holds with
+    \begin{equation}
+        \varepsilon = \frac{1 - \|J\|}{3\,\|D^{-1}\|}.
+        \label{eq:forced-perturbation-epsilon}
+    \end{equation}
+\end{lemma}
+\begin{proof}
+    Let $\beta := \|D^{-1}\|$ and $\gamma := \|\Delta F\|$. The identity ${(D + \Delta D)}^{-1} - D^{-1} = -{(D + \Delta D)}^{-1}\Delta D \, D^{-1}$, combined with $J = -D^{-1}(L+U)$, gives by direct manipulation
+    \[
+        J^f - J = -{(D + \Delta D)}^{-1}\bigl[\Delta D \cdot J + (\Delta L + \Delta U)\bigr].
+    \]
+    The three factors on the right are bounded by, respectively, $\|\Delta D\| \leq \gamma$ (projection contractivity), $\|\Delta L + \Delta U\| = \|\Delta F - \Delta D\| \leq 2\gamma$ (triangle inequality), and $\|{(D + \Delta D)}^{-1}\| \leq \beta/(1 - \beta\gamma)$ (Neumann tail estimate\footnote{We can get this by factoring $D + \Delta D$ as $D(I + D^{-1}\Delta D)$. Then, we known that $|D^{-1}\Delta D| \leq \beta\gamma$ and if $\beta\gamma < 1$, the Neumann series ${(I+M)}^{-1} = \sum_{k\geq 0}{(-M)}^k$ converges and so we can take the geometric series of the norms of the Neumann sum, resulting in $|{(I + D^{-1}\Delta D)}^{-1}| \leq 1/(1-\beta\gamma)$, giving the claimed bound after multiplying by $|D^{-1}| = \beta$.}, valid for $\beta\gamma < 1$). Combining,
+    \[
+        \|J^f - J\| \leq \frac{\beta\gamma(\|J\| + 2)}{1 - \beta\gamma}.
+    \]
+    Convergence follows from $\|J^f\| < 1$, which holds if $\|J^f - J\| \leq 1 - \|J\|$. Imposing this on the bound above and solving for $\gamma$:
+    \begin{align*}
+        \frac{\beta\gamma(\|J\| + 2)}{1 - \beta\gamma} &\leq 1 - \|J\| \\
+        \beta\gamma(\|J\| + 2) &\leq (1-\|J\|)(1 - \beta\gamma) \\
+        \beta\gamma\bigl(\|J\| + 2 + (1-\|J\|)\bigr) &\leq 1 - \|J\| \\
+        3\beta\gamma &\leq 1 - \|J\| \\
+        \gamma &\leq \frac{1-\|J\|}{3\beta},
+    \end{align*}
+    results in~\eqref{eq:forced-perturbation-epsilon}.
+\end{proof}
+
+Unlike the conditions of~\autoref{thm:forced-local-implies-global}, the perturbation bound is checkable in terms of derivatives of the discrete forces $f_d^\pm$ alone, which depend on the discrete Lagrangian and the chosen discretization of the force, but not on the (unknown) solution trajectory (although this doesn't say anything whether the unforced system converges in the first place). We call the factor $1 - \|J\|$ in~\eqref{eq:forced-perturbation-epsilon} the \newterm{contraction margin} of the unforced iteration, and $\|D^{-1}\|$ measures how well-conditioned the diagonal is. A smaller margin or a worse-conditioned diagonal will shrink $\varepsilon$, making the margin of the magnitude of allowed forces tighter.
+
+\todo{
+	~\cite[Lemma~5.6.10]{hornMatrixAnalysis2012} says that for any $\epsilon > 0$ there exists a (implied submultiplicative?) matrix norm with $\|J\| \leq \rho(J) + \epsilon$, which is almost what we want, but doesn't have the diagonal contraction condition. Should we mention it?
+}
+
+\begin{remark}[Time complexity]\label{rem:forced-perturbation-complexity}
+    Let $m := n(N-1)$ be the dimension of the iteration matrix, with $n = \dim Q$ and $N$ the path length. Checking the bound~\eqref{eq:forced-perturbation-epsilon} requires:
+    \begin{itemize}
+        \item $\|D^{-1}\|_2 = \max_k \|\mathcal{D}_k^{-1}\|_2$: $N$ independent $n \times n$ block inversions, costing $O(N n^3)$.
+        \item $\|J\|_2$ via power iteration on $J^T J$: $O(m^2 k)$ for $k$ iterations.
+        \item $\|\Delta F\|_2$ at the chosen point: same cost as $\|J\|_2$, $O(m^2 k)$.
+    \end{itemize}
+    The dominant cost is therefore $O(m^2 k) = O(n^2 N^2 k)$. This is substantially cheaper than the $O(m^3)$ Cholesky or eigendecomposition that would be needed to check positive-definiteness of $H^f$ globally, and is comparable in cost to a single iteration of the parallel method itself. Note that, like \todo{ref the ``parallel algorithm''}, all three computations are also easily paralelizable across the $N$ timesteps, so this check can be sped up using parallel computing devices like a GPU\@.
 \end{remark}
 
 \section{Examples}
