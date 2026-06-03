@@ -1,6 +1,9 @@
 [parallel]
 watch-open: watch open
 
+note name:
+    latexmk -pdf notes/{{name}}.tex && open .build/{{name}}.pdf
+
 build:
     latexmk -pdf main.tex
     
