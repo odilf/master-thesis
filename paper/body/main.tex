@@ -387,12 +387,12 @@ The remainder of this section is therefore not concerned with finding the cheape
 
 The first step necessary to get an expression for $J^f$ is to calculate the derivative of~\eqref{eq:euler-lagrange-discrete-forced}, $\mdif* f$, which we will name $H^f$, as it is the forced analogue of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function $F$, just $\mdif* f$). The result is the following (similar to~\eqref{eq:hessian-matrix}):
 \begin{align*}
-	H^f_{ij} (\mathbf{q}) & = \mdif* f                                                                                                                                   \\ & = \mdif{q_j} \left(
+	H^f_{ij} (\mathbf{q}) & = \mdif* f                                                                                                                                               \\ & = \mdif{q_j} \left(
 	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1}) = 0
-	\right)                                                                                                                                                             \\
-	         & = \delta_{i, j} \left( \mdif{22} \Ld(q_{i - 1}, q_i) + \mdif{2} f_d^+(q_{i-1}, q_i) + \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{1} f_d^-(q_i, q_{i+1}) \right) \\
-	         & + \delta_{i+1,j} \left(\mdif{12} \Ld(q_i, q_{i+1}) + \mdif{2} f_d^-(q_i, q_{i+1}) \right)                                                                \\
-	         & + \delta_{i-1,j} \left(\mdif{21} \Ld(q_{i-1}, q_i) + \mdif{1} f_d^+(q_{i-1}, q_i) \right).
+	\right)                                                                                                                                                                          \\
+	                      & = \delta_{i, j} \left( \mdif{22} \Ld(q_{i - 1}, q_i) + \mdif{2} f_d^+(q_{i-1}, q_i) + \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{1} f_d^-(q_i, q_{i+1}) \right) \\
+	                      & + \delta_{i+1,j} \left(\mdif{12} \Ld(q_i, q_{i+1}) + \mdif{2} f_d^-(q_i, q_{i+1}) \right)                                                                \\
+	                      & + \delta_{i-1,j} \left(\mdif{21} \Ld(q_{i-1}, q_i) + \mdif{1} f_d^+(q_{i-1}, q_i) \right).
 \end{align*}
 
 This again has a tridiagonal structure, but is not (necessarilly) symmetric. In~\eqref{eq:hessian-terms-1} we only had to define the diagonal and the off-diagonal matrices, but now we need three matrices
@@ -495,9 +495,9 @@ Of course, the question is how to make ``large enough'' precise. The natural app
 	and submultiplicativity of the spectral norm together with~\eqref{eq:diag-block-inv-bound} give
 	\begin{align*}
 		\|(J^f x)_j\|_2
-		 & \leq \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 \|x_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2 \|x_{j+1}\|_2                            \\
-		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                          \\
-		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                \\
+		 & \leq \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 \|x_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2 \|x_{j+1}\|_2                                        \\
+		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                                      \\
+		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                            \\
 		 & \leq \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \|x\|_{\infty, 2}.
 	\end{align*}
 	By~\eqref{eq:local-edge-dominance} applied at edges $j$ and $j - 1$, the fraction is strictly less than $1$. Taking $\max_j$,
@@ -850,64 +850,84 @@ rule.}
 
 \chapter{Lie groups}\label{sec:lie-groups}
 
-In this chapter we extend the parallel algorithm (\autoref{sec:parallel-algorithm}) to the case where the configuration manifold $Q$ is a \newterm{Lie group} $G$.
+In this chapter we extend the parallel algorithm (\autoref{sec:parallel-algorithm}) to the case where the configuration manifold $Q$ is a \newterm{Lie group} $G$: a smooth manifold together with a group operation $\cdot : G \times G \to G$ such that multiplication and inversion are smooth.
 Vector spaces $\RR^n$ are themselves Lie groups (under addition), so this is a strict generalisation.
 The classical examples that motivate the extension are non-abelian: the rotation groups $SO(n)$, the Euclidean motion groups $SE(n)$, and the unitary groups $U(n)$.
 
-Precisely, a Lie group $G$ is a smooth manifold together with a group operation $\cdot : G \times G \to G$ such that multiplication and inversion are smooth.
-The \newterm{Lie algebra} $\fg := T_e G$ is the tangent space at the identity; it is a vector space of the same dimension as $G$, and is connected to $G$ by the \newterm{exponential map} $\exp : \fg \to G$, which is a local diffeomorphism at $0 \in \fg$.
-
-\section{The vector-space step fails on a group}
+\section{Where the vector-space step fails}\label{sec:lie-vector-space-fails}
 
 The Jacobi step of the parallel algorithm, written for an interior node $k$ and a current path $\mathbf{g}$, looks the same as before:
 \[
 	r_k(\mathbf{g}, \overline{g}_k) := \mdif{2} \Ld(g_{k-1}, \overline{g}_k) + \mdif{1} \Ld(\overline{g}_k, g_{k+1}) = 0.
 \]
-The residual $r_k$ is well-defined: each summand is a covector at $\overline{g}_k$ (in $T^*_{\overline{g}_k} G$), so their sum lives in the same cotangent fibre and we ask it to vanish.
-What \emph{fails} is the Jacobi-Newton update~\eqref{eq:jacobi-newton}:
-\[ \overline{q} = q_k - \mathcal{D}_k^{-1}\, r_k(\mathbf{q}, q_k), \]
+The residual itself isn't problematic, since each terms lives in $T_{\overline{g}_k} G$ which is, like all tangent spaces, a vector space.
+What does fail is the Jacobi-Newton update~\eqref{eq:jacobi-newton}:
+\[ \overline{q} = q_k - \bigl(\mdif{2} r_k(\mathbf{q}, q_k)\bigr)^{-1}\, r_k(\mathbf{q}, q_k), \]
 because this uses subtraction in a space $Q$ where no canonical subtraction is available.
 
-The fix is to parametrise the update by a tangent direction.
-We write
+To solve this, we need to work on the \newterm{Lie algebra}.
+The \newterm{Lie algebra} $\fg := T_e G$ is the tangent space at the identity, forming a vector space of the same dimension as $G$.
+For any other point $g \in G$, tangent directions are supplied by the differential $T_e L_g : \fg \to T_g G$ of the left-multiplication map $L_g : h \mapsto gh$, which is a isomorphism between these two vector spaces.
+
+In the vector-space case, the Newton update has form of $q_\textrm{new} = q_k + \delta q$: you compute a correction $\delta q$ in a vector space and add it. On $G$, there's no addition, so ``compute a correction and add it'' has no meaning. What we do instead is pick a vector space (here, $\fg$), compute a correction $\delta \xi$ there, and then map it to a nearby point in $G$ via some smooth curve.
+
+Such a map that turns an algebra direction $\delta \xi \in \fg$ into a point in $G$ near $g$ is called a \newterm{retraction} $\tau : \fg \to G$ where it has to satisfy $\tau(0) = e$ and $T_0\tau = \mathrm{Id}_\fg$.
+The canonical choice is the \newterm{exponential map} $\exp : \fg \to G$, which is a local diffeomorphism at $0 \in \fg$.
+Since $\exp$ maps algebra directions to group elements near $e$, left-translating by $g_k$ gives a map centred at $g_k$:
 \begin{equation}
 	\overline{g}_k = g_k \exp(\delta \xi_k), \qquad \delta \xi_k \in \fg,
 	\label{eq:lie-retraction}
 \end{equation}
-which we call the \newterm{retraction} of $\delta \xi_k$ at $g_k$.
-Now $\delta \xi_k$ lives in the vector space $\fg$, and we can solve for it by a linear system, just as in the vector-space case.
+the Lie-group analogue of $q_k + \delta q$ in the vector-space case.
+The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved for by a linear system.
 
 \begin{remark}[Other retractions]
 	The exponential map is one choice of retraction, but not the only one.
-	Any smooth map $\tau : \fg \to G$ with $\tau(0) = e$ and $T_0\tau = \mathrm{Id}_\fg$ does the job equally well for the convergence analysis (\autoref{sec:lie-groups-convergence}).
-	For matrix Lie groups, the \newterm{Cayley map} $\operatorname{cay}(\xi) = {(I - \xi/2)}^{-1}(I + \xi/2)$ is often a cheaper alternative to $\exp$: it requires only a matrix inversion, and for \emph{quadratic} groups ($SO(n)$, $Sp(2n)$, $O(p,q)$) it maps $\fg$ exactly into $G$.
-	We will write the algorithm using $\exp$ for definiteness, but everything works verbatim with any first-order retraction.
+	Any first-order retraction $\tau$ does the job equally well for the convergence analysis (\autoref{sec:lie-groups-convergence}).
+	Namely, for matrix Lie groups, the \newterm{Cayley map} $\operatorname{cay}(\xi) = {(I - \xi/2)}^{-1}(I + \xi/2)$ is the retraction of choice in practice, being simpler to compute.
 \end{remark}
 
-Throughout this chapter we use a \newterm{left-invariant} discrete Lagrangian: $\Ld(g_k, g_{k+1}) = \Ld(h g_k, h g_{k+1})$ for all $h \in G$.
-This is the natural setting for mechanical systems on Lie groups (the kinetic energy of a rigid body, for example, is invariant under the choice of inertial frame).
-We discuss the connection to the \newterm{reduced Lagrangian} $\ell : G \to \RR$ defined by $\ell(g_k^{-1} g_{k+1}) := \Ld(g_k, g_{k+1})$ and the \newterm{discrete Euler-Poincaré} equations in \autoref{rmk:lie-DEP} at the end of \autoref{sec:lie-groups-convergence}, but they are not needed for the main development.
+\section{The algorithm on Lie algebras}\label{sec:lie-groups-algorithm}
 
-\section{Algorithm}\label{sec:lie-groups-algorithm}
+We now linearise the residual $r_k(\mathbf{g}, g_k \exp \delta\xi) = 0$ at $\delta \xi = 0$ to obtain a linear system on $\fg$, the analogue of the vector-space Jacobi-Newton step~\eqref{eq:jacobi-newton}.
 
-Linearising the residual $r_k(\mathbf{g}, g_k \exp(\delta \xi))$ at $\delta \xi = 0$ in the direction $\delta \xi \in \fg$ gives a linear system on $\fg$:
+First, we calculate the derivative of $(L_g \circ \tau) (\xi)$ (which acts as $\xi \mapsto g \, \tau \xi$) at $\xi = 0$. Acting on an element $\eta$, this is
+\begin{equation}
+	\odv{}{\xi} \bigg|_0 (g \tau (\xi))\,[\eta] = T_e L_g(\eta).
+	\label{eq:lie-retraction-tangent}
+\end{equation}
+Commonly, $T_e L_g(\eta)$ is written as $g \cdot \eta$, which looks like somewhat of an abuse of notation, but is the direct computation for the case of matrix Lie groups (both $G$ and $T_g G$ are matrices, and the differential application is, in this case, matrix multiplication).
+
+The next step is to write the residual in the Lie-algebra.
+As it stands, the residual $r_k(\mathbf{g}, g_k) \in T_{g_k}^* G$ is a covector at $g_k$, but we need it as a covector on some element of $\fg$ to set up a linear system there.
+The main tool to do this is taking the \newterm{transpose} of $T_e L_{g_k} : \fg \to T_{g_k} G$:
+\begin{align*}
+	                          & {(T_e L_{g_k})}^* : T_{g_k}^* G \to \fg^* \\
+	\textrm{defined as} \quad & {(T_e L_{g_k})}^* \alpha = \alpha \circ T_e L_{g_k} \quad \textrm{for } \alpha \in T_{g_k}^*
+\end{align*}
+which pulls covectors back to the algebra. This is a (specific case of a) \newterm{pullback}. Note that since $T_e L_{g_k}$ is a diffeomorphism, both $T_e L_{g_k}$ and its transpose are isomorphism and this mapping can be done without loss of information.
+
+Then, the \newterm{Lie-algebra residual} at node $k$ is defined as:
+\begin{equation}
+	\widetilde{r}_k := {(T_e L_{g_k})}^* r_k(\mathbf{g}, g_k) \;\in\; \fg^*.
+	\label{eq:lie-residual}
+\end{equation}
+Since ${(T_e L_{g_k})}^*$ is an isomorphism, $\widetilde{r}_k = 0$ if and only if $r_k(\mathbf{g}, g_k) = 0$.
+
+Differentiating $r_k(\mathbf{g}, g_k \exp \delta\xi)$ in $\delta\xi$ at $0$ and applying~\eqref{eq:lie-retraction-tangent} via the chain rule gives the linear system
 \begin{equation}
 	\widetilde{\mathcal{D}}_k\, \delta \xi_k = -\widetilde{r}_k,
 	\tag{Jacobi-Newton-G}
 	\label{eq:jacobi-newton-G}
 \end{equation}
-where $\widetilde{r}_k \in \fg^*$ and $\widetilde{\mathcal{D}}_k : \fg \to \fg^*$ are the \newterm{Lie-algebra residual} and \newterm{Lie-algebra Hessian block} at node $k$.
-They are the left-translation pullbacks of $r_k$ and its derivative, evaluated at the current path:
+where the \newterm{Lie-algebra Hessian block} $\widetilde{\mathcal{D}}_k : \fg \to \fg^*$ at node $k$ is the left-translation pullback of the second-derivative blocks of $\Ld$:
 \begin{equation}
-	\begin{aligned}
-		\widetilde{r}_k           & = {(T_e L_{g_k})}^* r_k(\mathbf{g}, g_k),                                                                                        \\
-		\widetilde{\mathcal{D}}_k & = {(T_e L_{g_k})}^* \bigl(\mdif{22} \Ld(g_{k-1}, g_k) + \mdif{11} \Ld(g_k, g_{k+1})\bigr)\, (T_e L_{g_k}).
-	\end{aligned}
+	\widetilde{\mathcal{D}}_k = {(T_e L_{g_k})}^* \bigl(\mdif{22} \Ld(g_{k-1}, g_k) + \mdif{11} \Ld(g_k, g_{k+1})\bigr)\, (T_e L_{g_k}).
 	\label{eq:lie-jacobi-newton-blocks}
 \end{equation}
-Here $T_e L_g : \fg \to T_g G$, $\eta \mapsto g \cdot \eta$ is the differential of left translation at the identity, and ${(T_e L_g)}^*$ is its covector transpose.
-We derive~\eqref{eq:lie-jacobi-newton-blocks} from first principles in \autoref{sec:lie-groups-convergence}, where we will also need the off-diagonal Hessian blocks for the convergence analysis.
+Strictly speaking, differentiating also produces a second-order ``retraction-curvature'' term proportional to the residual $r_k$ itself; we omit it from $\widetilde{\mathcal{D}}_k$, which yields a simplified Newton step that agrees with the true Hessian at the solution (where the residual vanishes). We verify this in \autoref{sec:lie-hessian}.
 
+\paragraph{Update.}
 The update rule is
 \begin{equation}
 	\overline{g}_k = g_k\, \exp\bigl(-\widetilde{\mathcal{D}}_k^{-1}\, \widetilde{r}_k\bigr).
@@ -945,36 +965,26 @@ We write
 \[
 	\widetilde{R} := \nabla \Sigma(0) \in {(\fg^*)}^{N-1},
 	\qquad
-	\widetilde{H} := \nabla^2 \Sigma(0),
+	\widetilde{H} := \nabla^2 \Sigma(0).
 \]
-and call the $k$-th block of $\widetilde{R}$ the \newterm{Lie-algebra residual} $\widetilde{r}_k \in \fg^*$.
-
-\paragraph{Derivative of the retraction.}
-The single computational fact we use repeatedly is the derivative of $\xi \mapsto g \exp \xi$ at $\xi = 0$.
-By definition of the exponential, for any $\eta \in \fg$, $\tfrac{d}{dt}\big|_{0} g \exp(t \eta) = g \cdot \eta$, where the right-hand side is the tangent vector at $g$ obtained by left-translating $\eta$.
-This is the differential of left translation $T_e L_g : \fg \to T_g G$, so
-\begin{equation}
-	\frac{d}{d\xi}\bigg|_0 (g \exp \xi)\,[\eta] = T_e L_g(\eta).
-	\label{eq:lie-retraction-tangent}
-\end{equation}
-The second derivative of the retraction, in matrix-Lie-group notation, is
-\begin{equation}
-	\frac{\partial^2}{\partial s \, \partial t}\bigg|_{s = t = 0} g \exp(s \eta + t \zeta)
-	= g \cdot \tfrac{1}{2}(\eta \zeta + \zeta \eta),
-	\label{eq:lie-retraction-second}
-\end{equation}
-using $\exp(\xi) = I + \xi + \tfrac{1}{2} \xi^2 + O(\xi^3)$.
 
 \paragraph{Gradient.}
-Differentiating~\eqref{eq:lie-lifted-action} with respect to $\xi_k$ at $\boldsymbol \xi = 0$, only the two summands containing $\xi_k$ contribute (the $(k-1)$-th and $k$-th), and the chain rule together with~\eqref{eq:lie-retraction-tangent} gives
-\begin{equation}
-	\widetilde{r}_k = \partial_{\xi_k} \Sigma(0)
+Differentiating~\eqref{eq:lie-lifted-action} with respect to $\xi_k$ at $\boldsymbol \xi = 0$, only the $(k-1)$-th and $k$-th summands contribute, and the chain rule with~\eqref{eq:lie-retraction-tangent} recovers the Lie-algebra residual~\eqref{eq:lie-residual} introduced for the algorithm:
+\[
+	\partial_{\xi_k} \Sigma(0)
 	= {(T_e L_{g_k})}^* \bigl(\mdif{2} \Ld(g_{k-1}, g_k) + \mdif{1} \Ld(g_k, g_{k+1})\bigr)
-	= {(T_e L_{g_k})}^* r_k(\mathbf{g}, g_k),
-	\label{eq:lie-residual}
+	= \widetilde{r}_k.
+\]
+In particular, solutions of the DEL equations on $G$ are exactly the critical points of $\Sigma$.
+
+\paragraph{Second derivative of the retraction.}
+The Hessian computation needs the second derivative of $\xi \mapsto g \exp \xi$.
+In matrix-Lie-group notation, using $\exp(\xi) = I + \xi + \tfrac{1}{2} \xi^2 + O(\xi^3)$,
+\begin{equation}
+	\frac{\partial^2}{\partial s \, \partial t}\bigg|_{s = t = 0} g \exp(s \eta + t \zeta)
+	= g \cdot \tfrac{1}{2}(\eta \zeta + \zeta \eta).
+	\label{eq:lie-retraction-second}
 \end{equation}
-which is the first equation of~\eqref{eq:lie-jacobi-newton-blocks}.
-Since $T_e L_{g_k}$ is an isomorphism, $\widetilde{r}_k = 0$ if and only if $r_k(\mathbf{g}, g_k) = 0$: solutions of the DEL equations on $G$ are exactly the critical points of $\Sigma$.
 
 \paragraph{Hessian: diagonal block.}
 The diagonal block $\widetilde{\mathcal{D}}_k = \partial_{\xi_k}^2 \Sigma(0)$ picks up contributions from the two summands containing $\xi_k$.
@@ -989,7 +999,8 @@ Summing the two retraction-curvature terms collects $\mdif{2} \Ld(g_{k-1}, g_k) 
 \[
 	\widetilde{\mathcal{D}}_k\big|_{\mathbf{g}^*} = {(T_e L_{g_k^*})}^* \bigl(\mdif{22} \Ld(g_{k-1}^*, g_k^*) + \mdif{11} \Ld(g_k^*, g_{k+1}^*)\bigr)(T_e L_{g_k^*}),
 \]
-which is the second equation of~\eqref{eq:lie-jacobi-newton-blocks}.
+matching~\eqref{eq:lie-jacobi-newton-blocks}.
+This confirms that the simplified Newton step used by the algorithm employs the true Hessian diagonal block at the solution.
 
 \paragraph{Hessian: off-diagonal block.}
 The block $\widetilde{\mathcal{C}}_k = \partial_{\xi_k} \partial_{\xi_{k+1}} \Sigma(0)$ picks up only one summand (the $k$-th), and since the parametrisation $(\xi_k, \xi_{k+1}) \mapsto (g_k \exp \xi_k, g_{k+1} \exp \xi_{k+1})$ is a product of independent retractions, there is no retraction-curvature term:
@@ -1003,7 +1014,7 @@ This expression holds at every path, not just at $\mathbf{g}^*$.
 Defining, on each edge $k = 0, 1, \ldots, N-1$, the \newterm{Lie-algebra Hessian blocks}
 \begin{equation}
 	\begin{aligned}
-		\widetilde{\mathcal{A}}_k & := {(T_e L_{g_k})}^*\, \mdif{11} \Ld(g_k, g_{k+1})\, (T_e L_{g_k}),       \\
+		\widetilde{\mathcal{A}}_k & := {(T_e L_{g_k})}^*\, \mdif{11} \Ld(g_k, g_{k+1})\, (T_e L_{g_k}),         \\
 		\widetilde{\mathcal{B}}_k & := {(T_e L_{g_{k+1}})}^*\, \mdif{22} \Ld(g_k, g_{k+1})\, (T_e L_{g_{k+1}}), \\
 		\widetilde{\mathcal{C}}_k & := {(T_e L_{g_k})}^*\, \mdif{12} \Ld(g_k, g_{k+1})\, (T_e L_{g_{k+1}}),
 	\end{aligned}
@@ -1013,11 +1024,11 @@ we have $\widetilde{\mathcal{D}}_k = \widetilde{\mathcal{B}}_{k-1} + \widetilde{
 The full Lie-algebra Hessian at $\mathbf{g}^*$ is the block-tridiagonal matrix
 \begin{equation}
 	\widetilde{H}(\mathbf{g}^*) = \begin{pmatrix}
-		\widetilde{\mathcal{D}}_1       & \widetilde{\mathcal{C}}_1       &                                 &                                   &                               \\
-		\widetilde{\mathcal{C}}_1^T     & \widetilde{\mathcal{D}}_2       & \widetilde{\mathcal{C}}_2       &                                   &                               \\
-		                                & \ddots                           & \ddots                          & \ddots                            &                               \\
-		                                &                                  & \widetilde{\mathcal{C}}_{N-3}^T & \widetilde{\mathcal{D}}_{N-2}     & \widetilde{\mathcal{C}}_{N-2} \\
-		                                &                                  &                                 & \widetilde{\mathcal{C}}_{N-2}^T   & \widetilde{\mathcal{D}}_{N-1}
+		\widetilde{\mathcal{D}}_1   & \widetilde{\mathcal{C}}_1 &                                 &                                 &                               \\
+		\widetilde{\mathcal{C}}_1^T & \widetilde{\mathcal{D}}_2 & \widetilde{\mathcal{C}}_2       &                                 &                               \\
+		                            & \ddots                    & \ddots                          & \ddots                          &                               \\
+		                            &                           & \widetilde{\mathcal{C}}_{N-3}^T & \widetilde{\mathcal{D}}_{N-2}   & \widetilde{\mathcal{C}}_{N-2} \\
+		                            &                           &                                 & \widetilde{\mathcal{C}}_{N-2}^T & \widetilde{\mathcal{D}}_{N-1}
 	\end{pmatrix}.
 	\label{eq:lie-hessian-matrix}
 \end{equation}
@@ -1031,65 +1042,65 @@ If $G = \RR^n$, then $T_e L_g = \mathrm{Id}$ and~\eqref{eq:lie-hessian-blocks} r
 \end{theorem}
 
 \begin{proof}
-The Jacobi-Newton-G iteration is a smooth map $T : G^{N-1} \to G^{N-1}$ with $\mathbf{g}^*$ as a fixed point.
-Read in the Lie-algebra chart
-\[
-	\Psi : V \subset \fg^{N-1} \to U \subset G^{N-1},
-	\qquad
-	\Psi(\boldsymbol \xi) = (g_1^* \exp \xi_1, \ldots, g_{N-1}^* \exp \xi_{N-1}),
-\]
-defined on a neighbourhood $V$ of $0$ where $\exp$ is a local diffeomorphism on each factor, the iteration becomes $\widetilde{T} := \Psi^{-1} \circ T \circ \Psi$ with $\widetilde{T}(0) = 0$.
-The standard fixed-point linearisation theorem (in $\RR^n$, see~\cite[pp.~321, 332]{ortegaIterativeSolutionNonlinear2000}) says that if $\rho(\widetilde{T}'(0)) < 1$, then $0$ is locally attracting for $\widetilde{T}$, which gives the conclusion after pulling back through $\Psi$.
+	The Jacobi-Newton-G iteration is a smooth map $T : G^{N-1} \to G^{N-1}$ with $\mathbf{g}^*$ as a fixed point.
+	Read in the Lie-algebra chart
+	\[
+		\Psi : V \subset \fg^{N-1} \to U \subset G^{N-1},
+		\qquad
+		\Psi(\boldsymbol \xi) = (g_1^* \exp \xi_1, \ldots, g_{N-1}^* \exp \xi_{N-1}),
+	\]
+	defined on a neighbourhood $V$ of $0$ where $\exp$ is a local diffeomorphism on each factor, the iteration becomes $\widetilde{T} := \Psi^{-1} \circ T \circ \Psi$ with $\widetilde{T}(0) = 0$.
+	The standard fixed-point linearisation theorem (in $\RR^n$, see~\cite[pp.~321, 332]{ortegaIterativeSolutionNonlinear2000}) says that if $\rho(\widetilde{T}'(0)) < 1$, then $0$ is locally attracting for $\widetilde{T}$, which gives the conclusion after pulling back through $\Psi$.
 
-The proof reduces to two steps:
-\begin{description}
-	\item[Step A] Compute $\widetilde{T}'(0)$ and show it equals the block Jacobi iteration matrix $\widetilde{J} := -\widetilde{D}^{-1}(\widetilde{L} + \widetilde{U})$ associated with $\widetilde{H}(\mathbf{g}^*) = \widetilde{D} + \widetilde{L} + \widetilde{U}$ (block-diagonal + strictly lower + strictly upper parts).
-	\item[Step B] Show that $\widetilde{H}(\mathbf{g}^*) \succ 0$ implies $\rho(\widetilde{J}) < 1$.  This is a classical statement about symmetric positive-definite block-tridiagonal matrices~\cite[Theorem~6.38]{axelssonIterativeSolutionMethods1994}.
-\end{description}
+	The proof reduces to two steps:
+	\begin{description}
+		\item[Step A] Compute $\widetilde{T}'(0)$ and show it equals the block Jacobi iteration matrix $\widetilde{J} := -\widetilde{D}^{-1}(\widetilde{L} + \widetilde{U})$ associated with $\widetilde{H}(\mathbf{g}^*) = \widetilde{D} + \widetilde{L} + \widetilde{U}$ (block-diagonal + strictly lower + strictly upper parts).
+		\item[Step B] Show that $\widetilde{H}(\mathbf{g}^*) \succ 0$ implies $\rho(\widetilde{J}) < 1$.  This is a classical statement about symmetric positive-definite block-tridiagonal matrices~\cite[Theorem~6.38]{axelssonIterativeSolutionMethods1994}.
+	\end{description}
 
-\emph{Step A.}
-Write $\widetilde{T} = (\widetilde{T}_1, \ldots, \widetilde{T}_{N-1})$ with each $\widetilde{T}_k : V \to \fg$.
-Setting $\mathbf{g} = \Psi(\boldsymbol \xi)$, the Jacobi-Newton-G step produces $\delta \xi_k(\boldsymbol \xi) = -\widetilde{\mathcal{D}}_k(\mathbf{g})^{-1}\, \widetilde{r}_k(\mathbf{g})$ and then $\overline{g}_k = g_k \exp(\delta \xi_k)$.
-Reading the new value of $\xi_k$ in chart coordinates,
-\begin{equation}
-	\widetilde{T}_k(\boldsymbol \xi) = \mu(\xi_k,\, \delta \xi_k(\boldsymbol \xi)),
-	\qquad \mu(\alpha, \beta) := \log(\exp \alpha\, \exp \beta).
-	\label{eq:Tk-mu}
-\end{equation}
+	\emph{Step A.}
+	Write $\widetilde{T} = (\widetilde{T}_1, \ldots, \widetilde{T}_{N-1})$ with each $\widetilde{T}_k : V \to \fg$.
+	Setting $\mathbf{g} = \Psi(\boldsymbol \xi)$, the Jacobi-Newton-G step produces $\delta \xi_k(\boldsymbol \xi) = -\widetilde{\mathcal{D}}_k(\mathbf{g})^{-1}\, \widetilde{r}_k(\mathbf{g})$ and then $\overline{g}_k = g_k \exp(\delta \xi_k)$.
+	Reading the new value of $\xi_k$ in chart coordinates,
+	\begin{equation}
+		\widetilde{T}_k(\boldsymbol \xi) = \mu(\xi_k,\, \delta \xi_k(\boldsymbol \xi)),
+		\qquad \mu(\alpha, \beta) := \log(\exp \alpha\, \exp \beta).
+		\label{eq:Tk-mu}
+	\end{equation}
 
-At $\boldsymbol \xi = 0$: $\mathbf{g} = \mathbf{g}^*$, hence $r_k(\mathbf{g}^*, g_k^*) = 0$, hence $\widetilde{r}_k(\mathbf{g}^*) = 0$, hence $\delta \xi_k(0) = 0$ and $\widetilde{T}_k(0) = \mu(0, 0) = 0$.
-(The diagonal block $\widetilde{\mathcal{D}}_k(\mathbf{g}^*)$ is invertible because positive-definite matrices have positive-definite diagonal blocks by Sylvester's criterion.)
+	At $\boldsymbol \xi = 0$: $\mathbf{g} = \mathbf{g}^*$, hence $r_k(\mathbf{g}^*, g_k^*) = 0$, hence $\widetilde{r}_k(\mathbf{g}^*) = 0$, hence $\delta \xi_k(0) = 0$ and $\widetilde{T}_k(0) = \mu(0, 0) = 0$.
+	(The diagonal block $\widetilde{\mathcal{D}}_k(\mathbf{g}^*)$ is invertible because positive-definite matrices have positive-definite diagonal blocks by Sylvester's criterion.)
 
-The Baker--Campbell--Hausdorff formula gives $\mu(\alpha, \beta) = \alpha + \beta + \tfrac{1}{2}[\alpha, \beta] + O(3)$, so $\partial_\alpha \mu(0, 0) = \partial_\beta \mu(0, 0) = \mathrm{Id}_\fg$.
-Differentiating~\eqref{eq:Tk-mu} at $\boldsymbol \xi = 0$ and using $\delta \xi_k(0) = 0$,
-\begin{equation}
-	\frac{\partial \widetilde{T}_k}{\partial \xi_j}\bigg|_0 = \delta_{kj}\, \mathrm{Id}_\fg + \frac{\partial \delta \xi_k}{\partial \xi_j}\bigg|_0.
-	\label{eq:Tprime-decomp}
-\end{equation}
-The product rule applied to $\delta \xi_k(\boldsymbol \xi) = -\widetilde{\mathcal{D}}_k(\mathbf{g})^{-1} \widetilde{r}_k(\mathbf{g})$ gives, at $\boldsymbol \xi = 0$,
-\[
-	\frac{\partial \delta \xi_k}{\partial \xi_j}\bigg|_0
-	= \underbrace{-\bigl(\partial_{\xi_j} \widetilde{\mathcal{D}}_k^{-1}\bigr)\big|_0\, \widetilde{r}_k(\mathbf{g}^*)}_{=\, 0\text{ since } \widetilde{r}_k(\mathbf{g}^*) = 0}
-	\;-\; \widetilde{\mathcal{D}}_k(\mathbf{g}^*)^{-1}\, \frac{\partial \widetilde{r}_k}{\partial \xi_j}\bigg|_0.
-\]
-Differentiating $\widetilde{r}_k(\mathbf{g})[\eta] = r_k(\mathbf{g}, g_k)[T_e L_{g_k} \eta]$ in $\xi_j$ and using $r_k(\mathbf{g}^*, g_k^*) = 0$ to kill the variation-of-pullback term, we get for $j \in \{k-1, k, k+1\}$:
-\begin{align*}
-	\partial_{\xi_{k-1}} \widetilde{r}_k\big|_0 & = \widetilde{\mathcal{C}}_{k-1}^T, \\
-	\partial_{\xi_k} \widetilde{r}_k\big|_0     & = \widetilde{\mathcal{D}}_k,        \\
-	\partial_{\xi_{k+1}} \widetilde{r}_k\big|_0 & = \widetilde{\mathcal{C}}_k,
-\end{align*}
-and $0$ otherwise — precisely the $(k,j)$ blocks of $\widetilde{H}(\mathbf{g}^*)$.
-Substituting into~\eqref{eq:Tprime-decomp},
-\[
-	\widetilde{T}'(0) = I - \widetilde{D}^{-1}\, \widetilde{H}(\mathbf{g}^*) = -\widetilde{D}^{-1}(\widetilde{L} + \widetilde{U}) = \widetilde{J}.
-\]
+	The Baker--Campbell--Hausdorff formula gives $\mu(\alpha, \beta) = \alpha + \beta + \tfrac{1}{2}[\alpha, \beta] + O(3)$, so $\partial_\alpha \mu(0, 0) = \partial_\beta \mu(0, 0) = \mathrm{Id}_\fg$.
+	Differentiating~\eqref{eq:Tk-mu} at $\boldsymbol \xi = 0$ and using $\delta \xi_k(0) = 0$,
+	\begin{equation}
+		\frac{\partial \widetilde{T}_k}{\partial \xi_j}\bigg|_0 = \delta_{kj}\, \mathrm{Id}_\fg + \frac{\partial \delta \xi_k}{\partial \xi_j}\bigg|_0.
+		\label{eq:Tprime-decomp}
+	\end{equation}
+	The product rule applied to $\delta \xi_k(\boldsymbol \xi) = -\widetilde{\mathcal{D}}_k(\mathbf{g})^{-1} \widetilde{r}_k(\mathbf{g})$ gives, at $\boldsymbol \xi = 0$,
+	\[
+		\frac{\partial \delta \xi_k}{\partial \xi_j}\bigg|_0
+		= \underbrace{-\bigl(\partial_{\xi_j} \widetilde{\mathcal{D}}_k^{-1}\bigr)\big|_0\, \widetilde{r}_k(\mathbf{g}^*)}_{=\, 0\text{ since } \widetilde{r}_k(\mathbf{g}^*) = 0}
+		\;-\; \widetilde{\mathcal{D}}_k(\mathbf{g}^*)^{-1}\, \frac{\partial \widetilde{r}_k}{\partial \xi_j}\bigg|_0.
+	\]
+	Differentiating $\widetilde{r}_k(\mathbf{g})[\eta] = r_k(\mathbf{g}, g_k)[T_e L_{g_k} \eta]$ in $\xi_j$ and using $r_k(\mathbf{g}^*, g_k^*) = 0$ to kill the variation-of-pullback term, we get for $j \in \{k-1, k, k+1\}$:
+	\begin{align*}
+		\partial_{\xi_{k-1}} \widetilde{r}_k\big|_0 & = \widetilde{\mathcal{C}}_{k-1}^T, \\
+		\partial_{\xi_k} \widetilde{r}_k\big|_0     & = \widetilde{\mathcal{D}}_k,       \\
+		\partial_{\xi_{k+1}} \widetilde{r}_k\big|_0 & = \widetilde{\mathcal{C}}_k,
+	\end{align*}
+	and $0$ otherwise — precisely the $(k,j)$ blocks of $\widetilde{H}(\mathbf{g}^*)$.
+	Substituting into~\eqref{eq:Tprime-decomp},
+	\[
+		\widetilde{T}'(0) = I - \widetilde{D}^{-1}\, \widetilde{H}(\mathbf{g}^*) = -\widetilde{D}^{-1}(\widetilde{L} + \widetilde{U}) = \widetilde{J}.
+	\]
 
-\emph{Step B.}
-$\widetilde{H}(\mathbf{g}^*)$ is symmetric (as the Hessian of $\Sigma$) and positive definite by hypothesis.
-Sylvester's criterion gives that each diagonal block $\widetilde{\mathcal{D}}_k$ is positive definite, hence $\widetilde{J}$ is well-defined.
-\cite[Theorem~6.38]{axelssonIterativeSolutionMethods1994} then gives $\rho(\widetilde{J}) < 1$.
+	\emph{Step B.}
+	$\widetilde{H}(\mathbf{g}^*)$ is symmetric (as the Hessian of $\Sigma$) and positive definite by hypothesis.
+	Sylvester's criterion gives that each diagonal block $\widetilde{\mathcal{D}}_k$ is positive definite, hence $\widetilde{J}$ is well-defined.
+	\cite[Theorem~6.38]{axelssonIterativeSolutionMethods1994} then gives $\rho(\widetilde{J}) < 1$.
 
-Combining, $\rho(\widetilde{T}'(0)) = \rho(\widetilde{J}) < 1$, and the fixed-point linearisation theorem completes the proof.
+	Combining, $\rho(\widetilde{T}'(0)) = \rho(\widetilde{J}) < 1$, and the fixed-point linearisation theorem completes the proof.
 \end{proof}
 
 \begin{remark}[Where the manifold structure enters]\label{rmk:where-manifold-enters}
@@ -1120,7 +1131,7 @@ Just as in the vector-space case (\autoref{thm:local-hessian-pd-convergence}), t
 \end{proof}
 
 \begin{remark}[Connection to the discrete Euler-Poincaré equations]\label{rmk:lie-DEP}
-	A left-invariant discrete Lagrangian factors through the quotient $f_k = g_k^{-1} g_{k+1}$, giving the reduced Lagrangian $\ell : G \to \RR$ with $\ell(f_k) = \Ld(g_k, g_{k+1})$.
+	When the discrete Lagrangian is \newterm{left-invariant} — $\Ld(g_k, g_{k+1}) = \Ld(h g_k, h g_{k+1})$ for all $h \in G$, the natural setting for mechanical systems on Lie groups — it factors through the quotient $f_k = g_k^{-1} g_{k+1}$, giving the \newterm{reduced Lagrangian} $\ell : G \to \RR$ with $\ell(f_k) = \Ld(g_k, g_{k+1})$.
 	The DEL equations on $G$ are equivalent to the \newterm{discrete Euler-Poincaré (DEP)} equations
 	\begin{equation}
 		{(TL_{f_{k-1}})}^* d\ell(f_{k-1}) = {(TR_{f_k})}^* d\ell(f_k).
@@ -1138,14 +1149,14 @@ Just as in the vector-space case (\autoref{thm:local-hessian-pd-convergence}), t
 \subsection{Free particle on $G$}\label{sec:lie-example-free}
 
 \todo{Lagrangian $L(g, \dot g) = \tfrac{1}{2} \langle \xi, \mathbb{M} \xi \rangle$ with $\xi = g^{-1} \dot g$ and $\mathbb{M}$ a positive-definite bilinear form on $\fg$.
-A standard order-1 discretisation gives $\Ld(g_k, g_{k+1}) = \tfrac{1}{h} \langle \log(g_k^{-1} g_{k+1}), \mathbb{M} \log(g_k^{-1} g_{k+1}) \rangle$ (or the Cayley analogue).
-Compute the Lie-algebra Hessian blocks and verify that $\widetilde{H}_k$ is positive definite uniformly, so the algorithm converges for any path.}
+	A standard order-1 discretisation gives $\Ld(g_k, g_{k+1}) = \tfrac{1}{h} \langle \log(g_k^{-1} g_{k+1}), \mathbb{M} \log(g_k^{-1} g_{k+1}) \rangle$ (or the Cayley analogue).
+	Compute the Lie-algebra Hessian blocks and verify that $\widetilde{H}_k$ is positive definite uniformly, so the algorithm converges for any path.}
 
 \subsection{Rigid body on $SO(3)$}\label{sec:lie-example-rigid-body}
 
 \todo{The canonical mechanical example. $G = SO(3)$, $\fg = \mathfrak{so}(3) \cong \RR^3$ via the hat map.
-Lagrangian $L(R, \dot R) = \tfrac{1}{2} \Omega^T \mathbb{I}\, \Omega$ with $\Omega = R^T \dot R$ the body angular velocity and $\mathbb{I}$ the inertia tensor.
-Discretise using the Moser--Veselov / Marsden--Pekarsky--Shkoller approach~\cite{marsdenDiscreteEulerPoincareLiePoisson1999}.
-Compute $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\mathcal{C}}_k$ explicitly and verify the local edge condition holds for small enough time step $h$.}
+	Lagrangian $L(R, \dot R) = \tfrac{1}{2} \Omega^T \mathbb{I}\, \Omega$ with $\Omega = R^T \dot R$ the body angular velocity and $\mathbb{I}$ the inertia tensor.
+	Discretise using the Moser--Veselov / Marsden--Pekarsky--Shkoller approach~\cite{marsdenDiscreteEulerPoincareLiePoisson1999}.
+	Compute $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\mathcal{C}}_k$ explicitly and verify the local edge condition holds for small enough time step $h$.}
 
 
