@@ -25,20 +25,20 @@ where $f^\pm_d : Q \times Q \to T^* Q$.
 
 \section{The parallel algorithm on forced systems}
 
-In this section we show how to extend the parallel algorithm (\autoref{sec:parallel-algorithm}) to use these forces. The only difference is in the residual, where we have to insert \autoref{eq:euler-lagrange-discrete-forced} instead of \autoref{eq:euler-lagrange-discrete}. The global residual is modified form \autoref{eq:residual-global} to
+In this section we show how to extend the parallel algorithm (\cref{sec:parallel-algorithm}) to use these forces. The only difference is in the residual, where we have to insert \cref{eq:euler-lagrange-discrete-forced} instead of \cref{eq:euler-lagrange-discrete}. The global residual is modified form \cref{eq:residual-global} to
 \begin{equation}
 	R(\mathbf{q}) = \sum_{k=1}^{N-1}
 	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})
 	\label{eq:residual-global-forced}
 \end{equation}
-and the local residual, from \autoref{eq:residual-local} to
+and the local residual, from \cref{eq:residual-local} to
 \begin{equation}
 	r_k(\mathbf{q}, \overline{q}) =
 	\mdif{2} L_d (q_{k-1}, \overline{q}) + f_d^+ (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1}) + f_d^- (\overline{q}, q_{k+1})
 \end{equation}
 locally.
 
-Utilizing these definitions for the residual, and supposing that $Q$ is a vector space, the computation based on the parallel algorithm is the exact same (which is, incidentally, why we introduced the method based on residuals in \autoref{sec:parallel-algorithm}). In fact, it's easy to see that the regular case already known can be obtained by setting the forces to $0$ in the forced case.
+Utilizing these definitions for the residual, and supposing that $Q$ is a vector space, the computation based on the parallel algorithm is the exact same (which is, incidentally, why we introduced the method based on residuals in \cref{sec:parallel-algorithm}). In fact, it's easy to see that the regular case already known can be obtained by setting the forces to $0$ in the forced case.
 
 \section{Convergence}\label{sec:forced-systems-convergence}
 
@@ -63,7 +63,7 @@ For generic forces, the relevant criterion is given~\cite[Lemma 4.4]{ferraroPara
 
 In practice, to determine whether a specific system converges, there might be no better method than directly estimating $\rho(J(\mathbf{q}^*))$ by power iteration (i.e., Arnoldi/Lanzcos). This requires factoring each diagonal block of $\mdif* f(\mathbf{q}^*)$ once (an $O(N n^3)$ setup), then performing block-tridiagonal matrix-vector products at $O(N n^2)$ per power-iteration step until the dominant eigenvalue stabilizes. If all one wants is a yes/no answer for a concrete problem at run time, this is what we would recommend doing.
 
-The remainder of this section is therefore not concerned with finding the cheapest numerical check, but with \emph{structural} sufficient conditions: closed-form criteria stated in terms of the discrete Lagrangian and forces themselves, rather than the assembled iteration matrix. These are valuable for several reasons: they let us prove convergence for entire classes of systems at once (rather than path by path), they generalize the well-known unforced criterion (\autoref{thm:local-hessian-pd-convergence}) and make the role of the forces in convergence explicit, and they connect to standard structural conditions in numerical analysis (Gershgorin-style diagonal dominance). With this in mind, we proceed.
+The remainder of this section is therefore not concerned with finding the cheapest numerical check, but with \emph{structural} sufficient conditions: closed-form criteria stated in terms of the discrete Lagrangian and forces themselves, rather than the assembled iteration matrix. These are valuable for several reasons: they let us prove convergence for entire classes of systems at once (rather than path by path), they generalize the well-known unforced criterion (\cref{thm:local-hessian-pd-convergence}) and make the role of the forces in convergence explicit, and they connect to standard structural conditions in numerical analysis (Gershgorin-style diagonal dominance). With this in mind, we proceed.
 
 The first step necessary to get an expression for $J^f$ is to calculate the derivative of~\eqref{eq:euler-lagrange-discrete-forced}, $\mdif* f$, which we will name $H^f$, as it is the forced analogue of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function $F$, just $\mdif* f$). The result is the following (similar to~\eqref{eq:hessian-matrix}):
 \begin{align*}
@@ -110,7 +110,7 @@ There are two ways to proceed from here. On one hand, we can try to find come cr
 
 A natural way to try to extend a result for symmetric to asymetric matrices is to split them in their \newterm{symmetric} and \newterm{skew} components. Namely, any matrix $M$ can be written as $M = \Sym(M) + \Skew(M)$, where $\Sym(M) = \tfrac{1}{2}(M + M^T)$ is symmetric and $\Skew(M) = \tfrac{1}{2}(M - M^T)$ is not.
 
-One might expect that an analogue of \autoref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \bigl(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\bigr)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is unbounded.
+One might expect that an analogue of \cref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \bigl(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\bigr)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is unbounded.
 
 % All of this is pointless. Maybe I could mention it.
 % \begin{theorem}[Local sym-positivity implies global]\label{thm:forced-local-implies-global}
@@ -184,7 +184,7 @@ Of course, the question is how to make ``large enough'' precise. The natural app
 	\[
 		\rho(J^f) \;\leq\; \|J^f\|_{\infty, 2} \;\leq\; \max_j \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \;<\; 1.
 	\]
-	Invertibility of every $\hat{\mathcal{D}}_j$ and $\rho(J^f) < 1$ are exactly the hypotheses of~\autoref{lem:jacobi-newton-convergence}, which gives local convergence of the forced Jacobi--Newton method to $\mathbf{q}^*$.
+	Invertibility of every $\hat{\mathcal{D}}_j$ and $\rho(J^f) < 1$ are exactly the hypotheses of~\cref{lem:jacobi-newton-convergence}, which gives local convergence of the forced Jacobi--Newton method to $\mathbf{q}^*$.
 \end{proof}
 
 \begin{remark}[Reduction to the unforced case]\label{rem:forced-local-recovery}
@@ -199,7 +199,7 @@ Of course, the question is how to make ``large enough'' precise. The natural app
 	\[
 		\min\!\bigl(\lambda_{\min}(\mdif{11}\Ld),\, \lambda_{\min}(\mdif{22}\Ld)\bigr) > \|\mdif{12}\Ld\|_2,
 	\]
-	which is exactly the diagonal-block dominance condition on the unforced local Hessian $H_k$: each diagonal block must dominate the off-diagonal coupling in spectral norm, which in particular implies $H_k \succ 0$ and recovers the convergence criterion of \autoref{thm:local-hessian-pd-convergence}.
+	which is exactly the diagonal-block dominance condition on the unforced local Hessian $H_k$: each diagonal block must dominate the off-diagonal coupling in spectral norm, which in particular implies $H_k \succ 0$ and recovers the convergence criterion of \cref{thm:local-hessian-pd-convergence}.
 \end{remark}
 
 \begin{remark}[Time complexity]\label{rem:forced-local-complexity}
@@ -254,10 +254,10 @@ The following theorem states in a rigourous and quantitative manner the intuitiv
 
 \end{proof}
 
-In~\autoref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exists. In the following lemma, we find an explicit computation, under the mild additional assumption that $\|J\| < 1$ holds in some submultiplicative matrix norm (i.e., a norm such that $|A B| \leq |A| |B|$). This condition is stricter than $\rho(J) < 1$, but is typically satisfied for stable variational integrators.
+In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exists. In the following lemma, we find an explicit computation, under the mild additional assumption that $\|J\| < 1$ holds in some submultiplicative matrix norm (i.e., a norm such that $|A B| \leq |A| |B|$). This condition is stricter than $\rho(J) < 1$, but is typically satisfied for stable variational integrators.
 
 \begin{lemma}[Explicit perturbation bound]\label{lem:forced-perturbation-explicit}
-	Assume the hypotheses of \autoref{thm:forced-perturbation}, and further that $\|J\| < 1$ in a submultiplicative norm $\|\cdot\|$ in which the block-diagonal projection is contractive (e.g.\ the spectral norm). Then the conclusion of the theorem holds with
+	Assume the hypotheses of \cref{thm:forced-perturbation}, and further that $\|J\| < 1$ in a submultiplicative norm $\|\cdot\|$ in which the block-diagonal projection is contractive (e.g.\ the spectral norm). Then the conclusion of the theorem holds with
 	\begin{equation}
 		\varepsilon = \frac{1 - \|J\|}{3\,\|D^{-1}\|}.
 		\label{eq:forced-perturbation-epsilon}

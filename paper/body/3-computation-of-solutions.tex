@@ -1,8 +1,8 @@
-\chapter{Computation of Euler-Lagrange solutions}\label{sec:discretization-euler-lagrange}
+\chapter{Computation of Euler-Lagrange solutions}\label{sec:euler-lagrange-solutions}
 
-Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange (\autoref{eq:euler-lagrange}), and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q = \RR^n$ (or in general $Q \cong \RR^n$) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaan \todo{should I cite?}.
+Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange (\cref{eq:euler-lagrange}), and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q = \RR^n$ (or in general $Q \cong \RR^n$) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaan \todo{should I cite?}.
 
-However, discretization the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the geometric information of the configuration manifold $Q$. These will be explained in \autoref{sec:pitfalls-discrete-el-ode}. Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration} \todo{is it?} will be explained in \autoref{sec:discretizing-configuration-space}
+However, discretization the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the geometric information of the configuration manifold $Q$. These will be explained in \cref{sec:pitfalls-discrete-el-ode}. Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration} \todo{is it?} will be explained in \cref{sec:discretizing-configuration-space}
 
 But, to understand the tradeoffs between the approaches, we first need to examine some important geometric properties Euler-Lagrange.
 
@@ -126,7 +126,7 @@ Of course, the question now is to verify under what conditions this algorithm pr
 
 Given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the hessian of $F$ is positive definite \tc{}. Hamilton's principle is such a formulation: extremizing the action, which quite literally means that its derivative has to be $0$. That is, $R = \nabla S$. We will call the Hessian in question (i.e., of the action) the \newterm{global Hessian matrix}, $H$.
 
-So, given the action defined as in \autoref{eq:action-discrete} for a path $\mathbf{q}$ of length $N$
+So, given the action defined as in \cref{eq:action-discrete} for a path $\mathbf{q}$ of length $N$
 \[ 	S_d (\mathbf{q}) : Q^N \to \RR = \sum_{k=0}^{N-2} \Ld(q_k, q_{k+1})
 \]
 the derivative with respect to the $i$th component is, as usual,
