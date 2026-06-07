@@ -1,0 +1,17 @@
+\chapter{Introduction}
+
+In the Lagrangian formulation of physics, possible trajectories of a system in a configuration space ($q(t) \in Q$) are given as the stationary points of the action, defined as $S =\int L(q(t), \dot{q}(t)) \odif{t}$. Of course, it's often nice to work analytically with these equations. In practice, however, the Lagrangian is either too complicated or fundamentally numerical-based. These cases are untractable to handle analytically, so it's very common to instead find approximations numerically.
+
+The aim of this paper is to \begin{itemize}
+	\item explain discretization approaches to the Euler-Lagrange equations
+	\item showcase a parallel algorithm to compute numerical solutions for discrete Euler-Lagrange equations
+	\item showcase how to extend the parallel algorith.  to forced systems and Lie groups
+\end{itemize}
+
+This paper is meant to be a motivated introduction to numerical computations of Euler-Lagrange equations. Specifically, on the computational side, to parallel algorithms; and on the mathematical side, to forced systems and Lie groups. Most of the concepts and results showcased in the paper are not novel, except for the convergence criteria in \autoref{sec:forced-systems-convergence} and~\ref{sec:lie-groups-convergence}
+
+\todo{Write about that a computer scientist should be able to implement this algorithm by reading the paper.}
+\todo{Write about how this is meant to be a motivated introduction to Lagrangian systems.}
+
+In \autoref{sec:background} we summarize variational integration methods which can preserve geometric properties of the configuration manifold, and showcase an algorithm to carry out the computations efficiently and in parallel. Then, we explain how to generalize this method and algorithm to forced systems in \autoref{sec:forced-systems} and to Lie groups in \autoref{sec:lie-groups}.
+

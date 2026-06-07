@@ -1,0 +1,83 @@
+\chapter{Theoretical Background}\label{sec:background}
+
+\section{Basic mathematical notions}
+
+In this section we give a brief overview of the mathematical tools that will be used, as well as clarification on the meaning of certain terms (like ``smooth''). This paper is not meant to be an introduction to the mathematical tools used, so some familiarity with smooth manifold and Lie groups/algebras from the reader would be useful. However, as explained in the introduction, it is meant to be a motivated introductions as to \emph{why} we would choose to apply these tools in this way.
+
+Whenever a new term is introduced, it is \newterm{highlighted like this}. Additional results used occasionally in the paper are available in \autoref{apx:additional-mathematical-results}.
+
+\todo{
+	Write about:
+	\begin{itemize}
+		\item smooth manifolds, tangent spaces
+		\item lie groups, lie algebras
+		\item discretization?
+	\end{itemize}
+}
+
+\subsection*{Notation}
+
+\todo{rethink: I think derivatives with respect to \emph{variables} should be $\partial_{q_k}$ or similar}
+
+We use $\mdif{i} f$ to represent the partial derivivative of a function $f$ over the $i$th argument. We overload that notation where, if we have a variable instead of an index, such as $\mdif{q_i}$, then that means the derivative with respect to that variable. Furthermore, two indices or two variables are interpreted as $\mdif{i j} = \mdif{j} \circ \mdif{i}$.
+
+\todo{Explain $\mdif* f$ without index.}
+
+\section{Physical systems, configuration space and Lagrangians}
+
+A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we are always going to use the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
+
+\todo{try with: Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, having manifolds with some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states.}
+
+The simplest (and likely most common) example of a configuration space is $\RR^n$. A model with an uncontrained particle would use $\RR^3$ as the configuration space, or $\RR^{3N}$ for $N$ particles. However, the configuration space being a more general manifold can encode constraints about periodicity, topology or other types of global constraints. For instance, one can try to encode the state of a pendumul with $\RR^1$, using the angle as a number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are clearly different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity, and also reveals facts such as the configuration space being compact, which $\RR$ is not.
+
+% Another example to illuminate why having different manifolds as configuration spaces is useful is $SO(3)$ (or in general $SO(n)$). Since $SO(3)$ has an isomorphism with $\RR^3$ \tc{} it might be tempting to use $\RR^3$ directly as the configuration space, but doing this not only loses the geometry of $SO(3)$, but it also \emph{adds} new geometric structure that is sensless when interpted as elements of $SO(3)$. Specifically, $\RR^3$ is a vector space and $SO(3)$ is not!
+
+\newcommand{\action}{S}
+
+\todo{Say this is Hamilton's principle}
+
+On the other hand, the Lagrangian encodes the laws of the physical system by governing how states in $Q$ evolve. Namely, we can talk about \newterm{paths} in configuration space $q(t): [0, T] \to Q \in C^2([0, T], Q)$ which define the \newterm{path space of $Q$}, $\mathcal{C}(Q) = C^2([0, T], Q)$. Not all paths are realizable in the physical system, and in fact a path can only occur if it extremizes the \newterm{action} $\action: C(Q) \to \RR$, defined as:
+
+\begin{equation}
+	\action(q) = \int_0^T L(q(t), \dot{q}(t)) \odif{t}.
+	\label{eq:action}
+\end{equation}
+
+While the above definition is enought to model any closed system, sometimes it's more practical to model some open part of a larger system. For instance, we might want to model some pressure \todo{how to say ``stuff about temperature''??} dynamics in a box that loses a non-neglible amount of heat. Techinically, the box and the environment together formed a closed form system, but it would be nice to have a physical model for just the box.
+
+\todo{time-dependent Lagrangians should be thrown in with higher order ones as extensions that come ``for free'' (or almost for free). Forced Lagrangian should be outside this.}
+
+Cases like these are where a \newterm{time-dependent Lagrangian} can be useful. We can define a Lagrangian as $L(t, q, \dot{q}): \RR \times TQ \to \RR$, where the first argument is interpreted as a time parameter. This can be thought of as a system where the effective laws of physics change over time. In the example of the heat radiating box, as time advances there is a loss of energy.
+\todo{write out specific example.}
+
+Another extension to the Lagrangian are forced systems, which are non-trivial. Forced Lagrangian systems are one of the main topics of this paper, and explored in \autoref{sec:forced-systems}. Other extensions that can be considered but weren't in this paper are constrained Lagrangian systems and higher order Lagrangians (even though, in principle, any result of a $2$-order Lagrangian can be applied to a Lagrangian of arbitrary order~\cite{gay-balmazInvariantHigherorderVariational2012} \todo{igual este remark sobra}).
+
+\section{Euler-Lagrange equations}
+
+\todo{Say this is Hamilton's principle}
+
+The paths that extremize the action are the paths occur in a physical system. We can find these extrema by taking a variation of the action and equating it to $0$. Namely, we consider paths $q(t) + \delta q(t)$, where $\delta q(0) = \delta q(T) = 0$. Then, we define the variation of the action $\delta S(q)$ as the linear term of $S(q + \delta q)$ with respect to $\delta q$. If we apply this to the action, we get:
+
+\begin{align*}
+	\delta S(q)                     & = \delta \int_0^T L(q(t), \dot{q}(t)) \odif{t}                                                                                                     \\
+	                                & = \int_0^T \left(\pdv{L}{q} \delta q + \pdv{L}{\dot{q}} \delta \dot{q}\right) \odif{t}                                                             \\
+	\text{\faint{(by parts)}} \quad & = \int_0^T \left(\pdv{L}{q} \delta q - \odv{}{t} \pdv{L}{\dot{q}} \delta q \right) \odif{t} + \pdv{L}{\dot{q}} \underbrace{\delta q \big|_0^T}_{0} \\
+	                                & = \int_0^T \left(\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \right) \delta q \, \odif{t}                                                              \\
+\end{align*}
+and for this to hold given any variation $\delta q$, we need the integrand to be identically $0$. This is how we derive the Euler-Lagrange equation:
+
+\begin{equation}
+	\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} = 0
+	\label{eq:euler-lagrange}
+\end{equation}
+
+Computing the relevant derivatives of the Lagrangian provides us with a second order differential equation with respect to $q(t)$. A path that satisfies this differential equation is a path that can occur in the system.
+
+In general, we can define the \emph{Euler-Lagrange map} $D_\text{EL} L: \ddot{Q} \to T^*Q$ as
+
+\[ D_\text{EL} L = \pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \]
+
+and the realizable paths are those such that $D_\text{EL} L(q) = 0$
+
+We can try to solve this ODE analytically; but often, numerical methods are used, because it is intractable to do solve it analytically (either because the Lagrangian is too large, or the Lagragian is computed based on some numerical, often real-life, data). In the next section we discuss approaches to discretizing and solving numerically the Euler-Lagrange equations. This is the topic of \autoref{sec:discretization-euler-lagrange}.

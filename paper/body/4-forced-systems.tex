@@ -1,0 +1,523 @@
+\chapter{Forced systems}\label{sec:forced-systems}
+
+Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually a map $f^L : TQ \to T^* Q$~\cite[section 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}. This gives rise to the \newterm{Lagrange-D'Alembert principle}~\cite[Definition 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}, which is the forced analog to the Euler-Lagrange equations:
+
+\[
+	\odv{}{t} \pdv{L}{\dot{q}} - \pdv{L}{q} = f^L (q(t), \dot{q}(t))
+\]
+
+\todo{stuff}{}
+
+\todo{Understand where $f_d^\pm$ come from. In Marsden-West, the continuous force $f^L : TQ \to T^*Q$ is approximated by a pair of \emph{discrete forces} $f_d^+, f_d^- : Q \times Q \to T^*Q$ that are \emph{fibre-preserving (??)}: $f_d^+(q_k, q_{k+1}) \in T^*_{q_{k+1}}Q$ and $f_d^-(q_k, q_{k+1}) \in T^*_{q_k}Q$. This is what allows them to pair with $D_2 L_d$ and $D_1 L_d$ respectively in the DEL equation (both live in the same cotangent fibre (???)). Understand also how $f_d^\pm$ arise concretely as left/right quadrature approximations of $\int_0^h f^L(q(t)\,\dot{q}(t))\,\mathrm{d}t$.}
+
+The discrete analog is the \newterm{discrete Lagrange-D'Alembert principle}~\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}: a path $\mathbf{q}$ is physical if and only if, for all virtual displacements $\{\delta q_k\}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
+\[
+	\sum_{k=1}^{N-1} \Bigl( \mdif{2} \Ld(q_{k-1}, q_k) + f_d^+(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1}) + f_d^-(q_k, q_{k+1}) \Bigr) \cdot \delta q_k = 0.
+\]
+Unlike Hamilton's principle, this is \emph{not} the extremization of any action: forces are generally non-conservative, so no modified action exists. Since the condition must hold for each $\delta q_k$ independently, it is equivalent to the following \newterm{discrete forced Euler-Lagrange equations} holding at each inner point $k$:
+
+\begin{equation}
+	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1}) = 0
+	\label{eq:euler-lagrange-discrete-forced}
+\end{equation}
+
+where $f^\pm_d : Q \times Q \to T^* Q$.
+
+\section{The parallel algorithm on forced systems}
+
+In this section we show how to extend the parallel algorithm (\autoref{sec:parallel-algorithm}) to use these forces. The only difference is in the residual, where we have to insert \autoref{eq:euler-lagrange-discrete-forced} instead of \autoref{eq:euler-lagrange-discrete}. The global residual is modified form \autoref{eq:residual-global} to
+\begin{equation}
+	R(\mathbf{q}) = \sum_{k=1}^{N-1}
+	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})
+	\label{eq:residual-global-forced}
+\end{equation}
+and the local residual, from \autoref{eq:residual-local} to
+\begin{equation}
+	r_k(\mathbf{q}, \overline{q}) =
+	\mdif{2} L_d (q_{k-1}, \overline{q}) + f_d^+ (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1}) + f_d^- (\overline{q}, q_{k+1})
+\end{equation}
+locally.
+
+Utilizing these definitions for the residual, and supposing that $Q$ is a vector space, the computation based on the parallel algorithm is the exact same (which is, incidentally, why we introduced the method based on residuals in \autoref{sec:parallel-algorithm}). In fact, it's easy to see that the regular case already known can be obtained by setting the forces to $0$ in the forced case.
+
+\section{Convergence}\label{sec:forced-systems-convergence}
+
+Figuring out the convergence criteria is trickier. A natural way to proceed is to try to make an argument similar to how~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025} is proved. In short, they pose the problem as an extremization $f = \nabla F$, they calculate the Hessian $H = \nabla^2 F$; and if $H$ is p.d.\ then the algorithm converges. However, this approach fundamentally breaks down because, as mentioned previously, the discrete Lagande-D'Alambert principle is \emph{not} necessarilly an extremization of some $F$.
+
+\begin{remark}[Conservative forces]
+	It is easy to find convergence criteria for a specific family of forces, called \newterm{conservative forces}, which \emph{can} be written in terms of a \newterm{discrete potential} $V_d : Q \times Q \to \RR$ as:
+	\[
+		f_d^+(q_k, q_{k+1}) = \mdif{2} V_d (q_k, q_{k+1})
+		\qquad
+		f_d^-(q_k, q_{k+1}) = \mdif{1} V_d(q_k, q_{k+1}).
+	\]
+
+	This is because this is precisely the case where the Lagrangange-D'Alambert principle \emph{is} an extremization. In fact, any system with Lagrangian $L_d$ with forces that admit a discrete potential $V_d$ is identical to an unforced system with Lagrangian $L'_d = L_d + V_d$. In other words, for conservative forces, every theorem of~\cite{ferraroParallelIterativeMethod2025} applies trivially. In the rest of the discussion we focus on non-conservative forces.
+\end{remark}
+
+For generic forces, the relevant criterion is given~\cite[Lemma 4.4]{ferraroParallelIterativeMethod2025} which we restate here:
+
+\begin{lemma}[Convergence of 1-step Jacobi-Newton]\label{lem:jacobi-newton-convergence}
+	For a general smooth system $f(x) = 0$ (not necessarily a gradient system), the 1-step block Jacobi-Newton method converges locally to $x^*$ if the diagonal blocks of $\mdif* f(x^*)$ are regular and $\rho(J(x^*)) < 1$, where $J = -D^{-1}C$, and $D$ and $C$ are the diagonal and off-diagonal parts of $\mdif* f$ respectively.
+\end{lemma}
+
+In practice, to determine whether a specific system converges, there might be no better method than directly estimating $\rho(J(\mathbf{q}^*))$ by power iteration (i.e., Arnoldi/Lanzcos). This requires factoring each diagonal block of $\mdif* f(\mathbf{q}^*)$ once (an $O(N n^3)$ setup), then performing block-tridiagonal matrix-vector products at $O(N n^2)$ per power-iteration step until the dominant eigenvalue stabilizes. If all one wants is a yes/no answer for a concrete problem at run time, this is what we would recommend doing.
+
+The remainder of this section is therefore not concerned with finding the cheapest numerical check, but with \emph{structural} sufficient conditions: closed-form criteria stated in terms of the discrete Lagrangian and forces themselves, rather than the assembled iteration matrix. These are valuable for several reasons: they let us prove convergence for entire classes of systems at once (rather than path by path), they generalize the well-known unforced criterion (\autoref{thm:local-hessian-pd-convergence}) and make the role of the forces in convergence explicit, and they connect to standard structural conditions in numerical analysis (Gershgorin-style diagonal dominance). With this in mind, we proceed.
+
+The first step necessary to get an expression for $J^f$ is to calculate the derivative of~\eqref{eq:euler-lagrange-discrete-forced}, $\mdif* f$, which we will name $H^f$, as it is the forced analogue of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function $F$, just $\mdif* f$). The result is the following (similar to~\eqref{eq:hessian-matrix}):
+\begin{align*}
+	H^f_{ij} (\mathbf{q}) & = \mdif* f                                                                                                                                               \\ & = \mdif{q_j} \left(
+	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1}) = 0
+	\right)                                                                                                                                                                          \\
+	                      & = \delta_{i, j} \left( \mdif{22} \Ld(q_{i - 1}, q_i) + \mdif{2} f_d^+(q_{i-1}, q_i) + \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{1} f_d^-(q_i, q_{i+1}) \right) \\
+	                      & + \delta_{i+1,j} \left(\mdif{12} \Ld(q_i, q_{i+1}) + \mdif{2} f_d^-(q_i, q_{i+1}) \right)                                                                \\
+	                      & + \delta_{i-1,j} \left(\mdif{21} \Ld(q_{i-1}, q_i) + \mdif{1} f_d^+(q_{i-1}, q_i) \right).
+\end{align*}
+
+This again has a tridiagonal structure, but is not (necessarilly) symmetric. In~\eqref{eq:hessian-terms-1} we only had to define the diagonal and the off-diagonal matrices, but now we need three matrices
+\begin{align*}
+	\hat{\mathcal{D}}_k   & = \mdif{22} \Ld(q_{k-1}, q_k) + \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{11} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^-(q_k, q_{k+1}) \\
+	\hat{\mathcal{C}}^+_k & = \mdif{12} \Ld(q_k, q_{k+1}) + \mdif{2} f_d^-(q_k, q_{k+1})                                                              \\
+	\hat{\mathcal{C}}^-_k & = \mdif{21} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^+(q_k, q_{k+1})
+\end{align*}
+
+The resulting global Hessian matrix is, then:
+\begin{equation}
+	H^f (\mathbf{q}) = \begin{pmatrix}
+		\hat{\mathcal{D}}_1     & \hat{\mathcal{C}}^+_{1} &                             &                             &                             \\
+		\hat{\mathcal{C}}^-_{1} & \hat{\mathcal{D}}_2     & \hat{\mathcal{C}}^+_{2}     &                             &                             \\
+		                        & \ddots                  & \ddots                      & \ddots                      &                             \\
+		                        &                         & \hat{\mathcal{C}}^-_{N - 3} & \hat{\mathcal{D}}_{N - 2}   & \hat{\mathcal{C}}^+_{N - 2} \\
+		                        &                         &                             & \hat{\mathcal{C}}^-_{N - 2} & \hat{\mathcal{D}}_{N - 1}
+	\end{pmatrix}
+	\label{eq:hessian-matrix-forced}
+\end{equation}
+
+We also define auxiliary matrices, similar to~\eqref{eq:hessian-terms-2}:
+\begin{equation}
+	\begin{aligned}
+		\hat{\mathcal{A}}_k & = \mdif{11} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^-(q_k, q_{k+1}) \\
+		\hat{\mathcal{B}}_k & = \mdif{22} \Ld(q_k, q_{k+1}) + \mdif{2} f_d^+(q_k, q_{k+1}) \\
+	\end{aligned}
+	\label{eq:hessian-terms-forced-2}
+\end{equation}
+(where we still have that $\hat{\mathcal{D}}_k = \hat{\mathcal{B}}_{k-1} + \hat{\mathcal{A}}_k$).
+
+There are two ways to proceed from here. On one hand, we can try to find come criteria of the forced system directly that imply convergence; or we can search for some criteria on the type of forces that, when added to a converged unforced Lagrangian, would also converge with these forces. In the next two subsections we develop both approaches respectively.
+
+\subsection{A local condition}\label{sec:forced-local-condition}
+
+A natural way to try to extend a result for symmetric to asymetric matrices is to split them in their \newterm{symmetric} and \newterm{skew} components. Namely, any matrix $M$ can be written as $M = \Sym(M) + \Skew(M)$, where $\Sym(M) = \tfrac{1}{2}(M + M^T)$ is symmetric and $\Skew(M) = \tfrac{1}{2}(M - M^T)$ is not.
+
+One might expect that an analogue of \autoref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \bigl(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\bigr)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is unbounded.
+
+% All of this is pointless. Maybe I could mention it.
+% \begin{theorem}[Local sym-positivity implies global]\label{thm:forced-local-implies-global}
+% 	If $\Sym(H_k^f)$ is positive definite for every $k$, then $\Sym(H^f)$ is positive definite, and each diagonal block $\hat{\mathcal{D}}_k$ is invertible.
+% \end{theorem}
+% \begin{proof}
+% 	Since $z^T M z = z^T \Sym(M) z$ for any square $M$ and vector $z$, it suffices to show $x^T H^f x > 0$. Append $x_0 = x_N = 0$ and set $y_k = (x_k, x_{k+1})^T$. The identity
+% 	\[
+% 		x^T H^f x = \sum_{k=0}^{N-1} y_k^T H_k^f\, y_k
+% 	\]
+% 	follows by expanding each $y_k^T H_k^f y_k$ and collecting terms using $\hat{\mathcal{D}}_k = \hat{\mathcal{A}}_k + \hat{\mathcal{B}}_{k-1}$ (see \texttt{notes/forced-systems-convergence.tex} for the full expansion). If $x \neq 0$, some $x_j \neq 0$, making $y_{j-1}$ and $y_j$ nonzero; the hypothesis then gives a strictly positive sum. Invertibility of $\hat{\mathcal{D}}_k$ follows because diagonal blocks of a matrix with p.d.\ symmetric part inherit the same property.
+% \end{proof}
+
+% This reduces checking $\Sym(H^f) > 0$ from an $(N\!-\!1)$-block computation to $N$ local $2\times 2$-block checks, exactly as in the unforced case. The remaining step for convergence would be to conclude $\rho(J^f) < 1$ from $\Sym(H^f) > 0$. In the symmetric case this is automatic (the skew part of $H$ vanishes). In the forced case it is \textbf{not}: the implication fails for matrices whose skew part is large relative to their symmetric part.
+
+At this point, to motivate the result that will be shown shortly, it might be useful to get a better mental model of what each matrix block represents. The update at an interior node $q_j$ is a Newton step on $R_j^f$ as a function of $q_j$, with the current values of the neighbors $q_{j-1}, q_{j+1}$ held as data. The diagonal block $\hat{\mathcal{D}}_j$ captures how the residual at node $j$ depends on $q_j$ alone, while the off-diagonal blocks $\hat{\mathcal{C}}^+_j$ and $\hat{\mathcal{C}}^-_{j-1}$ capture how it depends on the neighbors. Linearizing $R_j^f$ at $\mathbf{q}^*$, the $j$th component of the global residual at the current path reads $\hat{\mathcal{D}}_j e_j + \hat{\mathcal{C}}^-_{j-1} e_{j-1} + \hat{\mathcal{C}}^+_j e_{j+1}$, where $e_i$ denotes the error at node $i$. The Newton step sets this to zero (to first order) and solves for the new error at $j$: the neighbor errors are multiplied forward by $\hat{\mathcal{C}}^\pm$ (data side), and the resulting residual is converted back into a coordinate update at $j$ by inverting $\hat{\mathcal{D}}_j$ (unknown side). The error transfer factor from a neighbor to $j$ is therefore $\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^\pm$ (which, incidentally, gives an intuition of why $J^f$ is defined as $-D^{-1} C$).
+
+Crucially, when $\hat{\mathcal{D}}_j$ is ``large enough'' to dominate $\hat{\mathcal{C}}^\pm$, this factor has norm $<1$. That is, $\hat{\mathcal{D}}_j^{-1}$ attenuates the incoming error and the global error contracts at every step, which is what $\rho(J^f) < 1$ means.
+
+Of course, the question is how to make ``large enough'' precise. The natural approach is to ask whether $\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2$ (this confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half-plane and is another natural generalization of $M \succ 0$ to a non-symmetric setting). This is provable in the scalar $n = 1$, $N = 3$ case (see \texttt{notes/forced-systems-convergence.tex}, Appendix~A) but open in the general block case. What we can prove is a stronger condition \emph{per edge}: ask the symmetric part of each diagonal sub-block of $H_k^f$ to strictly dominate the corresponding cross sub-block in spectral norm. This way, we arrive at the following theorem.
+
+\begin{theorem}[Local edge dominance implies convergence]\label{thm:forced-local-dominance}
+	Suppose that, at $\mathbf{q}^*$, for every edge $k \in \{0, 1, \ldots, N-1\}$,
+	\begin{equation}
+		\lambda_{\min}(\Sym(\hat{\mathcal{A}}_k)) > \|\hat{\mathcal{C}}^+_k\|_2,
+		\qquad
+		\lambda_{\min}(\Sym(\hat{\mathcal{B}}_k)) > \|\hat{\mathcal{C}}^-_k\|_2,
+		\label{eq:local-edge-dominance}
+	\end{equation}
+	with the boundary convention $\hat{\mathcal{C}}^+_{N-1} = \hat{\mathcal{C}}^-_0 = 0$ (these blocks do not appear in $H^f$). Then each diagonal block $\hat{\mathcal{D}}_j$ is invertible, $\rho(J^f(\mathbf{q}^*)) < 1$, and the forced Jacobi--Newton method converges locally to $\mathbf{q}^*$.
+\end{theorem}
+\begin{proof}
+	Recall that $\hat{\mathcal{D}}_j = \hat{\mathcal{A}}_j + \hat{\mathcal{B}}_{j-1}$. Since taking $\Sym$ is linear, we also have that $\Sym(\hat{\mathcal{D}}_j) = \Sym(\hat{\mathcal{A}}_j) + \Sym(\hat{\mathcal{B}}_{j-1})$.
+	By Weyl's inequality and then by hypothesis:
+	\[
+		\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))
+		\geq \lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))
+		> \|\hat{\mathcal{C}}^+_j\|_2 + \|\hat{\mathcal{C}}^-_{j-1}\|_2 \geq 0,
+	\]
+	so $\Sym(\hat{\mathcal{D}}_j) \succ 0$. Then, for any $v \neq 0$, Cauchy-Schwarz gives $\|\hat{\mathcal{D}}_j v\|_2 \|v\|_2 \geq v^T \hat{\mathcal{D}}_j v = v^T \Sym(\hat{\mathcal{D}}_j) v \geq \lambda_{\min}(\Sym(\hat{\mathcal{D}}_j)) \|v\|_2^2$, hence $\hat{\mathcal{D}}_j$ is invertible with
+	\begin{equation}
+		\|\hat{\mathcal{D}}_j^{-1}\|_2 \;\leq\; \frac{1}{\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))}.
+		\label{eq:diag-block-inv-bound}
+	\end{equation}
+
+	Now, recall that $J^f = -D^{-1}(L+U)$, where $D$ is the block-diagonal of $H^f$ and $L+U$ is its off-diagonal part. Since $H^f$ is block-tridiagonal, so is $L+U$, with $(L+U)_{j,j-1} = \hat{\mathcal{C}}^-_{j-1}$ and $(L+U)_{j,j+1} = \hat{\mathcal{C}}^+_j$. Left-multiplying by the block-diagonal matrix $-D^{-1}$ acts row-block-by-row-block: the $j$th row-block of $D^{-1}(L+U)$ picks up only the $(j,j)$-block of $D^{-1}$, namely $\hat{\mathcal{D}}_j^{-1}$, since every other column of row $j$ of $D^{-1}$ is zero. So the entire $j$th row of $L+U$ is just rescaled on the left by $\hat{\mathcal{D}}_j^{-1}$, and its sparsity pattern is preserved. Reading this off, $J^f$ is block-tridiagonal with $(J^f)_{j,j-1} = -\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^-_{j-1}$ and $(J^f)_{j,j+1} = -\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^+_j$:
+	\[
+		J^f = \begin{pmatrix}
+			0                                              & -\hat{\mathcal{D}}_1^{-1}\hat{\mathcal{C}}^+_1 &                                                        &        \\
+			-\hat{\mathcal{D}}_2^{-1}\hat{\mathcal{C}}^-_1 & 0                                              & -\hat{\mathcal{D}}_2^{-1}\hat{\mathcal{C}}^+_2         &        \\
+			                                               & \ddots                                         & \ddots                                                 & \ddots \\
+			                                               &                                                & -\hat{\mathcal{D}}_{N-1}^{-1}\hat{\mathcal{C}}^-_{N-2} & 0
+		\end{pmatrix}
+	\]
+	Since $\rho(J^f) \leq \|J^f\|$ in any induced operator norm, it suffices to bound $\|J^f\|$ in one convenient choice. The block-tridiagonal structure suggests the block max-norm $\|x\|_{\infty,2} = \max_j \|x_j\|_2$, where $x_j \in \RR^n$ is the $j$th size-$n$ block of $x$. Its induced operator norm is
+	\[
+		\|J^f\|_{\infty,2} \;=\; \sup_{x \neq 0} \frac{\max_j \|{(J^f x)}_j\|_2}{\|x\|_{\infty,2}}.
+	\]
+
+	Therefore, bounding $\|{(J^f x)}_j\|_2$ by a multiple of $\|x\|_{\infty,2}$ uniformly in $j$ bounds $\rho(J^f)$ by the same constant. Each row of $J^f$ has form
+	\[ {(J^f x)}_j = -\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1} x_{j-1} - \hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j x_{j+1}, \]
+	and submultiplicativity of the spectral norm together with~\eqref{eq:diag-block-inv-bound} give
+	\begin{align*}
+		\|(J^f x)_j\|_2
+		 & \leq \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 \|x_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2 \|x_{j+1}\|_2                                        \\
+		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                                      \\
+		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                            \\
+		 & \leq \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \|x\|_{\infty, 2}.
+	\end{align*}
+	By~\eqref{eq:local-edge-dominance} applied at edges $j$ and $j - 1$, the fraction is strictly less than $1$. Taking $\max_j$,
+	\[
+		\rho(J^f) \;\leq\; \|J^f\|_{\infty, 2} \;\leq\; \max_j \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \;<\; 1.
+	\]
+	Invertibility of every $\hat{\mathcal{D}}_j$ and $\rho(J^f) < 1$ are exactly the hypotheses of~\autoref{lem:jacobi-newton-convergence}, which gives local convergence of the forced Jacobi--Newton method to $\mathbf{q}^*$.
+\end{proof}
+
+\begin{remark}[Reduction to the unforced case]\label{rem:forced-local-recovery}
+	When $f_d^\pm \equiv 0$, the forced blocks reduce to
+	\[
+		\hat{\mathcal{A}}_k = \mdif{11}\Ld(q_k, q_{k+1}),\quad
+		\hat{\mathcal{B}}_k = \mdif{22}\Ld(q_k, q_{k+1}),\quad
+		\hat{\mathcal{C}}^+_k = \mdif{12}\Ld(q_k, q_{k+1}),\quad
+		\hat{\mathcal{C}}^-_k = (\hat{\mathcal{C}}^+_k)^T.
+	\]
+	All four are symmetric or transposes of each other, so $\Sym(\hat{\mathcal{A}}_k) = \hat{\mathcal{A}}_k$, $\Sym(\hat{\mathcal{B}}_k) = \hat{\mathcal{B}}_k$, and $\|\hat{\mathcal{C}}^+_k\|_2 = \|\hat{\mathcal{C}}^-_k\|_2$. The two inequalities of~\eqref{eq:local-edge-dominance} therefore collapse to the single per-edge condition
+	\[
+		\min\!\bigl(\lambda_{\min}(\mdif{11}\Ld),\, \lambda_{\min}(\mdif{22}\Ld)\bigr) > \|\mdif{12}\Ld\|_2,
+	\]
+	which is exactly the diagonal-block dominance condition on the unforced local Hessian $H_k$: each diagonal block must dominate the off-diagonal coupling in spectral norm, which in particular implies $H_k \succ 0$ and recovers the convergence criterion of \autoref{thm:local-hessian-pd-convergence}.
+\end{remark}
+
+\begin{remark}[Time complexity]\label{rem:forced-local-complexity}
+	Checking~\eqref{eq:local-edge-dominance} reduces to, per edge $k$, two smallest-eigenvalue computations on $\Sym(\hat{\mathcal{A}}_k)$ and $\Sym(\hat{\mathcal{B}}_k)$ (both $n \times n$ symmetric, $O(n^3)$ each) and two spectral-norm computations on $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_k$ ($O(n^3)$ each via SVD, cheaper via power iteration). Total cost: $O(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section.
+\end{remark}
+
+\subsection{A perturbation condition}
+
+In this section we obtain a condition on forces such that, if the unforced problem converges, then the forced system will too. The main idea is to decompose the Hessian as
+\begin{equation}
+	H^f(\mathbf{q}) = H(\mathbf{q}) + \Delta F(\mathbf{q}),
+	\label{eq:hessian-matrix-forced-relative}
+\end{equation}
+where $H$ is the unforced Hessian~\eqref{eq:hessian-matrix} and $\Delta F$ is a block-tridiagonal \newterm{force-perturbation matrix}, with blocks
+\begin{align*}
+	\Delta\hat{\mathcal{D}}_k   & = \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{1} f_d^-(q_k, q_{k+1}), \\
+	\Delta\hat{\mathcal{C}}^+_k & = \mdif{2} f_d^-(q_k, q_{k+1}),                                \\
+	\Delta\hat{\mathcal{C}}^-_k & = \mdif{1} f_d^+(q_k, q_{k+1}).
+\end{align*}
+Notice that $\Delta F = 0$ when all forces vanish, recovering $H^f = H$, so $\Delta F$ is a measure of the deviation from the unforced problem.
+
+The following theorem states in a rigourous and quantitative manner the intuitive idea that, if the algorithm already converges without forces, then it still converges when you add forces \textbf{as long as the forces are weak enough} (i.e., the derivatives $\mdif{i} f_d^\pm$ that appear in the Jacobian are small enough).
+
+\begin{theorem}[Perturbation condition]\label{thm:forced-perturbation}
+	Suppose the unforced Jacobi-Newton method converges at $\mathbf{q}^*$: the diagonal $D$ of $H(\mathbf{q}^*)$ is invertible and $\rho(J(\mathbf{q}^*)) < 1$. Then there exists an $\varepsilon > 0$ such that, whenever $\|\Delta F(\mathbf{q}^*)\|_2 < \varepsilon$, the forced Jacobi-Newton method also converges locally to $\mathbf{q}^*$.
+\end{theorem}
+\begin{proof}
+	Let $D, L, U$ denote the block-diagonal, strict block-lower, and strict block-upper parts of the unforced Hessian $H$, and similarly $\Delta D, \Delta L, \Delta U$ for the perturbation $\Delta F$. Then the forced iteration matrix is
+	\[
+		J^f = -{(D + \Delta D)}^{-1}\bigl( (L + U) + (\Delta L + \Delta U) \bigr),
+	\]
+	and the unforced one ($\Delta F = 0$) is $J = -D^{-1}(L + U)$ with $\rho(J) < 1$ by hypothesis.
+
+	First, notice that the map $\Delta F \mapsto J^f$ is continuous at $\Delta F = 0$. This is because each $D_k$ is invertible by hypothesis, so $\|D^{-1}\|_2$ is finite block-wise. Since $\Delta D$ is the block-diagonal part of $\Delta F$, the spectral norm satisfies $\|\Delta D\|_2 \leq \|\Delta F\|_2$ (block-diagonal projection does not increase the spectral norm). Hence for $\|\Delta F\|_2 < \|D^{-1}\|_2^{-1}$, we have that $\|\Delta D\|_2 < \|D^{-1}\|_2^{-1}$. Then, we can write the Neumann series (\cite[Corollary 5.6.16]{hornMatrixAnalysis2012})
+	\[
+		{(D + \Delta D)}^{-1} = D^{-1}\sum_{n \geq 0} {(-\Delta D \, D^{-1})}^n
+	\]
+	which converges uniformly on a neighborhood of $\Delta F = 0$. The series itself is the inverse, establishing that $D + \Delta D$ is invertible there; and since each partial sum is a polynomial (hence, continuous) function of $\Delta D$, uniform convergence implies that ${(D + \Delta D)}^{-1}$ depends continuously on $\Delta F$. Matrix multiplication and addition are continuous, so $J^f$ also depends continuously on $\Delta F$ on the same neighborhood. In particular, $J^f \to J$ in any matrix norm as $\|\Delta F\| \to 0$.
+
+	Notice also that the spectral radius $\rho$ cannot jump upward under small perturbations of its matrix argument. By Gelfand's formula~\cite[Cor.~5.6.14]{hornMatrixAnalysis2012},
+	\[
+		\rho(A) = \inf_{k \geq 1} \|A^k\|^{1/k}.
+	\]
+	Each $A \mapsto \|A^k\|^{1/k}$ is continuous in $A$, and an infimum of continuous functions is upper semicontinuous. Concretely, for any matrix $A_0$ and any $\eta > \rho(A_0)$, there is a neighborhood of $A_0$ (in $M_n(\RR)$) where $\rho(A) < \eta$.
+
+
+	Combining these two observations, since $\rho(J) < 1$, there is some $\eta$ with $\rho(J) < \eta < 1$. Upper semicontinuity applied at $A_0 = J$ gives a neighborhood $U \subset M_n(\RR)$ of $J$ on which $\rho(A) < \eta$. By continuity of $\Delta F \mapsto J^f$, the preimage $V' = {(J^f)}^{-1}(U)$ is open in perturbation-space and contains $\Delta F = 0$. Invertibility of $D + \Delta D$ holds on the open set $V'' = \{\|\Delta F\|_2 < \|D^{-1}\|_2^{-1}\}$, also a neighborhood of $\Delta F = 0$. Their intersection $V = V' \cap V''$ is therefore an open neighborhood of $\Delta F = 0$ on which both $J^f \in U$ and $D + \Delta D$ is invertible. Since $V$ is open and contains $0$, it contains an open ball of some radius $\varepsilon > 0$ around $0$, so $\|\Delta F\|_2 < \varepsilon$ implies
+	\[
+		\rho(J^f) < \eta < 1 \quad\text{and}\quad D + \Delta D \text{ is invertible.}
+	\]
+	These are exactly the hypotheses of Lemma~\ref{lem:jacobi-newton-convergence}, which then gives local convergence of the forced Jacobi-Newton method to $\mathbf{q}^*$.
+
+\end{proof}
+
+In~\autoref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exists. In the following lemma, we find an explicit computation, under the mild additional assumption that $\|J\| < 1$ holds in some submultiplicative matrix norm (i.e., a norm such that $|A B| \leq |A| |B|$). This condition is stricter than $\rho(J) < 1$, but is typically satisfied for stable variational integrators.
+
+\begin{lemma}[Explicit perturbation bound]\label{lem:forced-perturbation-explicit}
+	Assume the hypotheses of \autoref{thm:forced-perturbation}, and further that $\|J\| < 1$ in a submultiplicative norm $\|\cdot\|$ in which the block-diagonal projection is contractive (e.g.\ the spectral norm). Then the conclusion of the theorem holds with
+	\begin{equation}
+		\varepsilon = \frac{1 - \|J\|}{3\,\|D^{-1}\|}.
+		\label{eq:forced-perturbation-epsilon}
+	\end{equation}
+\end{lemma}
+\begin{proof}
+	Let $\beta := \|D^{-1}\|$ and $\gamma := \|\Delta F\|$. The identity ${(D + \Delta D)}^{-1} - D^{-1} = -{(D + \Delta D)}^{-1}\Delta D \, D^{-1}$, combined with $J = -D^{-1}(L+U)$, gives by direct manipulation
+	\[
+		J^f - J = -{(D + \Delta D)}^{-1}\bigl[\Delta D \cdot J + (\Delta L + \Delta U)\bigr].
+	\]
+	The three factors on the right are bounded by, respectively, $\|\Delta D\| \leq \gamma$ (projection contractivity), $\|\Delta L + \Delta U\| = \|\Delta F - \Delta D\| \leq 2\gamma$ (triangle inequality), and $\|{(D + \Delta D)}^{-1}\| \leq \beta/(1 - \beta\gamma)$ (Neumann tail estimate\footnote{We can get this by factoring $D + \Delta D$ as $D(I + D^{-1}\Delta D)$. Then, we known that $|D^{-1}\Delta D| \leq \beta\gamma$ and if $\beta\gamma < 1$, the Neumann series ${(I+M)}^{-1} = \sum_{k\geq 0}{(-M)}^k$ converges and so we can take the geometric series of the norms of the Neumann sum, resulting in $|{(I + D^{-1}\Delta D)}^{-1}| \leq 1/(1-\beta\gamma)$, giving the claimed bound after multiplying by $|D^{-1}| = \beta$.}, valid for $\beta\gamma < 1$). Combining,
+	\[
+		\|J^f - J\| \leq \frac{\beta\gamma(\|J\| + 2)}{1 - \beta\gamma}.
+	\]
+	Convergence follows from $\|J^f\| < 1$, which holds if $\|J^f - J\| \leq 1 - \|J\|$. Imposing this on the bound above and solving for $\gamma$:
+	\begin{align*}
+		\frac{\beta\gamma(\|J\| + 2)}{1 - \beta\gamma} & \leq 1 - \|J\|                  \\
+		\beta\gamma(\|J\| + 2)                         & \leq (1-\|J\|)(1 - \beta\gamma) \\
+		\beta\gamma\bigl(\|J\| + 2 + (1-\|J\|)\bigr)   & \leq 1 - \|J\|                  \\
+		3\beta\gamma                                   & \leq 1 - \|J\|                  \\
+		\gamma                                         & \leq \frac{1-\|J\|}{3\beta},
+	\end{align*}
+	results in~\eqref{eq:forced-perturbation-epsilon}.
+\end{proof}
+
+We call the factor $1 - \|J\|$ in~\eqref{eq:forced-perturbation-epsilon} the \newterm{contraction margin} of the unforced iteration, and $\|D^{-1}\|$ measures how well-conditioned the diagonal is. A smaller margin or a worse-conditioned diagonal will shrink $\varepsilon$, making the margin of the magnitude of allowed forces tighter.
+This perturbation bound is checkable in terms of derivatives of the discrete forces $f_d^\pm$ alone, which depend on the discrete Lagrangian and the chosen discretization of the force, but not on the (unknown) solution trajectory (although it doesn't say anything whether the unforced system converges in the first place).
+
+\todo{
+	~\cite[Lemma~5.6.10]{hornMatrixAnalysis2012} says that for any $\epsilon > 0$ there exists a (implied submultiplicative?) matrix norm with $\|J\| \leq \rho(J) + \epsilon$, which is almost what we want, but doesn't have the diagonal contraction condition. Should we mention it?
+}
+
+\begin{remark}[Time complexity]\label{rem:forced-perturbation-complexity}
+	Let $m := n(N-1)$ be the dimension of the iteration matrix, with $n = \dim Q$ and $N$ the path length. Checking the bound~\eqref{eq:forced-perturbation-epsilon} requires:
+	\begin{itemize}
+		\item $\|D^{-1}\|_2 = \max_k \|\hat{\mathcal{D}}_k^{-1}\|_2$: $N$ independent $n \times n$ block inversions, costing $O(N n^3)$.
+		\item $\|J\|_2$ via power iteration on $J^T J$: $O(m^2 k)$ for $k$ iterations.
+		\item $\|\Delta F\|_2$ at the chosen point: same cost as $\|J\|_2$, $O(m^2 k)$.
+	\end{itemize}
+	The dominant cost is therefore $O(m^2 k) = O(n^2 N^2 k)$. This is substantially cheaper than the $O(m^3)$ Cholesky or eigendecomposition that would be needed to check positive-definiteness of $H^f$ globally, and is comparable in cost to a single iteration of the parallel method itself. Note that, like \todo{ref the ``parallel algorithm''}, all three computations are also easily paralelizable across the $N$ timesteps, so this check can be sped up using parallel computing devices like a GPU\@.
+\end{remark}
+
+\section{Examples}\label{sec:forced-examples}
+
+We illustrate the forced algorithm and the convergence criteria on four systems.
+Examples~\ref{ex:damped-oscillator} and~\ref{ex:lorentz} apply the perturbation theorem
+to, respectively, a dissipative force and a gyroscopic force.
+Example~\ref{ex:zermelo} shows the forced formulation arising naturally in an optimal
+control problem.
+Example~\ref{ex:discretization} revisits the magnetic-field system with two different
+force discretizations and shows how the choice of $f_d^\pm$ affects the structure
+of $H^f$.
+
+\subsection*{Damped harmonic oscillator}\label{ex:damped-oscillator}
+
+The one-dimensional harmonic oscillator with linear viscous damping,
+\[
+    \ddot{q} + \gamma\dot{q} + \omega^2 q = 0, \qquad \gamma > 0,
+\]
+fits the Lagrange-D'Alembert framework with
+\[
+    L(q,\dot{q}) = \tfrac{1}{2}\dot{q}^2 - \tfrac{1}{2}\omega^2 q^2,
+    \qquad
+    f^L(q,\dot{q}) = -\gamma\dot{q}.
+\]
+We discretize with the trapezoidal Lagrangian and the midpoint force quadrature:
+\begin{align*}
+    L_d(q_k, q_{k+1}) &= \frac{(q_{k+1}-q_k)^2}{2h} - \frac{\omega^2 h}{4}(q_k^2 + q_{k+1}^2), \\
+    f_d^+(q_k, q_{k+1}) &= -\frac{\gamma}{2h}(q_{k+1}-q_k), \qquad
+    f_d^-(q_k, q_{k+1}) = -\frac{\gamma}{2h}(q_{k+1}-q_k).
+\end{align*}
+The blocks of the forced Hessian (all scalars, since $n = 1$) evaluate to
+\begin{alignat*}{2}
+    \hat{\mathcal{A}}_k &= \frac{1}{h} - \frac{\omega^2 h}{2} + \frac{\gamma}{2h}, &\qquad
+    \hat{\mathcal{B}}_k &= \frac{1}{h} - \frac{\omega^2 h}{2} - \frac{\gamma}{2h}, \\
+    \hat{\mathcal{C}}^+_k &= -\frac{1}{h} - \frac{\gamma}{2h}, &\qquad
+    \hat{\mathcal{C}}^-_k &= -\frac{1}{h} + \frac{\gamma}{2h}.
+\end{alignat*}
+Comparing with the unforced blocks $\hat{\mathcal{A}}_k^0 = \hat{\mathcal{B}}_k^0 = \frac{1}{h} - \frac{\omega^2 h}{2}$
+and $\hat{\mathcal{C}}_k^{0,\pm} = -\frac{1}{h}$, the force perturbation matrix $\Delta F$ has
+\[
+    \Delta\hat{\mathcal{D}}_k = \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{1} f_d^-(q_k, q_{k+1})
+    = -\frac{\gamma}{2h} + \frac{\gamma}{2h} = 0.
+\]
+The midpoint quadrature leaves the diagonal blocks of $H^f$ unchanged relative to the
+unforced system: the damping force enters $H^f$ only through the off-diagonal blocks,
+\[
+    \Delta\hat{\mathcal{C}}^+_k = -\frac{\gamma}{2h}, \qquad \Delta\hat{\mathcal{C}}^-_k = \frac{\gamma}{2h},
+\]
+so $\|\Delta F\|_2 = O(\gamma/h)$.
+In particular, $\Delta F$ is purely off-diagonal with antisymmetric blocks ($\Delta\hat{\mathcal{C}}^-_k = -\Delta\hat{\mathcal{C}}^+_k$),
+so the skew part of $H^f$ grows with $\gamma$ while the symmetric part remains that of the
+unforced oscillator.
+
+Assuming the unforced oscillator converges at $\mathbf{q}^*$ for the chosen step size $h$ (a
+condition on $h$ and $\omega$ alone), Theorem~\ref{thm:forced-perturbation} and
+Lemma~\ref{lem:forced-perturbation-explicit} guarantee that the forced method also converges
+whenever
+\[
+    \frac{\gamma}{2h} < \varepsilon = \frac{1 - \|J^0\|}{3\|D_0^{-1}\|},
+\]
+where $J^0$ and $D_0^{-1}$ are the Jacobi matrix and inverse diagonal of the unforced
+system at $\mathbf{q}^*$. This gives a concrete bound on the admissible damping coefficient
+in terms of the step size and the unforced convergence margin.
+
+\todo{Figure: trajectories of the forced integrator for $\omega = 1$, $h = 0.1$, and
+several values of $\gamma$, compared to the exact solution $q(t) = e^{-\gamma t/2}
+(\cos\nu t + \frac{\gamma}{2\nu}\sin\nu t)$ with $\nu = \sqrt{\omega^2 - \gamma^2/4}$.
+Inset: Newton residual norm vs.\ iteration count for each $\gamma$ to show the
+convergence rate.}
+
+\todo{Figure or table: plot the bound $\varepsilon(h, \omega)$ and the actual convergence
+threshold in $\gamma$ found by bisection, to visualise how tight the perturbation bound is.}
+
+\subsection*{Charged particle in a uniform magnetic field}\label{ex:lorentz}
+
+A particle of unit mass and charge moves in the plane under a uniform magnetic field
+of strength $B > 0$ pointing out of the plane. The equations of motion are
+\[
+    \ddot{q} = B J \dot{q}, \qquad J = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix},
+\]
+producing circular orbits (cyclotron motion) of radius $|\dot{q}|/B$ and period $2\pi/B$.
+This is a prototypically \newterm{gyroscopic} system: the Lorentz force $f^L = BJ\dot{q}$
+is always perpendicular to the velocity, does no work, and cannot be absorbed into any
+potential. We take
+\[
+    L(q,\dot{q}) = \tfrac{1}{2}|\dot{q}|^2, \qquad f^L(q,\dot{q}) = B J \dot{q}.
+\]
+With the free-particle discrete Lagrangian and midpoint discrete forces,
+\[
+    L_d(q_k, q_{k+1}) = \frac{|q_{k+1}-q_k|^2}{2h},
+    \qquad
+    f_d^\pm(q_k, q_{k+1}) = \frac{B}{2} J(q_{k+1}-q_k),
+\]
+the forced Hessian blocks are now $2\times 2$ matrices:
+\begin{alignat*}{2}
+    \hat{\mathcal{A}}_k &= \tfrac{1}{h}I - \tfrac{B}{2}J, &\qquad
+    \hat{\mathcal{B}}_k &= \tfrac{1}{h}I + \tfrac{B}{2}J, \\
+    \hat{\mathcal{C}}^+_k &= -\tfrac{1}{h}I + \tfrac{B}{2}J, &\qquad
+    \hat{\mathcal{C}}^-_k &= -\tfrac{1}{h}I - \tfrac{B}{2}J.
+\end{alignat*}
+Since $J$ is antisymmetric, the gyroscopic force does not affect the symmetric
+parts of the diagonal blocks:
+\[
+    \Sym(\hat{\mathcal{A}}_k) = \Sym(\hat{\mathcal{B}}_k) = \tfrac{1}{h}I.
+\]
+However, it breaks the symmetry $\hat{\mathcal{C}}^+ = (\hat{\mathcal{C}}^-)^T$ that holds
+in the unforced case. Since $J^T = -J$,
+\[
+    (\hat{\mathcal{C}}^+_k)^T = -\tfrac{1}{h}I - \tfrac{B}{2}J = \hat{\mathcal{C}}^-_k,
+\]
+so the midpoint discretization satisfies the \newterm{symmetric force condition}
+$(\mdif{2}f_d^-)^T = \mdif{1}f_d^+$, which collapses the two inequalities
+of~\eqref{eq:local-edge-dominance} to a single one.
+
+The force-perturbation blocks are $\Delta\hat{\mathcal{D}}_k = 0$ and
+$\Delta\hat{\mathcal{C}}^\pm_k = \pm\tfrac{B}{2}J$, giving $\|\Delta F\|_2 = O(B)$.
+By the same argument as before, Theorem~\ref{thm:forced-perturbation} guarantees
+convergence for all $B$ below the threshold
+\[
+    B < \frac{2(1 - \|J^0\|)}{3\|D_0^{-1}\|}.
+\]
+
+\todo{Figure: exact circular orbit vs.\ numerically integrated path for several values
+of $B$, showing that the integrator preserves the cyclotron radius. Convergence of the
+Newton residual vs.\ iteration count for $B$ below and above the perturbation threshold.}
+
+\subsection*{Fuel-optimal navigation (Zermelo)}\label{ex:zermelo}
+
+The \newterm{Zermelo fuel problem} asks for the path $q : [0, T] \to \RR^2$ of a
+vessel navigating through a current field $W : \RR^2 \to \RR^2$ that minimizes the
+total fuel expenditure
+\[
+    \mathcal{F}[q] = \frac{1}{2}\int_0^T |\dot{q}(t) - W(q(t))|^2 \, dt
+\]
+subject to prescribed endpoints $q(0) = q_0$ and $q(T) = q_T$.
+Here $\dot{q} - W(q)$ is the thrust vector: when the current carries the vessel for
+free, $\dot{q} = W(q)$ and the integrand vanishes.
+The fuel functional is a standard action with Lagrangian
+\[
+    L(q, \dot{q}) = \tfrac{1}{2}|\dot{q} - W(q)|^2.
+\]
+Expanding, $L = \tfrac{1}{2}|\dot{q}|^2 - \dot{q}\cdot W(q) + \tfrac{1}{2}|W(q)|^2$.
+The velocity-dependent term $-\dot{q}\cdot W(q)$ contributes a force-like term in the
+Euler-Lagrange equations. Computing, the optimality condition is
+\[
+    \ddot{q} = 2\,\Skew(DW(q))\,\dot{q} + (DW(q))^T W(q),
+\]
+where $DW$ is the Jacobian of $W$. When $\mathrm{curl}\, W = 0$ (irrotational current)
+the skew part vanishes, $(DW)^T W = \nabla(\tfrac{1}{2}|W|^2)$ is a gradient, and the
+system is conservative (equivalent to unforced with an augmented potential).
+When $\mathrm{curl}\, W \neq 0$, the skew part $2\,\Skew(DW)\,\dot{q}$ is a genuine
+velocity-dependent non-conservative force, making this a forced Lagrangian system in the
+Lagrange-D'Alembert sense with
+\[
+    L_0 = \tfrac{1}{2}|\dot{q}|^2, \qquad
+    f^L = 2\,\Skew(DW(q))\,\dot{q} + (DW(q))^T W(q).
+\]
+
+We discretize $L$ directly using the trapezoidal rule with $v = (q_{k+1}-q_k)/h$:
+\[
+    L_d(q_k, q_{k+1}) = \frac{h}{4}\Bigl[|v - W(q_k)|^2 + |v - W(q_{k+1})|^2\Bigr].
+\]
+No explicit $f_d^\pm$ is needed: the wind field enters through the nonlinear Lagrangian,
+and the DEL equations arising from $\mdif{1} L_d + \mdif{2} L_d = 0$ are exactly the
+optimality conditions for the fuel functional. The parallel algorithm then solves for
+the minimum-fuel path directly.
+
+\todo{Figure: optimal path from $(0,0)$ to $(6,5)$ through the example wind field
+$W(x,y) = (\cos(2x - y - 6),\, \tfrac{2}{3}\sin y + x - 3)$, overlaid on a
+quiver plot of $W$. Compare with the straight-line path to illustrate the fuel saving.}
+
+\todo{Figure: Newton residual vs.\ iteration count to show convergence of the parallel
+algorithm on this nonlinear Lagrangian.}
+
+\subsection*{Effect of force discretization on convergence}\label{ex:discretization}
+
+The choice of discrete forces $f_d^\pm$ approximating the same continuous force $f^L$
+is not unique, and different choices lead to different structures of $H^f$ — and
+therefore potentially different convergence margins. We illustrate this on the charged
+particle of Example~\ref{ex:lorentz}.
+
+\paragraph{Midpoint rule.} As computed above, $f_d^\pm = \frac{B}{2}J(q_{k+1}-q_k)$.
+This distributes the impulse equally between the two endpoints. The off-diagonal blocks are
+\[
+    \hat{\mathcal{C}}^+_k = -\tfrac{1}{h}I + \tfrac{B}{2}J, \qquad
+    \hat{\mathcal{C}}^-_k = -\tfrac{1}{h}I - \tfrac{B}{2}J,
+\]
+with spectral norm $\|\hat{\mathcal{C}}^+_k\|_2 = \sqrt{h^{-2} + B^2/4}$.
+As noted above, $(\hat{\mathcal{C}}^+_k)^T = \hat{\mathcal{C}}^-_k$, so the symmetric force
+condition $(\mdif{2}f_d^-)^T = \mdif{1}f_d^+$ holds.
+
+\paragraph{Left-endpoint rule.} Assigning the full impulse to $f_d^-$,
+\[
+    f_d^+(q_k, q_{k+1}) = 0, \qquad f_d^-(q_k, q_{k+1}) = B J(q_{k+1}-q_k),
+\]
+gives
+\[
+    \hat{\mathcal{C}}^+_k = -\tfrac{1}{h}I + BJ, \qquad
+    \hat{\mathcal{C}}^-_k = -\tfrac{1}{h}I,
+\]
+with $\|\hat{\mathcal{C}}^+_k\|_2 = \sqrt{h^{-2} + B^2}$.
+Now $(\hat{\mathcal{C}}^+_k)^T = -\tfrac{1}{h}I \neq \hat{\mathcal{C}}^-_k$, so the symmetric
+force condition fails. The asymmetry is
+\[
+    \hat{\mathcal{C}}^+_k - (\hat{\mathcal{C}}^-_k)^T = BJ,
+\]
+a purely skew-symmetric matrix that grows with $B$: the left-endpoint rule concentrates
+the full asymmetry of $H^f$ in the upper off-diagonal blocks.
+
+\paragraph{Comparison.} Both discretizations give $\|\Delta F\|_2 = O(B)$ and therefore
+the same asymptotic perturbation bound. However, the midpoint rule has a strictly smaller
+spectral norm $\|\hat{\mathcal{C}}^+_k\|_2$ for any $B > 0$ (by a factor of up to $2$ in
+the norm), and it preserves the structural symmetry that makes the block structure of $J^f$
+more regular.
+This suggests that the midpoint quadrature is preferable whenever the gyroscopic force is
+not small: it spreads the non-conservative coupling evenly, reducing the worst-case
+amplification of errors at each node.
+
+\todo{Figure: for a fixed field strength $B$ and step $h$, show the spectral radius
+$\rho(J^f)$ and the Newton convergence rate for both discretizations, as $B$ varies from
+$0$ to $B_{\max}$. This would concretely show the wider convergence window of the midpoint
+rule.}
