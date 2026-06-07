@@ -23,3 +23,7 @@
 \newcommand{\fg}{\mathfrak{g}}
 
 \renewcommand{\eqref}[1]{\textbf{(\ref{#1})}}
+
+% Hide section in table of contents (https://stackoverflow.com/questions/2785260/hide-an-entry-from-toc-in-latex)
+\newcommand{\nocontentsline}[3]{}
+\newcommand{\tocless}[2]{\bgroup\let\addcontentsline=\nocontentsline#1{#2}\egroup}

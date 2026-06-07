@@ -8,7 +8,7 @@ But, to understand the tradeoffs between the approaches, we first need to examin
 
 \todo{Think about how much I want to explain these things\ldots}
 
-\section{Geometric properties Euler-Lagrange}
+\section{Geometric properties Euler-Lagrange}\label{sec:geometric-properties-el}
 
 These are discussed more in depth in~\cite[Chapter 1.2]{marsdenDiscreteMechanicsVariational2001}.
 
@@ -61,11 +61,11 @@ Similarly to Hamilton's principle (\cref{def:hamiltons-principle}), the DEL equa
 
 Note that these equations are well-defined for any manifold, not only $\RR^n$, since both $\mdif{2} L_d (q_{k-1}, q_k)$ and $\mdif{1} L_d (q_k, q_{k+1})$ live in $T_{q_k} Q$, and the local tangent space of any smooth manifold always forms a vector space where we are free to add elements (however, the global tangent space $TQ$ would only a vector space if $Q$ itself is one too!).
 
+Given this discretization, one approach for computing the path is computing $q_{k+1}$ based on $q_k$ and $q_{k-1}$, given two initial datapoints. This is theoretically sound (assuming existence and uniqueness conditions) since essentially it is a standard integration forward in time. However, if an endpoint is needed, this approach fundamentally doesn't work~\cite[p. 6]{ferraroParallelIterativeMethod2025}. The algorithm presented in the next section works around this problem by being iterative.
+
 \section{Parallel algorithm}\label{sec:parallel-algorithm}
 
-\todo{write about the unsuitability of sequantially getting the path, in~\cite{ferraroParallelIterativeMethod2025} after def 2.4}
-
-In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The presentation here is a bit different from the original one, so that it is more in line with the extensions proposed later.
+In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed (note that the presentation here is a bit different from the original one, so that it is more in line with the extensions proposed later).
 
 The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = {\{q_k\}}_{k=0}^N$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
 \begin{equation}
@@ -109,16 +109,13 @@ from which we get the general Jacobi-Newton update rule:
 \end{equation}
 
 In a standard discrete Lagrangian system, the terms are:
-
 \begin{align*}
 	\mdif{2} r_k (\mathbf{q}, q_k) & = \mdif{22} \Ld(q_{k-1}, q_k) + \mdif{11} \Ld(q_k, q_{k+1}) \\
 	r_k (\mathbf{q}, q_k)          & = \mdif{2} \Ld(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1})   \\
 \end{align*}
-(note that throughout~\cite{ferraroParallelIterativeMethod2025}, they call $\mathcal{D}_k$ what we call $\mdif{2} r_k (\mathbf{q}, q_k)$).
+And it is equation~\eqref{eq:jacobi-newton} which is easily computable using any linear solver. The algorithm consists of repeating this step until we converge to a solution.
 
-Equation~\eqref{eq:jacobi-newton} is finally easily computable, using any linear solver.
-
-Of course, the question now is to verify under what conditions this algorithm produces the correct solution.
+Of course, the question now is to verify under what conditions this algorithm does, in fact, converge.
 
 \subsection{Convergence criteria}
 
@@ -172,7 +169,7 @@ The following theorem gives one of the fundamental criteria for convergence of t
 
 This condition might theoretically be good enough, although in practice it is hard to compute, since it involves checking for positive-definiteness of an $N \times N$ matrix. The most common way to do this involves the Cholesky factorization, which has an $\mathcal{O}(N^3)$ runtime.
 
-Therefore, an easier-to-check condition is be given in terms of a \newterm{local Hessian matrix} $H_k$ (\tc{}):
+An easier-to-check condition is be given in terms of a \newterm{local Hessian matrix} $H_k$ (\tc{}):
 \begin{equation}
 	H_k(q_k, q_{k+1}) = \begin{pmatrix}
 		\mathcal{A}_k   & \mathcal{C}_k \\
@@ -190,18 +187,11 @@ where
 (note that $\mathcal{D}_k = \mathcal{B}_{k-1} + \mathcal{A}_k$).
 
 \begin{theorem}[Local Hessian convergence~{\cite[thm. 4.1]{ferraroParallelComputingVariational}}]\label{thm:local-hessian-pd-convergence}
-	Given the local Hessian matrices $H_k$, if either \begin{itemize}
-		\item for all $k$, the local Hessian $H_k$ is positive definite, or
-		\item \todo{I'm not sure about the second thingy}
-	\end{itemize}
-	then the global Hessian matrix $H$ is positive definite and the method converges locally \tc.
+	If all the local Hessian matrices $H_k$ (as defined above) are positive definite, then the global Hessian matrix $H$ is positive definite and the method converges locally.
 \end{theorem}
-\begin{proof}
-	Given in \tc{}
-\end{proof}
 
 
-This makes the checking $\mathcal{O}(N)$ in terms of the length \todo{I guess N is not necessarily ``length''} of the path. However, this condition is not necessary, and in fact in most cases of positive definite global Hessians, the conditions will not pass.
+This makes the checking $\mathcal{O}(N)$ in terms of the length \todo{I guess N is not necessarily ``length''} of the path. However, this condition is not necessary, and in practice it is common for p.d.\ global Hessians to not be localy p.d..
 
 This is where a third convergence result comes into play, which gives a necessary and sufficient condition for the positive definiteness of the global Hessian matrix:
 
@@ -211,6 +201,5 @@ This is where a third convergence result comes into play, which gives a necessar
 	are all positive definite.
 \end{theorem}
 
+In the next two sections, we extend the algorithm to forced systems and Lie groups, and give results analogous to these three theorems (when possible).
 
-
-\todo{Write it out.}

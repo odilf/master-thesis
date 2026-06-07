@@ -30,14 +30,16 @@ We use $\mdif{i} f$ to represent the partial derivivative of a function $f$ over
 
 A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we are always going to use the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
 
-\todo{try with: Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, having manifolds with some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states.}
+\paragraph{Configuration space}
+ Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space. Having manifolds with some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states. That is, the manifold can encode constraints about periodicity, topology or other types of global constraints.
 
-The simplest (and likely most common) example of a configuration space is $\RR^n$. A model with an uncontrained particle would use $\RR^3$ as the configuration space, or $\RR^{3N}$ for $N$ particles. However, the configuration space being a more general manifold can encode constraints about periodicity, topology or other types of global constraints. For instance, one can try to encode the state of a pendumul with $\RR^1$, using the angle as a number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are clearly different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity, and also reveals facts such as the configuration space being compact, which $\RR$ is not.
+For instance, one can try to encode the state of a pendumul with $\RR^1$, using the angle as a number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are clearly different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity, and also reveals facts such as the configuration space being compact, which $\RR$ is not.
 
 % Another example to illuminate why having different manifolds as configuration spaces is useful is $SO(3)$ (or in general $SO(n)$). Since $SO(3)$ has an isomorphism with $\RR^3$ \tc{} it might be tempting to use $\RR^3$ directly as the configuration space, but doing this not only loses the geometry of $SO(3)$, but it also \emph{adds} new geometric structure that is sensless when interpted as elements of $SO(3)$. Specifically, $\RR^3$ is a vector space and $SO(3)$ is not!
 
 \newcommand{\action}{S}
 
+\paragraph{Lagrangian}
 On the other hand, the Lagrangian encodes the laws of the physical system by governing how states in $Q$ evolve. Namely, we can talk about \newterm{paths} in configuration space $q(t): [0, T] \to Q \in C^2([0, T], Q)$ which define the \newterm{path space of $Q$}, $\mathcal{C}(Q) = C^2([0, T], Q)$. Not all paths are realizable in the physical system, and in fact a path can only occur if it extremizes the \newterm{action} $\action: C(Q) \to \RR$, defined as:
 
 \begin{equation}

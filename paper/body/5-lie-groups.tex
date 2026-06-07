@@ -21,7 +21,7 @@ What does fail is the Jacobi-Newton update~\eqref{eq:jacobi-newton}:
 \[ \overline{q} = q_k - \bigl(\mdif{2} r_k(\mathbf{q}, q_k)\bigr)^{-1}\, r_k(\mathbf{q}, q_k), \]
 because this uses subtraction in a space $Q$ where no canonical subtraction is available.
 
-To solve this, we need to work on the \newterm{Lie algebra}.
+One solution to this is working on the corresponding \newterm{Lie algebra}.
 The Lie algebra $\fg := T_e G$ is the tangent space at the identity, forming a vector space of the same dimension as $G$.
 For any other point $g \in G$, tangent directions can be supplied by the differential $T_e L_g : \fg \to T_g G$ of the left-multiplication map $L_g : h \mapsto gh$, which is a isomorphism between these two vector spaces. The technique of ``moving'' some computation of a Lie group to its algebra is often called \newterm{lifting} (into the algebra).
 
@@ -109,8 +109,7 @@ We carry out the lifting in \cref{sec:lie-hessian} and give the convergencence r
 
 \subsection{The Hessian in Lie-algebra coordinates}\label{sec:lie-hessian}
 
-Fix the current iterate $\mathbf{g} = (g_0, g_1, \ldots, g_N)$ with endpoints $g_0$ and $g_N$ pinned.
-For each interior node $k = 1, \ldots, N-1$ introduce a perturbation $\xi_k \in \fg$ and define the perturbed path
+So, fixing the current iterate $\mathbf{g} = (g_0, g_1, \ldots, g_N)$ with endpoints $g_0$ and $g_N$ pinned, for each interior node $k = 1, \ldots, N-1$ introduce a perturbation $\xi_k \in \fg$ and define the perturbed path
 \[
 	\mathbf{g}(\boldsymbol \xi) := (g_0,\; g_1\tau(\xi_1),\; \ldots,\; g_{N-1}\tau(\xi_{N-1}),\; g_N),
 	\qquad \boldsymbol \xi \in \fg^{N-1},
@@ -315,23 +314,25 @@ Just as in the vector-space case (\cref{thm:local-hessian-pd-convergence}), the 
 		\tag{DEP}
 		\label{eq:lie-DEP}
 	\end{equation}
-	\todo{\cite{}~\cite{ferraroParallelComputingVariational} establish that convergence of the DEP iteration on quotients $\{f_k\}$ is equivalent to convergence of the DEL iteration on $\{g_k\}$.}
-	Consequently, \cref{thm:lie-group-convergence} can equivalently be stated for the DEP iteration; the non-reduced formulation we use simplifies the convergence analysis at the cost of a slightly larger state space.
+	 Convergence of the DEP iteration on quotients $\{f_k\}$ is equivalent to convergence of the DEL iteration on $\{g_k\}$~\cite[Theorem 2.1]{marsdenDiscreteEulerPoincareLiePoisson1999}.
+	Consequently, \cref{thm:lie-group-convergence} can equivalently be stated for the DEP iteration; the non-reduced formulation we use is more general, and for invariant systems simplifies the convergence analysis at the cost of a slightly larger state space.
 \end{remark}
 
 \section{Examples}\label{sec:lie-examples}
 
-\todo{This section is a stub. Two examples are natural:}
+\todo{This section is a stub. }
 
-\subsection*{Free particle on $G$}\label{sec:lie-example-free}
+
+\tocless\subsection{Free particle on $G$}\label{sec:lie-example-free}
 
 \todo{Lagrangian $L(g, \dot g) = \tfrac{1}{2} \langle \xi, \mathbb{M} \xi \rangle$ with $\xi = g^{-1} \dot g$ and $\mathbb{M}$ a positive-definite bilinear form on $\fg$.
 	A standard order-1 discretisation gives $\Ld(g_k, g_{k+1}) = \tfrac{1}{h} \langle \log(g_k^{-1} g_{k+1}), \mathbb{M} \log(g_k^{-1} g_{k+1}) \rangle$ (or the Cayley analogue).
 	Compute the Lie-algebra Hessian blocks and verify that $\widetilde{H}_k$ is positive definite uniformly, so the algorithm converges for any path.}
 
-\subsection*{Rigid body on $SO(3)$}\label{sec:lie-example-rigid-body}
+\tocless\subsection{Rigid body on $SO(3)$}\label{sec:lie-example-rigid-body}
 
 \todo{The canonical mechanical example. $G = SO(3)$, $\fg = \mathfrak{so}(3) \cong \RR^3$ via the hat map.
 	Lagrangian $L(R, \dot R) = \tfrac{1}{2} \Omega^T \mathbb{I}\, \Omega$ with $\Omega = R^T \dot R$ the body angular velocity and $\mathbb{I}$ the inertia tensor.
 	Discretise using the Moser--Veselov / Marsden--Pekarsky--Shkoller approach~\cite{marsdenDiscreteEulerPoincareLiePoisson1999}.
 	Compute $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\mathcal{C}}_k$ explicitly and verify the local edge condition holds for small enough time step $h$.}
+
