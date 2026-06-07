@@ -1,10 +1,8 @@
 \chapter{Computation of Euler-Lagrange solutions}\label{sec:discretization-euler-lagrange}
 
-Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange (\autoref{eq:euler-lagrange}), and then use some numerical ODE computation scheme based on the underlying type of manifold. For example if $Q = \RR^n$ (or is, in general, a vector space) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaan.
+Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange (\autoref{eq:euler-lagrange}), and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q = \RR^n$ (or in general $Q \cong \RR^n$) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaan \todo{should I cite?}.
 
-However, discretization the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the geometric information of the configuration manifold $Q$. These will be explained in \autoref{sec:pitfalls-discrete-el-ode}.
-
-Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration} \todo{is it?} will be explained in \autoref{sec:discretizing-configuration-space}
+However, discretization the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the geometric information of the configuration manifold $Q$. These will be explained in \autoref{sec:pitfalls-discrete-el-ode}. Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration} \todo{is it?} will be explained in \autoref{sec:discretizing-configuration-space}
 
 But, to understand the tradeoffs between the approaches, we first need to examine some important geometric properties Euler-Lagrange.
 
@@ -35,11 +33,10 @@ Let's look at an example.
 
 \section{Discretizing the configuration space}\label{sec:discretizing-configuration-space}
 
-The discrete analog of continuous paths $q(t) : \RR \to TQ$ are sequences of points in $Q$. Generally, we like to work  Then, the discrete analog of the Lagrangian $L_d$ takes two consecutive points instead of one point in $TQ$.
+The discrete analog of a continuous path $q(t) : \RR \to TQ$ is a sequence of points in $Q$. The Lagrangian can be adapted to this discrete context into a \newterm{discrete Lagrangian} $L_d$ that acts on two consecutive points of a path (instead of one point in $TQ$):
+\[ L: TQ \to \RR \quad \Rightarrow \quad L_d : Q \times Q \to \RR \]
 
-\[ L: TQ \to \RR \Rightarrow L_d : Q \times Q \to \RR \]
-
-Then, the discrete action is now composed of sums of these discrete Lagrangians. That is, for a path $\mathbb{q} = {\{ q_i \in Q \}}_{i=0}^{N-1}$, the discrete action $S_d$ is:
+Then, the discrete action is now composed of sums of these discrete Lagrangians. That is, for a path $\mathbf{q} = {\{ q_i \in Q \}}_{i=0}^{N-1}$, the discrete action $S_d$ is:
 
 \begin{equation}
 	S_d (\mathbf{q}) = \sum_{k=0}^{N-2} \Ld(q_k, q_{k+1})
@@ -50,18 +47,19 @@ If we define an \newterm{exact discrete Lagrangian} $\Ld^e$ as
 \begin{equation}
 	L_d^e (q_0, q_1) = \int_0^h L(q_{0, 1}(t), \dot{q}_{0, 1}(t)) \odif{t}
 \end{equation}
-where $q_{0, 1}$ is the path that minimizes the action along all the paths that connect $q_0$ and $q_1$, then the discrete formulation gives identical results to the discrete one.
+where $q_{0, 1}$ is the path that minimizes the action along all the paths that connect $q_0$ and $q_1$, then the discrete formulation gives identical results to the continuous one.
 
-Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; but in practice we often define the discrete Lagrangian $\Ld$ using some quadrature rule that approximates the integral of the exact discrete Lagrangian.
+Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; so, in practice, the discrete Lagrangian $\Ld$ is defined using some quadrature rule that approximates the integral of the exact discrete Lagrangian.
 
-If we apply Hamilton's principle to the discrete action (that is, $\nabla S_d = 0$ \todo{Maybe I should write out the derivation}), we find the discrete Euler-Lagrange (DEL) equations:
+Appling Hamilton's principle to the discrete action (that is, $\nabla S_d = 0$ \todo{Maybe I should write out the derivation}), we find the discrete Euler-Lagrange (DEL) equations:
 \begin{equation}
-	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0
+	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0.
 	\label{eq:euler-lagrange-discrete}\
 	\tag{DEL}
 \end{equation}
+Similarly to Hamilton's principle (\cref{def:hamiltons-principle}), the DEL equations underpin every result in this paper.
 
-These equations are well-defined for any manifold, since both $\mdif{2} L_d (q_{k-1}, q_k)$ and $\mdif{1} L_d (q_k, q_{k+1})$ live in $T_{q_k} Q$, and the local tangent space of any smooth manifold always forms a vector space, so we are free to add elements (notice, however, that the global tangent space $TQ$ is only a vector space if $Q$ itself is a vector space!).
+Note that these equations are well-defined for any manifold, not only $\RR^n$, since both $\mdif{2} L_d (q_{k-1}, q_k)$ and $\mdif{1} L_d (q_k, q_{k+1})$ live in $T_{q_k} Q$, and the local tangent space of any smooth manifold always forms a vector space where we are free to add elements (however, the global tangent space $TQ$ would only a vector space if $Q$ itself is one too!).
 
 \section{Parallel algorithm}\label{sec:parallel-algorithm}
 
