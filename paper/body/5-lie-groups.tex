@@ -1,12 +1,9 @@
 *\chapter{Lie groups}\label{sec:lie-groups}
 
-In this chapter we extend the parallel algorithm (\cref{sec:parallel-algorithm}) to the case where the configuration manifold $Q$ is a \newterm{Lie group} $G$: a smooth manifold together with a group operation $\cdot : G \times G \to G$ such that multiplication and inversion are smooth.
-Vector spaces $\RR^n$ are themselves Lie groups (under addition), so this is a strict generalisation.
-The classical examples that motivate the extension are non-abelian: the rotation groups $SO(n)$, the Euclidean motion groups $SE(n)$, and the unitary groups $U(n)$.
 
-\section{Mechanics in Lie groups}
+The study of many physical systems are naturally defined on a configuration manifold where no notion of linear combination can exist, thus not being able to be described as a vector-space. However, most of these still have some structure; namely, that of a \newterm{Lie group} $G$: a smooth manifold together with a group operation $\cdot : G \times G \to G$ such that multiplication and inversion are smooth. Examples of such manifolds are the rotation groups $SO(n)$, the Euclidean motion groups $SE(n)$, the unitary groups $U(n)$, and in fact every vector space (under addition).
 
-\todo{complete}
+In this section we extend the parallel algorithm (\cref{sec:parallel-algorithm}) to work on Lie groups.
 
 \section{The algorithm on Lie algebras}\label{sec:lie-groups-algorithm}
 
@@ -16,8 +13,9 @@ The Jacobi step of the parallel algorithm, written for an interior node $k$ and 
 \[
 	r_k(\mathbf{g}, \overline{g}_k) := \mdif{2} \Ld(g_{k-1}, \overline{g}_k) + \mdif{1} \Ld(\overline{g}_k, g_{k+1}) = 0.
 \]
-The residual itself isn't problematic, since each terms lives in $T_{\overline{g}_k} G$ which is, like all tangent spaces, a vector space.
-What does fail is the Jacobi-Newton update~\eqref{eq:jacobi-newton}:
+In this setting, taking the derivative with $g_{k\pm1}$ fixed entails going from $L_d^\pm : G \to \RR$ to $T_{\overline{g_k}} G \to T_{L_d^\pm (\overline{g_k})} \RR$, and using the fact that every tangent bundle of $\RR^n$ is isomorphic to $\RR^n$, this becomes a sum in $T_{\overline{g_k}}^* G$. This forms a vector space so this step is well-defined.
+
+What does fail is the Newton update~\eqref{eq:jacobi-newton}:
 \[ \overline{q} = q_k - \bigl(\mdif{2} r_k(\mathbf{q}, q_k)\bigr)^{-1}\, r_k(\mathbf{q}, q_k), \]
 because this uses subtraction in a space $Q$ where no canonical subtraction is available.
 
@@ -27,7 +25,7 @@ For any other point $g \in G$, tangent directions can be supplied by the differe
 
 In the vector-space case, the Newton update has form of $q_\textrm{new} = q_k + \delta q$: you compute a correction $\delta q$ in a vector space and add it. On $G$, there's no addition, so ``compute a correction and add it'' has no direct meaning. What we do instead is pick a vector space (here, $\fg$), compute a correction $\delta \xi$ there, and then map it to a nearby point in $G$ via some smooth curve.
 
-Such a map that turns an algebra direction $\delta \xi \in \fg$ into a point in $G$ near $g$ is called a \newterm{retraction} $\tau : \fg \to G$ which has to satisfy $\tau(0) = e$ and $T_0\tau = \mathrm{Id}_\fg$.
+Such a map is called a \newterm{retraction} $\tau : \fg \to G$ which has to satisfy $\tau(0) = e$ and $T_0\tau = \mathrm{Id}_\fg$.
 Left-translating $\tau$ by $g_k$ gives a map centred at $g_k$:
 \begin{equation}
 	\overline{g}_k = g_k\tau(\delta \xi_k), \qquad \delta \xi_k \in \fg,
@@ -44,6 +42,7 @@ The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved 
 
 We now linearise the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi)) = 0$ at $\delta \xi = 0$ to obtain a linear system on $\fg$, the analogue of the vector-space Jacobi-Newton step~\eqref{eq:jacobi-newton}.
 
+\todo{I think this is a trivialization, maybe I should mention that.}
 First, we calculate the derivative of $(L_g \circ \tau) (\xi)$ (which acts as $\xi \mapsto g \, \tau \xi$) at $\xi = 0$. Acting on an element $\eta$, this is
 \begin{equation}
 	\odv{}{\xi} \bigg|_0 (g \tau (\xi))\,[\eta] = T_e L_g(\eta).
@@ -52,7 +51,7 @@ First, we calculate the derivative of $(L_g \circ \tau) (\xi)$ (which acts as $\
 Commonly, $T_e L_g(\eta)$ is written as $g \cdot \eta$, which looks like somewhat of an abuse of notation, but is the direct computation for the case of matrix Lie groups (since both $G$ and $T_g G$ are matrices, and the differential application is, in this case, matrix multiplication).
 
 The next step is to write the residual in the Lie-algebra.
-As it stands, the residual $r_k(\mathbf{g}, g_k) \in T_{g_k}^* G$ is a covector at $g_k$, but we need it as a covector on some element of $\fg$ to set up a linear system there.
+As it stands, the residual $r_k(\mathbf{g}, g_k) \in T_{g_k}^* G$ is a covector at $g_k$, but we need it as a covector on the identity for it to be an element of $\fg$ and be able to set up a linear system there.
 The main tool to do this is taking the \newterm{transpose} of $T_e L_{g_k} : \fg \to T_{g_k} G$:
 \begin{align*}
 	                          & {(T_e L_{g_k})}^* : T_{g_k}^* G \to \fg^*                                                    \\
@@ -84,15 +83,15 @@ Pulling back with ${(T_e L_{g_k})}^*$ and setting the result to zero gives the l
 	\tag{Jacobi-Newton-G}
 	\label{eq:jacobi-newton-G}
 \end{equation}
-where the \newterm{Lie-algebra Hessian block} $\widetilde{\mathcal{D}}_k : \fg \to \fg^*$ at node $k$ is
+where $\widetilde{\mathcal{D}}_k : \fg \to \fg^*$ at node $k$ is
 \begin{equation}
-	\widetilde{\mathcal{D}}_k = {(T_e L_{g_k})}^* \bigl(\mdif{22} \Ld(g_{k-1}, g_k) + \mdif{11} \Ld(g_k, g_{k+1})\bigr)\, (T_e L_{g_k}).
+	\widetilde{\mathcal{D}}_k = {(T_e L_{g_k})}^* \bigl(\mdif{22} \Ld(g_{k-1}, g_k) + \mdif{11} \Ld(g_k, g_{k+1})\bigr)\, (T_e L_{g_k})
 	\label{eq:lie-jacobi-newton-blocks}
 \end{equation}
+(it will be shown later that this is in fact the diagonal blocks of the Lie-algebra Hessian, as in the vector-space case).
 
 Finally, the update rule is
 \begin{equation}
-	\overline{g}_k = g_k\, \tau\bigl(-\widetilde{\mathcal{D}}_k^{-1}\, \widetilde{r}_k\bigr).
 	\label{eq:jacobi-newton-G-update}
 \end{equation}
 
@@ -104,24 +103,24 @@ The parallelism structure (\cref{sec:parallel-algorithm}) carries over without m
 
 The convergence analysis largly follows the vector-space case (\cref{thm:hessian-pd-convergence}) from~\cite{ferraroParallelIterativeMethod2025}, but with two adaptations: we work with the Lie-algebra Hessian $\widetilde{H}$ (the analogue of $H$, with all blocks pulled back to $\fg$ via left translation), and the iteration on $G^{N-1}$ has to be read in a Lie-algebra chart at the solution before we can apply classical fixed-point/convergence theorems.
 
-The strategy is to lift the discrete action to a function on the vector space $\fg^{N-1}$, compute its gradient and Hessian there, and read off the convergence criterion.
+The strategy consists of lifting the discrete action to a function on the vector space $\fg^{N-1}$, compute its gradient and Hessian there, and read off the convergence criterion.
 We carry out the lifting in \cref{sec:lie-hessian} and give the convergencence results in \cref{sec:lie-convergence}.
 
 \subsection{The Hessian in Lie-algebra coordinates}\label{sec:lie-hessian}
 
-So, fixing the current iterate $\mathbf{g} = (g_0, g_1, \ldots, g_N)$ with endpoints $g_0$ and $g_N$ pinned, for each interior node $k = 1, \ldots, N-1$ introduce a perturbation $\xi_k \in \fg$ and define the perturbed path
+The Hessian cannot be computed on the Lie group directly (neither the gradient, for that matter), but it can be written in the Lie algebra. To do this, we fix the current iterate $\mathbf{g} = (g_0, g_1, \ldots, g_N)$ with endpoints $g_0$ and $g_N$ pinned, and for each interior node $k = 1, \ldots, N-1$, we introduce a perturbation $\xi_k \in \fg$ and define the perturbed path
 \[
 	\mathbf{g}(\boldsymbol \xi) := (g_0,\; g_1\tau(\xi_1),\; \ldots,\; g_{N-1}\tau(\xi_{N-1}),\; g_N),
 	\qquad \boldsymbol \xi \in \fg^{N-1},
 \]
 with $\xi_0 = \xi_N = 0$ at the (fixed) endpoints.
-The discrete action restricted to this family is a smooth function on the \emph{vector space} $\fg^{N-1}$:
+The discrete action restricted to this family is now a smooth function on the \emph{vector space} $\fg^{N-1}$:
 \begin{equation}
 	\Sigma(\boldsymbol \xi) := S_d(\mathbf{g}(\boldsymbol \xi))
 	= \sum_{k=0}^{N-1} \Ld\bigl(g_k\tau(\xi_k),\; g_{k+1}\tau(\xi_{k+1})\bigr).
 	\label{eq:lie-lifted-action}
 \end{equation}
-This puts us back in the vector-space setting of \cref{sec:parallel-algorithm}, so the gradient and Hessian of $\Sigma$ at $\boldsymbol \xi = 0$ play the same role that $\nabla S_d$ and $\nabla^2 S_d$ played there.
+This puts us back in the vector-space setting of \cref{sec:parallel-algorithm}, where we will show that the gradient and Hessian of $\Sigma$ at $\boldsymbol \xi = 0$ play the same role that $\nabla S_d$ and $\nabla^2 S_d$ played there.
 We write
 \[
 	\widetilde{R} := \nabla \Sigma(0) \in {(\fg^*)}^{N-1},
@@ -266,7 +265,7 @@ The perturbation is then updated with $\widetilde{T} := \Psi^{-1} \circ T \circ 
 \end{proof}
 
 \begin{remark}[Where the manifold structure enters]\label{rmk:where-manifold-enters}
-	The Lie group $G$ enters the convergence story only through the chart $\Psi$ and the Lie-algebra Hessian blocks of \cref{sec:lie-hessian}. \cref{lem:chart-iteration-jacobian} packages this geometric content into a single linear-algebraic identity, $\widetilde{T}'(0) = \widetilde{J}$. From that point on, $\widetilde{T}$ is just a smooth map on $\fg^{N-1} \cong \RR^{(N-1)\dim\fg}$, and the remaining work \todo{the linearisation theorem and the bound $\rho(\widetilde{J}) < 1$ from positive-definiteness of $\widetilde{H}$} is classical analysis in $\RR^n$.
+	The Lie group $G$ enters the convergence story only through the chart $\Psi$ and the Lie-algebra Hessian blocks of \cref{sec:lie-hessian}. \Cref{lem:chart-iteration-jacobian} packages this geometric content into a single linear-algebraic identity, $\widetilde{T}'(0) = \widetilde{J}$. From that point on, $\widetilde{T}$ is just a smooth map on $\fg^{N-1} \cong \RR^{(N-1)\dim\fg}$, and the remaining work \todo{the linearisation theorem and the bound $\rho(\widetilde{J}) < 1$ from positive-definiteness of $\widetilde{H}$} is classical analysis in $\RR^n$.
 \end{remark}
 
 The following theorem is essentially the same as \cref{thm:hessian-pd-convergence}, but the proof is slightly different because we cannot directly apply Lemma~\ref{lem:jacobi-newton-convergence} (since that talks about Jacobi-Newton applied to vector spaces). The main difference is that we use~\cite[Theorem~10.1.3]{ortegaIterativeSolutionNonlinear1970} which assumes less about how the iteration procedure is set up, and is the reason we needed Lemma~\ref{lem:chart-iteration-jacobian}. Regardless, the proof is brief and similar in spirit to the one in~\cite[Prop.~4.5]{ferraroParallelIterativeMethod2025}.

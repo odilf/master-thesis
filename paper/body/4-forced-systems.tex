@@ -37,17 +37,16 @@ Solutions that satisfy the discrete Lagrange-D'Alambert principle are given by t
 \section{The parallel algorithm on forced systems}
 
 In this section we show how to extend the parallel algorithm (\cref{sec:parallel-algorithm}) to use these forces. The only difference is in the residual, where we have to insert~\eqref{eq:euler-lagrange-discrete-forced} instead of~\eqref{eq:euler-lagrange-discrete}. The global residual is modified from~\eqref{eq:residual-global} to
-\begin{equation}
+\begin{equation*}
 	\hat{R}(\mathbf{q}) = \sum_{k=1}^{N-1}
 	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})
-	\label{eq:residual-global-forced}
-\end{equation}
+	% \label{eq:residual-global-forced}
+\end{equation*}
 and the local residual, from \cref{eq:residual-local} to
-\begin{equation}
+\begin{equation*}
 	\hat{r}_k(\mathbf{q}, \overline{q}) =
-	\mdif{2} L_d (q_{k-1}, \overline{q}) + f_d^+ (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1}) + f_d^- (\overline{q}, q_{k+1})
-\end{equation}
-locally.
+	\mdif{2} L_d (q_{k-1}, \overline{q}) + f_d^+ (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1}) + f_d^- (\overline{q}, q_{k+1}).
+\end{equation*}
 
 Utilizing these definitions for the residual, and supposing that $Q$ is a vector space, the computation based on the parallel algorithm is the exact same (which is, incidentally, why we introduced the method based on residuals in \cref{sec:parallel-algorithm}). In fact, it's easy to see that the unforced case already known is recovered by setting the forces to $0$ in the forced case.
 
@@ -232,7 +231,7 @@ where $H$ is the unforced Hessian~\eqref{eq:hessian-matrix} and $\Delta F$ is a 
 \end{align*}
 Notice that $\Delta F = 0$ when all forces vanish, recovering $H^f = H$, so $\Delta F$ is a measure of the deviation from the unforced problem.
 
-The following theorem states in a rigourous and quantitative manner the intuitive idea that, if the algorithm already converges without forces, then it still converges when you add forces \textbf{as long as the forces are weak enough} (i.e., the derivatives $\mdif{i} f_d^\pm$ that appear in the Jacobian are small enough).
+The following theorem states in a rigourous and quantitative manner the intuitive idea that, if the algorithm already converges without forces, then it still converges when you add forces as long as the forces are ``weak enough'', which manifest as the derivatives $\mdif{i} f_d^\pm$ that appear in the Jacobian being small ``enough''.
 
 \begin{theorem}[Perturbation condition]\label{thm:forced-perturbation}
 	Suppose the unforced Jacobi-Newton method converges at $\mathbf{q}^*$: the diagonal $D$ of $H(\mathbf{q}^*)$ is invertible and $\rho(J(\mathbf{q}^*)) < 1$. Then there exists an $\varepsilon > 0$ such that, whenever $\|\Delta F(\mathbf{q}^*)\|_2 < \varepsilon$, the forced Jacobi-Newton method also converges locally to $\mathbf{q}^*$.
