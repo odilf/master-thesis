@@ -531,3 +531,22 @@ amplification of errors at each node.
 	$\rho(J^f)$ and the Newton convergence rate for both discretizations, as $B$ varies from
 	$0$ to $B_{\max}$. This would concretely show the wider convergence window of the midpoint
 	rule.}
+
+
+    \textcolor{blue}{David
+    Parachutist example
+    Problem: Calculate the jump velocity and direction to reach a desired target point at a given time $T$.
+    The problem is given by: 
+    $$L(x, y, \dot{x}, \dot{y})=\frac{m}{2}(\dot{x}^2+\dot{y}^2)-mgy$$
+and external force
+\begin{align*}
+(F_x, F_y)=(-k(\dot{x}-w_x(x, y)), -k(\dot{x}-w_y(x, y))), 
+\end{align*}
+where $(w_x, w_y)$    is the wind velocity in both components (we assume that it is time-independent). The parameter $k$ is the parachute drag. 
+coefficient 
+Now, given a point $(x_0, y_0)$ (where $y_0$ is the aircraft attitude) and $(x_T, 0)$ is the target point, we use the parallel method to find a trajectory. Here $T=nh$. 
+Finally, the initial velocity  is 
+\[
+(\frac{x_{1}-x_0}{h}, \frac{y_1-y_0}{h})
+\]
+    }

@@ -50,10 +50,10 @@ On the other hand, the Lagrangian encodes the laws of the physical system by gov
 This is the fundamental idea that underpins every result in this paper, called \newterm{Hamilton's principle}:
 
 \begin{definition}[Hamilton's principle]\label{def:hamiltons-principle}
-	A path $q(t): [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the Lagrangian system defined by $L : TQ →\RR$ if and only if $q$ is a critical point of the functional action $\action$
+	A path $q(t): [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the Lagrangian system defined by $L : TQ \rightarrow \RR$ if and only if $q$ is a critical point of the functional action $\action$
 \end{definition}
 
-\todo{time-dependent Lagrangians should be thrown in with higher order ones as extensions that come ``for free'' (or almost for free). Forced Lagrangian should be outside this.}
+The extension to time-dependent Lagrangians, higher-order Lagrangians follow the same Hamilton's principle but with different preservation properties.
 
 \subsection{Lagrangian system extensions}
 
@@ -63,7 +63,7 @@ While the above definition is enought to model any closed system, sometimes it's
 Cases like these are where a \newterm{time-dependent Lagrangian} can be useful. We can define a Lagrangian as $L(t, q, \dot{q}): \RR \times TQ \to \RR$, where the first argument is interpreted as a time parameter. This can be thought of as a system where the effective laws of physics change over time. In the example of the heat radiating box, as time advances there is a loss of energy.
 \todo{write out specific example.}
 
-Another extension to the Lagrangian are forced systems, which are non-trivial. Forced Lagrangian systems are one of the main topics of this paper, and explored in \cref{sec:forced-systems}. Other extensions that can be considered but weren't in this paper are constrained Lagrangian systems and higher order Lagrangians (even though, in principle, any result of a $2$-order Lagrangian can be applied to a Lagrangian of arbitrary order~\cite{gay-balmazInvariantHigherorderVariational2012} \todo{igual este remark sobra}).
+Another extension to the Lagrangian are forced systems, which are non-trivial. Forced Lagrangian systems are one of the main topics of this paper, and explored in \cref{sec:forced-systems}. Other extensions that can be considered but weren't in this paper are constrained Lagrangian systems and higher order Lagrangians (even though, in principle, any result of a standard  can be applied to a Lagrangian of arbitrary order~\cite{ferraroParallelComputingVariational, gay-balmazInvariantHigherorderVariational2012}.
 
 \section{Euler-Lagrange equations}
 
@@ -86,7 +86,7 @@ and for this to hold given any variation $\delta q$, we need the integrand to be
 
 Computing the relevant derivatives of the Lagrangian provides us with a second order differential equation with respect to $q(t)$. A path that satisfies this differential equation is a path that can occur in the system.
 
-% this "sobrates basto" (esto sobra vasto)
+% (esto sobra vasto, no?)
 % In general, we can define the \emph{Euler-Lagrange map} $D_\text{EL} L: \ddot{Q} \to T^*Q$ as
 % \[ D_\text{EL} L = \pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \]
 % and the realizable paths are those such that $D_\text{EL} L(q) = 0$

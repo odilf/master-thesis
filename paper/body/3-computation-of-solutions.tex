@@ -77,6 +77,8 @@ and we want to find the path $\mathbf{q}^*$ such that $r(\mathbf{q}^*) = 0$.
 
 At a high level, two schemes are used to find this root. First, we pose a block Jacobi update step that can be done in parallel. However, the Jacobi update is still not directly computable, so we use one or more Newton-Raphson steps to compute the Jacobi update.
 
+\todo{this transition is awkward}
+
 \subsection{Algorithm description}
 
 The Jacobi update step consists of finding a new path $\overline{\mathbf{q}} = \{{ \overline{q}_k \}}_{k=0}^N$ that makes each summand of the residual $0$ with respect to the previous path. That is, we define the \newterm{local residual} as
