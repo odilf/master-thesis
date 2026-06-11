@@ -27,19 +27,6 @@
           ];
 
           tex = [
-            # (pkgs.texlive.combine {
-            #   inherit (pkgs.texlive)
-            #     scheme-small
-            #     biblatex
-            #     geometry
-            #     libertinus
-            #     libertinust1math
-            #     todonotes
-            #     derivative
-            #     pdfx
-            #     xmpincl
-            #     ;
-            # })
             pkgs.texliveFull
             pkgs.biber
             pkgs.texlab
@@ -47,6 +34,9 @@
             pkgs.watchexec
             pkgs.texlivePackages.chktex
             pkgs.texlivePackages.latexmk
+
+            pkgs.ffmpeg
+            pkgs.pkg-config
           ];
         in
         {
