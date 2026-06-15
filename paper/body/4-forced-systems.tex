@@ -315,12 +315,7 @@ This perturbation bound is checkable in terms of derivatives of the discrete for
 We illustrate the forced algorithm and the convergence criteria on four systems.
 Examples~\ref{ex:damped-oscillator} and~\ref{ex:lorentz} apply the perturbation theorem
 to, respectively, a dissipative force and a gyroscopic force.
-Example~\ref{ex:zermelo} shows the forced formulation arising naturally in an optimal
-control problem.
-Example~\ref{ex:discretization} revisits the magnetic-field system with two different
-force discretizations and shows how the choice of $f_d^\pm$ affects the structure
-of $H^f$.
-
+\Cref{ex:parachutist} shows a practical application of the algorithm to find trajectories for a parachutist in turbulent wind conditions.
 \tocless\subsection{Damped harmonic oscillator}\label{ex:damped-oscillator}
 
 The one-dimensional harmonic oscillator with linear viscous damping,
@@ -435,103 +430,73 @@ convergence for all $B$ below the threshold
 	of $B$, showing that the integrator preserves the cyclotron radius. Convergence of the
 	Newton residual vs.\ iteration count for $B$ below and above the perturbation threshold.}
 
-\tocless\subsection{Fuel-optimal navigation (Zermelo)}\label{ex:zermelo}
+% \tocless\subsection{Effect of force discretization on convergence}\label{ex:discretization}
 
-The \newterm{Zermelo fuel problem} asks for the path $q : [0, T] \to \RR^2$ of a
-vessel navigating through a current field $W : \RR^2 \to \RR^2$ that minimizes the
-total fuel expenditure
+% The choice of discrete forces $f_d^\pm$ approximating the same continuous force $f^L$
+% is not unique, and different choices lead to different structures of $H^f$ — and
+% therefore potentially different convergence margins. We illustrate this on the charged
+% particle of Example~\ref{ex:lorentz}.
+
+% \paragraph{Midpoint rule.} As computed above, $f_d^\pm = \frac{B}{2}J(q_{k+1}-q_k)$.
+% This distributes the impulse equally between the two endpoints. The off-diagonal blocks are
+% \[
+% 	\hat{\mathcal{C}}^+_k = -\tfrac{1}{h}I + \tfrac{B}{2}J, \qquad
+% 	\hat{\mathcal{C}}^-_k = -\tfrac{1}{h}I - \tfrac{B}{2}J,
+% \]
+% with spectral norm $\|\hat{\mathcal{C}}^+_k\|_2 = \sqrt{h^{-2} + B^2/4}$.
+% As noted above, $(\hat{\mathcal{C}}^+_k)^T = \hat{\mathcal{C}}^-_k$, so the symmetric force
+% condition $(\mdif{2}f_d^-)^T = \mdif{1}f_d^+$ holds.
+
+% \paragraph{Left-endpoint rule.} Assigning the full impulse to $f_d^-$,
+% \[
+% 	f_d^+(q_k, q_{k+1}) = 0, \qquad f_d^-(q_k, q_{k+1}) = B J(q_{k+1}-q_k),
+% \]
+% gives
+% \[
+% 	\hat{\mathcal{C}}^+_k = -\tfrac{1}{h}I + BJ, \qquad
+% 	\hat{\mathcal{C}}^-_k = -\tfrac{1}{h}I,
+% \]
+% with $\|\hat{\mathcal{C}}^+_k\|_2 = \sqrt{h^{-2} + B^2}$.
+% Now $(\hat{\mathcal{C}}^+_k)^T = -\tfrac{1}{h}I \neq \hat{\mathcal{C}}^-_k$, so the symmetric
+% force condition fails. The asymmetry is
+% \[
+% 	\hat{\mathcal{C}}^+_k - (\hat{\mathcal{C}}^-_k)^T = BJ,
+% \]
+% a purely skew-symmetric matrix that grows with $B$: the left-endpoint rule concentrates
+% the full asymmetry of $H^f$ in the upper off-diagonal blocks.
+
+% \paragraph{Comparison.} Both discretizations give $\|\Delta F\|_2 = O(B)$ and therefore
+% the same asymptotic perturbation bound. However, the midpoint rule has a strictly smaller
+% spectral norm $\|\hat{\mathcal{C}}^+_k\|_2$ for any $B > 0$ (by a factor of up to $2$ in
+% the norm), and it preserves the structural symmetry that makes the block structure of $J^f$
+% more regular.
+% This suggests that the midpoint quadrature is preferable whenever the gyroscopic force is
+% not small: it spreads the non-conservative coupling evenly, reducing the worst-case
+% amplification of errors at each node.
+
+% \todo{Figure: for a fixed field strength $B$ and step $h$, show the spectral radius
+% 	$\rho(J^f)$ and the Newton convergence rate for both discretizations, as $B$ varies from
+% 	$0$ to $B_{\max}$. This would concretely show the wider convergence window of the midpoint
+% 	rule.}
+
+\tocless\subsection{Parachutist in turbulent wind}\label{ex:parachutist}
+\todo{I don't know if ``turbulent'' is technically correct, since I think it technically means non-laminar flow?}
+
+A parachutist wants to jump from a helicopter at some position $(x_0, y_0)$ and reach a target point in the ground $(x^T, 0)$ at some time $T$ by letting themselves be carried by the wind, which is given as some vector field $W(x, y) = (w_x, w_y)$.
+
+This problem can be modelled with the Lagrangian
 \[
-	\mathcal{F}[q] = \frac{1}{2}\int_0^T |\dot{q}(t) - W(q(t))|^2 \, dt
+    L(x, y, \dot{x}, \dot{y})=\frac{m}{2}(\dot{x}^2+\dot{y}^2)-m g y
 \]
-subject to prescribed endpoints $q(0) = q_0$ and $q(T) = q_T$.
-Here $\dot{q} - W(q)$ is the thrust vector: when the current carries the vessel for
-free, $\dot{q} = W(q)$ and the integrand vanishes.
-The fuel functional is a standard action with Lagrangian
-\[
-	L(q, \dot{q}) = \tfrac{1}{2}|\dot{q} - W(q)|^2.
-\]
-Expanding, $L = \tfrac{1}{2}|\dot{q}|^2 - \dot{q}\cdot W(q) + \tfrac{1}{2}|W(q)|^2$.
-The velocity-dependent term $-\dot{q}\cdot W(q)$ contributes a force-like term in the
-Euler-Lagrange equations. Computing, the optimality condition is
-\[
-	\ddot{q} = 2\,\Skew(DW(q))\,\dot{q} + (DW(q))^T W(q),
-\]
-where $DW$ is the Jacobian of $W$. When $\mathrm{curl}\, W = 0$ (irrotational current)
-the skew part vanishes, $(DW)^T W = \nabla(\tfrac{1}{2}|W|^2)$ is a gradient, and the
-system is conservative (equivalent to unforced with an augmented potential).
-When $\mathrm{curl}\, W \neq 0$, the skew part $2\,\Skew(DW)\,\dot{q}$ is a genuine
-velocity-dependent non-conservative force, making this a forced Lagrangian system in the
-Lagrange-D'Alembert sense with
-\[
-	L_0 = \tfrac{1}{2}|\dot{q}|^2, \qquad
-	f^L = 2\,\Skew(DW(q))\,\dot{q} + (DW(q))^T W(q).
-\]
+where $g$ is the gravitational acceleration. Furthermore, the parachutist feels some drag, which is modelled as an external force:
+\begin{align*}
+	(F_x, F_y)=(-k(\dot{x}-w_x(x, y)), -k(\dot{y}-w_y(x, y))), 
+\end{align*}
+where $k$ is the parachute drag coefficient.
 
-We discretize $L$ directly using the trapezoidal rule with $v = (q_{k+1}-q_k)/h$:
-\[
-	L_d(q_k, q_{k+1}) = \frac{h}{4}\Bigl[|v - W(q_k)|^2 + |v - W(q_{k+1})|^2\Bigr].
-\]
-No explicit $f_d^\pm$ is needed: the wind field enters through the nonlinear Lagrangian,
-and the DEL equations arising from $\mdif{1} L_d + \mdif{2} L_d = 0$ are exactly the
-optimality conditions for the fuel functional. The parallel algorithm then solves for
-the minimum-fuel path directly.
+The problem can be discretized with the midpoint rule, for instance. The only additional data needed are the length of the path $N$, which then gives us the timestep $h = \frac{T}{N}$.
 
-\todo{Figure: optimal path from $(0,0)$ to $(6,5)$ through the example wind field
-	$W(x,y) = (\cos(2x - y - 6),\, \tfrac{2}{3}\sin y + x - 3)$, overlaid on a
-	quiver plot of $W$. Compare with the straight-line path to illustrate the fuel saving.}
-
-\todo{Figure: Newton residual vs.\ iteration count to show convergence of the parallel
-	algorithm on this nonlinear Lagrangian.}
-
-\tocless\subsection{Effect of force discretization on convergence}\label{ex:discretization}
-
-The choice of discrete forces $f_d^\pm$ approximating the same continuous force $f^L$
-is not unique, and different choices lead to different structures of $H^f$ — and
-therefore potentially different convergence margins. We illustrate this on the charged
-particle of Example~\ref{ex:lorentz}.
-
-\paragraph{Midpoint rule.} As computed above, $f_d^\pm = \frac{B}{2}J(q_{k+1}-q_k)$.
-This distributes the impulse equally between the two endpoints. The off-diagonal blocks are
-\[
-	\hat{\mathcal{C}}^+_k = -\tfrac{1}{h}I + \tfrac{B}{2}J, \qquad
-	\hat{\mathcal{C}}^-_k = -\tfrac{1}{h}I - \tfrac{B}{2}J,
-\]
-with spectral norm $\|\hat{\mathcal{C}}^+_k\|_2 = \sqrt{h^{-2} + B^2/4}$.
-As noted above, $(\hat{\mathcal{C}}^+_k)^T = \hat{\mathcal{C}}^-_k$, so the symmetric force
-condition $(\mdif{2}f_d^-)^T = \mdif{1}f_d^+$ holds.
-
-\paragraph{Left-endpoint rule.} Assigning the full impulse to $f_d^-$,
-\[
-	f_d^+(q_k, q_{k+1}) = 0, \qquad f_d^-(q_k, q_{k+1}) = B J(q_{k+1}-q_k),
-\]
-gives
-\[
-	\hat{\mathcal{C}}^+_k = -\tfrac{1}{h}I + BJ, \qquad
-	\hat{\mathcal{C}}^-_k = -\tfrac{1}{h}I,
-\]
-with $\|\hat{\mathcal{C}}^+_k\|_2 = \sqrt{h^{-2} + B^2}$.
-Now $(\hat{\mathcal{C}}^+_k)^T = -\tfrac{1}{h}I \neq \hat{\mathcal{C}}^-_k$, so the symmetric
-force condition fails. The asymmetry is
-\[
-	\hat{\mathcal{C}}^+_k - (\hat{\mathcal{C}}^-_k)^T = BJ,
-\]
-a purely skew-symmetric matrix that grows with $B$: the left-endpoint rule concentrates
-the full asymmetry of $H^f$ in the upper off-diagonal blocks.
-
-\paragraph{Comparison.} Both discretizations give $\|\Delta F\|_2 = O(B)$ and therefore
-the same asymptotic perturbation bound. However, the midpoint rule has a strictly smaller
-spectral norm $\|\hat{\mathcal{C}}^+_k\|_2$ for any $B > 0$ (by a factor of up to $2$ in
-the norm), and it preserves the structural symmetry that makes the block structure of $J^f$
-more regular.
-This suggests that the midpoint quadrature is preferable whenever the gyroscopic force is
-not small: it spreads the non-conservative coupling evenly, reducing the worst-case
-amplification of errors at each node.
-
-\todo{Figure: for a fixed field strength $B$ and step $h$, show the spectral radius
-	$\rho(J^f)$ and the Newton convergence rate for both discretizations, as $B$ varies from
-	$0$ to $B_{\max}$. This would concretely show the wider convergence window of the midpoint
-	rule.}
-
+Finally, we can recover what the initial 
 
     \textcolor{blue}{David
     Parachutist example

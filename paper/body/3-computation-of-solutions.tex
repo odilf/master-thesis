@@ -43,15 +43,13 @@ Then, the discrete action is now composed of sums of these discrete Lagrangians.
 	\label{eq:action-discrete}
 \end{equation}
 
-If we define an \newterm{exact discrete Lagrangian} $\Ld^e$ as
+Notice that this is a reformulation that can be done with no loss of information. That is, an \newterm{exact discrete Lagrangian} $\Ld^e$ can be defined as
 \begin{equation}
 	L_d^e (q_0, q_1) = \int_0^h L(q_{0, 1}(t), \dot{q}_{0, 1}(t)) \odif{t}
 \end{equation}
-where $q_{0, 1}$ is the path that minimizes the action along all the paths that connect $q_0$ and $q_1$, then the discrete formulation gives identical results to the continuous one.
+where $q_{0, 1}$ is the path that minimizes the action along all the paths that connect $q_0$ and $q_1$. This way the discrete formulation gives identical results to the continuous one. Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; so, in practice, the discrete Lagrangian $\Ld$ is defined using some quadrature rule that approximates the integral of the exact discrete Lagrangian.
 
-Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; so, in practice, the discrete Lagrangian $\Ld$ is defined using some quadrature rule that approximates the integral of the exact discrete Lagrangian.
-
-Appling Hamilton's principle to the discrete action (that is, $\nabla S_d = 0$ \todo{Maybe I should write out the derivation}), we find the discrete Euler-Lagrange (DEL) equations:
+Applying Hamilton's principle to the discrete action (that is, $\nabla S_d = 0$), the \newterm{discrete Euler-Lagrange} (DEL) equations can be derived:
 \begin{equation}
 	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0.
 	\label{eq:euler-lagrange-discrete}\
@@ -59,15 +57,13 @@ Appling Hamilton's principle to the discrete action (that is, $\nabla S_d = 0$ \
 \end{equation}
 Similarly to Hamilton's principle (\cref{def:hamiltons-principle}), the DEL equations underpin every result in this paper.
 
-Note that these equations are well-defined for any manifold, not only $\RR^n$, since both $\mdif{2} L_d (q_{k-1}, q_k)$ and $\mdif{1} L_d (q_k, q_{k+1})$ live in $T_{q_k} Q$, and the local tangent space of any smooth manifold always forms a vector space where we are free to add elements (however, the global tangent space $TQ$ would only a vector space if $Q$ itself is one too!).
+Note that these equations are well-defined for any manifold, not only $\RR^n$, since both $\mdif{2} L_d (q_{k-1}, q_k)$ and $\mdif{1} L_d (q_k, q_{k+1})$ live in $T_{q_k} Q$, and the local tangent space of any smooth manifold always forms a vector space where we are free to add elements (however, the global tangent space $TQ$ would only admit a vector space structure if $Q$ itself is one too!).
 
-Given this discretization, one approach for computing the path is computing $q_{k+1}$ based on $q_k$ and $q_{k-1}$, given two initial datapoints. This is theoretically sound (assuming existence and uniqueness conditions) since essentially it is a standard integration forward in time. However, if an endpoint is needed, this approach fundamentally doesn't work~\cite[p. 6]{ferraroParallelIterativeMethod2025}. The algorithm presented in the next section works around this problem by being iterative.
+Given this discretization, one approach for computing the path is computing $q_{k+1}$ based on $q_k$ and $q_{k-1}$, given two initial datapoints. This is theoretically sound (assuming existence and uniqueness conditions) and a reasonable approach, amounting to essentially an integration forward in time. However, if an endpoint is needed, this approach fundamentally doesn't work~\cite[p. 6]{ferraroParallelIterativeMethod2025}. The algorithm presented in the next section, which we study for the rest of the paper, provides solutions to boundary value problems.
 
 \section{Parallel algorithm}\label{sec:parallel-algorithm}
 
-In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed (note that the presentation here is a bit different from the original one, so that it is more in line with the extensions proposed later).
-
-The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = {\{q_k\}}_{k=0}^N$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
+In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = {\{q_k\}}_{k=0}^N$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
 \begin{equation}
 	R(\mathbf{q}) = \sum_{k=1}^{N-1}
 	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0
@@ -75,12 +71,9 @@ The idea of the parallel algorithm is to treat the (discrete) action as a functi
 \end{equation}
 and we want to find the path $\mathbf{q}^*$ such that $r(\mathbf{q}^*) = 0$.
 
-At a high level, two schemes are used to find this root. First, we pose a block Jacobi update step that can be done in parallel. However, the Jacobi update is still not directly computable, so we use one or more Newton-Raphson steps to compute the Jacobi update.
+At a high level, two schemes are used to find this root. First, we frame the algorithm as a block Jacobi update step that can be done in parallel. However, the Jacobi update is still not directly computable, so we use one or more Newton-Raphson steps to compute the Jacobi update.
 
-\todo{this transition is awkward}
-
-\subsection{Algorithm description}
-
+\paragraph{Jacobi.}
 The Jacobi update step consists of finding a new path $\overline{\mathbf{q}} = \{{ \overline{q}_k \}}_{k=0}^N$ that makes each summand of the residual $0$ with respect to the previous path. That is, we define the \newterm{local residual} as
 \begin{equation}
 	r_k(\mathbf{q}, \overline{q}) =
@@ -91,6 +84,7 @@ which is a term of the sum, replacing the central $q_k$ by some new value $\over
 
 \todo{Cite stuff about Jacobi in~\cite[sec 4.1]{ferraroParallelIterativeMethod2025}}
 
+\paragraph{Newton-Raphson.}
 Since the Lagrangian can be arbitrarily complex, this step does not have a general way to be computed. Specific kinds of Lagrangians, such as quadratic or cubic ones, have clear closed-form solutions. In lieu of knowing if the Lagrangian has one of this forms ahead of time, we use the Newton-Raphson method to solve a linearization of the problem. So, instead of consider the residual $r_k(\mathbf{q}, \overline{q})$, we consider the linearization $\rho_k$ around $q_k$:
 \[
 	\rho_k (\mathbf{q}, \overline{q}) = r_k(\mathbf{q}, q_k) + \mdif{2} r_k(\mathbf{q}, q_k) (\overline{q} - q_k)
@@ -101,31 +95,27 @@ Notice this is the step where we have to apply the hypothesis that $Q$ is a vect
 Finding this root is easy, since this is can be solved as the linear system:
 \begin{align*}
 	r_k(\mathbf{q}, q_k) + \mdif{2} r_k(\mathbf{q}, q_k) (\overline{q} - q_k) & = 0                                                                                    \\
-	\overline{q} - q_k                                                        & = \left(\mdif{2} r_k(\mathbf{q}, q_k)\right)^{-1} {\left(-r_k(\mathbf{q}, q_k)\right)} \\
+	\overline{q} - q_k                                                        & = {\left(\mdif{2} r_k(\mathbf{q}, q_k)\right)}^{-1} \left(-r_k(\mathbf{q}, q_k)\right) \\
 \end{align*}
 from which we get the general Jacobi-Newton update rule:
 \begin{equation}
-	\overline{q} = q_k - \left(\mdif{2} r_k(\mathbf{q}, q_k)\right)^{-1} {r_k(\mathbf{q}, q_k)}
+	\overline{q} = q_k - {\left(\mdif{2} r_k(\mathbf{q}, q_k)\right)}^{-1} r_k(\mathbf{q}, q_k).
 	% \tag{Jacobi-Newton}
 	\label{eq:jacobi-newton}
 \end{equation}
-
-In a standard discrete Lagrangian system, the terms are:
+In a standard discrete Lagrangian system, this derivative of the residual is given by the Hessian of the Lagrangian:
 \begin{align*}
 	\mdif{2} r_k (\mathbf{q}, q_k) & = \mdif{22} \Ld(q_{k-1}, q_k) + \mdif{11} \Ld(q_k, q_{k+1}) \\
 	r_k (\mathbf{q}, q_k)          & = \mdif{2} \Ld(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1})   \\
 \end{align*}
-And it is equation~\eqref{eq:jacobi-newton} which is easily computable using any linear solver. The algorithm consists of repeating this step until we converge to a solution.
 
-Of course, the question now is to verify under what conditions this algorithm does, in fact, converge.
+It is equation~\eqref{eq:jacobi-newton} which is easily computable using any linear solver. The algorithm consists of repeating this step until we converge to a solution. Of course, the question now is to verify under what conditions this algorithm does, in fact, converge.
 
 \subsection{Convergence criteria}
 
-\todo{Cite in general}
+The convergence of the method (both in the standard case as well in the forced and Lie group cases) is mainly related to the Hessian of the action, which we refer to as the \newterm{global Hessian matrix}, $H$. This is because, given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the hessian of $F$ is positive definite~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025}. Hamilton's principle is precisely such a formulation: the residual that we want to eliminate is the Hessian of the action, $R = \nabla S$.
 
-Given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the hessian of $F$ is positive definite \tc{}. Hamilton's principle is such a formulation: extremizing the action, which quite literally means that its derivative has to be $0$. That is, $R = \nabla S$. We will call the Hessian in question (i.e., of the action) the \newterm{global Hessian matrix}, $H$.
-
-So, given the action defined as in \cref{eq:action-discrete} for a path $\mathbf{q}$ of length $N$
+Given the structure of the action, its Hessian can be written in terms of second-order derivatives of the Lagrangian. That is, given the action defined as in~\eqref{eq:action-discrete} for a path $\mathbf{q}$ of length $N$
 \[ 	S_d (\mathbf{q}) : Q^N \to \RR = \sum_{k=0}^{N-2} \Ld(q_k, q_{k+1})
 \]
 the derivative with respect to the $i$th component is, as usual,
@@ -135,7 +125,7 @@ the derivative with respect to the $i$th component is, as usual,
 \end{align*}
 and then the entries of the Hessian are
 \begin{align*}
-	(H_{ij} (\mathbf{q})) = \mdif{q_i q_j} S_d (\mathbf{q}) & = \mdif{q_j} \left(
+	{(H (\mathbf{q}))}_{ij} = \mdif{q_i q_j} S_d (\mathbf{q}) & = \mdif{q_j} \left(
 	\mdif{1} \Ld(q_i, q_{i+1}) + \mdif{2} \Ld(q_{i-1}, q_i)
 	\right)                                                                                                                                              \\
 	                                                        & = \delta_{i, j} \left( \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{22} \Ld(q_{i - 1}, q_i) \right) \\
@@ -162,16 +152,16 @@ where
 	\end{aligned}
 	\label{eq:hessian-terms-1}
 \end{equation}
-and, using local coordinates, $\mathcal{C}_k^T = \mdif{21} \Ld(q_k, q_{k+1})$ \todo{Does this actually always happen for non-smooth functions?}.
+where by Schwarz's theorem, $\mathcal{C}_k^T = \mdif{21} \Ld(q_k, q_{k+1})$.
 
-The following theorem gives one of the fundamental criteria for convergence of the parallel algorithm (\cite[Prop. 4.3, 4.5, remark 4.6]{ferraroParallelIterativeMethod2025})
+
+
+Thus, the following theorem gives one of the fundamental criteria for convergence of the parallel algorithm (\cite[Prop. 4.3, 4.5, remark 4.6]{ferraroParallelIterativeMethod2025})
 \begin{theorem}[Jacobi-Newton convergence criterion]\label{thm:hessian-pd-convergence}
 	If the Hessian $H(\mathbf{q})$ is positive definite, there is a neighborhood $\mathcal{D}$ around a solution $\mathbf{q}^*$ such that any path $\mathbf{q} \in \mathcal{D}$ converges to $\mathbf{q}^*$;
 \end{theorem}
 
-This condition might theoretically be good enough, although in practice it is hard to compute, since it involves checking for positive-definiteness of an $N \times N$ matrix. The most common way to do this involves the Cholesky factorization, which has an $\mathcal{O}(N^3)$ runtime.
-
-An easier-to-check condition is be given in terms of a \newterm{local Hessian matrix} $H_k$ (\tc{}):
+This condition is sufficient, although in practice it is hard to compute, since it involves checking for positive-definiteness of an $N \times N$ matrix. The most common way to do this involves the Cholesky factorization, which has an $\mathcal{O}(N^3)$ runtime. An easier-to-check condition can be given in terms of a \newterm{local Hessian matrix} $H_k$:
 \begin{equation}
 	H_k(q_k, q_{k+1}) = \begin{pmatrix}
 		\mathcal{A}_k   & \mathcal{C}_k \\
@@ -193,7 +183,7 @@ where
 \end{theorem}
 
 
-This makes the checking $\mathcal{O}(N)$ in terms of the length \todo{I guess N is not necessarily ``length''} of the path. However, this condition is not necessary, and in practice it is common for p.d.\ global Hessians to not be localy p.d..
+This makes the checking $\mathcal{O}(N)$ in terms of the size $N$ of the path. However, this condition is not necessary, and in practice it is common for p.d.\ global Hessians to not be localy p.d..
 
 This is where a third convergence result comes into play, which gives a necessary and sufficient condition for the positive definiteness of the global Hessian matrix:
 
@@ -202,6 +192,8 @@ This is where a third convergence result comes into play, which gives a necessar
 	\[ \Lambda_i = \mathcal{D}_i - \mathcal{C}_{i-1}^T \Lambda_{i-1}^{-1} \mathcal{C}_{i-1}, \quad 2 \leq i \leq N - 1 \]
 	are all positive definite.
 \end{theorem}
+
+\todo{Say the time complexity of this one.}
 
 In the next two sections, we extend the algorithm to forced systems and Lie groups, and give results analogous to these three theorems (when possible).
 

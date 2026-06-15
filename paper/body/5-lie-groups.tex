@@ -23,9 +23,9 @@ One solution to this is working on the corresponding \newterm{Lie algebra}.
 The Lie algebra $\fg := T_e G$ is the tangent space at the identity, forming a vector space of the same dimension as $G$.
 For any other point $g \in G$, tangent directions can be supplied by the differential $T_e L_g : \fg \to T_g G$ of the left-multiplication map $L_g : h \mapsto gh$, which is a isomorphism between these two vector spaces. The technique of ``moving'' some computation of a Lie group to its algebra is often called \newterm{lifting} (into the algebra).
 
-In the vector-space case, the Newton update has form of $q_\textrm{new} = q_k + \delta q$: you compute a correction $\delta q$ in a vector space and add it. On $G$, there's no addition, so ``compute a correction and add it'' has no direct meaning. What we do instead is pick a vector space (here, $\fg$), compute a correction $\delta \xi$ there, and then map it to a nearby point in $G$ via some smooth curve.
+In the vector-space case, the Newton update has form of $q_\textrm{new} = q_k + \delta q$: you compute a correction $\delta q$ in a vector space and add it. On $G$, there's no addition, so ``compute a correction and add it'' is not well defined. Instead, we pick a vector space (here, $\fg$), compute a correction $\delta \xi$ there, and then map it to a nearby point in $G$ via some smooth map.
 
-Such a map is called a \newterm{retraction} $\tau : \fg \to G$ which has to satisfy $\tau(0) = e$ and $T_0\tau = \mathrm{Id}_\fg$. \todo{maybe mention retractions can have other properties}
+Such a map is called a \newterm{retraction} $\tau : \fg \to G$, which (for our purposes) we require to satisfy $\tau(0) = e$ and $T_0\tau = \mathrm{Id}_\fg$.
 Left-translating $\tau$ by $g_k$ gives a map centred at $g_k$:
 \begin{equation}
 	\overline{g}_k = g_k\tau(\delta \xi_k), \qquad \delta \xi_k \in \fg,
@@ -35,7 +35,7 @@ the Lie-group analogue of $q_k + \delta q$ in the vector-space case.
 The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved for by a linear system (which we show how to set up in the next section).
 
 \begin{remark}[Concrete retractions]
-	The \newterm{exponential map} $\exp : \fg \to G$ is the fundamental and universal retraction, but, for instance, in matrix Lie groups the \newterm{Cayley map} $\operatorname{cay}(\xi) = {(I - \xi/2)}^{-1}(I + \xi/2)$ is used more often since it has nicer properties, such as being easier to compute. \todo{I think there is a rabbithole here I am not properly aware of}
+	The \newterm{exponential map} $\exp : \fg \to G$ is the fundamental and universal retraction, but, for instance, in matrix Lie groups the \newterm{Cayley map} $\operatorname{cay}(\xi) = {(I - \xi/2)}^{-1}(I + \xi/2)$ is used more often since it has nicer properties, such as being easier to compute.
 \end{remark}
 
 \paragraph{Linearization}
@@ -43,12 +43,12 @@ The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved 
 We now linearise the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi)) = 0$ at $\delta \xi = 0$ to obtain a linear system on $\fg$, the analogue of the vector-space Jacobi-Newton step~\eqref{eq:jacobi-newton}.
 
 \todo{I think this is a trivialization, maybe I should mention that.}
-First, we calculate the derivative of $(L_g \circ \tau) (\xi)$ (which acts as $\xi \mapsto g \, \tau \xi$) at $\xi = 0$. Acting on an element $\eta$, this is
+First, we calculate the derivative of $(L_g \circ \tau) (\xi)$ (which acts as $\xi \mapsto g \, \tau(\xi)$) at $\xi = 0$. Acting on an element $\eta$, this is
 \begin{equation}
 	\odv{}{\xi} \bigg|_0 (g \tau (\xi))\,[\eta] = T_e L_g(\eta).
 	\label{eq:lie-retraction-tangent}
 \end{equation}
-Commonly, $T_e L_g(\eta)$ is written as $g \cdot \eta$, which looks like somewhat of an abuse of notation, but is the direct computation for the case of matrix Lie groups (since in that case elements of $G$ are matrices and of $T_g G$, vectors; where the differential application is just direct matrix multiplication).
+Commonly, $T_e L_g(\eta)$ is written as $g \cdot \eta$, which looks like somewhat of an abuse of notation, but corresponds to the direct computation for the case of matrix Lie groups (since in that case elements of $G$ are matrices and of $T_g G$, vectors; where the differential application is just direct matrix multiplication).
 
 The next step is to write the residual in the Lie-algebra.
 As it stands, the residual $r_k(\mathbf{g}, g_k) \in T_{g_k}^* G$ is a covector at $g_k$, but we need it as a covector on the identity for it to be an element of $\fg$ and be able to set up a linear system there.
@@ -318,21 +318,46 @@ Just as in the vector-space case (\cref{thm:local-hessian-pd-convergence}), the 
 	Consequently, \cref{thm:lie-group-convergence} can equivalently be stated for the DEP iteration; the non-reduced formulation we use is more general, and for invariant systems simplifies the convergence analysis at the cost of a slightly larger state space.
 \end{remark}
 
-\section{Examples}\label{sec:lie-examples}
+\section{Implementation and examples}\label{sec:lie-examples}
 
-\todo{This section is a stub. }
+Implementing this extension in practice is not completely straightforward if one does not use some library that provides support for these operations. For our implementation, we made the algorithm work given a \verb|Manifold| interface, which requires definitions of:
+\begin{enumerate}
+	\item the numerical representation of elements of $G$
+	\item the pullbacked differential, ${(T_e L_g)}^* T_g$
+	\item the group action
+	\item a retraction
+\end{enumerate}
+
+Elements of the tangent and cotangent space are represented by their trivialized counterparts in the algebra, and elements of the algebra (and coalgebra) are represented via the $\RR^n$ isomorphism we know must exist. For instance, on $G = SO(3)$, elements of $\fg = \mathfrak{so}(3)$ are skew-symmetric $3 \times 3$ matrices that have an isomorphism with $\RR^3$ via the hat map:
+
+\[ \hat{\xi} = \widehat{\begin{bmatrix} x \\ y \\ z\end{bmatrix}} = \begin{bmatrix}
+	0  & -z & y \\
+	z  & 0  & -x \\
+	-y & x  & 0
+\end{bmatrix}. \]
+
+The only thing missing is a way to calculate the second derivative, but this can actually be calculated with no additional knowledge, given that we're representing $\fg$ and $\fg^*$ as vectors. Namely, we differentiate directly the residual as a function of the algebra, by taking the Jacobian of $\widetilde{r_k}(\delta \xi_k) : \fg \to \fg^*$. Since we represent $\fg$ and $\fg^*$ as $\RR^n$, this can be done using any autodifferentiation library.
+
+This is enough to implement the algorithm. The source code used for the following examples is available in the repository \todo{Add link}.
+
+\tocless\subsection{Rigidbody satellite positioning}
+
+Consider a satellite at some position that we want to get to some other point at a specific time with a specific orientation to, say, study an event in the surface of a star.
+
+The trajectory of the satellite is afected by the gravitational pull of nearby bodies in space. To find what trajectories are possible, one could try to just model the path in $\RR^3$ and use a constant angular velocity to re-orient the satellite. However, the pull from nearby bodies can change how the satellite rotates, and the experienced pull in turn changes depending on the orientation.
+
+A more accurate way of modeling this situation is by using $SE(4)$, the group of rigidbody rotations, which automatically handles this complexity in its manifold geometry.
+
+Namely, for a position $x$ and orientation $R$, the potential and kinetic energies are:
+\begin{align*}
+	V(R, x) &= -\frac{\mu_j m_i}{\| x + R,r_i^b - x_j\|} \\
+	T(R, x, \dot{R}, \dot{x}) &= 
+\end{align*}
+% jnp.dot(v_rot, self.inertia * v_rot) / 2 + self.mass / 2 * jnp.dot(v_trans, v_trans)
+where
 
 
-\tocless\subsection{Free particle on $G$}\label{sec:lie-example-free}
+\todo{Put pictures in.}
 
-\todo{Lagrangian $L(g, \dot g) = \tfrac{1}{2} \langle \xi, \mathbb{M} \xi \rangle$ with $\xi = g^{-1} \dot g$ and $\mathbb{M}$ a positive-definite bilinear form on $\fg$.
-	A standard order-1 discretisation gives $\Ld(g_k, g_{k+1}) = \tfrac{1}{h} \langle \log(g_k^{-1} g_{k+1}), \mathbb{M} \log(g_k^{-1} g_{k+1}) \rangle$ (or the Cayley analogue).
-	Compute the Lie-algebra Hessian blocks and verify that $\widetilde{H}_k$ is positive definite uniformly, so the algorithm converges for any path.}
-
-\tocless\subsection{Rigid body on $SO(3)$}\label{sec:lie-example-rigid-body}
-
-\todo{The canonical mechanical example. $G = SO(3)$, $\fg = \mathfrak{so}(3) \cong \RR^3$ via the hat map.
-	Lagrangian $L(R, \dot R) = \tfrac{1}{2} \Omega^T \mathbb{I}\, \Omega$ with $\Omega = R^T \dot R$ the body angular velocity and $\mathbb{I}$ the inertia tensor.
-	Discretise using the Moser--Veselov / Marsden--Pekarsky--Shkoller approach~\cite{marsdenDiscreteEulerPoincareLiePoisson1999}.
-	Compute $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\mathcal{C}}_k$ explicitly and verify the local edge condition holds for small enough time step $h$.}
-
+\tocless\subsection{Zermelo fuel navigation in $SE(3)$}
+\todo{Fill in}
