@@ -307,15 +307,15 @@ Just as in the vector-space case (\cref{thm:local-hessian-pd-convergence}), the 
 \end{remark}
 
 \begin{remark}[Connection to the discrete Euler-Poincaré equations]\label{rmk:lie-DEP}
-	When the discrete Lagrangian is \newterm{left-invariant} — $\Ld(g_k, g_{k+1}) = \Ld(h g_k, h g_{k+1})$ for all $h \in G$, the natural setting for mechanical systems on Lie groups — it factors through the quotient $f_k = g_k^{-1} g_{k+1}$, giving the \newterm{reduced Lagrangian} $\ell : G \to \RR$ with $\ell(f_k) = \Ld(g_k, g_{k+1})$.
-	The DEL equations on $G$ are equivalent to the \newterm{discrete Euler-Poincaré (DEP)} equations
+	Many mechanical systems on Lie groups are naturally \newterm{left-invariant}, meaning that $\Ld(g_k, g_{k+1}) = \Ld(h g_k, h g_{k+1})$ for all $h \in G$. If this is the case, the Lagrangian factors through the quotient $f_k = g_k^{-1} g_{k+1}$, resulting in a \newterm{reduced Lagrangian} $\ell : G \to \RR$ with $\ell(f_k) = \Ld(g_k, g_{k+1})$.
+	Then, the DEL equations on $G$ are equivalent to the \newterm{discrete Euler-Poincaré (DEP)} equations
 	\begin{equation}
 		{(TL_{f_{k-1}})}^* d\ell(f_{k-1}) = {(TR_{f_k})}^* d\ell(f_k).
 		\tag{DEP}
 		\label{eq:lie-DEP}
 	\end{equation}
 	 Convergence of the DEP iteration on quotients $\{f_k\}$ is equivalent to convergence of the DEL iteration on $\{g_k\}$~\cite[Theorem 2.1]{marsdenDiscreteEulerPoincareLiePoisson1999}.
-	Consequently, \cref{thm:lie-group-convergence} can equivalently be stated for the DEP iteration; the non-reduced formulation we use is more general, and for invariant systems simplifies the convergence analysis at the cost of a slightly larger state space.
+	Consequently, \cref{thm:lie-group-convergence} can equivalently be stated for the DEP iteration. The non-reduced formulation we use is more general, and for invariant systems simplifies the convergence analysis at the cost of a slightly larger state space.
 \end{remark}
 
 \section{Implementation and examples}\label{sec:lie-examples}
@@ -338,26 +338,78 @@ Elements of the tangent and cotangent space are represented by their trivialized
 
 The only thing missing is a way to calculate the second derivative, but this can actually be calculated with no additional knowledge, given that we're representing $\fg$ and $\fg^*$ as vectors. Namely, we differentiate directly the residual as a function of the algebra, by taking the Jacobian of $\widetilde{r_k}(\delta \xi_k) : \fg \to \fg^*$. Since we represent $\fg$ and $\fg^*$ as $\RR^n$, this can be done using any autodifferentiation library.
 
-This is enough to implement the algorithm. The source code used for the following examples is available in the repository \todo{Add link}.
+This is enough to implement the algorithm, although in practice we also ask for a way to construct a tangent ``velocity'' vector as \verb|tangent(q0, q1, h)| which we use to be able to define the Lagrangian in the continous way and discretize it automatically.
+
+The source code, including all the code for the following examples, is available in the repository \todo{Add link}.
 
 \tocless\subsection{Rigidbody satellite positioning}
 
-Consider a satellite at some position that we want to get to some other point at a specific time with a specific orientation to, say, study an event in the surface of a star.
+Consider a satellite at some position that we want to get to some other point at a specific time with a specific orientation (to, say, study an event in the surface of a star).
 
 The trajectory of the satellite is afected by the gravitational pull of nearby bodies in space. To find what trajectories are possible, one could try to just model the path in $\RR^3$ and use a constant angular velocity to re-orient the satellite. However, the pull from nearby bodies can change how the satellite rotates, and the experienced pull in turn changes depending on the orientation.
 
-A more accurate way of modeling this situation is by using $SE(4)$, the group of rigidbody rotations, which automatically handles this complexity in its manifold geometry.
-
-Namely, for a position $x$ and orientation $R$, the potential and kinetic energies are:
+A more accurate way of modeling this situation is by using $SE(3)$, the group of rigidbody motions, which automatically handles this complexity in its manifold geometry. Namely, using $SE(3) \cong SO(3) \times \RR^3$, for a position $x$ and orientation $R$ the potential and kinetic energies are:
 \begin{align*}
-	V(R, x) &= -\frac{\mu_j m_i}{\| x + R,r_i^b - x_j\|} \\
-	T(R, x, \dot{R}, \dot{x}) &= 
+	V(R, x) &= -\frac{\mu_j m_i}{\| x + R\, r_i^b - x_j\|} \\
+	T(R, x, \omega, v) &= \frac{\omega^T I \omega}{2} + \frac{m \|v\|}{2}
 \end{align*}
-% jnp.dot(v_rot, self.inertia * v_rot) / 2 + self.mass / 2 * jnp.dot(v_trans, v_trans)
+where $r_i$ and $m_i$ are the position and mass of the $i$th body point, $\mu_j$ and $x_j$ are the mass and position of the $j$th celestiall object, and $\omega$ and $v$ are the angular and translational velocity. The Lagrangian for a system defined by potential and kinetic energy is $L = V - T$. We discretized it using midpoint rule and plotted the trajectory of a prims-like satellite for some chosen conditions with interesting behavior (see the source code for details), shown in \cref{fig:satellite}.
+
+\begin{figure}
+     \centering
+     \begin{subfigure}[ht]{0.80\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{satellite-diag.png}
+         \caption{Diagonal view.}\label{fig:satellite-diag}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[ht]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{satellite-front.png}
+         \caption{Front view.}\label{fig:satellite-front}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[ht]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{satellite-top.png}
+         \caption{Top view.}\label{fig:satellite-top}
+     \end{subfigure}
+    \caption{Satellite physical simulation. Satellite needs to reach the position and orientation above. Blue prism indicates evenly-spaced snapshots of the satellite's position and orientation. Green path indicates positional trajectory, fainter green paths indicate previous trajectories before converging. Circles indicate celestial bodies that affect the satellite, size indicating pulling strength (i.e., mass).}\label{fig:satellite}
+\end{figure}
+
+We see in the front view (\cref{fig:satellite-front}) that even though the satellite only has to increase its height by a bit, the physical trajectory needs to take a detour and make a bigger arc movement. The simulation shows us that a direct approach does not seem to allow reaching the final desired orientation, as the pull from the two bodies would rotate the satellite. In fact, in the top view (\cref{fig:satellite-top}) we can see that the path taken in the end does a smooth approach from above, where the pull from both bodies seems to be balanced in such a way that the satellite can rendezvouz with the target orientation.
+
+\todo{mention: The relative size of the satellite to the celestial bodies is exaggerated to make the rotational effects clearer.}
+
+\tocless\subsection{Zermelo fuel-optimal navigation in $SE(3)$}
+
+Lagrangian formulations can also be used to find optimal solutions to certain problems. In~\cite[Example 5.2]{ferraroParallelIterativeMethod2025} they formulate a fuel-optimal navigation problem, given a wind field. We can extend it to $SE(3)$ by making the system take into account the orientation of the ship, which is in fact a spaceship that can reorient itself in three dimensions.
+
+Specifically, we model a prism-like ship with one long axis and two short ones, such that if the long axis is perpendicular to the flow the effect is much greater than if it is parallel.
+
+\[ L(R, x, \omega, v) = \frac{\omega^T I \omega}{2} + \frac{{(R(v - W(x)))}^T D R(v - W(x))}{2} \]
+
 where
 
+\[ W(x) = \]
 
-\todo{Put pictures in.}
+\todo{Write out lagrangian.}
 
-\tocless\subsection{Zermelo fuel navigation in $SE(3)$}
-\todo{Fill in}
+\begin{figure}
+     \centering
+     \begin{subfigure}[ht]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{zermelo-diag.png}
+         \caption{Diagonal view.}\label{fig:zermelo-diag}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[ht]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{zermelo-top.png}
+         \caption{Top view.}\label{fig:zermelo-top}
+     \end{subfigure}
+    \caption{Zermelo fuel optimization problem in $SE(3)$. Bottow red arrows show flow field, upper arrows show how the flow affects the rigidbody in the given position.}\label{fig:zermelo}
+\end{figure}
+
+Here, we see that in the first 3--4 snapshots the ship is orientating itself using the direction of the flow. Interestingly, we see that between the last and second-to-last snapshot, the ship does a sharp turn. This is to maximize the amount of time the ship is being maximally pushed by the flow. In fact, the flow helps the ship turn in that direction and the flow is greater away from the center, so delaying the turn also helps make the turn itself cheaper.
+
