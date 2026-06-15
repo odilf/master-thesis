@@ -40,42 +40,24 @@ The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved 
 
 \paragraph{Linearization}
 
-We now linearise the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi)) = 0$ at $\delta \xi = 0$ to obtain a linear system on $\fg$, the analogue of the vector-space Jacobi-Newton step~\eqref{eq:jacobi-newton}.
+As it stands, the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ is an element of $T_{g_k}^*$. We are going to linearize it in the Lie-algebra by considering the expression $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ as a function of a vector diredtion $\delta \xi \in \fg$. This gives a map $\fg \to T_{g_k \tau(\delta \xi)}^* G$, i.e., from the algebra to a cotangent space. Similarly to how we can move from $T_g G \to \fg$ via $T_e L_g$, we can move from $T_g^*G \to \fg^*$ using the \newterm{transpose} ${(T_e L_g)}^*$ by interpreting the duals as linear applications and pre-appling $T_e L_g$ to $T_g^*G$. That is,
+\[ ({(T_e L_g)}^* \underbrace{\alpha}_{T_g^* G}) \underbrace{\eta}_{T_g G} = \alpha(T_e L_g (\eta)). \]
 
-\todo{I think this is a trivialization, maybe I should mention that.}
-First, we calculate the derivative of $(L_g \circ \tau) (\xi)$ (which acts as $\xi \mapsto g \, \tau(\xi)$) at $\xi = 0$. Acting on an element $\eta$, this is
+Note that since $L_g$ is a diffeomorphis, both $T_e L_g$ and its transpose are isomorphisms and so this mapping can be done without loss of information.
+
+Then, the residual can be written as a function of a vector direction, all in the Lie-algebra:
 \begin{equation}
-	\odv{}{\xi} \bigg|_0 (g \tau (\xi))\,[\eta] = T_e L_g(\eta).
-	\label{eq:lie-retraction-tangent}
-\end{equation}
-Commonly, $T_e L_g(\eta)$ is written as $g \cdot \eta$, which looks like somewhat of an abuse of notation, but corresponds to the direct computation for the case of matrix Lie groups (since in that case elements of $G$ are matrices and of $T_g G$, vectors; where the differential application is just direct matrix multiplication).
-
-The next step is to write the residual in the Lie-algebra.
-As it stands, the residual $r_k(\mathbf{g}, g_k) \in T_{g_k}^* G$ is a covector at $g_k$, but we need it as a covector on the identity for it to be an element of $\fg$ and be able to set up a linear system there.
-The main tool to do this is taking the \newterm{transpose} of $T_e L_{g_k} : \fg \to T_{g_k} G$:
-\begin{align*}
-	                          & {(T_e L_{g_k})}^* : T_{g_k}^* G \to \fg^*                                                    \\
-	\textrm{defined as} \quad & {(T_e L_{g_k})}^* \alpha = \eta \mapsto \alpha (T_e L_{g_k} (\eta)) \quad \textrm{for } \alpha \in T_{g_k}^*
-\end{align*}
-which pulls covectors back to the algebra. This is a (specific case of a) \newterm{pullback}. Note that since $T_e L_{g_k}$ is a diffeomorphism, both $T_e L_{g_k}$ and its transpose are isomorphisms and this mapping can be done without loss of information.
-
-Then, the \newterm{Lie-algebra residual} at node $k$ is defined as:
-\begin{equation}
-	\widetilde{r}_k := {(T_e L_{g_k})}^* r_k(\mathbf{g}, g_k) \;\in\; \fg^*.
+	\widetilde{r}_k(\delta\xi_k) : \fg \to \fg^* = {(T_e L_{g_k \tau(\delta\xi_k)})}^* r_k\bigl(\mathbf{g}, g_k\tau(\delta\xi_k)\bigr),
 	\label{eq:lie-residual}
 \end{equation}
-Since ${(T_e L_{g_k})}^*$ is an isomorphism, $\widetilde{r}_k = 0$ if and only if $r_k(\mathbf{g}, g_k) = 0$.
+This expression is linearizable around $\delta\xi_k = 0$ as $\partial_{\delta \xi_k} \widetilde{r_k}(\delta \xi_k) \delta\xi_k + \widetilde{r_k}(\delta\xi_k)$. To carry out the computations we will follow a common convention of denoting $T_e L_g(\eta) = g \cdot \eta$, which in the general case is no more than notational shorthand, but for matrix Lie groups the pushforwarded multiplication does literally correspond with matrix multiplication, denoted with the same symbol. 
 
-To set up the linear system for $\delta\xi_k$, we view the Lie-algebra residual as a function of a vector direction $\delta\xi_k \in \fg$,
+Then, applying the product rule in direction $\eta \in \fg$ gives two terms: one from differentiating $r_k$ itself, and one from differentiating the pullback ${(T_e L_{g_k \tau(\delta\xi)})}^*$, which is proportional to $r_k(\mathbf{g}, g_k)$. We will only use the first term, making the iteration a quasi-Newton method \todo{cite? or explain?} whose fixed points coincide with solutions of the DEL equations (since the dropped term vanishes whenever $r_k = 0$), and whose convergence we analyse in \cref{sec:lie-groups-convergence}.
+
+This first term, using $r_k(\mathbf{g}, g) = \mdif{2}\Ld(g_{k-1}, g) + \mdif{1}\Ld(g, g_{k+1})$, evaluates (via chain rule of $T_e L_g$) to
 \[
-	\widetilde{r}_k(\delta\xi_k) = {(T_e L_{g_k} \tau(\delta\xi_k))}^* r_k\bigl(\mathbf{g},\, g_k\tau(\delta\xi_k)\bigr),
-\]
-and linearize at $\delta\xi_k = 0$ as $\partial_{\delta \xi_k} \widetilde{r_k}(\delta \xi_k) \delta\xi_k + \widetilde{r_k}(\delta\xi_k)$.
-To compute the derivative, we use the product rule in direction $\eta \in \fg$, which gives two terms: one from differentiating the pullback ${(T_e L_{g_k} \tau(\delta\xi))}^*$, which is proportional to $r_k(\mathbf{g}, g_k)$ and vanishes at any solution $\mathbf{g}^*$; and one from differentiating $r_k$ itself.
-This second term, using $r_k(\mathbf{g}, g) = \mdif{2}\Ld(g_{k-1}, g) + \mdif{1}\Ld(g, g_{k+1})$, evaluates (via chain rule of~\eqref{eq:lie-retraction-tangent}) to
-\[
-	\frac{d}{dt}\bigg|_{t=0} r_k\bigl(\mathbf{g},\, g_k\tau(t\eta)\bigr)
-	= \bigl(\mdif{22}\Ld(g_{k-1},g_k) + \mdif{11}\Ld(g_k,g_{k+1})\bigr)\bigl[T_e L_{g_k} (\eta)\bigr].
+	\frac{d}{dt}\bigg|_{t=0} r_k\left(\mathbf{g},\, g_k\tau(t\eta)\right)
+	= \left(\mdif{22}\Ld(g_{k-1},g_k) + \mdif{11}\Ld(g_k,g_{k+1})\right)\left[g_k \cdot \eta\right].
 \]
 Pulling back with ${(T_e L_{g_k})}^*$ and setting the result to zero gives the linear system
 \begin{equation}
@@ -88,7 +70,7 @@ where $\widetilde{\mathcal{D}}_k : \fg \to \fg^*$ at node $k$ is
 	\widetilde{\mathcal{D}}_k = {(T_e L_{g_k})}^* \bigl(\mdif{22} \Ld(g_{k-1}, g_k) + \mdif{11} \Ld(g_k, g_{k+1})\bigr)\, (T_e L_{g_k})
 	\label{eq:lie-jacobi-newton-blocks}
 \end{equation}
-(it will be shown later that this is in fact the diagonal blocks of the Lie-algebra Hessian, as in the vector-space case).
+(it will be shown later that this is in fact the diagonal blocks of the Lie-algebra Hessian at $\mathbf{g}^*$, as in the vector space case; the discrepancy between $\widetilde{\mathcal{D}}_k$ and the true Hessian diagonal away from $\mathbf{g}^*$ is the retraction-curvature term, which vanishes at solutions).
 
 Finally, the update rule is
 \begin{equation}
@@ -104,32 +86,32 @@ The parallelism structure (\cref{sec:parallel-algorithm}) carries over without m
 
 The convergence analysis largly follows the vector-space case (\cref{thm:hessian-pd-convergence}) from~\cite{ferraroParallelIterativeMethod2025}, but with two adaptations: we work with the Lie-algebra Hessian $\widetilde{H}$ (the analogue of $H$, with all blocks pulled back to $\fg$ via left translation), and the iteration on $G^{N-1}$ has to be read in a Lie-algebra chart at the solution before we can apply classical fixed-point/convergence theorems.
 
-The strategy consists of lifting the discrete action to a function on the vector space $\fg^{N-1}$, compute its gradient and Hessian there, and read off the convergence criterion.
+The strategy consists of lifting the discrete action to a function on the vector space $\fg^{N-1}$, computing its gradient and Hessian there, and reading off the convergence criterion.
 We carry out the lifting in \cref{sec:lie-hessian} and give the convergencence results in \cref{sec:lie-convergence}.
 
 \subsection{The Hessian in Lie-algebra coordinates}\label{sec:lie-hessian}
 
 The Hessian cannot be computed on the Lie group directly (neither the gradient, for that matter), but it can be written in the Lie algebra. To do this, we fix the current iterate $\mathbf{g} = (g_0, g_1, \ldots, g_N)$ with endpoints $g_0$ and $g_N$ pinned, and for each interior node $k = 1, \ldots, N-1$, we introduce a perturbation $\xi_k \in \fg$ and define the perturbed path
 \[
-	\mathbf{g}(\boldsymbol \xi) := (g_0,\; g_1\tau(\xi_1),\; \ldots,\; g_{N-1}\tau(\xi_{N-1}),\; g_N),
+	\mathbf{g}(\boldsymbol \xi) = (g_0,\; g_1\tau(\xi_1),\; \ldots,\; g_{N-1}\tau(\xi_{N-1}),\; g_N),
 	\qquad \boldsymbol \xi \in \fg^{N-1},
 \]
 with $\xi_0 = \xi_N = 0$ at the (fixed) endpoints.
 The discrete action restricted to this family is now a smooth function on the \emph{vector space} $\fg^{N-1}$:
 \begin{equation}
-	\Sigma(\boldsymbol \xi) := S_d(\mathbf{g}(\boldsymbol \xi))
+	\Sigma(\boldsymbol \xi) = S_d(\mathbf{g}(\boldsymbol \xi))
 	= \sum_{k=0}^{N-1} \Ld\bigl(g_k\tau(\xi_k),\; g_{k+1}\tau(\xi_{k+1})\bigr).
 	\label{eq:lie-lifted-action}
 \end{equation}
 This puts us back in the vector-space setting of \cref{sec:parallel-algorithm}, where we will show that the gradient and Hessian of $\Sigma$ at $\boldsymbol \xi = 0$ play the same role that $\nabla S_d$ and $\nabla^2 S_d$ played there.
 We write
 \[
-	\widetilde{R} := \nabla \Sigma(0) \in {(\fg^*)}^{N-1},
+	\widetilde{R} = \nabla \Sigma(0) \in {(\fg^*)}^{N-1},
 	\qquad
-	\widetilde{H} := \nabla^2 \Sigma(0).
+	\widetilde{H} = \nabla^2 \Sigma(0).
 \]
 
-Differentiating~\eqref{eq:lie-lifted-action} with respect to $\xi_k$ at $\boldsymbol \xi = 0$, only the $(k-1)$-th and $k$-th summands contribute, and the chain rule with~\eqref{eq:lie-retraction-tangent} recovers the Lie-algebra residual~\eqref{eq:lie-residual} introduced for the algorithm:
+Differentiating~\eqref{eq:lie-lifted-action} with respect to $\xi_k$ at $\boldsymbol \xi = 0$, only the $(k-1)$-th and $k$-th summands contribute, and the chain rule with $T_e L_g$ recovers the Lie-algebra residual~\eqref{eq:lie-residual} introduced for the algorithm:
 \[
 	\mdif{\xi_k} \Sigma(0)
 	= {(T_e L_{g_k})}^* \bigl(\mdif{2} \Ld(g_{k-1}, g_k) + \mdif{1} \Ld(g_k, g_{k+1})\bigr)
@@ -137,8 +119,8 @@ Differentiating~\eqref{eq:lie-lifted-action} with respect to $\xi_k$ at $\boldsy
 \]
 which is expected. In particular, solutions of the DEL equations on $G$ are exactly the critical points of $\Sigma$.
 
-The Hessian computation needs the second derivative of $(L_g \circ \tau)(\xi) = g\tau(\xi)$ at $\xi = 0$.
-Denoting as $\text{D}^2\tau(0)[\eta, \zeta]$ the (bilinear) second derivative of $\tau$ at $0$, taking one more derivative of~\eqref{eq:lie-retraction-tangent} gives the second derivative of $\xi \mapsto g\tau(\xi)$ at $\xi = 0$, viewed as a bilinear form on $\fg$:
+The Hessian computation needs the second derivative of $g\tau(\xi)$ at $\xi = 0$.
+Denoting as $\text{D}^2\tau(0)[\eta, \zeta]$ the (bilinear) second derivative of $\tau$ at $0$, taking one more derivative of $T_e L_g$ gives the second derivative of $\xi \mapsto g\tau(\xi)$ at $\xi = 0$, viewed as a bilinear form on $\fg$:
 \begin{equation}
 	\odv[order=2]{}{\xi} \bigg|_0 (g \tau (\xi))\,[\eta, \zeta]
 	= g \cdot \text{D}^2\tau(0)[\eta, \zeta].
@@ -216,7 +198,7 @@ The perturbation is then updated with $\widetilde{T} := \Psi^{-1} \circ T \circ 
 	Then $\widetilde{T}'(0) = \widetilde{J}$, where $\widetilde{H}(\mathbf{g}^*) = \widetilde{D} + \widetilde{L} + \widetilde{U}$ is the decomposition into block-diagonal, strictly lower block-triangular, and strictly upper block-triangular parts, and $\widetilde{J} := -\widetilde{D}^{-1}(\widetilde{L} + \widetilde{U})$ is the associated block Jacobi iteration matrix.
 \end{lemma}
 \begin{proof}
-	Let $\widetilde{T} = (\widetilde{T}_1, \ldots, \widetilde{T}_{N-1})$ where each $\widetilde{T}_k : V \to \fg$ is the local per. These areturbation update.
+	Let $\widetilde{T} = (\widetilde{T}_1, \ldots, \widetilde{T}_{N-1})$ where each $\widetilde{T}_k : V \to \fg$ is the local perturbation update.
 	Given the perturbed path $\mathbf{g} = \Psi(\boldsymbol \xi)$, the Jacobi-Newton-G step produces corrections $\delta \xi_k(\boldsymbol \xi) = -\widetilde{\mathcal{D}}_k(\mathbf{g})^{-1}\, \widetilde{r}_k(\mathbf{g})$ and updates $\overline{g}_k = g_k\tau(\delta \xi_k)$.
 	The new chart coordinate of $\overline{g}_k$ follows from $\Psi$:
 	\[
@@ -302,12 +284,10 @@ Just as in the vector-space case (\cref{thm:local-hessian-pd-convergence}), the 
 	are all positive definite, in which case the Jacobi-Newton-G method converges locally to $\mathbf{g}^*$ by \cref{thm:lie-group-convergence}.
 \end{remark}
 
-\begin{remark}[Chart dependence]
-	The blocks $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\mathcal{C}}_k, \widetilde{\mathcal{D}}_k$ depend on the choice of trivialisation (left vs. right) and retraction $\tau$, but positive definiteness of $\widetilde{H}(\mathbf{g}^*)$ does not: a change of chart at $\mathbf{g}^*$ acts on $\widetilde{H}$ by congruence with a block-diagonal invertible matrix, which preserves the sign of the spectrum.
-\end{remark}
+The blocks $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\mathcal{C}}_k, \widetilde{\mathcal{D}}_k$ depend on the choice of trivialisation (left vs. right) and retraction $\tau$, but positive definiteness of $\widetilde{H}(\mathbf{g}^*)$ does not: a change of chart at $\mathbf{g}^*$ acts on $\widetilde{H}$ by congruence with a block-diagonal invertible matrix, which preserves the sign of the spectrum.
 
 \begin{remark}[Connection to the discrete Euler-Poincaré equations]\label{rmk:lie-DEP}
-	Many mechanical systems on Lie groups are naturally \newterm{left-invariant}, meaning that $\Ld(g_k, g_{k+1}) = \Ld(h g_k, h g_{k+1})$ for all $h \in G$. If this is the case, the Lagrangian factors through the quotient $f_k = g_k^{-1} g_{k+1}$, resulting in a \newterm{reduced Lagrangian} $\ell : G \to \RR$ with $\ell(f_k) = \Ld(g_k, g_{k+1})$.
+	Many mechanical systems on Lie groups are naturally \newterm{left-invariant} (or right-invariant), meaning that $\Ld(g_k, g_{k+1}) = \Ld(h g_k, h g_{k+1})$ for all $h \in G$. If this is the case, the Lagrangian factors through the quotient $f_k = g_k^{-1} g_{k+1}$, resulting in a \newterm{reduced Lagrangian} $\ell : G \to \RR$ with $\ell(f_k) = \Ld(g_k, g_{k+1})$.
 	Then, the DEL equations on $G$ are equivalent to the \newterm{discrete Euler-Poincaré (DEP)} equations
 	\begin{equation}
 		{(TL_{f_{k-1}})}^* d\ell(f_{k-1}) = {(TR_{f_k})}^* d\ell(f_k).
@@ -323,9 +303,9 @@ Just as in the vector-space case (\cref{thm:local-hessian-pd-convergence}), the 
 Implementing this extension in practice is not completely straightforward if one does not use some library that provides support for these operations. For our implementation, we made the algorithm work given a \verb|Manifold| interface, which requires definitions of:
 \begin{enumerate}
 	\item the numerical representation of elements of $G$
-	\item the pullbacked differential, ${(T_e L_g)}^* T_g$
-	\item the group action
-	\item a retraction
+	\item the pullbacked differential operator, ${(T_e L_g)}^* T_g : (G \to \RR) \to G \to \fg^* $
+	\item the group action, $\cdot : G \times G \to G$
+	\item a retraction, $\tau : TG \to G $
 \end{enumerate}
 
 Elements of the tangent and cotangent space are represented by their trivialized counterparts in the algebra, and elements of the algebra (and coalgebra) are represented via the $\RR^n$ isomorphism we know must exist. For instance, on $G = SO(3)$, elements of $\fg = \mathfrak{so}(3)$ are skew-symmetric $3 \times 3$ matrices that have an isomorphism with $\RR^3$ via the hat map:
@@ -336,9 +316,9 @@ Elements of the tangent and cotangent space are represented by their trivialized
 	-y & x  & 0
 \end{bmatrix}. \]
 
-The only thing missing is a way to calculate the second derivative, but this can actually be calculated with no additional knowledge, given that we're representing $\fg$ and $\fg^*$ as vectors. Namely, we differentiate directly the residual as a function of the algebra, by taking the Jacobian of $\widetilde{r_k}(\delta \xi_k) : \fg \to \fg^*$. Since we represent $\fg$ and $\fg^*$ as $\RR^n$, this can be done using any autodifferentiation library.
+The only thing missing is a way to calculate the second derivative, but this can actually be calculated with no additional knowledge, given that we're representing $\fg$ and $\fg^*$ as vectors. Namely, we differentiate directly the residual as a function of the algebra, by taking directly the Jacobian of~\eqref{eq:lie-residual}. Since we represent $\fg$ and $\fg^*$ as $\RR^n$, this can be done using any autodifferentiation library (such as JAX).
 
-This is enough to implement the algorithm, although in practice we also ask for a way to construct a tangent ``velocity'' vector as \verb|tangent(q0, q1, h)| which we use to be able to define the Lagrangian in the continous way and discretize it automatically.
+This is enough to implement the algorithm, although in practice we also ask for a way to construct a tangent ``velocity'' vector as \verb|tangent(q0, q1, h)| which we use to be able to define the Lagrangian as continous and discretize it automatically.
 
 The source code, including all the code for the following examples, is available in the repository \todo{Add link}.
 
@@ -348,12 +328,20 @@ Consider a satellite at some position that we want to get to some other point at
 
 The trajectory of the satellite is afected by the gravitational pull of nearby bodies in space. To find what trajectories are possible, one could try to just model the path in $\RR^3$ and use a constant angular velocity to re-orient the satellite. However, the pull from nearby bodies can change how the satellite rotates, and the experienced pull in turn changes depending on the orientation.
 
-A more accurate way of modeling this situation is by using $SE(3)$, the group of rigidbody motions, which automatically handles this complexity in its manifold geometry. Namely, using $SE(3) \cong SO(3) \times \RR^3$, for a position $x$ and orientation $R$ the potential and kinetic energies are:
+A more accurate way of modelling this situation is by using $SE(3)$, the group of rigidbody motions, which automatically handles this complexity in its manifold geometry. We model the satellite as a finite collection of body-frame points $\{r_i^b\}$ with masses $m_i$, so the world-frame position of point $i$ is $x + R\, r_i^b$. For $J$ celestial bodies at positions $x_j$ with gravitational parameters $\mu_j = G M_j$, the potential and kinetic energies are
 \begin{align*}
-	V(R, x) &= -\frac{\mu_j m_i}{\| x + R\, r_i^b - x_j\|} \\
-	T(R, x, \omega, v) &= \frac{\omega^T I \omega}{2} + \frac{m \|v\|}{2}
+	V(R, x)      & = -\sum_{i, j} \frac{\mu_j\, m_i}{\|x + R\, r_i^b - x_j\|}, \\
+	T(\omega, v) & = \tfrac{1}{2}\,\omega^T I\, \omega + \tfrac{1}{2}\, m\, \|v\|^2,
 \end{align*}
-where $r_i$ and $m_i$ are the position and mass of the $i$th body point, $\mu_j$ and $x_j$ are the mass and position of the $j$th celestiall object, and $\omega$ and $v$ are the angular and translational velocity. The Lagrangian for a system defined by potential and kinetic energy is $L = V - T$. We discretized it using midpoint rule and plotted the trajectory of a prims-like satellite for some chosen conditions with interesting behavior (see the source code for details), shown in \cref{fig:satellite}.
+where $I$ is the body-frame inertia tensor and $\omega, v \in \RR^3$ are the world-frame angular and translational velocities. The Lagrangian is $L = T - V$.
+
+We discretise with the midpoint rule. Writing each edge as $g_{k+1} = g_k \tau(h\, \xi_k)$ with $\xi_k = (\omega_k, v_k) \in \mathfrak{se}(3)$ and timestep $h = T/N$, we set
+\[
+	g_{k+\frac{1}{2}} = g_k \tau\left(\tfrac{h}{2}\, \xi_k\right),
+	\qquad
+	\Ld(g_k, g_{k+1}) = h\, L\left(g_{k+\frac{1}{2}},\, \omega_k,\, v_k\right).
+\]
+The resulting trajectory of a prism-like satellite under interesting conditions is shown in \cref{fig:satellite} (full parameter setup in the source code).
 
 \begin{figure}
      \centering
@@ -383,17 +371,18 @@ We see in the front view (\cref{fig:satellite-front}) that even though the satel
 
 \tocless\subsection{Zermelo fuel-optimal navigation in $SE(3)$}
 
-Lagrangian formulations can also be used to find optimal solutions to certain problems. In~\cite[Example 5.2]{ferraroParallelIterativeMethod2025} they formulate a fuel-optimal navigation problem, given a wind field. We can extend it to $SE(3)$ by making the system take into account the orientation of the ship, which is in fact a spaceship that can reorient itself in three dimensions.
+Lagrangian formulations can also be used to find optimal solutions to certain problems. In~\cite[Example 5.2]{ferraroParallelIterativeMethod2025} they formulate a fuel-optimal navigation problem in a wind field. We extend it to $SE(3)$ by letting the system take into account the orientation of the ship, which is in fact a spaceship in our model that can reorient itself in three dimensions.
 
-Specifically, we model a prism-like ship with one long axis and two short ones, such that if the long axis is perpendicular to the flow the effect is much greater than if it is parallel.
-
-\[ L(R, x, \omega, v) = \frac{\omega^T I \omega}{2} + \frac{{(R(v - W(x)))}^T D R(v - W(x))}{2} \]
-
-where
-
-\[ W(x) = \]
-
-\todo{Write out lagrangian.}
+Specifically, we think of a prism-like ship with one long axis and two short ones, such that the flow effectively pushes the ship more if it is perpendicular to the long axis rather than parallel. Let $D = \operatorname{diag}(d_1, d_2, d_3)$ be the body-frame drag weights, with $d_1$ on the long axis and $d_1 \ll d_2, d_3$. The Lagrangian, associated now to the cost of moving, is
+\[
+	L(R, x, \omega, v) = \tfrac{1}{2}\, \omega^T I\, \omega + \tfrac{1}{2}\, {(v - W(x))}^T R D\, R^T (v - W(x)),
+\]
+where the world-frame slip $v - W(x)$ is rotated into the body-frame by $R^T$ and then weighted by $D$. The flow field $W$ is a uniform drift plus a vortex about a vertical axis through $c$:
+\[
+	W(x) = W_0 + \Omega \times (x - c),
+	\qquad W_0, \Omega, c \in \RR^3.
+\]
+We discretise with the midpoint rule, exactly as in the satellite case.
 
 \begin{figure}
      \centering
@@ -408,7 +397,7 @@ where
          \includegraphics[width=\textwidth]{zermelo-top.png}
          \caption{Top view.}\label{fig:zermelo-top}
      \end{subfigure}
-    \caption{Zermelo fuel optimization problem in $SE(3)$. Bottow red arrows show flow field, upper arrows show how the flow affects the rigidbody in the given position.}\label{fig:zermelo}
+    \caption{Zermelo fuel optimization problem in $SE(3)$. Bottom red arrows show flow field, upper arrows show how the flow affects the rigidbody in the given position.}\label{fig:zermelo}
 \end{figure}
 
 Here, we see that in the first 3--4 snapshots the ship is orientating itself using the direction of the flow. Interestingly, we see that between the last and second-to-last snapshot, the ship does a sharp turn. This is to maximize the amount of time the ship is being maximally pushed by the flow. In fact, the flow helps the ship turn in that direction and the flow is greater away from the center, so delaying the turn also helps make the turn itself cheaper.
