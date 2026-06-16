@@ -27,3 +27,9 @@
 % Hide section in table of contents (https://stackoverflow.com/questions/2785260/hide-an-entry-from-toc-in-latex)
 \newcommand{\nocontentsline}[3]{}
 \newcommand{\tocless}[2]{\bgroup\let\addcontentsline=\nocontentsline#1{#2}\egroup}
+
+% Numbered paragraphs (notion counter): numbered as §section.n, no TOC entry
+\newcounter{notion}[section]
+\renewcommand{\thenotion}{\thesection.\arabic{notion}}
+\newcommand{\notion}[1]{\refstepcounter{notion}\paragraph*{\thenotion\enspace #1}}
+\crefname{notion}{paragraph}{paragraphs}

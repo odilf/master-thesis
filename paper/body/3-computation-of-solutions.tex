@@ -1,6 +1,6 @@
 \chapter{Computation of Euler-Lagrange solutions}\label{sec:euler-lagrange-solutions}
 
-Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange (\cref{eq:euler-lagrange}), and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q = \RR^n$ (or in general $Q \cong \RR^n$) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaan \todo{should I cite?}.
+Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange~\eqref{eq:euler-lagrange}, and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q = \RR^n$ (or in general $Q \cong \RR^n$) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaan \todo{should I cite?}.
 
 However, discretization the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the geometric information of the configuration manifold $Q$. These will be explained in \cref{sec:pitfalls-discrete-el-ode}. Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration} \todo{is it?} will be explained in \cref{sec:discretizing-configuration-space}
 
@@ -127,10 +127,10 @@ and then the entries of the Hessian are
 \begin{align*}
 	{(H (\mathbf{q}))}_{ij} = \mdif{q_i q_j} S_d (\mathbf{q}) & = \mdif{q_j} \left(
 	\mdif{1} \Ld(q_i, q_{i+1}) + \mdif{2} \Ld(q_{i-1}, q_i)
-	\right)                                                                                                                                              \\
-	                                                        & = \delta_{i, j} \left( \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{22} \Ld(q_{i - 1}, q_i) \right) \\
-	                                                        & + \delta_{i+1,j} \mdif{12} \Ld(q_i, q_{i+1})                                               \\
-	                                                        & + \delta_{i-1,j} \mdif{21} \Ld(q_{i-1}, q_i)
+	\right)                                                                                                                                                \\
+	                                                          & = \delta_{i, j} \left( \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{22} \Ld(q_{i - 1}, q_i) \right) \\
+	                                                          & + \delta_{i+1,j} \mdif{12} \Ld(q_i, q_{i+1})                                               \\
+	                                                          & + \delta_{i-1,j} \mdif{21} \Ld(q_{i-1}, q_i)
 \end{align*}
 
 This results in a tridiagonal matrix that can be written in the following form:
