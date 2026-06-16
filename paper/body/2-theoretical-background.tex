@@ -29,11 +29,11 @@ On a more intuitive level, smooth manifolds are topological spaces that look loc
 
 \todo{Technically manifolds can be on fields other than $\RR$, right?}
 
-\notion{Tangent spaces}~\cite[Chapter 3]{leeSmoothManifolds2013} The tangent space at point $q \in Q$ is denotes as $T_q Q$ and is defined by representatives of:
+\notion{Tangent spaces}~\cite[Chapter 3]{leeSmoothManifolds2013} The tangent space at point $q \in Q$ is denoted as $T_q Q$ and is defined by representatives of:
 \[ T_q Q = \{ \dot{\gamma}(0) \, | \, \gamma(0) = q \} \]
 where $\gamma(t) : (-\varepsilon, \varepsilon) \to Q$ are differentiable paths on $Q$. Tangent spaces always form $n$-dimensional vector spaces. These vector spaces have duals, called \newterm{cotangent spaces} $T_q^* Q$ that can be interpreted as linear forms $T_q Q \to \RR$.
 
-The \newterm{tangent bundle} is the disjoint union of all tangent spaces, $TQ = \sqcup_q T_q Q$, which forms a $2n$-dimensional manifold itself, which is however not in general a vector space, unless the original manifold is one too. The \newterm{cotangent bundle} is defined in the same way.
+The \newterm{tangent bundle} is the disjoint union of all tangent spaces, $TQ = \sqcup_q T_q Q$, which forms a $2n$-dimensional manifold itself (which is however not in general a vector space, unless the original manifold is one too). The \newterm{cotangent bundle} is defined in the same way.
 
 For our purposes, a mapping on tangent and cotangent bundles $f : TM \to TM$ (or $f : T^*M \to T^*M$, or any combination thereof \todo{$f : TM \text{ or } T^*M \to TM \text{ or } T^*M$?}) is said to be \newterm{fiber-preserving} if for every $q \in M$ and every $\eta \in T_q M$, $f(\eta) \in T_q M$. In other words, $f$ does not move the point at which it is tangent \todo{Maybe remove here and just mention in forces.}.
 
@@ -109,9 +109,7 @@ Another extension to the Lagrangian are forced systems, which are non-trivial. F
 
 \section{The Euler-Lagrange equations}
 
-\todo{Casi todo esto lo he sacado de la tesis de Rodrigo y de Marsden-West, tengo que citarlo? Parece estandar y ellos no lo citan.}
-
-Following Hamilton's principle\cite[\todo{find specific ref}]{marsdenIntroductionMechanicsSymmetry1999}, we seek to find the extrema of the action defined by a Lagrangian $L$. This can be done by taking a variation of the action and equating it to $0$. Namely, we consider the vector field along $q$ defined by $q_\varepsilon(t)$ defined  by $\delta q=\odv{q_{\varepsilon}}{\varepsilon}\big|_{\epsilon=0}$, where $\delta q(0) = \delta q(T) = 0$. Then, we define the variation of the action $\delta S(q_\varepsilon)$ as $\odv{}{t} S(q_\varepsilon) \Big|_{\epsilon=0}$.
+Following Hamilton's principle~\cite[Chapter 1.3]{marsdenIntroductionMechanicsSymmetry1999}, we seek to find the extrema of the action defined by a Lagrangian $L$. This can be done by taking a variation of the action and equating it to $0$. Namely, we consider the vector field along $q$ defined by $q_\varepsilon(t)$ defined  by $\delta q=\odv{q_{\varepsilon}}{\varepsilon}\big|_{\epsilon=0}$, where $\delta q(0) = \delta q(T) = 0$. Then, we define the variation of the action $\delta S(q_\varepsilon)$ as $\odv{}{t} S(q_\varepsilon) \Big|_{\epsilon=0}$.
 Applying this to the action, we get:
 
 \begin{align}
