@@ -10,26 +10,43 @@ But, to understand the tradeoffs between the approaches, we first need to examin
 
 \section{Geometric properties Euler-Lagrange}\label{sec:geometric-properties-el}
 
-These are discussed more in depth in~\cite[Chapter 1.2]{marsdenDiscreteMechanicsVariational2001}.
+The Euler-Lagrange equations can be viewed as a dynamical system on $TQ$. Given a Lagrangian $L: TQ \to \RR$, the \newterm{Lagrangian vector field} $X_L: TQ \to T(TQ)$ is the second-order vector field whose integral curves (i.e., curves whose velocity matches $X_L$ at every point) are the solutions of the Euler-Lagrange equation~\eqref{eq:euler-lagrange}. Equivalently, $D_{EL} L \circ X_L = 0$. This has an associated \newterm{flow}, which is the one-parameter family of maps
+\[ F_t : TQ \to TQ, \quad (q(0), \dot{q}(0)) \mapsto (q(t), \dot{q}(t)), \]
+that sends each initial state to the state reached after time $t$ along the corresponding solution. In other words, $F_t$ packages the physical evolution of \emph{every} initial condition simultaneously, rather than one trajectory at a time.
 
-\subsubsection{Simpleticity}
+It is this flow that has two important properties that numerial schemes should ideally preserve:
+\begin{enumerate}
+	\item It is \newterm{symplectic}.
+	\item It conserves a \newterm{momentum map} for every continuous symmetry of $L$.
+\end{enumerate}
 
-Given a Lagrangian $L: TQ \to \RR$, we can define the \newterm{Lagrangian vector field} $X_L: TQ \to T(TQ)$ as the second order vector field that satisfies:
+Both of these constrain long-term behaviour in ways that local error estimates often fail to capture. We will briefly explain the implications of each. See~\cite[Chapter 1.2]{marsdenDiscreteMechanicsVariational2001} and~\cite[Chapters 7, 11]{marsdenIntroductionMechanicsSymmetry1999} for an in-depth examination.
 
-\[
-	D_{EL} L \circ X_L = 0
-\]
+\subsubsection{Simplecticity}
+\todo{}
 
 \subsubsection{Preservation of momentum maps}
 
+\todo{}
 
-\section{Pitfalls of discretizing the Euler-Lagrange ODE}\label{sec:pitfalls-discrete-el-ode}
 
-The fundamental problem of integrating numerically the Euler-Lagrange ODE is, essentially, that we lose the geometry of the configuration manifold $Q$. The numerical inaccuracies can ``go out'' of what should be possible in $Q$ and keep degenerating since there is no correction mechanism.
+\section{Pitfalls of discretizing the equations of motion}\label{sec:pitfalls-discrete-el-ode}
 
-Let's look at an example.
+Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, the obvious move is to plug it into an off-the-shelf integrator (explicit Euler, Runge-Kutta, etc.). This works, in a local sense: each step has a well-controlled truncation error. But the structural properties from \cref{sec:geometric-properties-el} are silently broken, and the consequences accumulate over long horizons. We highlight two failure modes.
 
-\todo{Talk about how energy goes down.}
+\subsubsection{Loss of symplecticity and energy drift}
+
+\todo{}
+
+\subsubsection{Drift off the configuration manifold}
+
+When $Q$ is not a vector space, a second pitfall appears: the numerical update $q_{k+1} = q_k + h \, v_k + \dots$ implicitly assumes that addition makes sense on $Q$, which is only true locally via a chart. Iterating in coordinates produces points that, after enough steps, no longer represent valid states of the system.
+
+The textbook case is rigid-body motion on $SO(3)$. Naively integrating $\dot{R} = R \hat{\Omega}$ with explicit Runge-Kutta produces matrices that gradually lose orthogonality and unit determinant; after enough steps, $R$ no longer represents a rotation at all. Ad-hoc fixes such as re-projecting onto $SO(3)$ at every step restore the manifold constraint but do not restore the conservation laws, and they introduce their own errors.
+
+\medskip
+
+Both of these are fundamentally due to the integrator operating on coordinates rather than on the geometric objects of the problem \todo{a bit more prose here}.
 
 \section{Discretizing the configuration space}\label{sec:discretizing-configuration-space}
 
