@@ -42,6 +42,7 @@ The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved 
 
 As it stands, the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ is an element of $T_{g_k}^*$. We are going to linearize it in the Lie-algebra by considering the expression $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ as a function of a vector diredtion $\delta \xi \in \fg$. This gives a map $\fg \to T_{g_k \tau(\delta \xi)}^* G$, i.e., from the algebra to a cotangent space. Similarly to how we can move from $T_g G \to \fg$ via $T_e L_g$, we can move from $T_g^*G \to \fg^*$ using the \newterm{transpose} ${(T_e L_g)}^*$ by interpreting the duals as linear applications and pre-appling $T_e L_g$ to $T_g^*G$. That is,
 \[ ({(T_e L_g)}^* \underbrace{\alpha}_{T_g^* G}) \underbrace{\eta}_{T_g G} = \alpha(T_e L_g (\eta)). \]
+(the transpose is a specific case of a pullback, see~\ref{notion:pullback}).
 
 Note that since $L_g$ is a diffeomorphis, both $T_e L_g$ and its transpose are isomorphisms and so this mapping can be done without loss of information.
 
@@ -402,3 +403,6 @@ We discretise with the midpoint rule, exactly as in the satellite case.
 
 Here, we see that in the first 3--4 snapshots the ship is orientating itself using the direction of the flow. Interestingly, we see that between the last and second-to-last snapshot, the ship does a sharp turn. This is to maximize the amount of time the ship is being maximally pushed by the flow. In fact, the flow helps the ship turn in that direction and the flow is greater away from the center, so delaying the turn also helps make the turn itself cheaper.
 
+\tocless\subsection{Unstable and chaotic systems}
+
+\todo{Talk about: middle axis rotation in prism is untable, but this is not reflected on the solution. EL has a fixed point so it will find the correct but unstable solution, it's only that if you try to simulate it forward in time you will get a different final solution because of instability and numerical errors. A double pendulum is chaotic, and this \emph{is} reflected in the sense that small changes in the boundary conditions will lead to big changes in trajectory. However, this trajectory will be realistic. Even difference in implementation details can be enough here to converge to different trajectories.}
