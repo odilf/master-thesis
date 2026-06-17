@@ -70,7 +70,7 @@ In coordinates, given $f : U \to \RR$, if $\omega = f \, \odif{x^{i_1}} \wedge \
 A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we focus on the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
 
 \paragraph{Configuration space}
- Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space at all. Using manifolds that have some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states. That is, the geometry of the manifold can encode constraints about periodicity, topology or other types of global constraints.
+ Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space at all. Using manifolds that have some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states, like rigid motions. That is, the geometry of the manifold can encode constraints about periodicity, topology or other types of global constraints.
 
 As a simple example, one can try to encode the state of a pendulum with $\RR^1$, using the angle as a real number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity, and also reveals facts such as the configuration space being compact, which $\RR$ is not. Using it means that you have to interpret the fact that $0$ and $2\pi$ are the same state outside of the mathematical framework, where the mathematical rigor can no longer accompany you. Furthermore, if some result hinges on the periodicity of the pendulum, this again needs to be done ``out of band'' and it cannot be rigorously, mathematically, justified anymore.
 
@@ -98,19 +98,20 @@ The extension to time-dependent Lagrangians, higher-order Lagrangians follow the
 
 In principle, the standard Lagrangian formulation just presented should be enough to model the universe. In practice, we often model smaller systems that are not closed or have some other types of constraints \todo{rewrite extensions}.
 
-While the above definition is enough to model any closed system, sometimes it's more practical to model some open part of a larger system. For instance, we might want to model some pressure \todo{how to say ``stuff about temperature''??} dynamics in a box that loses a non-neglible amount of heat. Technically, the box and the environment together formed a closed form system, but it would be nice to have a physical model for just the box.
+While the above definition is enough to model any closed system, sometimes it's more practical to model some open part of a larger system. For instance, we might want to model some pressure \todo{how to say ``stuff about temperature''??} dynamics in a box that loses a non-negligible amount of heat. Technically, the box and the environment together formed a closed form system, but it would be nice to have a physical model for just the box.
 
 
 Cases like these are where a \newterm{time-dependent Lagrangian} can be useful. We can define a Lagrangian as $L(t, q, \dot{q}): \RR \times TQ \to \RR$, where the first argument is interpreted as a time parameter. This can be thought of as a system where the effective laws of physics change over time. In the example of the heat radiating box, as time advances there is a loss of energy.
 \todo{write out specific example.}
 
-Another extension to the Lagrangian are forced systems, which are non-trivial. Forced Lagrangian systems are one of the main topics of this paper, and explored in \cref{sec:forced-systems}. Other extensions that can be considered but weren't in this paper are constrained Lagrangian systems and higher order Lagrangians (even though, in principle, any result for a standard Lagrangian can be applied to a Lagrangian of arbitrary order~\cite{ferraroParallelComputingVariational, gay-balmazInvariantHigherorderVariational2012}).
+Another extension to the Lagrangian are forced systems, which are non-trivial. Forced Lagrangian systems are one of the main topics of this paper, and explored in \cref{sec:forced-systems}. Other extensions that can be considered but weren't in this paper are constrained Lagrangian systems and higher order Lagrangians (in principle, the results can also be applied to a Lagrangian of arbitrary order~\cite{ferraroParallelComputingVariational, gay-balmazInvariantHigherorderVariational2012}).
 
 \section{Euler-Lagrange equations}
 
 \todo{Casi todo esto lo he sacado de la tesis de Rodrigo y de Marsden-West, tengo que citarlo? Parece estandar y ellos no lo citan.}
 
-Following Hamilton's principle, we seek to find the extrema of the action defined by a Lagrangian $L$. This can be done by taking a variation of the action and equating it to $0$. Namely, we consider paths $q(t) + \delta q(t)$, where $\delta q(0) = \delta q(T) = 0$. Then, we define the variation of the action $\delta S(q)$ as the linear term of $S(q + \delta q)$ with respect to $\delta q$. Applying this to the action, we get:
+Following Hamilton's principle\cite[\todo{find specific ref}]{marsdenIntroductionMechanicsSymmetry1999}, we seek to find the extrema of the action defined by a Lagrangian $L$. This can be done by taking a variation of the action and equating it to $0$. Namely, we consider the vector field along $q$ defined by $q_\varepsilon(t)$ defined  by $\delta q=\odv{q_{\varepsilon}}{\varepsilon}\big|_{\epsilon=0}$, where $\delta q(0) = \delta q(T) = 0$. Then, we define the variation of the action $\delta S(q_\varepsilon)$ as $\odv{}{t} S(q_\varepsilon) \Big|_{\epsilon=0}$.
+Applying this to the action, we get:
 
 \begin{align*}
 	\delta S(q)                     & = \delta \int_0^T L(q(t), \dot{q}(t)) \odif{t}                                                                                                     \\
@@ -125,11 +126,11 @@ and for this to hold given any variation $\delta q$, we need the integrand to be
 	\label{eq:euler-lagrange}
 \end{equation}
 
-Computing the relevant derivatives of the Lagrangian provides us with a second order differential equation with respect to $q(t)$. A path that satisfies this differential equation is a path that can occur in the system. The ODE arising from a Lagrangian system results in what are often called the \newterm{equations of motion} for that system.
+Computing the relevant derivatives of the Lagrangian provides us with an implicit second order differential equation with respect to $q(t)$. A path that satisfies this differential equation is a path that can occur in the system. The ODE arising from a Lagrangian system results in what are often called the \newterm{equations of motion} for that system.
 
 % (esto sobra vasto, no?)
 % In general, we can define the \emph{Euler-Lagrange map} $D_\text{EL} L: \ddot{Q} \to T^*Q$ as
 % \[ D_\text{EL} L = \pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \]
 % and the realizable paths are those such that $D_\text{EL} L(q) = 0$
 
-We can try to solve this ODE analytically. Sometimes, this is possible; but often, numerical methods are used, because it is intractable to do solve it analytically (either because the Lagrangian is too large, or the Lagragian is computed based on some empirical numerical data). In the next section, we discuss approaches to discretizing and solving numerically the Euler-Lagrange equations.
+We can try to solve this ODE analytically. Sometimes, this is possible; but often, numerical methods are used, because it is intractable to do solve it analytically (either because the Lagrangian is too large, or the Lagrangian is computed based on some empirical numerical data). In the next section, we discuss approaches to discretizing and solving numerically the Euler-Lagrange equations.

@@ -1,8 +1,8 @@
-\chapter{Computation of Euler-Lagrange solutions}\label{sec:euler-lagrange-solutions}
+\chapter{Numerical approximation to the Euler-Lagrange solutions}\label{sec:euler-lagrange-solutions}
 
-Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange~\eqref{eq:euler-lagrange}, and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q = \RR^n$ (or in general $Q \cong \RR^n$) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaan \todo{should I cite?}.
+Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange~\eqref{eq:euler-lagrange}, and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q = \RR^n$ (or in general $Q \cong \RR^n$) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaas or similar methods~\cite{Hans}.
 
-However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the geometric information of the configuration manifold $Q$. These will be explained in \cref{sec:pitfalls-discrete-el-ode}. Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration} \todo{is it?} will be explained in \cref{sec:discretizing-configuration-space}
+However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of geometric properties: symplecticity, preservation of energy or other constants of the motion, etc.. These will be explained in \cref{sec:pitfalls-discrete-el-ode}. Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration}~\cite[\todo{find specific ref}]{marsdenDiscreteMechanicsVariational2001} will be explained in \cref{sec:discretizing-configuration-space}
 
 But, to understand the tradeoffs between the approaches, we first need to examine some important geometric properties Euler-Lagrange.
 
@@ -55,10 +55,10 @@ The alternative approach we use here consists of discretizing the variational re
 To start, the discrete analog of a continuous path $q(t) : \RR \to TQ$ is a sequence of points in $Q$. The Lagrangian can be adapted to this discrete context into a \newterm{discrete Lagrangian} $L_d$ that acts on two consecutive points of a path (instead of one point in $TQ$):
 \[ L: TQ \to \RR \quad \Rightarrow \quad L_d : Q \times Q \to \RR \]
 
-Then, the discrete action is now composed of sums of these discrete Lagrangians. That is, for a path $\mathbf{q} = {\{ q_i \in Q \}}_{i=0}^{N-1}$, the discrete action $S_d$ is:
+Then, the discrete action is now composed of sums of these discrete Lagrangians. That is, for a path $\mathbf{q} = {\{ q_k \in Q \}}_{k=0}^N$, the discrete action $S_d$ is:
 
 \begin{equation}
-	S_d (\mathbf{q}) = \sum_{k=0}^{N-2} \Ld(q_k, q_{k+1})
+	S_d (\mathbf{q}) = \sum_{k=0}^{N-1} \Ld(q_k, q_{k+1})
 	\label{eq:action-discrete}
 \end{equation}
 
@@ -85,10 +85,10 @@ Given this discretization, one approach for computing the path is computing $q_{
 In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = {\{q_k\}}_{k=0}^N$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
 \begin{equation}
 	R(\mathbf{q}) = \sum_{k=1}^{N-1}
-	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0
+	\left(\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})\right) = 0
 	\label{eq:residual-global}
 \end{equation}
-and we want to find the path $\mathbf{q}^*$ such that $r(\mathbf{q}^*) = 0$.
+and we want to find a path $\mathbf{q}^*$ such that $R(\mathbf{q}^*) = 0$ where $q_0$ and $q_N$ are fixed.
 
 At a high level, two schemes are used to find this root. First, we frame the algorithm as a block Jacobi update step that can be done in parallel. However, the Jacobi update is still not directly computable, so we use one or more Newton-Raphson steps to compute the Jacobi update.
 
