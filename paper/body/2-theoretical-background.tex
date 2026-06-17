@@ -6,7 +6,7 @@ In this section and in the rest of this paper, whenever a new term is introduced
 
 \section{Basic mathematical notions}
 
-In this section we give a brief overview of the notation and common mathematical tools that we will used. This is intended to remind the reader of the concepts and clarify what is meant if something seems ambigous, unlike \cref{sec:physical-systems-lagrangians} which is meant to be a friendlier introduction, providing some motivation behind the way things are done. References are provided for detailled explanations and introductions for each concept.
+In this section we give a brief overview of the notation and common mathematical tools that will be used. This is intended to remind the reader of the concepts and clarify what is meant if something seems ambiguous, unlike \cref{sec:physical-systems-lagrangians} which is meant to be a friendlier introduction, providing some motivation behind the way things are done. References are provided for detailed explanations and introductions for each concept.
 
 Notions~\ref{notion:manifold}--\ref{notion:lie-algebra-trivialization} are used often throughout the paper. Notions~\ref{notion:differential-forms}--\ref{notion:symplectic-forms} are only invoked in \cref{sec:geometric-properties-el, sec:pitfalls-discrete-el-ode} and can be glossed over without too much concern. These are annotated with a star.
 
@@ -16,14 +16,14 @@ Notions~\ref{notion:manifold}--\ref{notion:lie-algebra-trivialization} are used 
 
 \todo{rethink: I think derivatives with respect to \emph{variables} should be $\partial_{q_k}$ or similar}
 
-We use $\mdif{i} f$ to represent the partial derivivative of a function $f$ over the $i$th argument. We overload that notation where, if we have a variable instead of an index, such as $\mdif{q_i}$, then that means the derivative with respect to that variable. Furthermore, two indices or two variables are interpreted as $\mdif{i j} = \mdif{j} \circ \mdif{i}$.
+We use $\mdif{i} f$ to represent the partial derivative of a function $f$ over the $i$th argument. We overload that notation where, if we have a variable instead of an index, such as $\mdif{q_i}$, then that means the derivative with respect to that variable. Furthermore, two indices or two variables are interpreted as $\mdif{i j} = \mdif{j} \circ \mdif{i}$.
 
 \todo{Explain $\mdif* f$ without index.}
 
 
 \notion{Smooth manifolds}\label{notion:manifold}~\cite[Chapter 1]{leeSmoothManifolds2013} An $n$-dimensional manifold is a set $Q$ with some topology where for every point $q \in Q$ there exists a neighborhood $U \subset Q$ and a homeomorphism $\phi : U \to \hat{U}$ where $\hat{U} \subset \RR^n$. The tuple $(U, \phi)$ is called a \newterm{chart}, and can be thought of as providing \newterm{local coordinates} around a point $q$.
 
-Multiple charts can form an \newterm{Atlas} if the neighborhoods $U_i$ cover the original set $V$. Two charts $U_i$ and $U_j$ are \newterm{smoothly compatible} if $\phi_i \circ \phi_j^{-1}$ is smooth on the intersection $U_i \cap U_j$ (where by ``smooth'' we mean $C^\infty$ \todo{Is this necessary to clarify?}). A manifold with an atlas composed of smoothly compatible charts is a \newterm{smooth manifold} \todo{Technically we're missing maximally smooth atlasses\ldots}.
+Multiple charts can form an \newterm{atlas} if the neighborhoods $U_i$ cover the original set $Q$. Two charts $(U_i, \phi_i)$ and $(U_j, \phi_j)$ are \newterm{smoothly compatible} if $\phi_i \circ \phi_j^{-1}$ is smooth on the intersection $U_i \cap U_j$ (where by ``smooth'' we mean $C^\infty$ \todo{Is this necessary to clarify?}). A manifold with an atlas composed of smoothly compatible charts is a \newterm{smooth manifold} \todo{Technically we're missing maximally smooth atlasses\ldots}.
 
 On a more intuitive level, smooth manifolds are topological spaces that look locally like $\RR^n$ and where doing a change of coordinates (or a change of ``basis'') is smooth.
 
@@ -31,15 +31,15 @@ On a more intuitive level, smooth manifolds are topological spaces that look loc
 
 \notion{Tangent spaces}~\cite[Chapter 3]{leeSmoothManifolds2013} The tangent space at point $q \in Q$ is denotes as $T_q Q$ and is defined by representatives of:
 \[ T_q Q = \{ \dot{\gamma}(0) \, | \, \gamma(0) = q \} \]
-where $\gamma(t) : (-\varepsilon, \varepsilon) \to Q$ are differentiable paths on $Q$. Tangent spaces always form $n$-dimensional vector spaces. These vector spaces have duals, called \newterm{cotangent spaces} $T_q^* Q$ that can be interpreted as linear forms $T_q Q \to Q$.
+where $\gamma(t) : (-\varepsilon, \varepsilon) \to Q$ are differentiable paths on $Q$. Tangent spaces always form $n$-dimensional vector spaces. These vector spaces have duals, called \newterm{cotangent spaces} $T_q^* Q$ that can be interpreted as linear forms $T_q Q \to \RR$.
 
 The \newterm{tangent bundle} is the disjoint union of all tangent spaces, $TQ = \sqcup_q T_q Q$, which forms a $2n$-dimensional manifold itself, which is however not in general a vector space, unless the original manifold is one too. The \newterm{cotangent bundle} is defined in the same way.
 
 For our purposes, a mapping on tangent and cotangent bundles $f : TM \to TM$ (or $f : T^*M \to T^*M$, or any combination thereof \todo{$f : TM \text{ or } T^*M \to TM \text{ or } T^*M$?}) is said to be \newterm{fiber-preserving} if for every $q \in M$ and every $\eta \in T_q M$, $f(\eta) \in T_q M$. In other words, $f$ does not move the point at which it is tangent \todo{Maybe remove here and just mention in forces.}.
 
-\notion{Differential}~\cite[p. 55]{leeSmoothManifolds2013} A differential or derivative of a function on manifolds $f : M \to N$ evaluated at $p \in M$ is a mapping between the tangent spaces of the manifolds $T_p f : T_p M \to T_{f(p)} N$, defined as $T_p f (\dot{\gamma}(0)) = \odv{}{t} \big|_0 f(\gamma(t))$.
+\notion{Differential}~\cite[p. 55]{leeSmoothManifolds2013} A differential or derivative of a function on manifolds $f : M \to N$ evaluated at $p \in M$ is a mapping between the tangent spaces of the manifolds $T_p f : T_p M \to T_{f(p)} N$, defined as $T_p f (\dot{\gamma}(0)) = \odv{}{t} \big|_0 f(\gamma(t))$. 
 
-\notion{Lie groups}~\cite[Chapter 7]{leeSmoothManifolds2013} A Lie group is a smooth manifold $G$ equipped with a group operation $\cdot : G \times G \to G$ respecting the usual group axioms. The tangent space at the identity of a Lie group is called a \newterm{Lie algebra}, denoted by $\fg$ (called this way because it forms an algebra with the Lie bracket, although we won't use it in this paper). We define the left and right application operators as $L_g = h \mapsto g \cdot h$ and $R_g = h \mapsto h \cdot g$ respectively.
+\notion{Lie groups}~\cite[Chapter 7]{leeSmoothManifolds2013} A Lie group is a smooth manifold $G$ equipped with a smooth group operation $\cdot : G \times G \to G$ respecting the usual group axioms (including having a smooth inverse). The tangent space at the identity of a Lie group is called a \newterm{Lie algebra}, denoted by $\fg$ (called this way because it forms an algebra with the Lie bracket, although we won't use it in this paper). We define the left and right application operators as $L_g = h \mapsto g \cdot h$ and $R_g = h \mapsto h \cdot g$ respectively.
 
 \notion{Lie algebra trivialization}\label{notion:lie-algebra-trivialization} The group structure of a Lie group allows us to \newterm{trivialize} tangent spaces to the Lie algebra. Specifically, the entire tangent bundle $TQ$ is isomorphic to $G \times \fg$ via the differential of the left-application, $T_e L_g : \fg \to T_g G$. In other words, every tangent vector on a Lie group can be described by the point at which it is tangent, and an element of $\fg$.
 
@@ -59,7 +59,7 @@ That is, the pullback ``reverses'' the order of operation by pre-applying the di
 \[ \odif{(\alpha \wedge \beta)} = \odif{\alpha} \wedge \beta + {(-1)}^k \alpha \wedge \odif{\beta} \quad \text{for $\alpha$ a $k$-form,} \]
 and squares to zero, $\odif*{}^2 = 0$. A form $\omega$ with $\odif{\omega} = 0$ is called \newterm{closed}.
 
-In coordinates, if $\omega = f \, \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$ then $\odif{\omega} = \odif{f} \wedge \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$. For $\RR^3$, applied to a 0-form ($Q \to \RR$) it gives the gradient $\nabla$, to a 1-form the curl $\nabla \times$, and to a 2-form the divergence $\nabla \cdot$. The familiar identities $\nabla \times \nabla = 0$ and $\nabla \cdot (\nabla \times) = 0$ are both instances of $\odif*{}^2 = 0$. 
+In coordinates, given $f : U \to \RR$, if $\omega = f \, \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$ then $\odif{\omega} = \odif{f} \wedge \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$. For $\RR^3$, applied to a 0-form ($Q \to \RR$) it gives the gradient $\nabla$, to a 1-form the curl $\nabla \times$, and to a 2-form the divergence $\nabla \cdot$. The identities $\nabla \times \nabla = 0$ and $\nabla \cdot (\nabla \times) = 0$ are both instances of $\odif*{}^2 = 0$. 
 
 \notion{Symplectic forms*}\label{notion:symplectic-forms}~\cite[Chapter 22]{leeSmoothManifolds2013} A \newterm{symplectic form} on a manifold $M$ is a 2-form $\omega$ that is closed ($\odif{\omega} = 0$) and non-degenerate, meaning that $\omega_p(v, \cdot) = 0$ as a 1-form implies $v = 0$. Non-degeneracy forces $M$ to be even-dimensional. A diffeomorphism $F : M \to M$ is called \newterm{symplectic} if $F^* \omega = \omega$ for all symplectic forms $\omega$.
 
@@ -72,16 +72,14 @@ A physical system can be framed using either Hamiltonian or Lagrangian mechanics
 \paragraph{Configuration space}
  Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space at all. Using manifolds that have some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states. That is, the geometry of the manifold can encode constraints about periodicity, topology or other types of global constraints.
 
-As a simple example, one can try to encode the state of a pendumul with $\RR^1$, using the angle as a real number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity, and also reveals facts such as the configuration space being compact, which $\RR$ is not. Using $\RR^1$ means that you have to interpret the fact that $0$ and $2\pi$ are the same state outside of the mathematical framework, where the mathematical rigor can no longer accompany you. Furthermore, if some result hinges on the periodicity of the pendulum, this again needs to be done ``out of band'' and it cannot be rigorously, mathematically, justified anymore.
+As a simple example, one can try to encode the state of a pendulum with $\RR^1$, using the angle as a real number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity, and also reveals facts such as the configuration space being compact, which $\RR$ is not. Using it means that you have to interpret the fact that $0$ and $2\pi$ are the same state outside of the mathematical framework, where the mathematical rigor can no longer accompany you. Furthermore, if some result hinges on the periodicity of the pendulum, this again needs to be done ``out of band'' and it cannot be rigorously, mathematically, justified anymore.
 
-While these problems might seem minor for the pendulum example, they apply similarly to much more complicated systems. For instance, it might be intuitive to model rotations in $\RR^3$ using Euler angles (i.e., pitch, yaw and roll), but this 
-
-% Another example to illuminate why having different manifolds as configuration spaces is useful is $SO(3)$ (or in general $SO(n)$). Since $SO(3)$ has an isomorphism with $\RR^3$ \tc{} it might be tempting to use $\RR^3$ directly as the configuration space, but doing this not only loses the geometry of $SO(3)$, but it also \emph{adds} new geometric structure that is sensless when interpted as elements of $SO(3)$. Specifically, $\RR^3$ is a vector space and $SO(3)$ is not!
+While these problems might seem minor for the pendulum example, they apply similarly to much more complicated systems. For instance, it might be intuitive to model rotations in $\RR^3$ using Euler angles (i.e., pitch, yaw and roll), but this leads to gimbal lock and, perhaps more crucially, composition of rotations does not correspond with vector addition. These problems arise from the fundamental fact that 3-dimensional rotations do not have a vector space structure! Instead, we can use $SO(3)$, the Lie group which correctly encodes these rotations. Statements about rotations on $SO(3)$ are rigorous and unambiguous. 
 
 \newcommand{\action}{S}
 
 \paragraph{Lagrangian}
-On the other hand, the Lagrangian encodes the laws of the physical system by governing how states in $Q$ evolve. Namely, we can talk about \newterm{paths} in configuration space $q(t): [0, T] \to Q \in C^2([0, T], Q)$ which define the \newterm{path space of $Q$}, $\mathcal{C}(Q) = C^2([0, T], Q)$. Not all paths are realizable in the physical system, and in fact a path can only occur if it extremizes the \newterm{action} $\action: C(Q) \to \RR$, defined as:
+On the other hand, the Lagrangian encodes the \emph{laws} of the physical system by governing how states in $Q$ evolve. Namely, we can talk about \newterm{paths} in configuration space $q(t): [0, T] \to Q \in C^2([0, T], Q)$ which define the \newterm{path space of $Q$}, $\mathrm{Path}(Q) = C^2([0, T], Q)$. Not all paths are realizable in the physical system, and in fact a path can only occur if it extremizes the \newterm{action} $\action: C(Q) \to \RR$, defined as:
 
 \begin{equation}
 	\action(q) = \int_0^T L(q(t), \dot{q}(t)) \odif{t}.
@@ -98,7 +96,9 @@ The extension to time-dependent Lagrangians, higher-order Lagrangians follow the
 
 \subsection{Lagrangian system extensions}
 
-While the above definition is enought to model any closed system, sometimes it's more practical to model some open part of a larger system. For instance, we might want to model some pressure \todo{how to say ``stuff about temperature''??} dynamics in a box that loses a non-neglible amount of heat. Techinically, the box and the environment together formed a closed form system, but it would be nice to have a physical model for just the box.
+In principle, the standard Lagrangian formulation just presented should be enough to model the universe. In practice, we often model smaller systems that are not closed or have some other types of constraints \todo{rewrite extensions}.
+
+While the above definition is enough to model any closed system, sometimes it's more practical to model some open part of a larger system. For instance, we might want to model some pressure \todo{how to say ``stuff about temperature''??} dynamics in a box that loses a non-neglible amount of heat. Technically, the box and the environment together formed a closed form system, but it would be nice to have a physical model for just the box.
 
 
 Cases like these are where a \newterm{time-dependent Lagrangian} can be useful. We can define a Lagrangian as $L(t, q, \dot{q}): \RR \times TQ \to \RR$, where the first argument is interpreted as a time parameter. This can be thought of as a system where the effective laws of physics change over time. In the example of the heat radiating box, as time advances there is a loss of energy.

@@ -2,55 +2,57 @@
 
 Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange~\eqref{eq:euler-lagrange}, and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q = \RR^n$ (or in general $Q \cong \RR^n$) then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaan \todo{should I cite?}.
 
-However, discretization the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the geometric information of the configuration manifold $Q$. These will be explained in \cref{sec:pitfalls-discrete-el-ode}. Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration} \todo{is it?} will be explained in \cref{sec:discretizing-configuration-space}
+However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the geometric information of the configuration manifold $Q$. These will be explained in \cref{sec:pitfalls-discrete-el-ode}. Instead, there is an alternative approach of discretizing the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and deriving discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration} \todo{is it?} will be explained in \cref{sec:discretizing-configuration-space}
 
 But, to understand the tradeoffs between the approaches, we first need to examine some important geometric properties Euler-Lagrange.
 
 \todo{Think about how much I want to explain these things\ldots}
 
-\section{Geometric properties Euler-Lagrange}\label{sec:geometric-properties-el}
+\section{Geometric properties of the Euler-Lagrange equations}\label{sec:geometric-properties-el}
 
-The Euler-Lagrange equations can be viewed as a dynamical system on $TQ$. Given a Lagrangian $L: TQ \to \RR$, the \newterm{Lagrangian vector field} $X_L: TQ \to T(TQ)$ is the second-order vector field whose integral curves (i.e., curves whose velocity matches $X_L$ at every point) are the solutions of the Euler-Lagrange equation~\eqref{eq:euler-lagrange}. Equivalently, $D_{EL} L \circ X_L = 0$. This has an associated \newterm{flow}, which is the one-parameter family of maps
+The Euler-Lagrange equations can be viewed as a dynamical system on $TQ$. Given a Lagrangian $L: TQ \to \RR$, the \newterm{Lagrangian vector field} $X_L: TQ \to T(TQ)$ is the second-order vector field whose integral curves (i.e., curves whose velocity matches $X_L$ at every point) are the solutions of the Euler-Lagrange equation~\eqref{eq:euler-lagrange}. This has an associated \newterm{flow}, which is the one-parameter family of maps
 \[ F_t : TQ \to TQ, \quad (q(0), \dot{q}(0)) \mapsto (q(t), \dot{q}(t)), \]
 that sends each initial state to the state reached after time $t$ along the corresponding solution. In other words, $F_t$ packages the physical evolution of \emph{every} initial condition simultaneously, rather than one trajectory at a time.
 
 It is this flow that has two important properties that numerial schemes should ideally preserve:
 \begin{enumerate}
 	\item It is \newterm{symplectic}.
-	\item It conserves a \newterm{momentum map} for every continuous symmetry of $L$.
+	\item It conserves a \newterm{momentum map} (for every continuous symmetry of $L$).
 \end{enumerate}
 
-Both of these constrain long-term behaviour in ways that local error estimates often fail to capture. We will briefly explain the implications of each. See~\cite[Chapter 1.2]{marsdenDiscreteMechanicsVariational2001} and~\cite[Chapters 7, 11]{marsdenIntroductionMechanicsSymmetry1999} for an in-depth examination.
+Both of these constrain long-term behavior in ways that local error estimates often fail to capture. We will briefly explain the implications of each (for an in-depth examination, see~\cite[Chapter 1.2]{marsdenDiscreteMechanicsVariational2001} and~\cite[Chapters 7, 11]{marsdenIntroductionMechanicsSymmetry1999}).
 
 \subsubsection{Simplecticity}
 \todo{}
 
 \subsubsection{Preservation of momentum maps}
-
 \todo{}
 
 
 \section{Pitfalls of discretizing the equations of motion}\label{sec:pitfalls-discrete-el-ode}
 
-Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, the obvious move is to plug it into an off-the-shelf integrator (explicit Euler, Runge-Kutta, etc.). This works, in a local sense: each step has a well-controlled truncation error. But the structural properties from \cref{sec:geometric-properties-el} are silently broken, and the consequences accumulate over long horizons. We highlight two failure modes.
+Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, the obvious move is to plug it into an off-the-shelf integrator (e.g., Runge-Kutta). The error for each step is controlled, but the geometry and the geometric properties \cref{sec:geometric-properties-el} are lost. This can result in long-term behavior that is very unphysical.
 
 \subsubsection{Loss of symplecticity and energy drift}
-
 \todo{}
 
 \subsubsection{Drift off the configuration manifold}
 
-When $Q$ is not a vector space, a second pitfall appears: the numerical update $q_{k+1} = q_k + h \, v_k + \dots$ implicitly assumes that addition makes sense on $Q$, which is only true locally via a chart. Iterating in coordinates produces points that, after enough steps, no longer represent valid states of the system.
+When $Q$ is not a vector space, a second pitfall appears: the numerical update $q_{k+1} = q_k + h \, v_k + \dots$ implicitly assumes that addition makes sense on $Q$, which is only true locally via a chart. Iterating in coordinates produces points that, after enough steps, may no longer represent valid states of the system.
 
-The textbook case is rigid-body motion on $SO(3)$. Naively integrating $\dot{R} = R \hat{\Omega}$ with explicit Runge-Kutta produces matrices that gradually lose orthogonality and unit determinant; after enough steps, $R$ no longer represents a rotation at all. Ad-hoc fixes such as re-projecting onto $SO(3)$ at every step restore the manifold constraint but do not restore the conservation laws, and they introduce their own errors.
+For example, this happens with 3-dimensional rotations. Integrating something like $\dot{R} = R \hat{\Omega}$ with explicit Runge-Kutta produces matrices that gradually lose orthogonality and unit determinant; after enough steps, $R$ no longer represents a rotation at all. You can project back onto $SO(3)$ (or the relevant manifold) at every step, but this generally breaks the conservation laws, and it introduces additional errors.
 
 \medskip
 
 Both of these are fundamentally due to the integrator operating on coordinates rather than on the geometric objects of the problem \todo{a bit more prose here}.
 
-\section{Discretizing the configuration space}\label{sec:discretizing-configuration-space}
+\section{Variational integration}\label{sec:discretizing-configuration-space}
+ 
+The alternative approach we use here consists of discretizing the variational result~\eqref{eq:euler-lagrange}\todo{is this the variational result?} itself, rather than the equations of motion. This formulation preserves the geometric properties of symplectic flow and conservation of momentum maps.
 
-The discrete analog of a continuous path $q(t) : \RR \to TQ$ is a sequence of points in $Q$. The Lagrangian can be adapted to this discrete context into a \newterm{discrete Lagrangian} $L_d$ that acts on two consecutive points of a path (instead of one point in $TQ$):
+\medskip
+
+To start, the discrete analog of a continuous path $q(t) : \RR \to TQ$ is a sequence of points in $Q$. The Lagrangian can be adapted to this discrete context into a \newterm{discrete Lagrangian} $L_d$ that acts on two consecutive points of a path (instead of one point in $TQ$):
 \[ L: TQ \to \RR \quad \Rightarrow \quad L_d : Q \times Q \to \RR \]
 
 Then, the discrete action is now composed of sums of these discrete Lagrangians. That is, for a path $\mathbf{q} = {\{ q_i \in Q \}}_{i=0}^{N-1}$, the discrete action $S_d$ is:
@@ -64,7 +66,7 @@ Notice that this is a reformulation that can be done with no loss of information
 \begin{equation}
 	L_d^e (q_0, q_1) = \int_0^h L(q_{0, 1}(t), \dot{q}_{0, 1}(t)) \odif{t}
 \end{equation}
-where $q_{0, 1}$ is the path that minimizes the action along all the paths that connect $q_0$ and $q_1$. This way the discrete formulation gives identical results to the continuous one. Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; so, in practice, the discrete Lagrangian $\Ld$ is defined using some quadrature rule that approximates the integral of the exact discrete Lagrangian.
+where $q_{0, 1}$ is the path that minimizes the action along all the paths that connect $q_0$ and $q_1$. This way the discrete formulation gives identical results to the continuous one. Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; so, in practice, the discrete Lagrangian $\Ld$ is defined using some quadrature rule that essentially approximates the integral of the exact discrete Lagrangian.
 
 Applying Hamilton's principle to the discrete action (that is, $\nabla S_d = 0$), the \newterm{discrete Euler-Lagrange} (DEL) equations can be derived:
 \begin{equation}
