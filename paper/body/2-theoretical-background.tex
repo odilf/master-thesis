@@ -37,7 +37,7 @@ The \newterm{tangent bundle} is the disjoint union of all tangent spaces, $TQ = 
 
 For our purposes, a mapping on tangent and cotangent bundles $f : TM \to TM$ (or $f : T^*M \to T^*M$, or any combination thereof \todo{$f : TM \text{ or } T^*M \to TM \text{ or } T^*M$?}) is said to be \newterm{fiber-preserving} if for every $q \in M$ and every $\eta \in T_q M$, $f(\eta) \in T_q M$. In other words, $f$ does not move the point at which it is tangent \todo{Maybe remove here and just mention in forces.}.
 
-\notion{Differential}~\cite[p. 55]{leeSmoothManifolds2013} A differential or derivative of a function on manifolds $f : M \to N$ evaluated at $p \in M$ is a mapping between the tangent spaces of the manifolds $T_p f : T_p M \to T_{f(p)} N$, defined as $T_p f (\dot{\gamma}(0)) = \odv{}{t} \big|_0 f(\gamma(t))$. 
+\notion{Differential}~\cite[p. 55]{leeSmoothManifolds2013} A differential or derivative of a function on manifolds $f : M \to N$ evaluated at $p \in M$ is a mapping between the tangent spaces of the manifolds $T_p f : T_p M \to T_{f(p)} N$, defined locally as $T_p f (\dot{\gamma}(0)) = \odv{}{t}_0 f(\gamma(t))$.
 
 \notion{Lie groups}~\cite[Chapter 7]{leeSmoothManifolds2013} A Lie group is a smooth manifold $G$ equipped with a smooth group operation $\cdot : G \times G \to G$ respecting the usual group axioms (including having a smooth inverse). The tangent space at the identity of a Lie group is called a \newterm{Lie algebra}, denoted by $\fg$ (called this way because it forms an algebra with the Lie bracket, although we won't use it in this paper). We define the left and right application operators as $L_g = h \mapsto g \cdot h$ and $R_g = h \mapsto h \cdot g$ respectively.
 
@@ -53,28 +53,26 @@ In coordinates on $\RR^2$, $\odif{x} \wedge \odif{y}$ evaluated on two tangent v
 
 \notion{Pullback of forms*}\label{notion:pullback}~\cite[p. 359]{leeSmoothManifolds2013} Given a smooth map $f : M \to N$ and a $k$-form $\omega$ on $N$, the \newterm{pullback} $f^* \omega$ is the $k$-form on $M$ defined by
 \[ {(f^* \omega)}_p (v_1, \ldots, v_k) = \omega_{f(p)}\bigl(T_p f(v_1), \ldots, T_p f(v_k)\bigr). \]
-That is, the pullback ``reverses'' the order of operation by pre-applying the differential of $f$, and then evaluating $\omega$ at $f(p)$. Pullbacks respect the wedge product in the sense that $f^* (\alpha \wedge \beta) = f^* \alpha \wedge f^* \beta$. 
+That is, the pullback ``reverses'' the order of operation by pre-applying the differential of $f$, and then evaluating $\omega$ at $f(p)$. Pullbacks respect the wedge product in the sense that $f^* (\alpha \wedge \beta) = f^* \alpha \wedge f^* \beta$.
 
 \notion{Exterior derivative*}~\cite[Chapter 14]{leeSmoothManifolds2013} The \newterm{exterior derivative} $\textrm{d}: \Omega^k(M) \to \Omega^{k+1}(M)$ is the unique linear operation that agrees with the ordinary differential on functions ($k = 0$), satisfies the graded Leibniz rule
 \[ \odif{(\alpha \wedge \beta)} = \odif{\alpha} \wedge \beta + {(-1)}^k \alpha \wedge \odif{\beta} \quad \text{for $\alpha$ a $k$-form,} \]
 and squares to zero, $\odif*{}^2 = 0$. A form $\omega$ with $\odif{\omega} = 0$ is called \newterm{closed}.
 
-In coordinates, given $f : U \to \RR$, if $\omega = f \, \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$ then $\odif{\omega} = \odif{f} \wedge \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$. For $\RR^3$, applied to a 0-form ($Q \to \RR$) it gives the gradient $\nabla$, to a 1-form the curl $\nabla \times$, and to a 2-form the divergence $\nabla \cdot$. The identities $\nabla \times \nabla = 0$ and $\nabla \cdot (\nabla \times) = 0$ are both instances of $\odif*{}^2 = 0$. 
+In coordinates, given $f : U \to \RR$, if $\omega = f \, \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$ then $\odif{\omega} = \odif{f} \wedge \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$. For $\RR^3$, applied to a 0-form ($Q \to \RR$) it gives the gradient $\nabla$, to a 1-form the curl $\nabla \times$, and to a 2-form the divergence $\nabla \cdot$. The identities $\nabla \times \nabla = 0$ and $\nabla \cdot (\nabla \times) = 0$ are both instances of $\odif*{}^2 = 0$.
 
-\notion{Symplectic forms*}\label{notion:symplectic-forms}~\cite[Chapter 22]{leeSmoothManifolds2013} A \newterm{symplectic form} on a manifold $M$ is a 2-form $\omega$ that is closed ($\odif{\omega} = 0$) and non-degenerate, meaning that $\omega_p(v, \cdot) = 0$ as a 1-form implies $v = 0$. Non-degeneracy forces $M$ to be even-dimensional. A diffeomorphism $F : M \to M$ is called \newterm{symplectic} if $F^* \omega = \omega$ for all symplectic forms $\omega$.
-
-\todo{Do I talk about canonical symplectic forms?}
+\notion{Symplectic forms*}\label{notion:symplectic-forms}~\cite[Chapter 22]{leeSmoothManifolds2013} A \newterm{symplectic form} on a manifold $M$ is a 2-form $\omega$ that is closed ($\odif{\omega} = 0$) and non-degenerate, meaning that $\omega_p(v, \cdot) = 0$ as a 1-form implies $v = 0$. Non-degeneracy forces $M$ to be even-dimensional. A diffeomorphism $F : M \to M$ is called \newterm{symplectic} it preserves a symplectic form $\omega$, in the sense that $F^* \omega = \omega$.
 
 \section{Physical systems, configuration space and Lagrangians}\label{sec:physical-systems-lagrangians}
 
 A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we focus on the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
 
 \paragraph{Configuration space}
- Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space at all. Using manifolds that have some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states, like rigid motions. That is, the geometry of the manifold can encode constraints about periodicity, topology or other types of global constraints.
+Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space at all. Using manifolds that have some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states, like rigid motions. That is, the geometry of the manifold can encode constraints about periodicity, topology or other types of global constraints.
 
-As a simple example, one can try to encode the state of a pendulum with $\RR^1$, using the angle as a real number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity, and also reveals facts such as the configuration space being compact, which $\RR$ is not. Using it means that you have to interpret the fact that $0$ and $2\pi$ are the same state outside of the mathematical framework, where the mathematical rigor can no longer accompany you. Furthermore, if some result hinges on the periodicity of the pendulum, this again needs to be done ``out of band'' and it cannot be rigorously, mathematically, justified anymore.
+For instance, one can try to encode the state of a pendulum with $\RR^1$, using the angle as a real number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity, and also reveals facts such as the configuration space being compact, which $\RR$ is not. Using $\RR^1$ makes you have to interpret the fact that $0$ and $2\pi$ are the same state outside of the mathematical framework, where mathematical rigor can no longer accompany you. Furthermore, if some result hinges on the periodicity of the pendulum, this again needs to be done ``out of band'' and it cannot be rigorously, mathematically, justified anymore.
 
-While these problems might seem minor for the pendulum example, they apply similarly to much more complicated systems. For instance, it might be intuitive to model rotations in $\RR^3$ using Euler angles (i.e., pitch, yaw and roll), but this leads to gimbal lock and, perhaps more crucially, composition of rotations does not correspond with vector addition. These problems arise from the fundamental fact that 3-dimensional rotations do not have a vector space structure! Instead, we can use $\SO(3)$, the Lie group which correctly encodes these rotations. Statements about rotations on $\SO(3)$ are rigorous and unambiguous. 
+While these problems might seem minor for the pendulum example, they apply similarly to much more complicated systems. As a slightly more involved example, it might be intuitive to model rotations in $\RR^3$ using Euler angles (i.e., pitch, yaw and roll), but this leads to gimbal lock and, perhaps more crucially, composition of rotations does not correspond with vector addition, so often most of the work is spent in switching coordinates~\cite[p. 39]{marsdenDiscreteMechanicsVariational2001}. These problems arise from the fundamental fact that 3-dimensional rotations do not have a vector space structure! Instead, we can use $\SO(3)$, the Lie group which correctly encodes these rotations. Statements about rotations on $\SO(3)$ are rigorous and unambiguous.
 
 \newcommand{\action}{S}
 
@@ -98,6 +96,8 @@ The extension to time-dependent Lagrangians, higher-order Lagrangians follow the
 
 In principle, the standard Lagrangian formulation just presented should be enough to model the universe. In practice, we often model smaller systems that are not closed or have some other types of constraints \todo{rewrite extensions}.
 
+\par\color{gray}
+\todo{Rewrite all of this.}
 While the above definition is enough to model any closed system, sometimes it's more practical to model some open part of a larger system. For instance, we might want to model some pressure \todo{how to say ``stuff about temperature''??} dynamics in a box that loses a non-negligible amount of heat. Technically, the box and the environment together formed a closed form system, but it would be nice to have a physical model for just the box.
 
 
@@ -105,20 +105,21 @@ Cases like these are where a \newterm{time-dependent Lagrangian} can be useful. 
 \todo{write out specific example.}
 
 Another extension to the Lagrangian are forced systems, which are non-trivial. Forced Lagrangian systems are one of the main topics of this paper, and explored in \cref{sec:forced-systems}. Other extensions that can be considered but weren't in this paper are constrained Lagrangian systems and higher order Lagrangians (in principle, the results can also be applied to a Lagrangian of arbitrary order~\cite{ferraroParallelComputingVariational, gay-balmazInvariantHigherorderVariational2012}).
+\par\color{black}
 
-\section{Euler-Lagrange equations}
+\section{The Euler-Lagrange equations}
 
 \todo{Casi todo esto lo he sacado de la tesis de Rodrigo y de Marsden-West, tengo que citarlo? Parece estandar y ellos no lo citan.}
 
 Following Hamilton's principle\cite[\todo{find specific ref}]{marsdenIntroductionMechanicsSymmetry1999}, we seek to find the extrema of the action defined by a Lagrangian $L$. This can be done by taking a variation of the action and equating it to $0$. Namely, we consider the vector field along $q$ defined by $q_\varepsilon(t)$ defined  by $\delta q=\odv{q_{\varepsilon}}{\varepsilon}\big|_{\epsilon=0}$, where $\delta q(0) = \delta q(T) = 0$. Then, we define the variation of the action $\delta S(q_\varepsilon)$ as $\odv{}{t} S(q_\varepsilon) \Big|_{\epsilon=0}$.
 Applying this to the action, we get:
 
-\begin{align*}
-	\delta S(q)                     & = \delta \int_0^T L(q(t), \dot{q}(t)) \odif{t}                                                                                                     \\
-	                                & = \int_0^T \left(\pdv{L}{q} \delta q + \pdv{L}{\dot{q}} \delta \dot{q}\right) \odif{t}                                                             \\
-	\text{\faint{(by parts)}} \quad & = \int_0^T \left(\pdv{L}{q} \delta q - \odv{}{t} \pdv{L}{\dot{q}} \delta q \right) \odif{t} + \pdv{L}{\dot{q}} \underbrace{\delta q \big|_0^T}_{0} \\
-	                                & = \int_0^T \left(\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \right) \delta q \, \odif{t}                                                              \\
-\end{align*}
+\begin{align}
+	\delta S(q)                     & = \delta \int_0^T L(q(t), \dot{q}(t)) \odif{t}                                                                                                     \nonumber \\
+	                                & = \int_0^T \left(\pdv{L}{q} \delta q + \pdv{L}{\dot{q}} \delta \dot{q}\right) \odif{t}                                                             \nonumber \\
+	\text{\faint{(by parts)}} \quad & = \int_0^T \left(\pdv{L}{q} \delta q - \odv{}{t} \pdv{L}{\dot{q}} \delta q \right) \odif{t} + \pdv{L}{\dot{q}} \underbrace{\delta q \big|_0^T}_{0} \label{eq:el-parts} \\
+	                                & = \int_0^T \left(\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \right) \delta q \, \odif{t}                                                              \nonumber \\
+\end{align} \nonumber
 and for this to hold given any variation $\delta q$, we need the integrand to be identically $0$. This is how we derive the Euler-Lagrange equation:
 
 \begin{equation}
@@ -133,4 +134,6 @@ Computing the relevant derivatives of the Lagrangian provides us with an implici
 % \[ D_\text{EL} L = \pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \]
 % and the realizable paths are those such that $D_\text{EL} L(q) = 0$
 
-We can try to solve this ODE analytically. Sometimes, this is possible; but often, numerical methods are used, because it is intractable to do solve it analytically (either because the Lagrangian is too large, or the Lagrangian is computed based on some empirical numerical data). In the next section, we discuss approaches to discretizing and solving numerically the Euler-Lagrange equations.
+\medskip
+
+We can try to solve this ODE analytically. Sometimes, this is possible; but often, it is intractable to do solve it analytically (either because the Lagrangian is too large, or the Lagrangian is computed based on some empirical numerical data), so numerical methods are used instead. In the next section, we discuss approaches to discretizing and solving numerically the Euler-Lagrange equations.

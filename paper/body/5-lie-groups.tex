@@ -5,7 +5,7 @@ The study of many physical systems are naturally defined on a configuration mani
 
 In this section we extend the parallel algorithm (\cref{sec:parallel-algorithm}) to work on Lie groups.
 
-\section{The algorithm on Lie algebras}\label{sec:lie-groups-algorithm}
+\section{The parallel algorithm on Lie algebras}\label{sec:lie-groups-algorithm}
 
 \paragraph{Where the vector-space step fails}\label{sec:lie-vector-space-fails}
 
@@ -57,7 +57,7 @@ Then, applying the product rule in direction $\eta \in \fg$ gives two terms: one
 
 This first term, using $r_k(\mathbf{g}, g) = \mdif{2}\Ld(g_{k-1}, g) + \mdif{1}\Ld(g, g_{k+1})$, evaluates (via chain rule of $T_e L_g$) to
 \[
-	\frac{d}{dt}\bigg|_{t=0} r_k\left(\mathbf{g},\, g_k\tau(t\eta)\right)
+	\odv{}{t}_{t=0} r_k\left(\mathbf{g},\, g_k\tau(t\eta)\right)
 	= \left(\mdif{22}\Ld(g_{k-1},g_k) + \mdif{11}\Ld(g_k,g_{k+1})\right)\left[g_k \cdot \eta\right].
 \]
 Pulling back with ${(T_e L_{g_k})}^*$ and setting the result to zero gives the linear system
@@ -123,7 +123,7 @@ which is expected. In particular, solutions of the DEL equations on $G$ are exac
 The Hessian computation needs the second derivative of $g\tau(\xi)$ at $\xi = 0$.
 Denoting as $\text{D}^2\tau(0)[\eta, \zeta]$ the (bilinear) second derivative of $\tau$ at $0$, taking one more derivative of $T_e L_g$ gives the second derivative of $\xi \mapsto g\tau(\xi)$ at $\xi = 0$, viewed as a bilinear form on $\fg$:
 \begin{equation}
-	\odv[order=2]{}{\xi} \bigg|_0 (g \tau (\xi))\,[\eta, \zeta]
+	\odv[order=2]{}{\xi}_0 (g \tau (\xi))\,[\eta, \zeta]
 	= g \cdot \text{D}^2\tau(0)[\eta, \zeta].
 	\label{eq:lie-retraction-second}
 \end{equation}
@@ -220,24 +220,25 @@ The perturbation is then updated with $\widetilde{T} := \Psi^{-1} \circ T \circ 
 	Since $\tau(0) = e$ and $T_0\tau = \mathrm{Id}_\fg$, differentiating $\mu(\alpha,\beta) = \tau^{-1}(\tau(\alpha)\tau(\beta))$ at $(0,0)$ gives $\partial_\alpha \mu(0, 0) = \partial_\beta \mu(0, 0) = \mathrm{Id}_\fg$.
 	Differentiating~\eqref{eq:Tk-mu} at $\boldsymbol \xi = 0$ and using $\delta \xi_k(0) = 0$,
 	\begin{equation}
-		\frac{\partial \widetilde{T}_k}{\partial \xi_j}\bigg|_0 = \delta_{kj}\, \mathrm{Id}_\fg + \frac{\partial \delta \xi_k}{\partial \xi_j}\bigg|_0.
+		\pdv{\widetilde{T}_k}{\xi_j}_0 = \delta_{kj}\, \mathrm{Id}_\fg + \pdv{\delta \xi_k}{\xi_j}_0.
 		\label{eq:Tprime-decomp}
 	\end{equation}
 	The product rule applied to $\delta \xi_k(\boldsymbol \xi) = -\widetilde{\mathcal{D}}_k(\mathbf{g})^{-1} \widetilde{r}_k(\mathbf{g})$ gives, at $\boldsymbol \xi = 0$,
+	\todo{Partial derivative here}
 	\[
-		\frac{\partial \delta \xi_k}{\partial \xi_j}\bigg|_0
-		= \underbrace{-\bigl(\partial_{\xi_j} \widetilde{\mathcal{D}}_k^{-1}\bigr)\big|_0\, \widetilde{r}_k(\mathbf{g}^*)}_{=\, 0\text{ since } \widetilde{r}_k(\mathbf{g}^*) = 0}
-		\;-\; \widetilde{\mathcal{D}}_k(\mathbf{g}^*)^{-1}\, \frac{\partial \widetilde{r}_k}{\partial \xi_j}\bigg|_0.
+		\pdv{\delta \xi_k}{\xi_j}_0
+		= \underbrace{-\left(\partial_{\xi_j} \widetilde{\mathcal{D}}_k^{-1}\right)\big|_0\, \widetilde{r}_k(\mathbf{g}^*)}_{=\, 0\text{ since } \widetilde{r}_k(\mathbf{g}^*) = 0}
+		\;-\; \widetilde{\mathcal{D}}_k(\mathbf{g}^*)^{-1}\, \pdv{\widetilde{r}_k}{\xi_j}_0.
 	\]
 	Differentiating $\widetilde{r}_k(\mathbf{g})[\eta] = r_k(\mathbf{g}, g_k)[T_e L_{g_k} \eta]$ in $\xi_j$ results in
 	\[
-		\odv{\widetilde{r}_k}{\xi_j} \bigg|_0[\eta] =
-		\underbrace{\odv{r_k}{\xi_j}\bigg|_0[T_e L_{g_k^*}\eta]}_{\text{main term}} +
+		\odv{\widetilde{r}_k}{\xi_j}_0[\eta] =
+		\underbrace{\odv{r_k}{\xi_j}_0[T_e L_{g_k^*}\eta]}_{\text{main term}} +
 		\underbrace{r_k(\mathbf{g}^*, g_k^*) \left[\pdv{(T_e L{g_k})}{\xi_j}\bigg|_0 \eta\right]}_{\text{variation-of-pullback} = 0}
 	\]
 	where the variation-of-pullback term is $0$ due to $r_k(\mathbf{g}^*, g_k^*) = 0$, and for $j \in \{k-1, k, k+1\}$, we get:
 	\begin{align*}
-		\partial_{\xi_{k-1}} \widetilde{r}_k\big|_0 & = \widetilde{\mathcal{C}}_{k-1}^T, \\
+		\pdv{\widetilde{r}_k}{\xi_{k-1}}_0 & = \widetilde{\mathcal{C}}_{k-1}^T, \\
 		\partial_{\xi_k} \widetilde{r}_k\big|_0     & = \widetilde{\mathcal{D}}_k,       \\
 		\partial_{\xi_{k+1}} \widetilde{r}_k\big|_0 & = \widetilde{\mathcal{C}}_k,
 	\end{align*}

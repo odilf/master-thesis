@@ -2,18 +2,16 @@
 
 \todo{improve organization, messy rn}
 
-Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually a map $f^L : TQ \to T^* Q$~\cite[section 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. This system is now not determined only by the Lagrangian, but by the discrete Lagrangian and the external force.
+Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[section 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. This system is now not determined only by the Lagrangian, but by the discrete Lagrangian and the external force.
 
 In this setting it is not Hamilton's principle that appiles, but rather its forced analog, called the \newterm{Lagrange-D'Alembert principle}:
 \begin{definition}[Lagrange-D'Alembert principle {\cite[Definition 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}}]
-	\todo{missing prose}
+	A path $q(t) : [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the forced Largangian system defined by $L: TQ \to \RR$ and force $f^L : TQ \to T^*Q$ if and only if
 	\[
 		\odv{}{t} \pdv{L}{\dot{q}} - \pdv{L}{q} = f^L (q(t), \dot{q}(t))
 	\]
 \end{definition}
-
-Unlike Hamilton's principle, this is \emph{not} the extremization of any action: forces are generally non-conservative \todo{this is mentioned before I clarify later, but maybe it's ok}, so no modified action exists. Since the condition must hold for each $\delta q_k$ independently, it is equivalent to the following \newterm{discrete forced Euler-Lagrange equations} holding at each inner point $k$:
-
+Unlike Hamilton's principle, this is \emph{not} in general the extremization of any action. 
 
 As in the unforced case, it is possible to carry out a discretization of the state space, the Lagrangian and the forces. The first two are the same: from $TQ$ to $Q \times Q$ and from $L : TQ \to \RR$ to $L_d : Q \times Q \to \RR$.
 
@@ -21,9 +19,9 @@ The discretization of the force is similar to the one of the Lagrangian, except 
 
 \begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]
 	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
-	\begin{equation}
+	\begin{equation*}
 		\sum_{k=1}^{N-1} \Bigl( \mdif{2} \Ld(q_{k-1}, q_k) + f_d^+(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1}) + f_d^-(q_k, q_{k+1}) \Bigr) \cdot \delta q_k = 0.
-	\end{equation}
+	\end{equation*}
 \end{definition}
 
 This discretization preserves the relevant geometric properties the same way that is explained in \cref{sec:geometric-properties-el}.
@@ -61,19 +59,18 @@ Figuring out the convergence criteria is trickier. A natural way to proceed is t
 		\qquad
 		f_d^-(q_k, q_{k+1}) = \mdif{1} V_d(q_k, q_{k+1}).
 	\]
-
 	This is because this is precisely the case where the Lagrangange-D'Alambert principle \emph{is} an extremization. In fact, any system with Lagrangian $L_d$ with forces that admit a discrete potential $V_d$ is identical to an unforced system with Lagrangian $L'_d = L_d + V_d$. In other words, for conservative forces, every theorem of~\cite{ferraroParallelIterativeMethod2025} applies trivially. In the rest of the discussion we focus on non-conservative forces.
 \end{remark}
 
-For generic forces, the relevant criterion is given in~\cite[Lemma 4.4]{ferraroParallelIterativeMethod2025} which we restate here:
+For generic forces, the relevant criterion that can be applied is given in~\cite[Lemma 4.4]{ferraroParallelIterativeMethod2025} which we restate here:
 
 \begin{lemma}[Convergence of 1-step Jacobi-Newton]\label{lem:jacobi-newton-convergence}
 	For a general smooth system $f(x) = 0$ (not necessarily a gradient system), the 1-step block Jacobi-Newton method converges locally to $x^*$ if the diagonal blocks of $\mdif* f(x^*)$ are regular and $\rho(J(x^*)) < 1$, where $J = -D^{-1}C$, and $D$ and $C$ are the diagonal and off-diagonal parts of $\mdif* f$ respectively.
 \end{lemma}
 
-In practice, to determine whether a specific system converges, there might be no better method than directly estimating $\rho(J(\mathbf{q}^*))$ by power iteration (i.e., Arnoldi/Lanzcos). This requires factoring each diagonal block of $\mdif* f(\mathbf{q}^*)$ once (an $O(N n^3)$ setup), then performing block-tridiagonal matrix-vector products at $O(N n^2)$ per power-iteration step until the dominant eigenvalue stabilizes. If all one wants is a yes/no answer for a concrete problem at run time, this is what we would recommend doing.
+In practice, to determine whether a specific system converges, there might be no better method than directly estimating $\rho(J(\mathbf{q}^*))$ by power iteration (i.e., Arnoldi/Lanzcos). This requires factoring each diagonal block of $\mdif* f(\mathbf{q}^*)$ once (an $O(N n^3)$ setup), then performing block-tridiagonal matrix-vector products at $O(N n^2)$ per power-iteration step until the dominant eigenvalue stabilizes. If all one wants is a yes/no answer for a concrete problem at run time, this is the most practical method.
 
-The remainder of this section is therefore not concerned with finding the cheapest numerical check, but with \emph{structural} sufficient conditions: closed-form criteria stated in terms of the discrete Lagrangian and forces themselves, rather than the assembled iteration matrix. These are valuable for several reasons: they let us prove convergence for entire classes of systems at once (rather than path by path), they generalize the well-known unforced criterion (\cref{thm:local-hessian-pd-convergence}) and make the role of the forces in convergence explicit, and they connect to standard structural conditions in numerical analysis (Gershgorin-style diagonal dominance). With this in mind, we proceed.
+In the remainder of this section we aim to provide \emph{structural} sufficient conditions: closed-form criteria stated in terms of the discrete Lagrangian and forces themselves, rather than the assembled iteration matrix. These are valuable for several reasons: they let us prove convergence for entire classes of systems at once (rather than path by path), they generalize the well-known unforced criterion (\cref{thm:local-hessian-pd-convergence}) and make the role of the forces in convergence explicit, and they connect to standard structural conditions in numerical analysis (Gershgorin-style diagonal dominance). With this in mind, we proceed.
 
 The first step necessary to get an expression for $J^f$ is to calculate the derivative of~\eqref{eq:euler-lagrange-discrete-forced}, $\mdif* f$, which we will name $H^f$, as it is the forced analogue of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function $F$, just $\mdif* f$). The result is the following (similar to~\eqref{eq:hessian-matrix}):
 \begin{align*}
