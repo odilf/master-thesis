@@ -40,7 +40,7 @@ Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, th
 
 When $Q$ is not a vector space, a second pitfall appears: the numerical update $q_{k+1} = q_k + h \, v_k + \dots$ implicitly assumes that addition makes sense on $Q$, which is only true locally via a chart. Iterating in coordinates produces points that, after enough steps, may no longer represent valid states of the system.
 
-For example, this happens with 3-dimensional rotations. Integrating something like $\dot{R} = R \hat{\Omega}$ with explicit Runge-Kutta produces matrices that gradually lose orthogonality and unit determinant; after enough steps, $R$ no longer represents a rotation at all. You can project back onto $SO(3)$ (or the relevant manifold) at every step, but this generally breaks the conservation laws, and it introduces additional errors.
+For example, this happens with 3-dimensional rotations. Integrating something like $\dot{R} = R \hat{\Omega}$ with explicit Runge-Kutta produces matrices that gradually lose orthogonality and unit determinant; after enough steps, $R$ no longer represents a rotation at all. One can project back onto $\SO(3)$ (or the relevant manifold) at every step, but this generally breaks the conservation laws and introduces additional errors.
 
 \medskip
 

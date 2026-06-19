@@ -1,7 +1,7 @@
 *\chapter{Lie groups}\label{sec:lie-groups}
 
 
-The study of many physical systems are naturally defined on a configuration manifold where no notion of linear combination can exist, thus not being able to be described as a vector-space. However, most of these still have some structure; namely, that of a \newterm{Lie group} $G$: a smooth manifold together with a group operation $\cdot : G \times G \to G$ such that multiplication and inversion are smooth. Examples of such manifolds are the rotation groups $SO(n)$, the Euclidean motion groups $SE(n)$, the unitary groups $U(n)$, and in fact every vector space (under addition).
+The study of many physical systems are naturally defined on a configuration manifold where no notion of linear combination can exist, thus not being able to be described as a vector-space. However, most of these still have some structure; namely, that of a \newterm{Lie group} $G$: a smooth manifold together with a group operation $\cdot : G \times G \to G$ such that multiplication and inversion are smooth. Examples of such manifolds are the rotation groups $\SO(n)$, the Euclidean motion groups $\SE(n)$, the unitary groups $\textrm{U}(n)$, and in fact every vector space (under addition).
 
 In this section we extend the parallel algorithm (\cref{sec:parallel-algorithm}) to work on Lie groups.
 
@@ -329,7 +329,7 @@ Consider a satellite at some position that we want to get to some other point at
 
 The trajectory of the satellite is afected by the gravitational pull of nearby bodies in space. To find what trajectories are possible, one could try to just model the path in $\RR^3$ and use a constant angular velocity to re-orient the satellite. However, the pull from nearby bodies can change how the satellite rotates, and the experienced pull in turn changes depending on the orientation.
 
-A more accurate way of modelling this situation is by using $SE(3)$, the group of rigidbody motions, which automatically handles this complexity in its manifold geometry. We model the satellite as a finite collection of body-frame points $\{r_i^b\}$ with masses $m_i$, so the world-frame position of point $i$ is $x + R\, r_i^b$. For $J$ celestial bodies at positions $x_j$ with gravitational parameters $\mu_j = G M_j$, the potential and kinetic energies are
+A more accurate way of modelling this situation is by using $\SE(3)$, the group of rigidbody motions, which automatically handles this complexity in its manifold geometry. We model the satellite as a finite collection of body-frame points $\{r_i^b\}$ with masses $m_i$, so the world-frame position of point $i$ is $x + R\, r_i^b$. For $J$ celestial bodies at positions $x_j$ with gravitational parameters $\mu_j = G M_j$, the potential and kinetic energies are
 \begin{align*}
 	V(R, x)      & = -\sum_{i, j} \frac{\mu_j\, m_i}{\|x + R\, r_i^b - x_j\|}, \\
 	T(\omega, v) & = \tfrac{1}{2}\,\omega^T I\, \omega + \tfrac{1}{2}\, m\, \|v\|^2,
@@ -370,9 +370,9 @@ We see in the front view (\cref{fig:satellite-front}) that even though the satel
 
 \todo{mention: The relative size of the satellite to the celestial bodies is exaggerated to make the rotational effects clearer.}
 
-\tocless\subsection{Zermelo fuel-optimal navigation in $SE(3)$}
+\tocless\subsection{Zermelo fuel-optimal navigation in $\SE(3)$}
 
-Lagrangian formulations can also be used to find optimal solutions to certain problems. In~\cite[Example 5.2]{ferraroParallelIterativeMethod2025} they formulate a fuel-optimal navigation problem in a wind field. We extend it to $SE(3)$ by letting the system take into account the orientation of the ship, which is in fact a spaceship in our model that can reorient itself in three dimensions.
+Lagrangian formulations can also be used to find optimal solutions to certain problems. In~\cite[Example 5.2]{ferraroParallelIterativeMethod2025} they formulate a fuel-optimal navigation problem in a wind field. We extend it to $\SE(3)$ by letting the system take into account the orientation of the ship, which is in fact a spaceship in our model that can reorient itself in three dimensions.
 
 Specifically, we think of a prism-like ship with one long axis and two short ones, such that the flow effectively pushes the ship more if it is perpendicular to the long axis rather than parallel. Let $D = \operatorname{diag}(d_1, d_2, d_3)$ be the body-frame drag weights, with $d_1$ on the long axis and $d_1 \ll d_2, d_3$. The Lagrangian, associated now to the cost of moving, is
 \[
@@ -398,7 +398,7 @@ We discretise with the midpoint rule, exactly as in the satellite case.
          \includegraphics[width=\textwidth]{zermelo-top.png}
          \caption{Top view.}\label{fig:zermelo-top}
      \end{subfigure}
-    \caption{Zermelo fuel optimization problem in $SE(3)$. Bottom red arrows show flow field, upper arrows show how the flow affects the rigidbody in the given position.}\label{fig:zermelo}
+    \caption{Zermelo fuel optimization problem in $\SE(3)$. Bottom red arrows show flow field, upper arrows show how the flow affects the rigidbody in the given position.}\label{fig:zermelo}
 \end{figure}
 
 Here, we see that in the first 3--4 snapshots the ship is orientating itself using the direction of the flow. Interestingly, we see that between the last and second-to-last snapshot, the ship does a sharp turn. This is to maximize the amount of time the ship is being maximally pushed by the flow. In fact, the flow helps the ship turn in that direction and the flow is greater away from the center, so delaying the turn also helps make the turn itself cheaper.
