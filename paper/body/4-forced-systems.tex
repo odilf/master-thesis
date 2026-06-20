@@ -1,10 +1,8 @@
 \chapter{Forced systems}\label{sec:forced-systems}
 
-\todo{improve organization, messy rn}
-
 Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[section 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. This system is now not determined only by the Lagrangian, but by the discrete Lagrangian and the external force.
 
-In this setting it is not Hamilton's principle that appiles, but rather its forced analog, called the \newterm{Lagrange-D'Alembert principle}:
+In this setting it is not Hamilton's principle that applies, but rather its forced analog, called the \newterm{Lagrange-D'Alembert principle}:
 \begin{definition}[Lagrange-D'Alembert principle {\cite[Definition 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}}]
 	A path $q(t) : [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the forced Largangian system defined by $L: TQ \to \RR$ and force $f^L : TQ \to T^*Q$ if and only if
 	\[
@@ -15,7 +13,7 @@ Unlike Hamilton's principle, this is \emph{not} in general the extremization of 
 
 As in the unforced case, it is possible to carry out a discretization of the state space, the Lagrangian and the forces. The first two are the same: from $TQ$ to $Q \times Q$ and from $L : TQ \to \RR$ to $L_d : Q \times Q \to \RR$.
 
-The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$. This is necessary for there to exist some ``exact discrete forces'' that recover exactly the continous forces, which we normally approximate with a quadrature rule \todo{spell out exactly how the exact discrete forces would look like}.
+The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre preserving with respect to the second argument, and $f^+$ with the first). This is necessary for there to exist some ``exact discrete forces'' that recover exactly the continous forces, which we normally approximate with a quadrature rule \todo{spell out exactly how the exact discrete forces would look like}.
 
 \begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]
 	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
@@ -36,8 +34,8 @@ Solutions that satisfy the discrete Lagrange-D'Alambert principle are given by t
 
 In this section we show how to extend the parallel algorithm (\cref{sec:parallel-algorithm}) to use these forces. The only difference is in the residual, where we have to insert~\eqref{eq:euler-lagrange-discrete-forced} instead of~\eqref{eq:euler-lagrange-discrete}. The global residual is modified from~\eqref{eq:residual-global} to
 \begin{equation*}
-	\hat{R}(\mathbf{q}) = \sum_{k=1}^{N-1}
-	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})
+	\hat{R}(\mathbf{q}) = \bigoplus_{k=1}^{N-1} \left(
+	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})\right)
 	% \label{eq:residual-global-forced}
 \end{equation*}
 and the local residual, from \cref{eq:residual-local} to
@@ -68,7 +66,7 @@ For generic forces, the relevant criterion that can be applied is given in~\cite
 	For a general smooth system $f(x) = 0$ (not necessarily a gradient system), the 1-step block Jacobi-Newton method converges locally to $x^*$ if the diagonal blocks of $\mdif* f(x^*)$ are regular and $\rho(J(x^*)) < 1$, where $J = -D^{-1}C$, and $D$ and $C$ are the diagonal and off-diagonal parts of $\mdif* f$ respectively.
 \end{lemma}
 
-In practice, to determine whether a specific system converges, there might be no better method than directly estimating $\rho(J(\mathbf{q}^*))$ by power iteration (i.e., Arnoldi/Lanzcos). This requires factoring each diagonal block of $\mdif* f(\mathbf{q}^*)$ once (an $O(N n^3)$ setup), then performing block-tridiagonal matrix-vector products at $O(N n^2)$ per power-iteration step until the dominant eigenvalue stabilizes. If all one wants is a yes/no answer for a concrete problem at run time, this is the most practical method.
+In practice, to determine whether a specific system converges, there might be no better method than directly estimating $\rho(J(\mathbf{q}^*))$ by power iteration (i.e., Arnoldi/Lanczos). This requires factoring each diagonal block of $\mdif* f(\mathbf{q}^*)$ once (an $O(N n^3)$ setup), then performing block-tridiagonal matrix-vector products at $O(N n^2)$ per power-iteration step until the dominant eigenvalue stabilizes. If all one wants is a yes/no answer for a concrete problem at run time, this is the most practical method.
 
 In the remainder of this section we aim to provide \emph{structural} sufficient conditions: closed-form criteria stated in terms of the discrete Lagrangian and forces themselves, rather than the assembled iteration matrix. These are valuable for several reasons: they let us prove convergence for entire classes of systems at once (rather than path by path), they generalize the well-known unforced criterion (\cref{thm:local-hessian-pd-convergence}) and make the role of the forces in convergence explicit, and they connect to standard structural conditions in numerical analysis (Gershgorin-style diagonal dominance). With this in mind, we proceed.
 

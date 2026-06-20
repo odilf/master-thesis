@@ -19,7 +19,7 @@ It is this flow that has two distinct sources of exactly conserved quantities, w
 
 Suppose $L$ admits a \newterm{continuous symmetry}: a family of diffeomorphisms $\Phi_s : Q \to Q$, with $\Phi_0 = \mathrm{id}$, that leaves $L$ invariant in the sense that
 \begin{equation}
-	L\bigl(\Phi_s(q),\; T\Phi_s \cdot \dot q\bigr) = L(q, \dot q) \qquad \text{for all } s, q, \dot q,
+	L\left(\Phi_s(q),\; T\Phi_s \cdot \dot q\right) = L(q, \dot q) \qquad \text{for all } s, q, \dot q,
 	\label{eq:symmetry-condition}
 \end{equation}
 These diffeomorpisms are generated infinitesimally by a vector field $X$ on $Q$ given by
@@ -109,7 +109,7 @@ Given this approach to discretization, a trajectory can be computed point-by-poi
 
 In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = {\{q_k\}}_{k=0}^N \in Q^{N+1}$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
 \begin{equation}
-	R(\mathbf{q}) = \sum_{k=1}^{N-1}
+	R(\mathbf{q}) = \bigoplus_{k=1}^{N-1}
 	\left(\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})\right) = 0
 	\label{eq:residual-global}
 \end{equation}
@@ -233,8 +233,7 @@ This is where a third convergence result comes into play, which gives a necessar
 	\[ \Lambda_i = \mathcal{D}_i - \mathcal{C}_{i-1}^T \Lambda_{i-1}^{-1} \mathcal{C}_{i-1}, \quad 2 \leq i \leq N - 1 \]
 	are all positive definite.
 \end{theorem}
-
-\todo{Say the time complexity of this one.}
+This check has the same runtime complexity of $\mathcal{O}(N)$ as \cref{thm:local-hessian-pd-convergence}, except that this approach is suficient to determine positive definiteness.
 
 \bigskip
 
