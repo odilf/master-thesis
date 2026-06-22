@@ -4,7 +4,7 @@ Perhaps the most straightforward approach to compute numerically solutions that 
 
 However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the underlying geometric picture. In \cref{sec:geometric-properties-el} we explain what these properties are and in \cref{sec:pitfalls-discrete-el-ode} we discuss what you lose when you stop working gometrically.
 
-Instead, one can discretize the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and derive discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration}~\cite[Chapter 1.3]{marsdenDiscreteMechanicsVariational2001} will be explained in \cref{sec:discretizing-configuration-space}
+Instead, one can discretize the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and derive discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration}~\cite[Chapter 1.3]{marsdenDiscreteMechanicsVariational2001} will be explained in \cref{sec:variational-integration}
 
 \section{Geometric properties of the Euler-Lagrange equations}\label{sec:geometric-properties-el}
 
@@ -50,15 +50,15 @@ Symplecticity of a flow imples that it is (locally) the flow of some Hamiltonian
 
 \section{Pitfalls of discretizing the equations of motion}\label{sec:pitfalls-discrete-el-ode}
 
-Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, the obvious move is to plug it into an off-the-shelf integrator (e.g., Runge-Kutta). While the local error per step is controlled, this approach loses the geometric structure and with it the geometric properties described in \cref{sec:geometric-properties-el}. That is, a priori, a generic integrator does not preserve momentum maps nor is it symplectic \tc{}. It is possible to construct, on case-by-case basis, integrators that conserve a quantity by preserving a symmetry of $L$ \tc{}, but it is hard to make this work for more than one quantity at a time \tc{}. Symplectic integrators (that are not specific cases of the variational principle) are rarer still \tc{}.
+Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, the obvious move is to plug it into an off-the-shelf integrator (e.g., Runge-Kutta). While the local error per step is controlled, this approach loses the geometric structure and with it the geometric properties described in \cref{sec:geometric-properties-el}. A priori, a generic integrator does not preserve momentum maps nor is it symplectic. It is possible to construct, on case-by-case basis, integrators that conserve a quantity by preserving a symmetry of $L$~\cite[Chapters IV, V]{hairerGeometricNumericalIntegration2006}, but it is hard to make this work for more than one quantity at a time. Symplectic integrators (that are not specific cases of the variational principle) are rarer still~\cite[Chapter VI.4]{hairerGeometricNumericalIntegration2006}; and algorithms that exactly preserve energy cannot be symplectic~\cite[Section 3]{zhongLiePoissonHamiltonJacobiTheory1988}.
 
-Furthermore, if $Q$ is not a vector space, sometimes the updates are done in a bigger ambient vector space that $Q$ can be embedded into. Then, accumulation of local errors can result in values that are not part of $Q$ at all. For instance, with 3-dimensional rotations, integration of $\SO(3)$ matrices in the ambient matrix space $\RR^9$ often leads to loss of orthogonality and unit determinant. This can be mitigated to some extent by reprojecting onto the relevant manifold, but that might increase errors and makes converge harder to analyze.
+Furthermore, if $Q$ is not a vector space, sometimes the updates are done in a bigger ambient vector space that $Q$ can be embedded into. Then, accumulation of local errors can result in values that are not elements of $Q$ at all. For instance, with 3-dimensional rotations, integration of $\SO(3)$ matrices in the ambient matrix space $\RR^9$ often leads to loss of orthogonality and unit determinant. This can be mitigated to some extent by reprojecting onto the relevant manifold, but that might increase errors and makes converge harder to analyze.
 
 In short, naive integration has aspects of long-term behavior are qualitiatively unphysical. This is especially problematic for conservation laws, as they are often assumed as invariants in a broader analytical context where a numerical integrator might be used. 
 
 % Sometimes having a \todo{unphysical trajectories can be closer to the real trajectory.}
 
-\section{Variational integration}\label{sec:discretizing-configuration-space}
+\section{Variational integration}\label{sec:variational-integration}
 
 It is possible to discretize the variational principle itself \cref{def:hamiltons-principle}, rather than the resulting equations of motion. The discrete flow then inherits, by construction, a discrete analog of each of the geometric properties of \cref{sec:geometric-properties-el}.
 
@@ -92,12 +92,12 @@ These equations are well-defined for any manifold, since both $\mdif{2} L_d (q_{
 
 \subsubsection{Geometric properties of the DEL equations}
 
-As in the continious case, the DEL equations~\eqref{eq:euler-lagrange-discrete} define a discrete flow $(q_{k-1}, q_k) \mapsto (q_k, q_{k+1})$ on $Q \times Q$. Using this discretization, the properties of \cref{sec:geometric-properties-el} are automatically inherited. The boundary term in the variation of the discrete action defines a discrete one-form\footnote{Technically, there are \emph{two} one-forms, $\theta^+$ and $\theta^-$, but both of these define the same simplectic two form via the exterior derivative~\cite[p. 15]{marsdenDiscreteMechanicsVariational2001}.} on $Q \times Q$, whose exterior derivative is a symplectic form $\omega_{L_d}$. The discrete flow preserves $\omega_{L_d}$ exactly at every step. This makes the discrete flow symplectic, so it also exactly preserves some Hamiltonian $\widetilde H$. For the exact discrete Lagrangian $\Ld^e$, that Hamiltonian is the physical energy $H$; for a quadrature-based $L_d$ of order $p$, it approximates $H$ at order $O(h^p)$. This makes it so that the energy along the numerical trajectory never oscillates further than $O(h^p)$, so while energy might not be 100\% conserved locally, the error is bounded globally. 
+As in the continuous case, the DEL equations~\eqref{eq:euler-lagrange-discrete} define a discrete flow $(q_{k-1}, q_k) \mapsto (q_k, q_{k+1})$ on $Q \times Q$. Using this discretization, the properties of \cref{sec:geometric-properties-el} are automatically inherited. The boundary term in the variation of the discrete action defines a discrete one-form\footnote{Technically, there are \emph{two} one-forms, $\theta^+$ and $\theta^-$, but both of these define the same simplectic two form via the exterior derivative~\cite[p. 15]{marsdenDiscreteMechanicsVariational2001}.} on $Q \times Q$, whose exterior derivative is a symplectic form $\omega_{L_d}$. The discrete flow preserves $\omega_{L_d}$ exactly at every step. This makes the discrete flow symplectic, so it also exactly preserves some Hamiltonian $\widetilde H$. For the exact discrete Lagrangian $\Ld^e$, that Hamiltonian is the physical energy $H$; for a quadrature-based $L_d$ of order $p$, it approximates $H$ at order $O(h^p)$. This makes it so that the energy along the numerical trajectory never oscillates further than $O(h^p)$, so while energy might not be 100\% conserved locally, the error is bounded globally. 
 
 A discrete analog of Noether's theorem holds as well: any continuous symmetry of $L$ inherited by $L_d$ corresponds with a scalar quantity conserved exactly at every step. This is arguably stronger than the continuous Noether statement, since conservation now holds fo, so often most of the work is spent in switching coordinatesr the actual numerical trajectory rather than for an ideal one being approximated.
 
 
-One symmetry that doesn't get automatically inherited is time-translation symmetry. The discrete Lagrangian $L_d(q_k, q_{k+1})$ implicitly depends on a fixed timestep $h$, and fixing $h$ removes the time variable from the discrete dynamics, so there is no variable left for time-translation to act on. 
+One symmetry that doesn't get automatically inherited is time-translation symmetry. The discrete Lagrangian $L_d(q_k, q_{k+1})$ implicitly depends on a fixed timestep $h$, and fixing $h$ removes the time variable from the discrete dynamics, so there is no variable left for time-translation to act on. This is why earlier we talked about energy oscillating around the true value instead of being preserved.
 
 \todo{Explain better how time-symmetry breaks?}
 
@@ -127,17 +127,16 @@ The Jacobi update step consists of finding a new path $\overline{\mathbf{q}} = \
 which is a term of the sum, replacing the central $q_k$ by some new value $\overline{q}$. An updated path $\overline{\mathbf{q}}$ where for all inner points $k$, $r_k(\mathbf{q}, \overline{q_k}) = 0$, is not generally a solution, but under certain conditions (discussed in \cref{sec:standard-convergence}), iterating this update will converge to a solution.
 
 \paragraph{Newton-Raphson.}
-Since the Lagrangian can be arbitrarily complex, this step does not have a general way to be computed. Specific kinds of Lagrangians, such as quadratic or cubic ones, have clear closed-form solutions. In lieu of knowing if the Lagrangian has one of this forms ahead of time, we use the Newton-Raphson method to solve a linearization of the problem. So, instead of consider the residual $r_k(\mathbf{q}, \overline{q})$, we consider the linearization $\rho_k$ around $q_k$:
+Since the Lagrangian can be arbitrarily complex, the Jacobi step does not have a general way to be computed. Specific kinds of Lagrangians, such as quadratic or cubic ones, have clear closed-form solutions. In lieu of knowing if the Lagrangian has one of these forms ahead of time, we use the Newton-Raphson method to solve a linearization of the problem. So, instead of consider the residual $r_k(\mathbf{q}, \overline{q})$, we consider the linearization $\rho_k$ around $q_k$:
 \[
 	\rho_k (\mathbf{q}, \overline{q}) = r_k(\mathbf{q}, q_k) + \mdif{2} r_k(\mathbf{q}, q_k) (\overline{q} - q_k)
 \]
+Note that this is the step where we apply the hypothesis that $Q$ is a vector space, since we are doing a linear combination based on the increment.
 
-Notice this is the step where we have to apply the hypothesis that $Q$ is a vector space, since we are doing a linear combination based on the increment.
-
-Finding this root is easy, since this is can be solved as the linear system:
+Finding the root is easy, amounting to solving the linear system
 \begin{align*}
 	r_k(\mathbf{q}, q_k) + \mdif{2} r_k(\mathbf{q}, q_k) (\overline{q} - q_k) & = 0                                                                                    \\
-	\overline{q} - q_k                                                        & = {\left(\mdif{2} r_k(\mathbf{q}, q_k)\right)}^{-1} \left(-r_k(\mathbf{q}, q_k)\right) \\
+	\overline{q} - q_k                                                        & = {\left(\mdif{2} r_k(\mathbf{q}, q_k)\right)}^{-1} \left(-r_k(\mathbf{q}, q_k)\right)
 \end{align*}
 from which we get the general Jacobi-Newton update rule:
 \begin{equation}
@@ -148,10 +147,10 @@ from which we get the general Jacobi-Newton update rule:
 In a standard discrete Lagrangian system, this derivative of the residual is given by the Hessian of the Lagrangian:
 \begin{align*}
 	\mdif{2} r_k (\mathbf{q}, q_k) & = \mdif{22} \Ld(q_{k-1}, q_k) + \mdif{11} \Ld(q_k, q_{k+1}) \\
-	r_k (\mathbf{q}, q_k)          & = \mdif{2} \Ld(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1})   \\
+	r_k (\mathbf{q}, q_k)          & = \mdif{2} \Ld(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1})  
 \end{align*}
 
-It is equation~\eqref{eq:jacobi-newton} which is easily computable using any linear solver. The algorithm consists of repeating this step until we converge to a solution. Of course, the question now is to verify under what conditions this algorithm does, in fact, converge.
+It is equation~\eqref{eq:jacobi-newton} which is computable using any linear solver. The algorithm consists of repeating this step until we converge to a solution. Of course, the question now is to verify under what conditions this algorithm does, in fact, converge.
 
 \subsection{Convergence criteria}\label{sec:standard-convergence}
 
@@ -226,7 +225,7 @@ where
 
 Checking this condition has an $\mathcal{O}(N)$ runtime in terms of the size $N$ of the path. However, this condition is not necessary, and in practice it is common for p.d.\ global Hessians to not be localy p.d..
 
-This is where a third convergence result comes into play, which gives a necessary and sufficient condition for the positive definiteness of the global Hessian matrix:
+This is where a third convergence result comes into play, which gives an easy to check sufficient \emph{and necessary} condition for the positive definiteness of the global Hessian matrix:
 
 \begin{theorem}[Hessian positive definiteness criterion ({\cite[Theorem 4.12]{ferraroParallelIterativeMethod2025}})]\label{thm:hessian-pd-criterion}
 	The Hessian matrix $H(\mathbf{q})$ is positive definite if and only if the matrices defined iteratively by $\Lambda_1 = \mathcal{D}_1$ and
@@ -237,5 +236,5 @@ This check has the same runtime complexity of $\mathcal{O}(N)$ as \cref{thm:loca
 
 \bigskip
 
-In the next two sections, we extend the algorithm to forced systems and Lie groups, and give results analogous to these three theorems (when possible).
+In the next two sections, we extend the algorithm to forced systems and Lie groups, and give results analogous to these three theorems when possible.
 

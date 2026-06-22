@@ -13,7 +13,7 @@ Unlike Hamilton's principle, this is \emph{not} in general the extremization of 
 
 As in the unforced case, it is possible to carry out a discretization of the state space, the Lagrangian and the forces. The first two are the same: from $TQ$ to $Q \times Q$ and from $L : TQ \to \RR$ to $L_d : Q \times Q \to \RR$.
 
-The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre preserving with respect to the second argument, and $f^+$ with the first). This is necessary for there to exist some ``exact discrete forces'' that recover exactly the continous forces, which we normally approximate with a quadrature rule \todo{spell out exactly how the exact discrete forces would look like}.
+The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving \todo{is it fibre preserving if it comes from $Q$ instead of $TQ$?} with respect to the second argument, and $f^+$ with the first). This is necessary for there to exist some ``exact discrete forces'' that recover exactly the continous forces, which we normally approximate with a quadrature rule \todo{spell out exactly how the exact discrete forces would look like}.
 
 \begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalambert}
 	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
@@ -22,7 +22,7 @@ The discretization of the force is similar to the one of the Lagrangian, except 
 	\end{equation*}
 \end{definition}
 
-This discretization preserves the relevant geometric properties the same way that is explained in \cref{sec:geometric-properties-el}.
+This discretization preserves the relevant geometric properties the same way that is explained in \cref{sec:geometric-properties-el,sec:variational-integration}.
 Solutions that satisfy the discrete Lagrange-D'Alambert principle are given by the forced analog of~\eqref{eq:euler-lagrange-discrete}, the \newterm{forced discrete Euler-Lagrange equations}:
 \begin{equation}
 	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1}) = 0
@@ -32,11 +32,10 @@ Solutions that satisfy the discrete Lagrange-D'Alambert principle are given by t
 
 \section{The parallel algorithm on forced systems}
 
-In this section we show how to extend the parallel algorithm (\cref{sec:parallel-algorithm}) to use these forces. The only difference is in the residual, where we have to insert~\eqref{eq:euler-lagrange-discrete-forced} instead of~\eqref{eq:euler-lagrange-discrete}. The global residual is modified from~\eqref{eq:residual-global} to
+Extending the parallel algorithm (\cref{sec:parallel-algorithm}) to use these forces comes down to just modifying the expression of the residual by inserting~\eqref{eq:euler-lagrange-discrete-forced} instead of~\eqref{eq:euler-lagrange-discrete}. Hence, the global residual is modified from~\eqref{eq:residual-global} to
 \begin{equation*}
 	\hat{R}(\mathbf{q}) = \bigoplus_{k=1}^{N-1} \left(
 	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})\right)
-	% \label{eq:residual-global-forced}
 \end{equation*}
 and the local residual, from \cref{eq:residual-local} to
 \begin{equation*}
@@ -48,7 +47,7 @@ Utilizing these definitions for the residual, and supposing that $Q$ is a vector
 
 \section{Convergence}\label{sec:forced-systems-convergence}
 
-Figuring out the convergence criteria is trickier. A natural way to proceed is to try to make an argument similar to how~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025} is proved. In short, they pose the problem as an extremization $f = \nabla F$, they calculate the Hessian $H = \nabla^2 F$; and if $H$ is p.d.\ then the algorithm converges. However, this approach fundamentally breaks down because, as mentioned previously, the discrete Lagande-D'Alambert principle is \emph{not} necessarilly an extremization of some $F$.
+Figuring out the convergence criteria is trickier. A natural way to proceed is to try to make an argument similar to how~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025} is proved. In short, they pose the problem as an extremization $f = \nabla F$, they calculate the Hessian $H = \nabla^2 F$, and if $H$ is p.d.\ then the algorithm converges. However, this approach fundamentally breaks down because, as mentioned previously, the discrete Lagande-D'Alambert principle is \emph{not} necessarilly an extremization of some $F$.
 
 \begin{remark}[Conservative forces]
 	It is easy to find convergence criteria for a specific family of forces, called \newterm{conservative forces}, which \emph{can} be written in terms of a \newterm{discrete potential} $V_d : Q \times Q \to \RR$ as:
@@ -66,13 +65,15 @@ For generic forces, the relevant criterion that can be applied is given in~\cite
 	For a general smooth system $f(x) = 0$ (not necessarily a gradient system), the 1-step block Jacobi-Newton method converges locally to $x^*$ if the diagonal blocks of $\mdif* f(x^*)$ are regular and $\rho(J(x^*)) < 1$, where $J = -D^{-1}C$, and $D$ and $C$ are the diagonal and off-diagonal parts of $\mdif* f$ respectively.
 \end{lemma}
 
-In practice, to determine whether a specific system converges, there might be no better method than directly estimating $\rho(J(\mathbf{q}^*))$ by power iteration (i.e., Arnoldi/Lanczos). This requires factoring each diagonal block of $\mdif* f(\mathbf{q}^*)$ once (an $O(N n^3)$ setup), then performing block-tridiagonal matrix-vector products at $O(N n^2)$ per power-iteration step until the dominant eigenvalue stabilizes. If all one wants is a yes/no answer for a concrete problem at run time, this is the most practical method.
+In practice, to determine whether a specific system converges, there might be no better method than directly estimating $\rho(J(\mathbf{q}^*))$ by power iteration (i.e., Arnoldi/Lanczos). This requires factoring each diagonal block of $\mdif* f(\mathbf{q}^*)$ once (an $O(N n^3)$ setup), then performing block-tridiagonal matrix-vector products at $O(N n^2)$ per power-iteration step until the dominant eigenvalue stabilizes. If all one wants is a yes/no answer for a concrete problem, this is the most practical method.
 
-In the remainder of this section we aim to provide \emph{structural} sufficient conditions: closed-form criteria stated in terms of the discrete Lagrangian and forces themselves, rather than the assembled iteration matrix. These are valuable for several reasons: they let us prove convergence for entire classes of systems at once (rather than path by path), they generalize the well-known unforced criterion (\cref{thm:local-hessian-pd-convergence}) and make the role of the forces in convergence explicit, and they connect to standard structural conditions in numerical analysis (Gershgorin-style diagonal dominance). With this in mind, we proceed.
+In the remainder of this section we aim to provide \emph{structural} sufficient conditions: closed-form criteria stated in terms of the discrete Lagrangian and forces themselves, rather than the assembled iteration matrix. These are valuable for several reasons: they let us prove convergence for entire classes of systems at once (rather than path by path), they generalize the unforced criterion (\cref{thm:local-hessian-pd-convergence}) and make the role of the forces in convergence explicit, and they connect to standard structural conditions in numerical analysis (Gershgorin-style diagonal dominance). With this in mind, we proceed.
 
-The first step necessary to get an expression for $J^f$ is to calculate the derivative of~\eqref{eq:euler-lagrange-discrete-forced}, $\mdif* f$, which we will name $H^f$, as it is the forced analogue of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function $F$, just $\mdif* f$). The result is the following (similar to~\eqref{eq:hessian-matrix}):
+\bigskip
+
+To get an expression for $J^f$, we start by computing the derivative of~\eqref{eq:euler-lagrange-discrete-forced} which we will name $H^f$ as it is the forced analog of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function). The result is the following (similar to~\eqref{eq:hessian-matrix}):
 \begin{align*}
-	H^f_{ij} (\mathbf{q}) & = \mdif* f                                                                                                                                               \\ & = \mdif{q_j} \left(
+	H^f_{ij} (\mathbf{q}) & = \mdif*{\hat{R}(\mathbf{q})}                                                                                                                                               \\ & = \mdif{q_j} \left(
 	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1}) = 0
 	\right)                                                                                                                                                                          \\
 	                      & = \delta_{i, j} \left( \mdif{22} \Ld(q_{i - 1}, q_i) + \mdif{2} f_d^+(q_{i-1}, q_i) + \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{1} f_d^-(q_i, q_{i+1}) \right) \\
@@ -109,13 +110,13 @@ We also define auxiliary matrices, similar to~\eqref{eq:hessian-terms-2}:
 \end{equation}
 (where we still have that $\hat{\mathcal{D}}_k = \hat{\mathcal{B}}_{k-1} + \hat{\mathcal{A}}_k$).
 
-There are two ways to proceed from here. On one hand, we can try to find come criteria of the forced system directly that imply convergence; or we can search for some criteria on the type of forces that, when added to a converged unforced Lagrangian, would also converge with these forces. In the next two subsections we develop both approaches respectively.
+There are two ways to proceed from here. On one hand, we can try to find some criteria of the forced system directly that imply convergence; or we can search for some criteria on the type of forces that, when added to a converged unforced Lagrangian, would also converge with these forces. In the next two subsections we develop both approaches respectively.
 
 \subsection{A local condition}\label{sec:forced-local-condition}
 
 A natural way to try to extend a result for symmetric to asymetric matrices is to split them in their \newterm{symmetric} and \newterm{skew} components. Namely, any matrix $M$ can be written as $M = \Sym(M) + \Skew(M)$, where $\Sym(M) = \tfrac{1}{2}(M + M^T)$ is symmetric and $\Skew(M) = \tfrac{1}{2}(M - M^T)$ is not.
 
-One might expect that an analogue of \cref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \bigl(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\bigr)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is unbounded.
+One might expect that an analog of \cref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \bigl(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\bigr)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is unbounded.
 
 % All of this is pointless. Maybe I could mention it.
 % \begin{theorem}[Local sym-positivity implies global]\label{thm:forced-local-implies-global}
@@ -135,7 +136,7 @@ At this point, to motivate the result that will be shown shortly, it might be us
 
 Crucially, when $\hat{\mathcal{D}}_j$ is ``large enough'' to dominate $\hat{\mathcal{C}}^\pm$, this factor has norm $<1$. That is, $\hat{\mathcal{D}}_j^{-1}$ attenuates the incoming error and the global error contracts at every step, which is what $\rho(J^f) < 1$ conveys
 
-Of course, the question is how to make ``large enough'' precise. The natural approach is to ask whether $\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2$ (this confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half-plane and is another natural generalization of $M \succ 0$ to a non-symmetric setting). This is provable in the scalar $n = 1$, $N = 3$ case (see \texttt{notes/forced-systems-convergence.tex}, Appendix~A) but open in the general block case. What we can prove is a stronger condition \emph{per edge}: ask the symmetric part of each diagonal sub-block of $H_k^f$ to strictly dominate the corresponding cross sub-block in spectral norm. This way, we arrive at the following theorem.
+Of course, the question is how to make ``large enough'' precise. An approach that seems like it would work is to ask whether $\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2$ (this confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half-plane and is another natural generalization of $M \succ 0$ to a non-symmetric setting). This is provable in the scalar $n = 1$, $N = 3$ case (see \texttt{notes/forced-systems-convergence.tex}, Appendix~A) but open in the general block case. What we can prove is a stronger condition \emph{per edge}: ask the symmetric part of each diagonal sub-block of $H_k^f$ to strictly dominate the corresponding cross sub-block in spectral norm. This way, we arrive at the following theorem.
 
 \begin{theorem}[Local edge dominance implies convergence]\label{thm:forced-local-dominance}
 	Suppose that, at $\mathbf{q}^*$, for every edge $k \in \{0, 1, \ldots, N-1\}$,

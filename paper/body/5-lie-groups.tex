@@ -31,7 +31,7 @@ Left-translating $\tau$ by $g_k$ gives a map centred at $g_k$:
 	\overline{g}_k = g_k\tau(\delta \xi_k), \qquad \delta \xi_k \in \fg,
 	\label{eq:lie-retraction}
 \end{equation}
-the Lie-group analogue of $q_k + \delta q$ in the vector-space case.
+the Lie-group analog of $q_k + \delta q$ in the vector-space case.
 The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved for by a linear system (which we show how to set up in the next section).
 
 \begin{remark}[Concrete retractions]
@@ -85,7 +85,7 @@ The parallelism structure (\cref{sec:parallel-algorithm}) carries over without m
 
 \section{Convergence}\label{sec:lie-groups-convergence}
 
-The convergence analysis largly follows the vector-space case (\cref{thm:hessian-pd-convergence}) from~\cite{ferraroParallelIterativeMethod2025}, but with two adaptations: we work with the Lie-algebra Hessian $\widetilde{H}$ (the analogue of $H$, with all blocks pulled back to $\fg$ via left translation), and the iteration on $G^{N-1}$ has to be read in a Lie-algebra chart at the solution before we can apply classical fixed-point/convergence theorems.
+The convergence analysis largly follows the vector-space case (\cref{thm:hessian-pd-convergence}) from~\cite{ferraroParallelIterativeMethod2025}, but with two adaptations: we work with the Lie-algebra Hessian $\widetilde{H}$ (the analog of $H$, with all blocks pulled back to $\fg$ via left translation), and the iteration on $G^{N-1}$ has to be read in a Lie-algebra chart at the solution before we can apply classical fixed-point/convergence theorems.
 
 The strategy consists of lifting the discrete action to a function on the vector space $\fg^{N-1}$, computing its gradient and Hessian there, and reading off the convergence criterion.
 We carry out the lifting in \cref{sec:lie-hessian} and give the convergencence results in \cref{sec:lie-convergence}.
