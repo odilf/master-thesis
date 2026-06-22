@@ -1,6 +1,6 @@
 \chapter[Numerical approximation to Euler-Lagrange solutions]{Numerical approximation to\protect\\ Euler-Lagrange solutions}\label{sec:euler-lagrange-solutions}
 
-Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange~\eqref{eq:euler-lagrange}, and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q \cong \RR^n$ then we can use Runge-Kutta, and if $Q$ is a Lie group we could use Runge-Kutta-Kaas~\cite{munthe-kaasRungeKuttaMethodsLie1998} or similar methods.
+Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange~\eqref{eq:euler-lagrange}, and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q \cong \RR^n$ then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaas~\cite{munthe-kaasRungeKuttaMethodsLie1998} or similar methods.
 
 However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the underlying geometric picture. In \cref{sec:geometric-properties-el} we explain what these properties are and in \cref{sec:pitfalls-discrete-el-ode} we discuss what you lose when you stop working gometrically.
 

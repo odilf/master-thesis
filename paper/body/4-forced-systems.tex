@@ -15,7 +15,7 @@ As in the unforced case, it is possible to carry out a discretization of the sta
 
 The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre preserving with respect to the second argument, and $f^+$ with the first). This is necessary for there to exist some ``exact discrete forces'' that recover exactly the continous forces, which we normally approximate with a quadrature rule \todo{spell out exactly how the exact discrete forces would look like}.
 
-\begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]
+\begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalambert}
 	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
 	\begin{equation*}
 		\sum_{k=1}^{N-1} \Bigl( \mdif{2} \Ld(q_{k-1}, q_k) + f_d^+(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1}) + f_d^-(q_k, q_{k+1}) \Bigr) \cdot \delta q_k = 0.

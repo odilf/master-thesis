@@ -90,22 +90,14 @@ This is the fundamental idea that underpins every result in this paper, called \
 	A path $q(t): [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the Lagrangian system defined by $L : TQ \rightarrow \RR$ if and only if $q$ is a critical point of the functional action $\action$
 \end{definition}
 
-The extension to time-dependent Lagrangians, higher-order Lagrangians follow the same Hamilton's principle but with different preservation properties.
+This is the standard Lagrangian formulation, that describes closed systems. In principle this is enough to model any physical system. In practice, however, it is often more convenient to model a smaller subsystem in isolation, even when that subsystem exchanges energy with its surroundings. There are extensions such as time-dependent and higher-order Lagrangians that follow the same Hamilton's principle but with different preservation properties. A few such extensions include:
 
-\subsection{Lagrangian system extensions}
-
-In principle, the standard Lagrangian formulation just presented should be enough to model the universe. In practice, we often model smaller systems that are not closed or have some other types of constraints \todo{rewrite extensions}.
-
-\par\color{gray}
-\todo{Rewrite all of this.}
-While the above definition is enough to model any closed system, sometimes it's more practical to model some open part of a larger system. For instance, we might want to model some pressure \todo{how to say ``stuff about temperature''??} dynamics in a box that loses a non-negligible amount of heat. Technically, the box and the environment together formed a closed form system, but it would be nice to have a physical model for just the box.
-
-
-Cases like these are where a \newterm{time-dependent Lagrangian} can be useful. We can define a Lagrangian as $L(t, q, \dot{q}): \RR \times TQ \to \RR$, where the first argument is interpreted as a time parameter. This can be thought of as a system where the effective laws of physics change over time. In the example of the heat radiating box, as time advances there is a loss of energy.
-\todo{write out specific example.}
-
-Another extension to the Lagrangian are forced systems, which are non-trivial. Forced Lagrangian systems are one of the main topics of this paper, and explored in \cref{sec:forced-systems}. Other extensions that can be considered but weren't in this paper are constrained Lagrangian systems and higher order Lagrangians (in principle, the results can also be applied to a Lagrangian of arbitrary order~\cite{ferraroParallelComputingVariational, gay-balmazInvariantHigherorderVariational2012}).
-\par\color{black}
+\begin{itemize}
+	\item \newterm{Time-dependent Lagrangians}, $L(t, q, \dot{q}) : \RR \times TQ \to \RR$, depend explicitly on a time parameter. This models a system whose effective laws of physics change over time, typically because it is coupled to an external influence that varies with time. Hamilton's principle applies but energy is no longer conserved.
+	\item \newterm{Forced systems} are one of the main topics of this paper (\cref{sec:forced-systems}). They have some forcing applied (such as dissipation) and follow the Lagrange-D'Alambert principle (\cref{def:lagrange-dalambert}).
+	\item \newterm{Constrained} systems restrict the admissible configurations or velocities to a submanifold of $TQ$. Classic examples include the rigid links of a robotic arm (holonomic constraints) or rolling contact of a wheel on a surface (non-holonomic constraints).
+	\item \newterm{Higher-order} Lagrangians depend on higher derivatives of $q$, e.g. $L(q, \dot{q}, \ddot{q})$. In principle, the results of this paper are able to be carried over automatically to Lagrangians of arbitrary order~\cite{ferraroParallelComputingVariational, gay-balmazInvariantHigherorderVariational2012}.
+\end{itemize}
 
 \section{The Euler-Lagrange equations}
 
@@ -113,11 +105,11 @@ Following Hamilton's principle~\cite[Chapter 1.3]{marsdenIntroductionMechanicsSy
 Applying this to the action, we get:
 
 \begin{align}
-	\delta S(q)                     & = \delta \int_0^T L(q(t), \dot{q}(t)) \odif{t}                                                                                                     \nonumber \\
-	                                & = \int_0^T \left(\pdv{L}{q} \delta q + \pdv{L}{\dot{q}} \delta \dot{q}\right) \odif{t}                                                             \nonumber \\
+	\delta S(q)                     & = \delta \int_0^T L(q(t), \dot{q}(t)) \odif{t}                                                                                                     \nonumber           \\
+	                                & = \int_0^T \left(\pdv{L}{q} \delta q + \pdv{L}{\dot{q}} \delta \dot{q}\right) \odif{t}                                                             \nonumber           \\
 	\text{\faint{(by parts)}} \quad & = \int_0^T \left(\pdv{L}{q} \delta q - \odv{}{t} \pdv{L}{\dot{q}} \delta q \right) \odif{t} + \pdv{L}{\dot{q}} \underbrace{\delta q \big|_0^T}_{0} \label{eq:el-parts} \\
-	                                & = \int_0^T \left(\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \right) \delta q \, \odif{t}                                                              \nonumber \\
-\end{align} \nonumber
+	                                & = \int_0^T \left(\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \right) \delta q \, \odif{t}                                                              \nonumber           \\
+\end{align}
 and for this to hold given any variation $\delta q$, we need the integrand to be identically $0$. This is how we derive the Euler-Lagrange equation:
 
 \begin{equation}
