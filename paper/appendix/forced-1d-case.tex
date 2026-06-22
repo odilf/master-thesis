@@ -1,0 +1,69 @@
+\chapter{The local condition in the scalar two-node case}\label{apx:conjecture-scalar}
+
+In \cref{sec:forced-local-condition} we considered the condition
+\[
+	\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2,
+\]
+which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half-plane and is a natural generalization of $H^f \succ 0$ to the non-symmetric setting. We claimed there that it implies $\rho(J^f) < 1$ in the scalar case, but that the general block case remains open. Here we prove the scalar case.
+
+\begin{theorem}[Scalar local condition]\label{thm:conjecture-scalar}
+	Let $n = 1$ and $N = 3$, so that $H^f$ is a $2 \times 2$ matrix with positive diagonal (two interior nodes). Then
+	\[
+		\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2 \implies \rho(J^f) < 1.
+	\]
+\end{theorem}
+\begin{proof}
+	Let the entries of the forced Hessian be
+	\[
+		H^f = \begin{pmatrix} d_1 & c^+ \\ c^- & d_2 \end{pmatrix},
+		\qquad d_1, d_2 > 0,
+	\]
+	where $d_1, d_2$ are the scalar diagonal blocks $\hat{\mathcal{D}}_1, \hat{\mathcal{D}}_2$ and $c^+, c^-$ the cross terms $\hat{\mathcal{C}}^+_1, \hat{\mathcal{C}}^-_1$ of~\eqref{eq:hessian-matrix-forced}. The Jacobi matrix is then
+	\[
+		J^f = -\operatorname{diag}(d_1, d_2)^{-1}\bigl(H^f - \operatorname{diag}(d_1, d_2)\bigr)
+		= \begin{pmatrix} 0 & -c^+/d_1 \\ -c^-/d_2 & 0 \end{pmatrix},
+	\]
+	with characteristic polynomial $\lambda^2 - c^+ c^- / (d_1 d_2)$. Hence $\rho(J^f)^2 = |c^+ c^-| / (d_1 d_2)$, and the claim $\rho(J^f) < 1$ amounts to showing $|c^+ c^-| < d_1 d_2$.
+
+	To separate the symmetric and skew parts of $H^f$, let $s = (c^+ + c^-)/2$ and $a = (c^+ - c^-)/2$, so that $c^+ c^- = s^2 - a^2$ and
+	\[
+		\Sym(H^f) = \begin{pmatrix} d_1 & s \\ s & d_2 \end{pmatrix},
+		\qquad
+		\|\Skew(H^f)\|_2 = |a|.
+	\]
+	The eigenvalues of $\Sym(H^f)$ are given by $\lambda^2 - (d_1+d_2)\lambda + (d_1 d_2 - s^2) = 0$, so
+	\begin{align*}
+		\lambda_{\min}(\Sym(H^f))
+		&= \frac{d_1+d_2}{2} - \sqrt{{\left(\frac{d_1+d_2}{2}\right)}^2 - (d_1 d_2 - s^2)} \\
+		&= \frac{d_1+d_2}{2} - \sqrt{{\left(\frac{d_1-d_2}{2}\right)}^2 + s^2},
+	\end{align*}
+	where the last step uses $(d_1+d_2)^2/4 - d_1 d_2 = (d_1-d_2)^2/4$. The hypothesis therefore becomes
+	\begin{equation}
+		\tfrac{d_1 + d_2}{2} - |a| \;>\; \sqrt{\bigl(\tfrac{d_1 - d_2}{2}\bigr)^2 + s^2}.
+		\label{eq:hyp-scalar}
+	\end{equation}
+	Both sides are positive: the right-hand side is a norm, and the left-hand side because otherwise the hypothesis would be vacuous. We may therefore square, and using $(d_1+d_2)^2 - (d_1-d_2)^2 = 4 d_1 d_2$ and rearranging,~\eqref{eq:hyp-scalar} becomes
+	\begin{equation}
+		d_1 d_2 - (d_1 + d_2)|a| + a^2 \;>\; s^2.
+		\label{eq:hyp-scalar-simplified}
+	\end{equation}
+
+	By AM-GM, $d_1 + d_2 \geq 2 \sqrt{d_1 d_2}$, so the left-hand side of~\eqref{eq:hyp-scalar-simplified} only decreases when $d_1 + d_2$ is replaced by $2\sqrt{d_1 d_2}$:
+	\begin{align*}
+		{\left(\sqrt{d_1 d_2} - |a|\right)}^2
+		&= d_1 d_2 - 2 \sqrt{d_1 d_2}|a| + a^2 \\
+		&\geq d_1 d_2 - (d_1 + d_2)|a| + a^2 \\
+		& > s^2.
+	\end{align*}
+	The positivity of the left-hand side of~\eqref{eq:hyp-scalar} forces (again by AM-GM) $\sqrt{d_1 d_2} > |a|$, so we may take positive square roots to obtain $\sqrt{d_1 d_2} - |a| > |s|$, that is, $\sqrt{d_1 d_2} > |s| + |a|$. Therefore
+	\begin{align*}
+		|c^+ c^-| 
+		&= |s^2 - a^2| \\
+		&= |s - a| |s + a| \\
+		&\leq {(|s| + |a|)}^2 \\
+		&< d_1 d_2,
+	\end{align*}
+	which gives ${\rho(J^f)}^2 = |c^+ c^-|/(d_1 d_2) < 1$, as required.
+\end{proof}
+
+The argument uses the scalar block structure in three essential ways: that $c^+ c^- = s^2 - a^2$ is a single number, that AM-GM applies to the pair $(d_1, d_2)$, and that there is a closed-form formula for $\lambda_{\min}(\Sym(H^f))$. None of these survive when increasing to $n > 1$ blocks without additional assumptions, which is why the general conjecture remains open and why in \cref{sec:forced-local-condition} we settle instead for the stronger per-edge dominance condition of \cref{thm:forced-local-dominance}.
