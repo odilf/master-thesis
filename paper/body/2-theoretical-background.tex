@@ -23,25 +23,25 @@ We use $\mdif{i} f$ to represent the partial derivative of a function $f$ over t
 
 \notion{Smooth manifolds}\label{notion:manifold}~\cite[Chapter 1]{leeSmoothManifolds2013} An $n$-dimensional manifold is a set $Q$ with some topology where for every point $q \in Q$ there exists a neighborhood $U \subset Q$ and a homeomorphism $\phi : U \to \hat{U}$ where $\hat{U} \subset \RR^n$. The tuple $(U, \phi)$ is called a \newterm{chart}, and can be thought of as providing \newterm{local coordinates} around a point $q$.
 
-Multiple charts can form an \newterm{atlas} if the neighborhoods $U_i$ cover the original set $Q$. Two charts $(U_i, \phi_i)$ and $(U_j, \phi_j)$ are \newterm{smoothly compatible} if $\phi_i \circ \phi_j^{-1}$ is smooth on the intersection $U_i \cap U_j$ (where by ``smooth'' we mean $C^\infty$ \todo{Is this necessary to clarify?}). A manifold with an atlas composed of smoothly compatible charts is a \newterm{smooth manifold} \todo{Technically we're missing maximally smooth atlasses\ldots}.
+Multiple charts can form an \newterm{atlas} if the neighborhoods $U_i$ cover the original set $Q$. Two charts $(U_i, \phi_i)$ and $(U_j, \phi_j)$ are \newterm{smoothly compatible} if $\phi_i \circ \phi_j^{-1}$ is smooth on the intersection $U_i \cap U_j$ (where by ``smooth'' we mean $C^\infty$. A manifold with an atlas composed of smoothly compatible charts is a \newterm{smooth manifold} (see \cite{marsdenIntroductionMechanicsSymmetry1999} for more details)%\todo{Technically we're missing maximally smooth atlas\ldots}.
 
 On a more intuitive level, smooth manifolds are topological spaces that look locally like $\RR^n$ and where doing a change of coordinates (or a change of ``basis'') is smooth.
 
-\todo{Technically manifolds can be on fields other than $\RR$, right?}
+%\todo{Technically manifolds can be on fields other than $\RR$, right?}
 
 \notion{Tangent spaces}~\cite[Chapter 3]{leeSmoothManifolds2013} The tangent space at point $q \in Q$ is denoted as $T_q Q$ and is defined by representatives of:
 \[ T_q Q = \{ \dot{\gamma}(0) \, | \, \gamma(0) = q \} \]
-where $\gamma(t) : (-\varepsilon, \varepsilon) \to Q$ are differentiable paths on $Q$. Tangent spaces always form $n$-dimensional vector spaces. These vector spaces have duals, called \newterm{cotangent spaces} $T_q^* Q$ that can be interpreted as linear forms $T_q Q \to \RR$.
+where $\gamma(t) : (-\varepsilon, \varepsilon) \to Q$ are differentiable paths on $Q$. Tangent spaces always form $n$-dimensional vector spaces and we denote by $\tau_Q: TQ\rightarrow Q$ the canonical projection. These vector spaces have duals, called \newterm{cotangent spaces} $T_q^* Q$ that can be interpreted as linear forms $T_q Q \to \RR$. Also, $\pi_Q: T^*Q\rightarrow Q$ denotes the corresponding canonical projection. 
 
 The \newterm{tangent bundle} is the disjoint union of all tangent spaces, $TQ = \sqcup_q T_q Q$, which forms a $2n$-dimensional manifold itself (which is however not in general a vector space, unless the original manifold is one too). The \newterm{cotangent bundle} is defined in the same way.
 
-For our purposes, a mapping on tangent and cotangent bundles $f : TM \to TM$ (or $f : T^*M \to T^*M$, or any combination thereof \todo{$f : TM \text{ or } T^*M \to TM \text{ or } T^*M$?}) is said to be \newterm{fiber-preserving} if for every $q \in M$ and every $\eta \in T_q M$, $f(\eta) \in T_q M$. In other words, $f$ does not move the point at which it is tangent \todo{Maybe remove here and just mention in forces.}.
+For our purposes, a mapping on tangent and cotangent bundles $f : TM \to TM$ (or $f : T^*M \to T^*M$, or any combination thereof \todo{$f : TM \text{ or } T^*M \to TM \text{ or } T^*M$?}) is said to be \newterm{fiber-preserving} if for every $q \in M$ and every $\eta \in T_q M$, $f(\eta) \in T_q M$. In other words, $f$ does not move the point at which it is tangent or $\tau_Q\circ f=\tau_Q$. %\todo{Maybe remove here and just mention in forces.}.
 
-\notion{Differential}~\cite[p. 55]{leeSmoothManifolds2013} A differential or derivative of a function on manifolds $f : M \to N$ evaluated at $p \in M$ is a mapping between the tangent spaces of the manifolds $T_p f : T_p M \to T_{f(p)} N$, defined locally as $T_p f (\dot{\gamma}(0)) = \odv{}{t}_0 f(\gamma(t))$.
+\notion{Differential}~\cite[p. 55]{leeSmoothManifolds2013} A differential or derivative of a function on manifolds $f : M \to N$ evaluated at $p \in M$ is a mapping between the tangent spaces of the manifolds $T_p f : T_p M \to T_{f(p)} N$, defined  as $T_p f (\dot{\gamma}(0)) = \odv{}{t}_0 f(\gamma(t))$.
 
 \notion{Lie groups}~\cite[Chapter 7]{leeSmoothManifolds2013} A Lie group is a smooth manifold $G$ equipped with a smooth group operation $\cdot : G \times G \to G$ respecting the usual group axioms (including having a smooth inverse). The tangent space at the identity of a Lie group is called a \newterm{Lie algebra}, denoted by $\fg$ (called this way because it forms an algebra with the Lie bracket, although we won't use it in this paper). We define the left and right application operators as $L_g = h \mapsto g \cdot h$ and $R_g = h \mapsto h \cdot g$ respectively.
 
-\notion{Lie algebra trivialization}\label{notion:lie-algebra-trivialization} The group structure of a Lie group allows us to \newterm{trivialize} tangent spaces to the Lie algebra. Specifically, the entire tangent bundle $TQ$ is isomorphic to $G \times \fg$ via the differential of the left-application, $T_e L_g : \fg \to T_g G$. In other words, every tangent vector on a Lie group can be described by the point at which it is tangent, and an element of $\fg$.
+\notion{Lie algebra trivialization}\label{notion:lie-algebra-trivialization} The group structure of a Lie group allows us to \newterm{trivialize} tangent spaces to the Lie algebra. Specifically, the entire tangent bundle $TG$ is isomorphic to $G \times \fg$ via the differential of the left-application, $T_e L_g : \fg \to T_g G$. In other words, every tangent vector on a Lie group can be described by the point at which it is tangent, and an element of $\fg$.
 
 \notion{Differential forms*}\label{notion:differential-forms}~\cite[Chapter 14]{leeSmoothManifolds2013} A \newterm{1-form} on a manifold $M$ is a smooth assignment of a covector $\alpha_p \in T_p^* M$ to each $p \in M$ (i.e., a covector field). The differential of a function $Q \to \RR$ is an example of a one-form.
 
@@ -77,7 +77,7 @@ While these problems might seem minor for the pendulum example, they apply simil
 \newcommand{\action}{S}
 
 \paragraph{Lagrangian}
-On the other hand, the Lagrangian encodes the \emph{laws} of the physical system by governing how states in $Q$ evolve. Namely, we can talk about \newterm{paths} in configuration space $q(t): [0, T] \to Q \in C^2([0, T], Q)$ which define the \newterm{path space of $Q$}, $\mathrm{Path}(Q) = C^2([0, T], Q)$. Not all paths are realizable in the physical system, and in fact a path can only occur if it extremizes the \newterm{action} $\action: C(Q) \to \RR$, defined as:
+On the other hand, the Lagrangian encodes the \emph{laws} of the physical system by governing how states in $Q$ evolve. Namely, we can talk about \newterm{paths} in configuration space $q(t): [0, T] \to Q \in C^2([0, T], Q)$ which define the \newterm{path space of $Q$}, $\mathrm{Path}(Q) = C^2([0, T], Q)$. Not all paths are realizable in the physical system, and in fact a path can only occur if it extremizes the \newterm{action} $\action: C^2([0, T], Q)\to \RR$, defined as:
 
 \begin{equation}
 	\action(q) = \int_0^T L(q(t), \dot{q}(t)) \odif{t}.
@@ -87,14 +87,14 @@ On the other hand, the Lagrangian encodes the \emph{laws} of the physical system
 This is the fundamental idea that underpins every result in this paper, called \newterm{Hamilton's principle}:
 
 \begin{definition}[Hamilton's principle]\label{def:hamiltons-principle}
-	A path $q(t): [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the Lagrangian system defined by $L : TQ \rightarrow \RR$ if and only if $q$ is a critical point of the functional action $\action$
+	A path $q: [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the Lagrangian system defined by $L : TQ \rightarrow \RR$ if and only if $q$ is a critical point of the functional action $\action$
 \end{definition}
 
 This is the standard Lagrangian formulation, that describes closed systems. In principle this is enough to model any physical system. In practice, however, it is often more convenient to model a smaller subsystem in isolation, even when that subsystem exchanges energy with its surroundings. There are extensions such as time-dependent and higher-order Lagrangians that follow the same Hamilton's principle but with different preservation properties. A few such extensions include:
 
 \begin{itemize}
-	\item \newterm{Time-dependent Lagrangians}, $L(t, q, \dot{q}) : \RR \times TQ \to \RR$, depend explicitly on a time parameter. This models a system whose effective laws of physics change over time, typically because it is coupled to an external influence that varies with time. Hamilton's principle applies but energy is no longer conserved.
-	\item \newterm{Forced systems} are one of the main topics of this paper (\cref{sec:forced-systems}). They have some forcing applied (such as dissipation) and follow the Lagrange-D'Alambert principle (\cref{def:lagrange-dalambert}).
+	\item \newterm{Time-dependent Lagrangians}, $L : \RR \times TQ \to \RR$, depend explicitly on a time parameter. This models a system whose effective laws of physics change over time, typically because it is coupled to an external influence that varies with time. Hamilton's principle applies but energy is no longer conserved.
+	\item \newterm{Forced systems} are one of the main topics of this paper (\cref{sec:forced-systems}). They have some forcing applied (such as dissipation) and follow the Lagrange-D'Alembert principle (\cref{def:lagrange-dalambert}).
 	\item \newterm{Constrained} systems restrict the admissible configurations or velocities to a submanifold of $TQ$. Classic examples include the rigid links of a robotic arm (holonomic constraints) or rolling contact of a wheel on a surface (non-holonomic constraints).
 	\item \newterm{Higher-order} Lagrangians depend on higher derivatives of $q$, e.g. $L(q, \dot{q}, \ddot{q})$. In principle, the results of this paper are able to be carried over automatically to Lagrangians of arbitrary order~\cite{ferraroParallelComputingVariational, gay-balmazInvariantHigherorderVariational2012}.
 \end{itemize}

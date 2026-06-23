@@ -40,13 +40,13 @@ Well-known conservation laws can be derived in this way: translational symmetry 
 
 \paragraph{Symplecticity}
 
-In the Euler-Lagrange derivation, integration by parts~\eqref{eq:el-parts} leaves in a boundary term that ultimately evaulates to $0$ since the endpoints are fixed. However, we can consider this term on its own. Specifically, this term it is a one-form on $TQ$, called the \newterm{Cartan one-form} $\theta_L$, expressed as $\odv{L}{\dot{q}}$ in coordinates. Its exterior derivative
+In the Euler-Lagrange derivation, integration by parts~\eqref{eq:el-parts} leaves in a boundary term that ultimately evaulates to $0$ since the endpoints are fixed. However, we can consider this term on its own. Specifically, this term it is a one-form on $TQ$, called the \newterm{Cartan one-form} $\theta_L$, expressed as $\frac{\partial L}{\partial \dot{q}^i}dq^i$ in coordinates. Its exterior derivative
 \[
 	\omega_L = \odif*{} \theta_L
 \]
-is non-degenerate and closed, making it a symplectic form on $TQ$. The EL flow preserves this simplectic form $\omega_L$, in the sense that $F_t^* \omega_L = \omega_L$ for all $t$~\cite[Chapter 1.2.3]{marsdenDiscreteMechanicsVariational2001}. This makes the EL flow \newterm{symplectic} (with respect to $\omega_L$).
+is non-degenerate and closed, making it a symplectic form on $TQ$. The EL flow preserves this symplectic form $\omega_L$, in the sense that $F_t^* \omega_L = \omega_L$ for all $t$~\cite[Chapter 1.2.3]{marsdenDiscreteMechanicsVariational2001}. This makes the EL flow \newterm{symplectic} (with respect to $\omega_L$).
 
-Symplecticity of a flow imples that it is (locally) the flow of some Hamiltonian function $H$, and that that function is exactly preserved along the flow \tc{}. Additionally, simplectic flow also implies \newterm{Liouville's theorem}, which states that the EL flow preserves phase-space volume. In particular, no region of phase space contracts or expands, so there are no attractors or sinks in the dynamics.
+Symplecticity of a flow imples that it is (locally) the flow of some Hamiltonian function $H$, and that that function is exactly preserved along the flow \cite{marsdenIntroductionMechanicsSymmetry1999}. Additionally, simplectic flow also implies \newterm{Liouville's theorem}, which states that the EL flow preserves phase-space volume. In particular, no region of phase space contracts or expands, so there are no attractors or sinks in the dynamics.
 
 \section{Pitfalls of discretizing the equations of motion}\label{sec:pitfalls-discrete-el-ode}
 
@@ -99,7 +99,7 @@ A discrete analog of Noether's theorem holds as well: any continuous symmetry of
 
 One symmetry that doesn't get automatically inherited is time-translation symmetry. The discrete Lagrangian $L_d(q_k, q_{k+1})$ implicitly depends on a fixed timestep $h$, and fixing $h$ removes the time variable from the discrete dynamics, so there is no variable left for time-translation to act on. This is why earlier we talked about energy oscillating around the true value instead of being preserved.
 
-\todo{Explain better how time-symmetry breaks?}
+%\todo{Explain better how time-symmetry breaks?}
 
 \bigskip
 
@@ -109,7 +109,7 @@ Given this approach to discretization, a trajectory can be computed point-by-poi
 
 In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = {\{q_k\}}_{k=0}^N \in Q^{N+1}$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
 \begin{equation}
-	R(\mathbf{q}) = \bigoplus_{k=1}^{N-1}
+	R(\mathbf{q}) = \bigoplus_{k=}^{N-1}
 	\left(\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})\right) = 0
 	\label{eq:residual-global}
 \end{equation}
@@ -157,11 +157,11 @@ It is equation~\eqref{eq:jacobi-newton} which is computable using any linear sol
 The convergence of the method (both in the standard case as well in the forced and Lie group cases) is mainly related to the Hessian of the action, which we refer to as the \newterm{global Hessian matrix}, $H$. This is because, given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the hessian of $F$ is positive definite~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025}. Hamilton's principle is precisely such a formulation: the residual that we want to eliminate is the Hessian of the action, $R = \nabla S$.
 
 Given the structure of the action, its Hessian can be written in terms of second-order derivatives of the Lagrangian. That is, given the action defined as in~\eqref{eq:action-discrete} for a path $\mathbf{q}$ of length $N$
-\[ 	S_d (\mathbf{q}) : Q^N \to \RR = \sum_{k=0}^{N-2} \Ld(q_k, q_{k+1})
+\[ 	S_d (\mathbf{q}) : Q^N \to \RR, \qquad  S_d (\mathbf{q}) = \sum_{k=0}^{N-1} \Ld(q_k, q_{k+1})
 \]
 the derivative with respect to the $i$th component is, as usual,
 \begin{align*}
-	\mdif{i} S_d (\mathbf{q}) & = \mdif{q_i} \sum_{k=0}^{N-2} \Ld(q_k, q_{k+1})           \\
+	\mdif{i} S_d (\mathbf{q}) & = \mdif{q_i} \sum_{k=0}^{N-1} \Ld(q_k, q_{k+1})           \\
 	                          & = \mdif{1} \Ld(q_i, q_{i+1}) + \mdif{2} \Ld(q_{i-1}, q_i)
 \end{align*}
 and then the entries of the Hessian are
