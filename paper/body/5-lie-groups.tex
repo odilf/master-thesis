@@ -320,7 +320,7 @@ Elements of the tangent and cotangent space are represented by their trivialized
 
 The only thing missing is a way to calculate the second derivative, but this can actually be calculated with no additional knowledge, given that we're representing $\fg$ and $\fg^*$ as vectors. Namely, we differentiate directly the residual as a function of the algebra, by taking directly the Jacobian of~\eqref{eq:lie-residual}. Since we represent $\fg$ and $\fg^*$ as $\RR^n$, this can be done using any autodifferentiation library (such as JAX).
 
-This is enough to implement the algorithm, although in practice we also ask for a way to construct a tangent ``velocity'' vector as \verb|tangent(q0, q1, h)| which we use to be able to define the Lagrangian as continous and discretize it automatically.
+This is enough to implement the algorithm, although in practice we also ask for a way to construct a tangent ``velocity'' vector as \verb|tangent(q0, q1, h)| which we use to be able to define just the continuous Lagrangian and discretize it automatically.
 
 The source code, including all the code for the following examples, is available in the repository \todo{Add link}.
 
@@ -364,7 +364,7 @@ The resulting trajectory of a prism-like satellite under interesting conditions 
          \includegraphics[width=\textwidth]{satellite-top.png}
          \caption{Top view.}\label{fig:satellite-top}
      \end{subfigure}
-    \caption{Satellite physical simulation. Satellite needs to reach the position and orientation above. Blue prism indicates evenly-spaced snapshots of the satellite's position and orientation. Green path indicates positional trajectory, fainter green paths indicate previous trajectories before converging. Circles indicate celestial bodies that affect the satellite, size indicating pulling strength (i.e., mass).}\label{fig:satellite}
+    \caption{Satellite physical simulation. Satellite needs to reach the position and orientation above. Blue prism indicates evenly-spaced snapshots of the satellite's position and orientation. Green path indicates positional trajectory, fainter green paths indicate intermediate solver iterations. Circles indicate celestial bodies that affect the satellite, size indicating pulling strength (i.e., mass).}\label{fig:satellite}
 \end{figure}
 
 We see in the front view (\cref{fig:satellite-front}) that even though the satellite only has to increase its height by a bit, the physical trajectory needs to take a detour and make a bigger arc movement. The simulation shows us that a direct approach does not seem to allow reaching the final desired orientation, as the pull from the two bodies would rotate the satellite. In fact, in the top view (\cref{fig:satellite-top}) we can see that the path taken in the end does a smooth approach from above, where the pull from both bodies seems to be balanced in such a way that the satellite can rendezvouz with the target orientation.

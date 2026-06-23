@@ -1,15 +1,13 @@
 \chapter{Forced systems}\label{sec:forced-systems}
 
-Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[section 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. This system is now not determined only by the Lagrangian, but by the discrete Lagrangian and the external force.
-
-In this setting it is not Hamilton's principle that applies, but rather its forced analog, called the \newterm{Lagrange-D'Alembert principle}:
+Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[section 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. In this setting it is not Hamilton's principle that applies, but rather its forced analog, called the \newterm{Lagrange-D'Alembert principle}:
 \begin{definition}[Lagrange-D'Alembert principle {\cite[Definition 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}}]
 	A path $q(t) : [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the forced Largangian system defined by $L: TQ \to \RR$ and force $f^L : TQ \to T^*Q$ if and only if
 	\[
 		\odv{}{t} \pdv{L}{\dot{q}} - \pdv{L}{q} = f^L (q(t), \dot{q}(t))
 	\]
 \end{definition}
-Unlike Hamilton's principle, this is \emph{not} in general the extremization of any action. 
+Unlike Hamilton's principle, this is \emph{not} in general the extremization of any action.
 
 As in the unforced case, it is possible to carry out a discretization of the state space, the Lagrangian and the forces. The first two are the same: from $TQ$ to $Q \times Q$ and from $L : TQ \to \RR$ to $L_d : Q \times Q \to \RR$.
 
@@ -73,7 +71,7 @@ In the remainder of this section we aim to provide \emph{structural} sufficient 
 
 To get an expression for $J^f$, we start by computing the derivative of~\eqref{eq:euler-lagrange-discrete-forced} which we will name $H^f$ as it is the forced analog of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function). The result is the following (similar to~\eqref{eq:hessian-matrix}):
 \begin{align*}
-	H^f_{ij} (\mathbf{q}) & = \mdif*{\hat{R}(\mathbf{q})}                                                                                                                                               \\ & = \mdif{q_j} \left(
+	H^f_{ij} (\mathbf{q}) & = \mdif*{\hat{R}(\mathbf{q})}                                                                                                                            \\ & = \mdif{q_j} \left(
 	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1}) = 0
 	\right)                                                                                                                                                                          \\
 	                      & = \delta_{i, j} \left( \mdif{22} \Ld(q_{i - 1}, q_i) + \mdif{2} f_d^+(q_{i-1}, q_i) + \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{1} f_d^-(q_i, q_{i+1}) \right) \\
@@ -308,206 +306,97 @@ This perturbation bound is checkable in terms of derivatives of the discrete for
 
 \section{Examples}\label{sec:forced-examples}
 
-We illustrate the forced algorithm and the convergence criteria on four systems.
-Examples~\ref{ex:damped-oscillator} and~\ref{ex:lorentz} apply the perturbation theorem
-to, respectively, a dissipative force and a gyroscopic force.
-\Cref{ex:parachutist} shows a practical application of the algorithm to find trajectories for a parachutist in turbulent wind conditions.
+We illustrate the forced algorithm and the convergence criteria on two systems: example~\ref{ex:damped-oscillator} applies the perturbation theorem to a simple dissipative force, and example~\ref{ex:parachutist} shows a practical application of the algorithm to find trajectories for a parachutist in turbulent wind conditions.
+
 \tocless\subsection{Damped harmonic oscillator}\label{ex:damped-oscillator}
 
-The one-dimensional harmonic oscillator with linear viscous damping,
+Consider a one-dimensional harmonic oscillator with linear viscous damping,
 \[
 	\ddot{q} + \gamma\dot{q} + \omega^2 q = 0, \qquad \gamma > 0,
 \]
-fits the Lagrange-D'Alembert framework with
+which has the following Lagrangian:
 \[
 	L(q,\dot{q}) = \tfrac{1}{2}\dot{q}^2 - \tfrac{1}{2}\omega^2 q^2,
 	\qquad
 	f^L(q,\dot{q}) = -\gamma\dot{q}.
 \]
-We discretize with the trapezoidal Lagrangian and the midpoint force quadrature:
+We discretize the Lagrangian and the force with the trapezoidal rule, evaluating both at the two endpoints $q_k, q_{k+1}$ (since the damping is velocity-only, the force quadrature here coincides with the midpoint rule):
 \begin{align*}
-	L_d(q_k, q_{k+1})   & = \frac{(q_{k+1}-q_k)^2}{2h} - \frac{\omega^2 h}{4}(q_k^2 + q_{k+1}^2), \\
-	f_d^+(q_k, q_{k+1}) & = -\frac{\gamma}{2h}(q_{k+1}-q_k), \qquad
-	f_d^-(q_k, q_{k+1}) = -\frac{\gamma}{2h}(q_{k+1}-q_k).
+	L_d(q_k, q_{k+1})   & = \frac{{(q_{k+1}-q_k)}^2}{2h} - \frac{\omega^2 h}{4}(q_k^2 + q_{k+1}^2) \\
+	f_d^+(q_k, q_{k+1}) & = -\frac{\gamma}{2}(q_{k+1}-q_k)                                         \\
+	f_d^-(q_k, q_{k+1}) & = -\frac{\gamma}{2}(q_{k+1}-q_k).
 \end{align*}
-The blocks of the forced Hessian (all scalars, since $n = 1$) evaluate to
+The ``blocks'' of the forced Hessian are just scalars, evaluating to
 \begin{alignat*}{2}
-	\hat{\mathcal{A}}_k   & = \frac{1}{h} - \frac{\omega^2 h}{2} + \frac{\gamma}{2h}, & \qquad
-	\hat{\mathcal{B}}_k   & = \frac{1}{h} - \frac{\omega^2 h}{2} - \frac{\gamma}{2h},          \\
-	\hat{\mathcal{C}}^+_k & = -\frac{1}{h} - \frac{\gamma}{2h},                       & \qquad
-	\hat{\mathcal{C}}^-_k & = -\frac{1}{h} + \frac{\gamma}{2h}.
+	\hat{\mathcal{A}}_k   & = \frac{1}{h} - \frac{\omega^2 h}{2} + \frac{\gamma}{2} & \qquad
+	\hat{\mathcal{C}}^+_k & = -\frac{1}{h} - \frac{\gamma}{2}                                \\
+	\hat{\mathcal{B}}_k   & = \frac{1}{h} - \frac{\omega^2 h}{2} - \frac{\gamma}{2} & \qquad
+	\hat{\mathcal{C}}^-_k & = -\frac{1}{h} + \frac{\gamma}{2}.
 \end{alignat*}
-Comparing with the unforced blocks $\hat{\mathcal{A}}_k^0 = \hat{\mathcal{B}}_k^0 = \frac{1}{h} - \frac{\omega^2 h}{2}$
-and $\hat{\mathcal{C}}_k^{0,\pm} = -\frac{1}{h}$, the force perturbation matrix $\Delta F$ has
+Comparing with the unforced blocks $\mathcal{A}_k = \mathcal{B}_k = \frac{1}{h} - \frac{\omega^2 h}{2}$ and $\mathcal{C}_k^\pm = -\frac{1}{h}$, the force perturbation matrix $\Delta F$ has
 \[
 	\Delta\hat{\mathcal{D}}_k = \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{1} f_d^-(q_k, q_{k+1})
-	= -\frac{\gamma}{2h} + \frac{\gamma}{2h} = 0.
+	= -\frac{\gamma}{2} + \frac{\gamma}{2} = 0.
 \]
-The midpoint quadrature leaves the diagonal blocks of $H^f$ unchanged relative to the
-unforced system: the damping force enters $H^f$ only through the off-diagonal blocks,
+That is, the midpoint quadrature leaves the diagonal blocks of $H^f$ unchanged relative to the unforced system and the damping force enters $H^f$ only through the off-diagonal blocks,
 \[
-	\Delta\hat{\mathcal{C}}^+_k = -\frac{\gamma}{2h}, \qquad \Delta\hat{\mathcal{C}}^-_k = \frac{\gamma}{2h},
+	\Delta\hat{\mathcal{C}}^+_k = -\frac{\gamma}{2}, \qquad \Delta\hat{\mathcal{C}}^-_k = \frac{\gamma}{2}.
 \]
-so $\|\Delta F\|_2 = O(\gamma/h)$.
-In particular, $\Delta F$ is purely off-diagonal with antisymmetric blocks ($\Delta\hat{\mathcal{C}}^-_k = -\Delta\hat{\mathcal{C}}^+_k$),
-so the skew part of $H^f$ grows with $\gamma$ while the symmetric part remains that of the
-unforced oscillator.
-
-Assuming the unforced oscillator converges at $\mathbf{q}^*$ for the chosen step size $h$ (a
-condition on $h$ and $\omega$ alone), Theorem~\ref{thm:forced-perturbation} and
-Lemma~\ref{lem:forced-perturbation-explicit} guarantee that the forced method also converges
-whenever
+Thus $\Delta F$ is purely off-diagonal with antisymmetric blocks ($\Delta\hat{\mathcal{C}}^-_k = -\Delta\hat{\mathcal{C}}^+_k$), so the skew part of $H^f$ grows with $\gamma$ while the symmetric part remains that of the unforced oscillator. Here, $\|\Delta F\|_2$ can be computed exactly. $\Delta F = \tfrac{\gamma}{2} S$, where $S$ is the $(N-1)\times(N-1)$ skew-symmetric tridiagonal Toeplitz matrix with $-1$ on the super-diagonal and $+1$ on the sub-diagonal, which has known eigenvalues $\lambda_j = 2i\cos\tfrac{j\pi}{N}$ for $j = 1, \dots, N-1$. Therefore, $\|S\|_2 = 2\cos\tfrac{\pi}{N}$ and
 \[
-	\frac{\gamma}{2h} < \varepsilon = \frac{1 - \|J^0\|}{3\|D_0^{-1}\|},
+	\|\Delta F\|_2 = \gamma\cos\frac{\pi}{N} < \gamma.
 \]
-where $J^0$ and $D_0^{-1}$ are the Jacobi matrix and inverse diagonal of the unforced
-system at $\mathbf{q}^*$. This gives a concrete bound on the admissible damping coefficient
-in terms of the step size and the unforced convergence margin.
 
-\todo{Figure: trajectories of the forced integrator for $\omega = 1$, $h = 0.1$, and
-	several values of $\gamma$, compared to the exact solution $q(t) = e^{-\gamma t/2}
-		(\cos\nu t + \frac{\gamma}{2\nu}\sin\nu t)$ with $\nu = \sqrt{\omega^2 - \gamma^2/4}$.
-	Inset: Newton residual norm vs.\ iteration count for each $\gamma$ to show the
-	convergence rate.}
+Assuming the unforced oscillator converges at $\mathbf{q}^*$ for the chosen step size $h$ (a condition on $h$ and $\omega$ alone), Theorem~\ref{thm:forced-perturbation} and Lemma~\ref{lem:forced-perturbation-explicit} guarantee that the forced method also converges whenever
+\[
+	\gamma\cos\frac{\pi}{N} < \varepsilon = \frac{1 - \|J^0\|}{3\|D_0^{-1}\|},
+	\qquad\text{equivalently}\qquad
+	\gamma < \frac{\varepsilon}{\cos(\pi/N)},
+\]
+where $J^0$ and $D_0^{-1}$ are the Jacobi matrix and inverse diagonal of the unforced system at $\mathbf{q}^*$. This gives a concrete bound on the admissible damping coefficient in terms of the step size and the unforced convergence margin; since $\cos(\pi/N) < 1$, the simpler condition $\gamma < \varepsilon$ is already sufficient. Note that using instead the per-block magnitude $\tfrac{\gamma}{2}$ as a proxy for $\|\Delta F\|_2$ would have \emph{overestimated} the admissible damping by roughly a factor of two, as $\|\Delta F\|_2 \to \gamma$ for large $N$.
+
 
 \todo{Figure or table: plot the bound $\varepsilon(h, \omega)$ and the actual convergence
 	threshold in $\gamma$ found by bisection, to visualise how tight the perturbation bound is.}
 
-\tocless\subsection{Charged particle in a uniform magnetic field}\label{ex:lorentz}
-
-A particle of unit mass and charge moves in the plane under a uniform magnetic field
-of strength $B > 0$ pointing out of the plane. The equations of motion are
-\[
-	\ddot{q} = B J \dot{q}, \qquad J = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix},
-\]
-producing circular orbits (cyclotron motion) of radius $|\dot{q}|/B$ and period $2\pi/B$.
-This is a prototypically \newterm{gyroscopic} system: the Lorentz force $f^L = BJ\dot{q}$
-is always perpendicular to the velocity, does no work, and cannot be absorbed into any
-potential. We take
-\[
-	L(q,\dot{q}) = \tfrac{1}{2}|\dot{q}|^2, \qquad f^L(q,\dot{q}) = B J \dot{q}.
-\]
-With the free-particle discrete Lagrangian and midpoint discrete forces,
-\[
-	L_d(q_k, q_{k+1}) = \frac{|q_{k+1}-q_k|^2}{2h},
-	\qquad
-	f_d^\pm(q_k, q_{k+1}) = \frac{B}{2} J(q_{k+1}-q_k),
-\]
-the forced Hessian blocks are now $2\times 2$ matrices:
-\begin{alignat*}{2}
-	\hat{\mathcal{A}}_k   & = \tfrac{1}{h}I - \tfrac{B}{2}J,  & \qquad
-	\hat{\mathcal{B}}_k   & = \tfrac{1}{h}I + \tfrac{B}{2}J,           \\
-	\hat{\mathcal{C}}^+_k & = -\tfrac{1}{h}I + \tfrac{B}{2}J, & \qquad
-	\hat{\mathcal{C}}^-_k & = -\tfrac{1}{h}I - \tfrac{B}{2}J.
-\end{alignat*}
-Since $J$ is antisymmetric, the gyroscopic force does not affect the symmetric
-parts of the diagonal blocks:
-\[
-	\Sym(\hat{\mathcal{A}}_k) = \Sym(\hat{\mathcal{B}}_k) = \tfrac{1}{h}I.
-\]
-However, it breaks the symmetry $\hat{\mathcal{C}}^+ = (\hat{\mathcal{C}}^-)^T$ that holds
-in the unforced case. Since $J^T = -J$,
-\[
-	(\hat{\mathcal{C}}^+_k)^T = -\tfrac{1}{h}I - \tfrac{B}{2}J = \hat{\mathcal{C}}^-_k,
-\]
-so the midpoint discretization satisfies the \newterm{symmetric force condition}
-$(\mdif{2}f_d^-)^T = \mdif{1}f_d^+$, which collapses the two inequalities
-of~\eqref{eq:local-edge-dominance} to a single one.
-
-The force-perturbation blocks are $\Delta\hat{\mathcal{D}}_k = 0$ and
-$\Delta\hat{\mathcal{C}}^\pm_k = \pm\tfrac{B}{2}J$, giving $\|\Delta F\|_2 = O(B)$.
-By the same argument as before, Theorem~\ref{thm:forced-perturbation} guarantees
-convergence for all $B$ below the threshold
-\[
-	B < \frac{2(1 - \|J^0\|)}{3\|D_0^{-1}\|}.
-\]
-
-\todo{Figure: exact circular orbit vs.\ numerically integrated path for several values
-	of $B$, showing that the integrator preserves the cyclotron radius. Convergence of the
-	Newton residual vs.\ iteration count for $B$ below and above the perturbation threshold.}
-
-% \tocless\subsection{Effect of force discretization on convergence}\label{ex:discretization}
-
-% The choice of discrete forces $f_d^\pm$ approximating the same continuous force $f^L$
-% is not unique, and different choices lead to different structures of $H^f$ — and
-% therefore potentially different convergence margins. We illustrate this on the charged
-% particle of Example~\ref{ex:lorentz}.
-
-% \paragraph{Midpoint rule.} As computed above, $f_d^\pm = \frac{B}{2}J(q_{k+1}-q_k)$.
-% This distributes the impulse equally between the two endpoints. The off-diagonal blocks are
-% \[
-% 	\hat{\mathcal{C}}^+_k = -\tfrac{1}{h}I + \tfrac{B}{2}J, \qquad
-% 	\hat{\mathcal{C}}^-_k = -\tfrac{1}{h}I - \tfrac{B}{2}J,
-% \]
-% with spectral norm $\|\hat{\mathcal{C}}^+_k\|_2 = \sqrt{h^{-2} + B^2/4}$.
-% As noted above, $(\hat{\mathcal{C}}^+_k)^T = \hat{\mathcal{C}}^-_k$, so the symmetric force
-% condition $(\mdif{2}f_d^-)^T = \mdif{1}f_d^+$ holds.
-
-% \paragraph{Left-endpoint rule.} Assigning the full impulse to $f_d^-$,
-% \[
-% 	f_d^+(q_k, q_{k+1}) = 0, \qquad f_d^-(q_k, q_{k+1}) = B J(q_{k+1}-q_k),
-% \]
-% gives
-% \[
-% 	\hat{\mathcal{C}}^+_k = -\tfrac{1}{h}I + BJ, \qquad
-% 	\hat{\mathcal{C}}^-_k = -\tfrac{1}{h}I,
-% \]
-% with $\|\hat{\mathcal{C}}^+_k\|_2 = \sqrt{h^{-2} + B^2}$.
-% Now $(\hat{\mathcal{C}}^+_k)^T = -\tfrac{1}{h}I \neq \hat{\mathcal{C}}^-_k$, so the symmetric
-% force condition fails. The asymmetry is
-% \[
-% 	\hat{\mathcal{C}}^+_k - (\hat{\mathcal{C}}^-_k)^T = BJ,
-% \]
-% a purely skew-symmetric matrix that grows with $B$: the left-endpoint rule concentrates
-% the full asymmetry of $H^f$ in the upper off-diagonal blocks.
-
-% \paragraph{Comparison.} Both discretizations give $\|\Delta F\|_2 = O(B)$ and therefore
-% the same asymptotic perturbation bound. However, the midpoint rule has a strictly smaller
-% spectral norm $\|\hat{\mathcal{C}}^+_k\|_2$ for any $B > 0$ (by a factor of up to $2$ in
-% the norm), and it preserves the structural symmetry that makes the block structure of $J^f$
-% more regular.
-% This suggests that the midpoint quadrature is preferable whenever the gyroscopic force is
-% not small: it spreads the non-conservative coupling evenly, reducing the worst-case
-% amplification of errors at each node.
-
-% \todo{Figure: for a fixed field strength $B$ and step $h$, show the spectral radius
-% 	$\rho(J^f)$ and the Newton convergence rate for both discretizations, as $B$ varies from
-% 	$0$ to $B_{\max}$. This would concretely show the wider convergence window of the midpoint
-% 	rule.}
-
 \tocless\subsection{Parachutist in turbulent wind}\label{ex:parachutist}
-\todo{I don't know if ``turbulent'' is technically correct, since I think it technically means non-laminar flow?}
 
-A parachutist wants to jump from a helicopter at some position $(x_0, y_0)$ and reach a target point in the ground $(x^T, 0)$ at some time $T$ by letting themselves be carried by the wind, which is given as some vector field $W(x, y) = (w_x, w_y)$.
+A parachutist wants to jump from a helicopter at some position $(x_0, y_0)$ and reach a target point in the ground $(x_T, 0)$ at some time $T$ by letting themselves be carried by the wind, which is given as some vector field $W(x, y) = (w_x, w_y)$.
 
 This problem can be modelled with the Lagrangian
 \[
-    L(x, y, \dot{x}, \dot{y})=\frac{m}{2}(\dot{x}^2+\dot{y}^2)-m g y
+	L(x, y, \dot{x}, \dot{y})=\frac{m}{2}(\dot{x}^2+\dot{y}^2)-m g y
 \]
-where $g$ is the gravitational acceleration. Furthermore, the parachutist feels some drag, which is modelled as an external force:
+where $g$ is the gravitational acceleration and $m$ is the diver's mass. Furthermore, the parachutist feels some drag, which is modelled as an external force:
 \begin{align*}
-	(F_x, F_y)=(-k(\dot{x}-w_x(x, y)), -k(\dot{y}-w_y(x, y))), 
+	(F_x, F_y)=(-k(\dot{x}-w_x(x, y)), -k(\dot{y}-w_y(x, y))),
 \end{align*}
 where $k$ is the parachute drag coefficient.
 
-The problem can be discretized with the midpoint rule, for instance. The only additional data needed are the length of the path $N$, which then gives us the timestep $h = \frac{T}{N}$.
+The problem can be discretized with the midpoint rule, for instance. The only additional data needed are the length of the path $N$, which then gives us the timestep $h = \frac{T}{N}$. Finally, solving it allows us to recover what the initial must be to reached the desired endpoint by just being dragged by the wind.
 
-Finally, we can recover what the initial 
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{parachutist-main.png}
+	\caption{Trajectory and initial velocity that a parachutist need to reach a desired endpoint in a wind field with two vortexes. Green path indicates trajcetory, fainter green paths indicate intermediate iterations solver iterations.}\label{fig:parachutist-main}
+\end{figure}
 
-    \textcolor{blue}{David
-    Parachutist example
-    Problem: Calculate the jump velocity and direction to reach a desired target point at a given time $T$.
-    The problem is given by: 
-    $$L(x, y, \dot{x}, \dot{y})=\frac{m}{2}(\dot{x}^2+\dot{y}^2)-mgy$$
-and external force
-\begin{align*}
-(F_x, F_y)=(-k(\dot{x}-w_x(x, y)), -k(\dot{x}-w_y(x, y))), 
-\end{align*}
-where $(w_x, w_y)$    is the wind velocity in both components (we assume that it is time-independent). The parameter $k$ is the parachute drag. 
-coefficient 
-Now, given a point $(x_0, y_0)$ (where $y_0$ is the aircraft attitude) and $(x_T, 0)$ is the target point, we use the parallel method to find a trajectory. Here $T=nh$. 
-Finally, the initial velocity  is 
-\[
-(\frac{x_{1}-x_0}{h}, \frac{y_1-y_0}{h})
-\]
-    }
+The results of the implementation are shown in \cref{fig:parachutist-main,fig:parachutist-many}. \Cref{fig:parachutist-main} shows how the trajectory starts as a straight line to the endpoint, but it curves upwards to be made physical. It turns out that for this particular wind field that has two vortexes, the parachutist needs to jump with velocity mostly to the right, and a bit upwards.
+
+\Cref{fig:parachutist-many} shows many trajectories from different starting  positions, both for the vortex wind field (\cref{fig:parachutist-many-vortex}) as well as for a wind field that forms a shear (\cref{fig:parachutist-many-shear}). This serves to illustrate a couple non-trivial observations. For instance, trajectory 3 (hexagon) in \cref{fig:parachutist-many-vortex} needs a very high initial velocity, which indicates that it is most likely not realistic for the parachutist to jump from that point and reach the target; and trajectory 2 (star) in \cref{fig:parachutist-many-shear} shows that to reach the endpoint the parachutist has to first jump \emph{away} from the target to reach it in the desired time (i.e., jump up and to the right, while the target is down and to the left).
+
+
+\begin{figure}[ht]
+	\begin{subfigure}[ht]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{parachutist-vortex-many.png}
+		\caption{Vortex wind field (same as \cref{fig:parachutist-main})}\label{fig:parachutist-many-vortex}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[ht]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{parachutist-shear-many.png}
+		\caption{Shear wind field}\label{fig:parachutist-many-shear}
+	\end{subfigure}
+	\caption{Trajectories and initial velocities needed to reach an endpoint, depending on starting position.}\label{fig:parachutist-many}
+\end{figure}

@@ -125,8 +125,10 @@ def plot_forced():
         ParachutistShear,
         drag=35.65,
         startpoints=[
-            Point(57.67, 164.58),
             Point(33.67, 187.50),
+            Point(58.00, 110.42),
+            Point(85.33, 62.50),
+            Point(92.33, 239.58),
         ],
     )
     save("parachutist-shear-many.png")
