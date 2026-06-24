@@ -11,9 +11,9 @@ Unlike Hamilton's principle, this is \emph{not} in general the extremization of 
 
 As in the unforced case, it is possible to carry out a discretization of the state space, the Lagrangian and the forces. The first two are the same: from $TQ$ to $Q \times Q$ and from $L : TQ \to \RR$ to $L_d : Q \times Q \to \RR$.
 
-The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=f_d^-\circ \tau_Q$ and $f^+$ with the second, $\hbox{pr}_2=f_d^+\circ \tau_Q$). See \cite{marsdenDiscreteMechanicsVariational2001} %This is necessary for there to exist some ``exact discrete forces'' that recover exactly the continous forces, which we normally approximate with a quadrature rule \todo{spell out exactly how the exact discrete forces would look like}.
+The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=f_d^-\circ \tau_Q$ and $f^+$ with the second, $\hbox{pr}_2=f_d^+\circ \tau_Q$) \cite[Chapter~3.2.1]{marsdenDiscreteMechanicsVariational2001}.
 
-\begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalambert}
+\begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalembert}
 	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
 	\begin{equation*}
 		\sum_{k=1}^{N-1} \Bigl( \mdif{2} \Ld(q_{k-1}, q_k) + f_d^+(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1}) + f_d^-(q_k, q_{k+1}) \Bigr) \cdot \delta q_k = 0.
@@ -71,12 +71,12 @@ In the remainder of this section we aim to provide \emph{structural} sufficient 
 
 To get an expression for $J^f$, we start by computing the derivative of~\eqref{eq:euler-lagrange-discrete-forced} which we will name $H^f$ as it is the forced analog of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function). The result is the following (similar to~\eqref{eq:hessian-matrix}):
 \begin{align*}
-	H^f_{ij} (\mathbf{q}) & = \mdif*{\hat{R}(\mathbf{q})}                                                                                                                            \\ & = \mdif{q_j} \left(
-	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1}) = 0
-	\right)                                                                                                                                                                          \\
-	                      & = \delta_{i, j} \left( \mdif{22} \Ld(q_{i - 1}, q_i) + \mdif{2} f_d^+(q_{i-1}, q_i) + \mdif{11} \Ld(q_i, q_{i+1}) + \mdif{1} f_d^-(q_i, q_{i+1}) \right) \\
-	                      & + \delta_{i+1,j} \left(\mdif{12} \Ld(q_i, q_{i+1}) + \mdif{2} f_d^-(q_i, q_{i+1}) \right)                                                                \\
-	                      & + \delta_{i-1,j} \left(\mdif{21} \Ld(q_{i-1}, q_i) + \mdif{1} f_d^+(q_{i-1}, q_i) \right).
+	H^f_{ij} (\mathbf{q})
+	 & = \mdif*{\hat{R}(\mathbf{q})}                                                                                                                            \\
+	 & = \pdv{\left(\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})\right)}!{q_k}                        \\
+	 & = \delta_{i, j} \left( \mdif{22}{\Ld}(q_{i - 1}, q_i) + \mdif{2}{f_d^+}(q_{i-1}, q_i) + \mdif{11}{\Ld}(q_i, q_{i+1}) + \mdif{1}{f_d^-}(q_i, q_{i+1}) \right) \\
+	 & + \delta_{i+1,j} \left(\mdif{12}{\Ld}(q_i, q_{i+1}) + \mdif{2}{f_d^-}(q_i, q_{i+1}) \right)                                                                \\
+	 & + \delta_{i-1,j} \left(\mdif{21}{\Ld}(q_{i-1}, q_i) + \mdif{1}{f_d^+}(q_{i-1}, q_i) \right).
 \end{align*}
 
 This again has a tridiagonal structure, but is not (necessarilly) symmetric. In~\eqref{eq:hessian-terms-1} we only had to define the diagonal and the off-diagonal matrices, but now we need three matrices
@@ -149,11 +149,12 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 \begin{proof}
 	Recall that $\hat{\mathcal{D}}_j = \hat{\mathcal{A}}_j + \hat{\mathcal{B}}_{j-1}$. Since taking $\Sym$ is linear, we also have that $\Sym(\hat{\mathcal{D}}_j) = \Sym(\hat{\mathcal{A}}_j) + \Sym(\hat{\mathcal{B}}_{j-1})$.
 	By Weyl's inequality and then by hypothesis:
-	\[
+	\begin{align}
 		\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))
-		\geq \lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))
-		> \|\hat{\mathcal{C}}^+_j\|_2 + \|\hat{\mathcal{C}}^-_{j-1}\|_2 \geq 0,
-	\]
+		 & \geq \lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1})) \\
+		 & > \|\hat{\mathcal{C}}^+_j\|_2 + \|\hat{\mathcal{C}}^-_{j-1}\|_2                                \\
+		 & \geq 0,
+	\end{align}
 	so $\Sym(\hat{\mathcal{D}}_j) \succ 0$. Then, for any $v \neq 0$, Cauchy-Schwarz gives $\|\hat{\mathcal{D}}_j v\|_2 \|v\|_2 \geq v^T \hat{\mathcal{D}}_j v = v^T \Sym(\hat{\mathcal{D}}_j) v \geq \lambda_{\min}(\Sym(\hat{\mathcal{D}}_j)) \|v\|_2^2$, hence $\hat{\mathcal{D}}_j$ is invertible with
 	\begin{equation}
 		\|\hat{\mathcal{D}}_j^{-1}\|_2 \;\leq\; \frac{1}{\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))}.
@@ -268,7 +269,7 @@ In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exist
 	\end{equation}
 \end{lemma}
 \begin{proof}
-	Let $\beta := \|D^{-1}\|$ and $\gamma := \|\Delta F\|$. The identity ${(D + \Delta D)}^{-1} - D^{-1} = -{(D + \Delta D)}^{-1}\Delta D \, D^{-1}$, combined with $J = -D^{-1}(L+U)$, gives by direct manipulation
+	Let $\beta = \|D^{-1}\|$ and $\gamma = \|\Delta F\|$. The identity ${(D + \Delta D)}^{-1} - D^{-1} = -{(D + \Delta D)}^{-1}\Delta D \, D^{-1}$, combined with $J = -D^{-1}(L+U)$, gives by direct manipulation
 	\[
 		J^f - J = -{(D + \Delta D)}^{-1}\bigl[\Delta D \cdot J + (\Delta L + \Delta U)\bigr].
 	\]
@@ -295,7 +296,7 @@ This perturbation bound is checkable in terms of derivatives of the discrete for
 }
 
 \begin{remark}[Time complexity]\label{rem:forced-perturbation-complexity}
-	Let $m := n(N-1)$ be the dimension of the iteration matrix, with $n = \dim Q$ and $N$ the path length. Checking the bound~\eqref{eq:forced-perturbation-epsilon} requires:
+	Let $m = n(N-1)$ be the dimension of the iteration matrix, with $n = \dim Q$ and $N$ the path length. Checking the bound~\eqref{eq:forced-perturbation-epsilon} requires:
 	\begin{itemize}
 		\item $\|D^{-1}\|_2 = \max_k \|\hat{\mathcal{D}}_k^{-1}\|_2$: $N$ independent $n \times n$ block inversions, costing $O(N n^3)$.
 		\item $\|J\|_2$ via power iteration on $J^T J$: $O(m^2 k)$ for $k$ iterations.

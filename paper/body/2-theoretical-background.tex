@@ -1,49 +1,43 @@
 \chapter{Theoretical Background}\label{sec:background}
 
-\todo{write one intro for both parts here}
+In this section we give a brief overview of the mathematical tools and the physical principles used in the paper. \Cref{sec:mathematical-tools} outlines the main geometrical concepts used that the reader should be familiar with; while \cref{sec:physical-systems-lagrangians} is a friendlier, more motivated introduction to modeling of physical systems using Lagrangians.
 
 In this section and in the rest of this paper, whenever a new term is introduced, it is \newterm{highlighted like this}.
 
-\section{Basic mathematical notions}
+\section{Basic mathematical notions}\label{sec:mathematical-tools}
 
-In this section we give a brief overview of the notation and common mathematical tools that will be used. This is intended to remind the reader of the concepts and clarify what is meant if something seems ambiguous, unlike \cref{sec:physical-systems-lagrangians} which is meant to be a friendlier introduction, providing some motivation behind the way things are done. References are provided for detailed explanations and introductions for each concept.
+As mentioned above, this section is not meant to be an introduction to the topics, but rather more of a clarification/refresher. For each mathematical notion listed, specific references to \cite{leeSmoothManifolds2013} are given, which contain motivated introductions and more in-depth explanations.
 
-Notions~\ref{notion:manifold}--\ref{notion:lie-algebra-trivialization} are used often throughout the paper. Notions~\ref{notion:differential-forms}--\ref{notion:symplectic-forms} are only invoked in \cref{sec:geometric-properties-el, sec:pitfalls-discrete-el-ode} and can be glossed over without too much concern. These are annotated with a star.
-
-% \todo{Additional results used occasionally in the paper are available in \cref{apx:additional-mathematical-results}?}
-
-\notion{Notation}
-
-\todo{rethink: I think derivatives with respect to \emph{variables} should be $\partial_{q_k}$ or similar}
-
-We use $\mdif{i} f$ to represent the partial derivative of a function $f$ over the $i$th argument. We overload that notation where, if we have a variable instead of an index, such as $\mdif{q_i}$, then that means the derivative with respect to that variable. Furthermore, two indices or two variables are interpreted as $\mdif{i j} = \mdif{j} \circ \mdif{i}$.
-
-\todo{Explain $\mdif* f$ without index.}
+Notions~\ref{notion:manifold}--\ref{notion:lie-algebra-trivialization} are used often throughout the paper. Notions~\ref{notion:differential-forms}--\ref{notion:symplectic-forms}, which are annotated with a star, are only invoked when describing certain geometric properties in \cref{sec:geometric-properties-el,sec:pitfalls-discrete-el-ode}, and can be glossed over without too much concern.
 
 
-\notion{Smooth manifolds}\label{notion:manifold}~\cite[Chapter 1]{leeSmoothManifolds2013} An $n$-dimensional manifold is a set $Q$ with some topology where for every point $q \in Q$ there exists a neighborhood $U \subset Q$ and a homeomorphism $\phi : U \to \hat{U}$ where $\hat{U} \subset \RR^n$. The tuple $(U, \phi)$ is called a \newterm{chart}, and can be thought of as providing \newterm{local coordinates} around a point $q$.
+\notion{Notation for derivatives}
 
-Multiple charts can form an \newterm{atlas} if the neighborhoods $U_i$ cover the original set $Q$. Two charts $(U_i, \phi_i)$ and $(U_j, \phi_j)$ are \newterm{smoothly compatible} if $\phi_i \circ \phi_j^{-1}$ is smooth on the intersection $U_i \cap U_j$ (where by ``smooth'' we mean $C^\infty$. A manifold with an atlas composed of smoothly compatible charts is a \newterm{smooth manifold} (see \cite{marsdenIntroductionMechanicsSymmetry1999} for more details)%\todo{Technically we're missing maximally smooth atlas\ldots}.
+We use $\mdif{i} f$ to represent the partial derivative of a function $f$ over its $i$-th argument, and interpret repeated indices as higher derivatives, $\mdif{ij} = \mdif{j} \circ \mdif{i}$ (so $\mdif{12} \Ld$ is a mixed second derivative). Without a subscript, $\mdif* f$ denotes the full derivative over all arguments at once. When we differentiate over a named variable instead of a positional argument, we write $\partial_x f$, such as $\partial_{q_k} S_d$; and in the classical continuous setting we also use the Leibniz form $\pdv{L}{q}$. Furthermore, $\odv{f}{t}$ is the derivative over a scalar, $T_p f$ the differential of a map between manifolds (\ref{notion:differential}), and $\odif{\alpha}$ the exterior derivative (\ref{notion:exterior-derivative}).
+
+\notion{Smooth manifolds}\label{notion:manifold}~\cite[Chapter~1]{leeSmoothManifolds2013} An $n$-dimensional manifold is a set $Q$ with some topology where for every point $q \in Q$ there exists a neighborhood $U \subset Q$ and a homeomorphism $\phi : U \to \hat{U}$ where $\hat{U} \subset \RR^n$. The tuple $(U, \phi)$ is called a \newterm{chart}, and can be thought of as providing \newterm{local coordinates} around a point $q$.
+
+Multiple charts can form an \newterm{atlas} if the neighborhoods $U_i$ cover the original set $Q$. Two charts $(U_i, \phi_i)$ and $(U_j, \phi_j)$ are \newterm{smoothly compatible} if $\phi_i \circ \phi_j^{-1}$ is smooth on the intersection $U_i \cap U_j$ (where by ``smooth'' we mean $C^\infty$). A manifold with an atlas composed of smoothly compatible charts is a \newterm{smooth manifold} (see also \cite{marsdenIntroductionMechanicsSymmetry1999} for more details)%\todo{Technically we're missing maximally smooth atlas\ldots}.
 
 On a more intuitive level, smooth manifolds are topological spaces that look locally like $\RR^n$ and where doing a change of coordinates (or a change of ``basis'') is smooth.
 
 %\todo{Technically manifolds can be on fields other than $\RR$, right?}
 
-\notion{Tangent spaces}~\cite[Chapter 3]{leeSmoothManifolds2013} The tangent space at point $q \in Q$ is denoted as $T_q Q$ and is defined by representatives of:
+\notion{Tangent spaces}~\cite[Chapter~3]{leeSmoothManifolds2013} The tangent space at point $q \in Q$ is denoted as $T_q Q$ and is defined by representatives of:
 \[ T_q Q = \{ \dot{\gamma}(0) \, | \, \gamma(0) = q \} \]
 where $\gamma(t) : (-\varepsilon, \varepsilon) \to Q$ are differentiable paths on $Q$. Tangent spaces always form $n$-dimensional vector spaces and we denote by $\tau_Q: TQ\rightarrow Q$ the canonical projection. These vector spaces have duals, called \newterm{cotangent spaces} $T_q^* Q$ that can be interpreted as linear forms $T_q Q \to \RR$. Also, $\pi_Q: T^*Q\rightarrow Q$ denotes the corresponding canonical projection. 
 
-The \newterm{tangent bundle} is the disjoint union of all tangent spaces, $TQ = \sqcup_q T_q Q$, which forms a $2n$-dimensional manifold itself (which is however not in general a vector space, unless the original manifold is one too). The \newterm{cotangent bundle} is defined in the same way.
+The \newterm{tangent bundle} is the disjoint union of all tangent spaces, $TQ = \sqcup_q T_q Q$, which forms a $2n$-dimensional manifold itself (that is not in general a vector space). The \newterm{cotangent bundle} is defined in the same way.
 
-For our purposes, a mapping on tangent and cotangent bundles $f : TM \to TM$ (or $f : T^*M \to T^*M$, or any combination thereof \todo{$f : TM \text{ or } T^*M \to TM \text{ or } T^*M$?}) is said to be \newterm{fiber-preserving} if for every $q \in M$ and every $\eta \in T_q M$, $f(\eta) \in T_q M$. In other words, $f$ does not move the point at which it is tangent or $\tau_Q\circ f=\tau_Q$. %\todo{Maybe remove here and just mention in forces.}.
+For our purposes, a mapping to and from tangent and cotangent bundles such as $f : TM \to TM$ is said to be \newterm{fiber-preserving} if for every $q \in M$ and every $\eta \in T_q M$, $f(\eta) \in T_q M$. In other words, $f$ does not move the point at which it is tangent or $\tau_Q\circ f=\tau_Q$. %\todo{Maybe remove here and just mention in forces.}.
 
-\notion{Differential}~\cite[p. 55]{leeSmoothManifolds2013} A differential or derivative of a function on manifolds $f : M \to N$ evaluated at $p \in M$ is a mapping between the tangent spaces of the manifolds $T_p f : T_p M \to T_{f(p)} N$, defined  as $T_p f (\dot{\gamma}(0)) = \odv{}{t}_0 f(\gamma(t))$.
+\notion{Differential}\label{notion:differential}~\cite[p.\ 55]{leeSmoothManifolds2013} A differential or derivative of a function on manifolds $f : M \to N$ evaluated at $p \in M$ is a mapping between the tangent spaces of the manifolds $T_p f : T_p M \to T_{f(p)} N$, defined  as $T_p f (\dot{\gamma}(0)) = \odv{}{t}_0 f(\gamma(t))$.
 
-\notion{Lie groups}~\cite[Chapter 7]{leeSmoothManifolds2013} A Lie group is a smooth manifold $G$ equipped with a smooth group operation $\cdot : G \times G \to G$ respecting the usual group axioms (including having a smooth inverse). The tangent space at the identity of a Lie group is called a \newterm{Lie algebra}, denoted by $\fg$ (called this way because it forms an algebra with the Lie bracket, although we won't use it in this paper). We define the left and right application operators as $L_g = h \mapsto g \cdot h$ and $R_g = h \mapsto h \cdot g$ respectively.
+\notion{Lie groups}~\cite[Chapter~7]{leeSmoothManifolds2013} A Lie group is a smooth manifold $G$ equipped with a smooth group operation $\cdot : G \times G \to G$ respecting the usual group axioms (including having a smooth inverse). The tangent space at the identity of a Lie group is called a \newterm{Lie algebra}, denoted by $\fg$ (called this way because it forms an algebra with the Lie bracket, although we won't use it in this paper). We define the left and right application operators as $L_g = h \mapsto g \cdot h$ and $R_g = h \mapsto h \cdot g$ respectively.
 
 \notion{Lie algebra trivialization}\label{notion:lie-algebra-trivialization} The group structure of a Lie group allows us to \newterm{trivialize} tangent spaces to the Lie algebra. Specifically, the entire tangent bundle $TG$ is isomorphic to $G \times \fg$ via the differential of the left-application, $T_e L_g : \fg \to T_g G$. In other words, every tangent vector on a Lie group can be described by the point at which it is tangent, and an element of $\fg$.
 
-\notion{Differential forms*}\label{notion:differential-forms}~\cite[Chapter 14]{leeSmoothManifolds2013} A \newterm{1-form} on a manifold $M$ is a smooth assignment of a covector $\alpha_p \in T_p^* M$ to each $p \in M$ (i.e., a covector field). The differential of a function $Q \to \RR$ is an example of a one-form.
+\notion{Differential forms*}\label{notion:differential-forms}~\cite[Chapter~14]{leeSmoothManifolds2013} A \newterm{1-form} on a manifold $M$ is a smooth assignment of a covector $\alpha_p \in T_p^* M$ to each $p \in M$ (i.e., a covector field). The differential of a function $Q \to \RR$ is an example of a one-form.
 
 More generally, a $k$-\newterm{form} on $M$ is a smooth assignment of an alternating multilinear map $\omega_p : T_p M \times \cdots \times T_p M \to \RR$ with $k$ arguments for each point $p \in M$. ``Alternating'' means that swapping any two arguments flips the sign. In particular, a 2-form satisfies $\omega(v, w) = - \omega(w, v)$. A $k$-form is often interpreted as providing a signed measure of the infinitesimal parallelepiped spanned by $k$ tangent vectors, with a possibly position-dependent weight.
 
@@ -55,14 +49,15 @@ In coordinates on $\RR^2$, $\odif{x} \wedge \odif{y}$ evaluated on two tangent v
 \[ {(f^* \omega)}_p (v_1, \ldots, v_k) = \omega_{f(p)}\bigl(T_p f(v_1), \ldots, T_p f(v_k)\bigr). \]
 That is, the pullback ``reverses'' the order of operation by pre-applying the differential of $f$, and then evaluating $\omega$ at $f(p)$. Pullbacks respect the wedge product in the sense that $f^* (\alpha \wedge \beta) = f^* \alpha \wedge f^* \beta$.
 
-\notion{Exterior derivative*}~\cite[Chapter 14]{leeSmoothManifolds2013} The \newterm{exterior derivative} $\textrm{d}: \Omega^k(M) \to \Omega^{k+1}(M)$ is the unique linear operation that agrees with the ordinary differential on functions ($k = 0$), satisfies the graded Leibniz rule
+\notion{Exterior derivative*}\label{notion:exterior-derivative}~\cite[Chapter~14]{leeSmoothManifolds2013} The \newterm{exterior derivative} $\odif*{}: \Omega^k(M) \to \Omega^{k+1}(M)$ is the unique linear operation that agrees with the ordinary differential on functions ($k = 0$), satisfies the graded Leibniz rule
 \[ \odif{(\alpha \wedge \beta)} = \odif{\alpha} \wedge \beta + {(-1)}^k \alpha \wedge \odif{\beta} \quad \text{for $\alpha$ a $k$-form,} \]
 and squares to zero, $\odif*{}^2 = 0$. A form $\omega$ with $\odif{\omega} = 0$ is called \newterm{closed}.
 
 In coordinates, given $f : U \to \RR$, if $\omega = f \, \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$ then $\odif{\omega} = \odif{f} \wedge \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$. For $\RR^3$, applied to a 0-form ($Q \to \RR$) it gives the gradient $\nabla$, to a 1-form the curl $\nabla \times$, and to a 2-form the divergence $\nabla \cdot$. The identities $\nabla \times \nabla = 0$ and $\nabla \cdot (\nabla \times) = 0$ are both instances of $\odif*{}^2 = 0$.
 
-\notion{Symplectic forms*}\label{notion:symplectic-forms}~\cite[Chapter 22]{leeSmoothManifolds2013} A \newterm{symplectic form} on a manifold $M$ is a 2-form $\omega$ that is closed ($\odif{\omega} = 0$) and non-degenerate, meaning that $\omega_p(v, \cdot) = 0$ as a 1-form implies $v = 0$. Non-degeneracy forces $M$ to be even-dimensional. A diffeomorphism $F : M \to M$ is called \newterm{symplectic} it preserves a symplectic form $\omega$, in the sense that $F^* \omega = \omega$.
+\notion{Symplectic forms*}\label{notion:symplectic-forms}~\cite[Chapter~22]{leeSmoothManifolds2013} A \newterm{symplectic form} on a manifold $M$ is a 2-form $\omega$ that is closed ($\odif{\omega} = 0$) and non-degenerate, meaning that $\omega_p(v, \cdot) = 0$ as a 1-form implies $v = 0$. Non-degeneracy forces $M$ to be even-dimensional. A diffeomorphism $F : M \to M$ is called \newterm{symplectic} it preserves a symplectic form $\omega$, in the sense that $F^* \omega = \omega$.
 
+\newpage % I think it looks nice to separate them, right now there is very little space left.
 \section{Physical systems, configuration space and Lagrangians}\label{sec:physical-systems-lagrangians}
 
 A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we focus on the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
@@ -94,14 +89,14 @@ This is the standard Lagrangian formulation, that describes closed systems. In p
 
 \begin{itemize}
 	\item \newterm{Time-dependent Lagrangians}, $L : \RR \times TQ \to \RR$, depend explicitly on a time parameter. This models a system whose effective laws of physics change over time, typically because it is coupled to an external influence that varies with time. Hamilton's principle applies but energy is no longer conserved.
-	\item \newterm{Forced systems} are one of the main topics of this paper (\cref{sec:forced-systems}). They have some forcing applied (such as dissipation) and follow the Lagrange-D'Alembert principle (\cref{def:lagrange-dalambert}).
+	\item \newterm{Forced systems} are one of the main topics of this paper (\cref{sec:forced-systems}). They have some forcing applied (such as dissipation) and follow the Lagrange-D'Alembert principle (\cref{def:lagrange-dalembert}).
 	\item \newterm{Constrained} systems restrict the admissible configurations or velocities to a submanifold of $TQ$. Classic examples include the rigid links of a robotic arm (holonomic constraints) or rolling contact of a wheel on a surface (non-holonomic constraints).
 	\item \newterm{Higher-order} Lagrangians depend on higher derivatives of $q$, e.g. $L(q, \dot{q}, \ddot{q})$. In principle, the results of this paper are able to be carried over automatically to Lagrangians of arbitrary order~\cite{ferraroParallelComputingVariational, gay-balmazInvariantHigherorderVariational2012}.
 \end{itemize}
 
 \section{The Euler-Lagrange equations}
 
-Following Hamilton's principle~\cite[Chapter 1.3]{marsdenIntroductionMechanicsSymmetry1999}, we seek to find the extrema of the action defined by a Lagrangian $L$. This can be done by taking a variation of the action and equating it to $0$. Namely, we consider the vector field along $q$ defined by $q_\varepsilon(t)$ defined  by $\delta q=\odv{q_{\varepsilon}}{\varepsilon}\big|_{\epsilon=0}$, where $\delta q(0) = \delta q(T) = 0$. Then, we define the variation of the action $\delta S(q_\varepsilon)$ as $\odv{}{t} S(q_\varepsilon) \Big|_{\epsilon=0}$.
+Following Hamilton's principle~\cite[Chapter~1.3]{marsdenIntroductionMechanicsSymmetry1999}, we seek to find the extrema of the action defined by a Lagrangian $L$. This can be done by taking a variation of the action and equating it to $0$. Namely, we consider the vector field along $q$ defined by $q_\varepsilon(t)$ defined  by $\delta q=\odv{q_{\varepsilon}}{\varepsilon}\big|_{\epsilon=0}$, where $\delta q(0) = \delta q(T) = 0$. Then, we define the variation of the action $\delta S(q_\varepsilon)$ as $\odv{}{t} S(q_\varepsilon) \Big|_{\epsilon=0}$.
 Applying this to the action, we get:
 
 \begin{align}
