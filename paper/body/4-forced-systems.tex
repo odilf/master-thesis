@@ -11,7 +11,7 @@ Unlike Hamilton's principle, this is \emph{not} in general the extremization of 
 
 As in the unforced case, it is possible to carry out a discretization of the state space, the Lagrangian and the forces. The first two are the same: from $TQ$ to $Q \times Q$ and from $L : TQ \to \RR$ to $L_d : Q \times Q \to \RR$.
 
-The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=f_d^-\circ \tau_Q$ and $f^+$ with the second, $\hbox{pr}_2=f_d^+\circ \tau_Q$) \cite[\S3.2.1]{marsdenDiscreteMechanicsVariational2001}.
+The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=f_d^-\circ \tau_Q$ and $f^+$ with the second, $\hbox{pr}_2=f_d^+\circ \tau_Q$)~\cite[\S3.2.1]{marsdenDiscreteMechanicsVariational2001}.
 
 \begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalembert}
 	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
@@ -292,7 +292,7 @@ We call the factor $1 - \|J\|$ in~\eqref{eq:forced-perturbation-epsilon} the \ne
 This perturbation bound is checkable in terms of derivatives of the discrete forces $f_d^\pm$ alone, which depend on the discrete Lagrangian and the chosen discretization of the force, but not on the (unknown) solution trajectory (although it doesn't say anything whether the unforced system converges in the first place).
 
 \todo{
-	~\cite[Lemma~5.6.10]{hornMatrixAnalysis2012} says that for any $\epsilon > 0$ there exists a (implied submultiplicative?) matrix norm with $\|J\| \leq \rho(J) + \epsilon$, which is almost what we want, but doesn't have the diagonal contraction condition. Should we mention it?
+	\cite[Lemma~5.6.10]{hornMatrixAnalysis2012} says that for any $\epsilon > 0$ there exists a (implied submultiplicative?) matrix norm with $\|J\| \leq \rho(J) + \epsilon$, which is almost what we want, but doesn't have the diagonal contraction condition. Should we mention it?
 }
 
 \begin{remark}[Time complexity]\label{rem:forced-perturbation-complexity}

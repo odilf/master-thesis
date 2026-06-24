@@ -13,7 +13,7 @@ The Jacobi step of the parallel algorithm, written for an interior node $k$ and 
 \[
 	r_k(\mathbf{g}, \overline{g}_k) = \mdif{2} \Ld(g_{k-1}, \overline{g}_k) + \mdif{1} \Ld(\overline{g}_k, g_{k+1}) = 0.
 \]
-In this setting, taking the derivative with $g_{k\pm1}$ fixed entails going from $L_d^\pm : G \to \RR$ to $T_{\overline{g}_k} G \to T_{L_d^\pm (\overline{g}_k)} \RR$, and using the fact that every tangent bundle of $\RR^n$ is isomorphic to $\RR^n$, this becomes a sum in $T_{\overline{g}_k}^* G$. This forms a vector space so this step is well-defined.
+In this setting, taking the derivative with $g_{k\pm1}$ fixed entails going from $L_d^\pm : G \to \RR$ to $T_{\overline{g}_k} G \to T_{L_d^\pm (\overline{g}_k)} \RR$, and using the fact that every tangent space of $\RR^n$ is isomorphic to $\RR^n$, this becomes a sum in $T_{\overline{g}_k}^* G$. This forms a vector space so this step is well-defined.
 
 What does fail is the Newton update~\eqref{eq:jacobi-newton}:
 \[ \overline{q} = q_k - \bigl(\mdif{2} r_k(\mathbf{q}, q_k)\bigr)^{-1}\, r_k(\mathbf{q}, q_k), \]
@@ -301,7 +301,7 @@ Implementing this extension in practice is not completely straightforward if one
 	\item the numerical representation of elements of $G$
 	\item the pullbacked differential operator, ${(T_e L_g)}^* T_g : (G \to \RR) \to G \to \fg^* $
 	\item the group action, $\cdot : G \times G \to G$
-	\item a retraction, $\tau : TG \to G $
+	\item a retraction, $\tau : \fg \to G $
 \end{enumerate}
 
 Elements of the tangent and cotangent space are represented by their trivialized counterparts in the algebra, and elements of the algebra (and coalgebra) are represented via the $\RR^n$ isomorphism we know must exist. For instance, on $G = SO(3)$, elements of $\fg = \mathfrak{so}(3)$ are skew-symmetric $3 \times 3$ matrices that have an isomorphism with $\RR^3$ via the hat map:
@@ -397,7 +397,3 @@ We discretise with the midpoint rule, exactly as in the satellite case.
 \end{figure}
 
 Here, we see that in the first 3--4 snapshots the ship is orientating itself using the direction of the flow. Interestingly, we see that between the last and second-to-last snapshot, the ship does a sharp turn. This is to maximize the amount of time the ship is being maximally pushed by the flow. In fact, the flow helps the ship turn in that direction and the flow is greater away from the center, so delaying the turn also helps make the turn itself cheaper.
-
-\tocless\subsection{Unstable and chaotic systems}
-
-\todo{Talk about: middle axis rotation in prism is untable, but this is not reflected on the solution. EL has a fixed point so it will find the correct but unstable solution, it's only that if you try to simulate it forward in time you will get a different final solution because of instability and numerical errors. A double pendulum is chaotic, and this \emph{is} reflected in the sense that small changes in the boundary conditions will lead to big changes in trajectory. However, this trajectory will be realistic. Even difference in implementation details can be enough here to converge to different trajectories.}

@@ -2,7 +2,7 @@
 
 Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange~\eqref{eq:euler-lagrange}, and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q \cong \RR^n$ then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaas~\cite{munthe-kaasRungeKuttaMethodsLie1998} or similar methods.
 
-However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the underlying geometric picture. In \cref{sec:geometric-properties-el} we explain what these properties are and in \cref{sec:pitfalls-discrete-el-ode} we discuss what you lose when you stop working gometrically.
+However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the underlying geometric picture. In \cref{sec:geometric-properties-el} we explain what these properties are and in \cref{sec:pitfalls-discrete-el-ode} we discuss what you lose when you stop working geometrically.
 
 Instead, one can discretize the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and derive discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration}~\cite[\S1.3]{marsdenDiscreteMechanicsVariational2001} will be explained in \cref{sec:variational-integration}
 
@@ -46,7 +46,7 @@ In the Euler-Lagrange derivation, integration by parts~\eqref{eq:el-parts} leave
 \]
 is non-degenerate and closed, making it a symplectic form on $TQ$. The EL flow preserves this symplectic form $\omega_L$, in the sense that $F_t^* \omega_L = \omega_L$ for all $t$~\cite[\S1.2.3]{marsdenDiscreteMechanicsVariational2001}. This makes the EL flow \newterm{symplectic} (with respect to $\omega_L$).
 
-Symplecticity of a flow imples that it is (locally) the flow of some Hamiltonian function $H$, and that that function is exactly preserved along the flow \cite{marsdenIntroductionMechanicsSymmetry1999}. Additionally, simplectic flow also implies \newterm{Liouville's theorem}, which states that the EL flow preserves phase-space volume. In particular, no region of phase space contracts or expands, so there are no attractors or sinks in the dynamics.
+Symplecticity of a flow implies that it is (locally) the flow of some Hamiltonian function $H$, and that that function is exactly preserved along the flow~\cite{marsdenIntroductionMechanicsSymmetry1999}. Additionally, symplectic flow also implies \newterm{Liouville's theorem}, which states that the EL flow preserves phase-space volume. In particular, no region of phase space contracts or expands, so there are no attractors or sinks in the dynamics.
 
 \section{Pitfalls of discretizing the equations of motion}\label{sec:pitfalls-discrete-el-ode}
 
@@ -54,7 +54,7 @@ Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, th
 
 Furthermore, if $Q$ is not a vector space, sometimes the updates are done in a bigger ambient vector space that $Q$ can be embedded into. Then, accumulation of local errors can result in values that are not elements of $Q$ at all. For instance, with 3-dimensional rotations, integration of $\SO(3)$ matrices in the ambient matrix space $\RR^9$ often leads to loss of orthogonality and unit determinant. This can be mitigated to some extent by reprojecting onto the relevant manifold, but that might increase errors and makes converge harder to analyze.
 
-In short, naive integration has aspects of long-term behavior are qualitiatively unphysical. This is especially problematic for conservation laws, as they are often assumed as invariants in a broader analytical context where a numerical integrator might be used. 
+In short, naive integration leads in certain aspects to long-term behavior that is qualitatively unphysical. This is especially problematic for conservation laws, as they are often assumed as invariants in a broader analytical context where a numerical integrator might be used. 
 
 % Sometimes having a \todo{unphysical trajectories can be closer to the real trajectory.}
 
@@ -78,7 +78,7 @@ Notice that this is a reformulation that can be done with no loss of information
 \begin{equation}
 	L_d^e (q_0, q_1) = \int_0^h L(q_{0, 1}(t), \dot{q}_{0, 1}(t)) \odif{t}
 \end{equation}
-where $q_{0, 1}$ is the path that minimizes the action along all the paths that connect $q_0$ and $q_1$. This way the discrete formulation gives identical results to the continuous one. Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; so, in practice, the discrete Lagrangian $\Ld$ is defined using some quadrature rule that essentially approximates the integral of the exact discrete Lagrangian.
+where $q_{0, 1}$ is the path that extermizes the action along all the paths that connect $q_0$ and $q_1$. This way the discrete formulation gives identical results to the continuous one. Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; so, in practice, the discrete Lagrangian $\Ld$ is defined using some quadrature rule that essentially approximates the integral of the exact discrete Lagrangian.
 
 Applying Hamilton's principle to the discrete action (that is, $\nabla S_d = 0$), the \newterm{discrete Euler-Lagrange} (DEL) equations can be derived:
 \begin{equation}
@@ -107,12 +107,13 @@ Given this approach to discretization, a trajectory can be computed point-by-poi
 
 \section{Parallel algorithm}\label{sec:parallel-algorithm}
 
-In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations in proposed. The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = {\{q_k\}}_{k=0}^N \in Q^{N+1}$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
+In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations is proposed. The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = {\{q_k\}}_{k=0}^N \in Q^{N+1}$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
 \begin{equation}
 	R(\mathbf{q}) = \bigoplus_{k=0}^{N-1}
 	\left(\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})\right) = 0
 	\label{eq:residual-global}
 \end{equation}
+\todo{maybe introduce $\bigoplus$ notation properly}
 and we want to find a path $\mathbf{q}^*$ such that $R(\mathbf{q}^*) = 0$ where $q_0$ and $q_N$ are fixed.
 
 At a high level, two schemes are used to find this root. First, we frame the algorithm as a block Jacobi update step that can be done in parallel. However, the Jacobi update is still not directly computable, so we use one or more Newton-Raphson steps to compute the Jacobi update.
@@ -154,7 +155,7 @@ It is equation~\eqref{eq:jacobi-newton} which is computable using any linear sol
 
 \subsection{Convergence criteria}\label{sec:standard-convergence}
 
-The convergence of the method (both in the standard case as well in the forced and Lie group cases) is mainly related to the Hessian of the action, which we refer to as the \newterm{global Hessian matrix}, $H$. This is because, given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the hessian of $F$ is positive definite~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025}. Hamilton's principle is precisely such a formulation: the residual that we want to eliminate is the Hessian of the action, $R = \nabla S$.
+The convergence of the method (both in the standard case as well in the forced and Lie group cases) is mainly related to the Hessian of the action, which we refer to as the \newterm{global Hessian matrix}, $H$. This is because, given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the hessian of $F$ is positive definite~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025}. Hamilton's principle is precisely such a formulation: the residual that we want to eliminate is the gradient of the action, $R = \nabla S$.
 
 Given the structure of the action, its Hessian can be written in terms of second-order derivatives of the Lagrangian. That is, given the action defined as in~\eqref{eq:action-discrete} for a path $\mathbf{q}$ of length $N$
 \[ 	S_d (\mathbf{q}) : Q^N \to \RR, \qquad  S_d (\mathbf{q}) = \sum_{k=0}^{N-1} \Ld(q_k, q_{k+1})
@@ -222,7 +223,7 @@ where
 	If all the local Hessian matrices $H_k$ (as defined above) are positive definite, then the global Hessian matrix $H$ is positive definite and the method converges locally.
 \end{theorem}
 
-Checking this condition has an $\mathcal{O}(N)$ runtime in terms of the size $N$ of the path. However, this condition is not necessary, and in practice it is common for p.d.\ global Hessians to not be localy p.d..
+Checking this condition has an $\mathcal{O}(N)$ runtime in terms of the size $N$ of the path. However, this condition is not necessary, and in practice it is common for p.d.\ global Hessians to not be locally p.d..
 
 This is where a third convergence result comes into play, which gives an easy to check sufficient \emph{and necessary} condition for the positive definiteness of the global Hessian matrix:
 
@@ -231,7 +232,7 @@ This is where a third convergence result comes into play, which gives an easy to
 	\[ \Lambda_i = \mathcal{D}_i - \mathcal{C}_{i-1}^T \Lambda_{i-1}^{-1} \mathcal{C}_{i-1}, \quad 2 \leq i \leq N - 1 \]
 	are all positive definite.
 \end{theorem}
-This check has the same runtime complexity of $\mathcal{O}(N)$ as \cref{thm:local-hessian-pd-convergence}, except that this approach is suficient to determine positive definiteness.
+This check has the same runtime complexity of $\mathcal{O}(N)$ as \cref{thm:local-hessian-pd-convergence}, except that this check is a bi-implication.
 
 \bigskip
 
