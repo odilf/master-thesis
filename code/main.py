@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import se3, forced
 
+mpl.rcParams["text.usetex"] = True
+mpl.rcParams["font.family"] = "serif"
+mpl.rcParams["text.latex.preamble"] = r"\usepackage{newtx}"
+
 
 @dataclass(frozen=True)
 class UI[T]:
