@@ -2,7 +2,7 @@
 
 Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange~\eqref{eq:euler-lagrange}, and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q \cong \RR^n$ then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaas~\cite{munthe-kaasRungeKuttaMethodsLie1998} or similar methods.
 
-However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the underlying geometric picture. In \cref{sec:geometric-properties-el} we explain what these properties are and in \cref{sec:pitfalls-discrete-el-ode} we discuss what you lose when you stop working geometrically.
+However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the underlying geometric picture. In \cref{sec:geometric-properties-el} we explain what these properties are and in \cref{sec:pitfalls-discrete-el-ode} we discuss what is lost when one stops working geometrically.
 
 Instead, one can discretize the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and derive discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration}~\cite[\S1.3]{marsdenDiscreteMechanicsVariational2001} will be explained in \cref{sec:variational-integration}
 
@@ -97,7 +97,7 @@ As in the continuous case, the DEL equations~\eqref{eq:euler-lagrange-discrete} 
 A discrete analog of Noether's theorem holds as well: any continuous symmetry of $L$ inherited by $L_d$ corresponds with a scalar quantity conserved exactly at every step. This is arguably stronger than the continuous Noether statement, since conservation now holds for the actual numerical trajectory rather than for an ideal one being approximated.
 
 
-One symmetry that doesn't get automatically inherited is time-translation symmetry. The discrete Lagrangian $L_d(q_k, q_{k+1})$ implicitly depends on a fixed timestep $h$, and fixing $h$ removes the time variable from the discrete dynamics, so there is no variable left for time-translation to act on. This is why earlier we talked about energy oscillating around the true value instead of being preserved.
+One symmetry that does not get automatically inherited is time-translation symmetry. The discrete Lagrangian $L_d(q_k, q_{k+1})$ implicitly depends on a fixed timestep $h$, and fixing $h$ removes the time variable from the discrete dynamics, so there is no variable left for time-translation to act on. This is why earlier we discussed energy oscillating around the true value instead of being preserved.
 
 %\todo{Explain better how time-symmetry breaks?}
 
@@ -125,7 +125,7 @@ The Jacobi update step consists of finding a new path $\overline{\mathbf{q}} = \
 	\mdif{2} L_d (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1}) = 0
 	\label{eq:residual-local}
 \end{equation}
-which is a term of the sum, replacing the central $q_k$ by some new value $\overline{q}$. An updated path $\overline{\mathbf{q}}$ where for all inner points $k$, $r_k(\mathbf{q}, \overline{q_k}) = 0$, is not generally a solution, but under certain conditions (discussed in \cref{sec:standard-convergence}), iterating this update will converge to a solution.
+which is a term of the sum, replacing the central $q_k$ by some new value $\overline{q}$. An updated path $\overline{\mathbf{q}}$ where for all inner points $k$, $r_k(\mathbf{q}, \overline{q_k}) = 0$, is not generally a solution, but under certain conditions (discussed in \cref{sec:standard-convergence}), iterating this update will converge to a solution. Crucially, the local residual $r_k$ only involves $q_k$ and its two neighbors $q_{k-1}$ and $q_{k+1}$ (see \cref{fig:discrete-path-stencil}), so all interior points can be updated independently and in parallel.
 
 \paragraph{Newton-Raphson.}
 Since the Lagrangian can be arbitrarily complex, the Jacobi step does not have a general way to be computed. Specific kinds of Lagrangians, such as quadratic or cubic ones, have clear closed-form solutions. In lieu of knowing if the Lagrangian has one of these forms ahead of time, we use the Newton-Raphson method to solve a linearization of the problem. So, instead of consider the residual $r_k(\mathbf{q}, \overline{q})$, we consider the linearization $\rho_k$ around $q_k$:

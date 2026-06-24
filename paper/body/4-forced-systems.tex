@@ -41,7 +41,7 @@ and the local residual, from \cref{eq:residual-local} to
 	\mdif{2} L_d (q_{k-1}, \overline{q}) + f_d^+ (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1}) + f_d^- (\overline{q}, q_{k+1}).
 \end{equation*}
 
-Utilizing these definitions for the residual, and supposing that $Q$ is a vector space, the computation based on the parallel algorithm is the exact same (which is, incidentally, why we introduced the method based on residuals in \cref{sec:parallel-algorithm}). In fact, it's easy to see that the unforced case already known is recovered by setting the forces to $0$ in the forced case.
+Utilizing these definitions for the residual, and supposing that $Q$ is a vector space, the computation based on the parallel algorithm is the exact same (which is, incidentally, why we introduced the method based on residuals in \cref{sec:parallel-algorithm}). In fact, it is easy to see that the unforced case already known is recovered by setting the forces to $0$ in the forced case.
 
 \section{Convergence}\label{sec:forced-systems-convergence}
 
@@ -226,7 +226,7 @@ where $H$ is the unforced Hessian~\eqref{eq:hessian-matrix} and $\Delta F$ is a 
 \end{align*}
 Notice that $\Delta F = 0$ when all forces vanish, recovering $H^f = H$, so $\Delta F$ is a measure of the deviation from the unforced problem.
 
-The following theorem states in a rigourous and quantitative manner the intuitive idea that, if the algorithm already converges without forces, then it still converges when you add forces as long as the forces are ``weak enough'', which manifest as the derivatives $\mdif{i} f_d^\pm$ that appear in the Jacobian being small ``enough''.
+The following theorem states in a rigourous and quantitative manner the intuitive idea that, if the algorithm already converges without forces, then it still converges when forces are added, as long as they are ``weak enough'', which manifest as the derivatives $\mdif{i} f_d^\pm$ that appear in the Jacobian being small ``enough''.
 
 \begin{theorem}[Perturbation condition]\label{thm:forced-perturbation}
 	Suppose the unforced Jacobi-Newton method converges at $\mathbf{q}^*$: the diagonal $D$ of $H(\mathbf{q}^*)$ is invertible and $\rho(J(\mathbf{q}^*)) < 1$. Then there exists an $\varepsilon > 0$ such that, whenever $\|\Delta F(\mathbf{q}^*)\|_2 < \varepsilon$, the forced Jacobi-Newton method also converges locally to $\mathbf{q}^*$.
@@ -289,7 +289,7 @@ In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exist
 \end{proof}
 
 We call the factor $1 - \|J\|$ in~\eqref{eq:forced-perturbation-epsilon} the \newterm{contraction margin} of the unforced iteration, and $\|D^{-1}\|$ measures how well-conditioned the diagonal is. A smaller margin or a worse-conditioned diagonal will shrink $\varepsilon$, making the margin of the magnitude of allowed forces tighter.
-This perturbation bound is checkable in terms of derivatives of the discrete forces $f_d^\pm$ alone, which depend on the discrete Lagrangian and the chosen discretization of the force, but not on the (unknown) solution trajectory (although it doesn't say anything whether the unforced system converges in the first place).
+This perturbation bound is checkable in terms of derivatives of the discrete forces $f_d^\pm$ alone, which depend on the discrete Lagrangian and the chosen discretization of the force, but not on the (unknown) solution trajectory (although it does not say anything about whether the unforced system converges in the first place).
 
 \todo{
 	\cite[Lemma~5.6.10]{hornMatrixAnalysis2012} says that for any $\epsilon > 0$ there exists a (implied submultiplicative?) matrix norm with $\|J\| \leq \rho(J) + \epsilon$, which is almost what we want, but doesn't have the diagonal contraction condition. Should we mention it?
@@ -382,7 +382,7 @@ The problem can be discretized with the midpoint rule, for instance. The only ad
 	\caption{Trajectory and initial velocity that a parachutist need to reach a desired endpoint in a wind field with two vortexes. Green path indicates trajcetory, fainter green paths indicate intermediate iterations solver iterations.}\label{fig:parachutist-main}
 \end{figure}
 
-The results of the implementation are shown in \cref{fig:parachutist-main,fig:parachutist-many}. \Cref{fig:parachutist-main} shows how the trajectory starts as a straight line to the endpoint, but it curves upwards to be made physical. It turns out that for this particular wind field that has two vortexes, the parachutist needs to jump with velocity mostly to the right, and a bit upwards.
+The results of the implementation are shown in \cref{fig:parachutist-main,fig:parachutist-many}. \Cref{fig:parachutist-main} shows how the trajectory starts as a straight line to the endpoint, but it curves upwards to be made physical. It turns out that for this particular wind field that has two vortexes, the parachutist needs to jump with velocity mostly to the right, and slightly upwards.
 
 \Cref{fig:parachutist-many} shows many trajectories from different starting  positions, both for the vortex wind field (\cref{fig:parachutist-many-vortex}) as well as for a wind field that forms a shear (\cref{fig:parachutist-many-shear}). This serves to illustrate a couple non-trivial observations. For instance, trajectory 3 (hexagon) in \cref{fig:parachutist-many-vortex} needs a very high initial velocity, which indicates that it is most likely not realistic for the parachutist to jump from that point and reach the target; and trajectory 2 (star) in \cref{fig:parachutist-many-shear} shows that to reach the endpoint the parachutist has to first jump \emph{away} from the target to reach it in the desired time (i.e., jump up and to the right, while the target is down and to the left).
 
