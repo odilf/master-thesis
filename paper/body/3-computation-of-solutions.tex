@@ -4,7 +4,7 @@ Perhaps the most straightforward approach to compute numerically solutions that 
 
 However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the underlying geometric picture. In \cref{sec:geometric-properties-el} we explain what these properties are and in \cref{sec:pitfalls-discrete-el-ode} we discuss what you lose when you stop working gometrically.
 
-Instead, one can discretize the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and derive discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration}~\cite[Chapter~1.3]{marsdenDiscreteMechanicsVariational2001} will be explained in \cref{sec:variational-integration}
+Instead, one can discretize the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and derive discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration}~\cite[\S1.3]{marsdenDiscreteMechanicsVariational2001} will be explained in \cref{sec:variational-integration}
 
 \section{Geometric properties of the Euler-Lagrange equations}\label{sec:geometric-properties-el}
 
@@ -12,7 +12,7 @@ The Euler-Lagrange equations can be viewed as a dynamical system on the \newterm
 \[ F_t : TQ \to TQ, \quad (q(0), \dot{q}(0)) \mapsto (q(t), \dot{q}(t)), \]
 that sends each initial state to the state reached after time $t$ along the corresponding solution. In other words, $F_t$ packages the physical evolution of \emph{every} initial condition simultaneously, rather than one trajectory at a time.
 
-It is this flow that has two distinct sources of exactly conserved quantities, with different origins. The first, Noether's theorem, associates a conserved scalar to each continuous symmetry of $L$. The second, symplecticity, is a property of the variational structure of (unforced) Lagrangians, which in particular implies the exact preservation of a Hamiltonian function. Both of these constrain long-term behavior in ways that local error estimates often fail to capture. We will briefly explain the implications of each (for an in-depth examination, see~\cite[Chapter~1.2]{marsdenDiscreteMechanicsVariational2001} and~\cite[Chapters~7,~11]{marsdenIntroductionMechanicsSymmetry1999}).
+It is this flow that has two distinct sources of exactly conserved quantities, with different origins. The first, Noether's theorem, associates a conserved scalar to each continuous symmetry of $L$. The second, symplecticity, is a property of the variational structure of (unforced) Lagrangians, which in particular implies the exact preservation of a Hamiltonian function. Both of these constrain long-term behavior in ways that local error estimates often fail to capture. We will briefly explain the implications of each (for an in-depth examination, see~\cite[\S1.2]{marsdenDiscreteMechanicsVariational2001} and~\cite[\S\S7,~11]{marsdenIntroductionMechanicsSymmetry1999}).
 
 
 \paragraph{Conservation laws and Noether's theorem}
@@ -31,7 +31,7 @@ These diffeomorpisms are generated infinitesimally by a vector field $X$ on $Q$ 
 	J(q, \dot q) = \sum_i \pdv{L}{\dot q^i} X^i(q)
 	\label{eq:noether-charge}
 \end{equation}
-is conserved along every solution of the Euler-Lagrange equations~\cite[Chapter~7]{ marsdenIntroductionMechanicsSymmetry1999}. That is, $\odv{J}{t} = 0$\footnote{When the symmetries form a Lie group $G$, the conserved quantity can be written in a coordinate-free form using the Lagrangian symplectic form, called the \newterm{momentum map} $\odif*{} \langle J, \xi \rangle = \iota_{\xi_{TQ}} \omega_L$, which is the usual way Noether's theorem is expressed \tc{} \todo{Igual esto sobra}.}.
+is conserved along every solution of the Euler-Lagrange equations~\cite[\S7]{marsdenIntroductionMechanicsSymmetry1999}. That is, $\odv{J}{t} = 0$\footnote{When the symmetries form a Lie group $G$, the conserved quantity can be written in a coordinate-free form using the Lagrangian symplectic form, called the \newterm{momentum map} $\odif*{} \langle J, \xi \rangle = \iota_{\xi_{TQ}} \omega_L$, which is the usual way Noether's theorem is expressed \tc{} \todo{Igual esto sobra}.}.
 
 Well-known conservation laws can be derived in this way: translational symmetry of $L$ corresponds to linear momentum, rotational symmetry to angular momentum, time-translation symmetry (considering time as part of the state space, $Q \times \RR$) to energy, etc.
 
@@ -44,13 +44,13 @@ In the Euler-Lagrange derivation, integration by parts~\eqref{eq:el-parts} leave
 \[
 	\omega_L = \odif*{} \theta_L
 \]
-is non-degenerate and closed, making it a symplectic form on $TQ$. The EL flow preserves this symplectic form $\omega_L$, in the sense that $F_t^* \omega_L = \omega_L$ for all $t$~\cite[Chapter~1.2.3]{marsdenDiscreteMechanicsVariational2001}. This makes the EL flow \newterm{symplectic} (with respect to $\omega_L$).
+is non-degenerate and closed, making it a symplectic form on $TQ$. The EL flow preserves this symplectic form $\omega_L$, in the sense that $F_t^* \omega_L = \omega_L$ for all $t$~\cite[\S1.2.3]{marsdenDiscreteMechanicsVariational2001}. This makes the EL flow \newterm{symplectic} (with respect to $\omega_L$).
 
 Symplecticity of a flow imples that it is (locally) the flow of some Hamiltonian function $H$, and that that function is exactly preserved along the flow \cite{marsdenIntroductionMechanicsSymmetry1999}. Additionally, simplectic flow also implies \newterm{Liouville's theorem}, which states that the EL flow preserves phase-space volume. In particular, no region of phase space contracts or expands, so there are no attractors or sinks in the dynamics.
 
 \section{Pitfalls of discretizing the equations of motion}\label{sec:pitfalls-discrete-el-ode}
 
-Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, the obvious move is to plug it into an off-the-shelf integrator (e.g., Runge-Kutta). While the local error per step is controlled, this approach loses the geometric structure and with it the geometric properties described in \cref{sec:geometric-properties-el}. A priori, a generic integrator does not preserve momentum maps nor is it symplectic. It is possible to construct, on case-by-case basis, integrators that conserve a quantity by preserving a symmetry of $L$~\cite[Chapters~IV,~V]{hairerGeometricNumericalIntegration2006}, but it is hard to make this work for more than one quantity at a time. Symplectic integrators (that are not specific cases of the variational principle) are rarer still~\cite[Chapter~VI.4]{hairerGeometricNumericalIntegration2006}; and algorithms that exactly preserve energy cannot be symplectic~\cite[Section~3]{zhongLiePoissonHamiltonJacobiTheory1988}.
+Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, the obvious move is to plug it into an off-the-shelf integrator (e.g., Runge-Kutta). While the local error per step is controlled, this approach loses the geometric structure and with it the geometric properties described in \cref{sec:geometric-properties-el}. A priori, a generic integrator does not preserve momentum maps nor is it symplectic. It is possible to construct, on case-by-case basis, integrators that conserve a quantity by preserving a symmetry of $L$~\cite[\S\S{IV},V]{hairerGeometricNumericalIntegration2006}, but it is hard to make this work for more than one quantity at a time. Symplectic integrators (that are not specific cases of the variational principle) are rarer still~\cite[\S{VI.4}]{hairerGeometricNumericalIntegration2006}; and algorithms that exactly preserve energy cannot be symplectic~\cite[\S3]{zhongLiePoissonHamiltonJacobiTheory1988}.
 
 Furthermore, if $Q$ is not a vector space, sometimes the updates are done in a bigger ambient vector space that $Q$ can be embedded into. Then, accumulation of local errors can result in values that are not elements of $Q$ at all. For instance, with 3-dimensional rotations, integration of $\SO(3)$ matrices in the ambient matrix space $\RR^9$ often leads to loss of orthogonality and unit determinant. This can be mitigated to some extent by reprojecting onto the relevant manifold, but that might increase errors and makes converge harder to analyze.
 
@@ -218,7 +218,7 @@ where
 \end{equation}
 (note that $\mathcal{D}_k = \mathcal{B}_{k-1} + \mathcal{A}_k$).
 
-\begin{theorem}[Local Hessian convergence~{\cite[thm. 4.1]{ferraroParallelComputingVariational}}]\label{thm:local-hessian-pd-convergence}
+\begin{theorem}[Local Hessian convergence~{\cite[Thm.~4.1]{ferraroParallelComputingVariational}}]\label{thm:local-hessian-pd-convergence}
 	If all the local Hessian matrices $H_k$ (as defined above) are positive definite, then the global Hessian matrix $H$ is positive definite and the method converges locally.
 \end{theorem}
 
@@ -226,7 +226,7 @@ Checking this condition has an $\mathcal{O}(N)$ runtime in terms of the size $N$
 
 This is where a third convergence result comes into play, which gives an easy to check sufficient \emph{and necessary} condition for the positive definiteness of the global Hessian matrix:
 
-\begin{theorem}[Hessian positive definiteness criterion ({\cite[Theorem 4.12]{ferraroParallelIterativeMethod2025}})]\label{thm:hessian-pd-criterion}
+\begin{theorem}[Hessian positive definiteness criterion ({\cite[Thm.~4.12]{ferraroParallelIterativeMethod2025}})]\label{thm:hessian-pd-criterion}
 	The Hessian matrix $H(\mathbf{q})$ is positive definite if and only if the matrices defined iteratively by $\Lambda_1 = \mathcal{D}_1$ and
 	\[ \Lambda_i = \mathcal{D}_i - \mathcal{C}_{i-1}^T \Lambda_{i-1}^{-1} \mathcal{C}_{i-1}, \quad 2 \leq i \leq N - 1 \]
 	are all positive definite.

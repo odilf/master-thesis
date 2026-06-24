@@ -247,16 +247,16 @@ The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \
 	The Lie group $G$ enters the convergence story only through the chart $\Psi$ and the Lie-algebra Hessian blocks of \cref{sec:lie-hessian}. \Cref{lem:chart-iteration-jacobian} packages this geometric content into a single linear-algebraic identity, $\widetilde{T}'(0) = \widetilde{J}$. From that point on, $\widetilde{T}$ is just a smooth map on $\fg^{N-1} \cong \RR^{(N-1)\dim\fg}$, and the remaining work \todo{the linearisation theorem and the bound $\rho(\widetilde{J}) < 1$ from positive-definiteness of $\widetilde{H}$} is, effectively, classical analysis in $\RR^n$.
 \end{remark}
 
-The following theorem is essentially the same as \cref{thm:hessian-pd-convergence}, but the proof is slightly different because we cannot directly apply Lemma~\ref{lem:jacobi-newton-convergence} (since that talks about Jacobi-Newton applied to vector spaces). The main difference is that we use~\cite[Theorem~10.1.3]{ortegaIterativeSolutionNonlinear1970} which assumes less about how the iteration procedure is set up, and is the reason we needed Lemma~\ref{lem:chart-iteration-jacobian}. Regardless, the proof is brief and similar in spirit to the one in~\cite[Prop.~4.5]{ferraroParallelIterativeMethod2025}.
+The following theorem is essentially the same as \cref{thm:hessian-pd-convergence}, but the proof is slightly different because we cannot directly apply Lemma~\ref{lem:jacobi-newton-convergence} (since that talks about Jacobi-Newton applied to vector spaces). The main difference is that we use~\cite[Thm.~10.1.3]{ortegaIterativeSolutionNonlinear1970} which assumes less about how the iteration procedure is set up, and is the reason we needed Lemma~\ref{lem:chart-iteration-jacobian}. Regardless, the proof is brief and similar in spirit to the one in~\cite[Prop.~4.5]{ferraroParallelIterativeMethod2025}.
 
 \begin{theorem}[Lie-group convergence]\label{thm:lie-group-convergence}
 	Let $\mathbf{g}^*$ be a solution of the DEL equations. If the Lie-algebra Hessian $\widetilde{H}(\mathbf{g}^*)$ is positive definite, then the Jacobi-Newton-G method converges locally to $\mathbf{g}^*$.
 \end{theorem}
 
 \begin{proof}
-	The diagonal blocks $\widetilde{\mathcal{D}}_k(\mathbf{g}^*)$ are principal blocks of the positive-definite symmetric matrix $\widetilde{H}(\mathbf{g}^*)$, hence positive definite (by Sylvester's criterion and a permutation argument). In particular, $\widetilde{D}(\mathbf{g}^*)$ is nonsingular, so $\widetilde{J} = -\widetilde{D}^{-1}(\widetilde{L}+\widetilde{U})$ is well-defined, and \cite[Theorem~6.38]{axelssonIterativeSolutionMethods1994} gives $\rho(\widetilde{J}) < 1$.
+	The diagonal blocks $\widetilde{\mathcal{D}}_k(\mathbf{g}^*)$ are principal blocks of the positive-definite symmetric matrix $\widetilde{H}(\mathbf{g}^*)$, hence positive definite (by Sylvester's criterion and a permutation argument). In particular, $\widetilde{D}(\mathbf{g}^*)$ is nonsingular, so $\widetilde{J} = -\widetilde{D}^{-1}(\widetilde{L}+\widetilde{U})$ is well-defined, and \cite[Thm.~6.38]{axelssonIterativeSolutionMethods1994} gives $\rho(\widetilde{J}) < 1$.
 
-	By \cref{lem:chart-iteration-jacobian}, $\widetilde{T}'(0) = \widetilde{J}$, so the smooth fixed-point map $\widetilde{T}$ on $\fg^{N-1}$ satisfies $\widetilde{T}(0) = 0$ and $\rho(\widetilde{T}'(0)) < 1$. Ostrowski's theorem~\cite[Theorem~10.1.3]{ortegaIterativeSolutionNonlinear1970} yields an open neighbourhood $V_0 \ni 0$ in $\fg^{N-1}$ such that $\widetilde{T}^a(\boldsymbol\xi) \to 0$ for all $\boldsymbol\xi \in V_0$; since $\Psi$ is a local diffeomorphism at $0$, setting $\mathcal{D} = \Psi(V_0)$ gives the result.
+	By \cref{lem:chart-iteration-jacobian}, $\widetilde{T}'(0) = \widetilde{J}$, so the smooth fixed-point map $\widetilde{T}$ on $\fg^{N-1}$ satisfies $\widetilde{T}(0) = 0$ and $\rho(\widetilde{T}'(0)) < 1$. Ostrowski's theorem~\cite[Thm.~10.1.3]{ortegaIterativeSolutionNonlinear1970} yields an open neighbourhood $V_0 \ni 0$ in $\fg^{N-1}$ such that $\widetilde{T}^a(\boldsymbol\xi) \to 0$ for all $\boldsymbol\xi \in V_0$; since $\Psi$ is a local diffeomorphism at $0$, setting $\mathcal{D} = \Psi(V_0)$ gives the result.
 \end{proof}
 
 Just as in the vector-space case (\cref{thm:local-hessian-pd-convergence}), the global positive-definiteness check on $\widetilde{H}$ reduces to per-edge checks on the local $2 \times 2$-block Hessians
@@ -284,13 +284,13 @@ The blocks $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\ma
 
 \begin{remark}[Connection to the discrete Euler-Poincaré equations]\label{rmk:lie-DEP}
 	Many mechanical systems on Lie groups are naturally \newterm{left-invariant} (or right-invariant), meaning that $\Ld(g_k, g_{k+1}) = \Ld(h g_k, h g_{k+1})$ for all $h \in G$. If this is the case, the Lagrangian factors through the quotient $f_k = g_k^{-1} g_{k+1}$, resulting in a \newterm{reduced Lagrangian} $\ell : G \to \RR$ with $\ell(f_k) = \Ld(g_k, g_{k+1})$.
-	Then, the DEL equations on $G$ are equivalent to the \newterm{discrete Euler-Poincaré (DEP)} equations \cite[Chapter 3.4]{satomartindealmagroDiscreteMechanicsForced2020}
+	Then, the DEL equations on $G$ are equivalent to the \newterm{discrete Euler-Poincaré (DEP)} equations \cite[\S3.4]{satomartindealmagroDiscreteMechanicsForced2020}
 	\begin{equation}
 		{(T_e L_{f_{k-1}})}^* \odif{\ell(f_{k-1})} = {(T_e R_{f_k})}^* \odif{\ell(f_k)}.
 		\tag{DEP}
 		\label{eq:lie-DEP}
 	\end{equation}
-	 Convergence of the DEP iteration on quotients $\{f_k\}$ is equivalent to convergence of the DEL iteration on $\{g_k\}$~\cite[Theorem~2.1]{marsdenDiscreteEulerPoincareLiePoisson1999}.
+	 Convergence of the DEP iteration on quotients $\{f_k\}$ is equivalent to convergence of the DEL iteration on $\{g_k\}$~\cite[Thm.~2.1]{marsdenDiscreteEulerPoincareLiePoisson1999}.
 	Consequently, \cref{thm:lie-group-convergence} can equivalently be stated for the DEP iteration. The non-reduced formulation we use is more general, and for invariant systems simplifies the convergence analysis at the cost of a slightly larger state space.
 \end{remark}
 

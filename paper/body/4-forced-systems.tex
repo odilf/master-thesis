@@ -1,6 +1,6 @@
 \chapter{Forced systems}\label{sec:forced-systems}
 
-Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[section 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. In this setting it is not Hamilton's principle that applies, but rather its forced analog, called the \newterm{Lagrange-D'Alembert principle}:
+Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[\S4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. In this setting it is not Hamilton's principle that applies, but rather its forced analog, called the \newterm{Lagrange-D'Alembert principle}:
 \begin{definition}[Lagrange-D'Alembert principle {\cite[Definition 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}}]
 	A path $q(t) : [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the forced Largangian system defined by $L: TQ \to \RR$ and force $f^L : TQ \to T^*Q$ if and only if
 	\[
@@ -11,7 +11,7 @@ Unlike Hamilton's principle, this is \emph{not} in general the extremization of 
 
 As in the unforced case, it is possible to carry out a discretization of the state space, the Lagrangian and the forces. The first two are the same: from $TQ$ to $Q \times Q$ and from $L : TQ \to \RR$ to $L_d : Q \times Q \to \RR$.
 
-The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=f_d^-\circ \tau_Q$ and $f^+$ with the second, $\hbox{pr}_2=f_d^+\circ \tau_Q$) \cite[Chapter~3.2.1]{marsdenDiscreteMechanicsVariational2001}.
+The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=f_d^-\circ \tau_Q$ and $f^+$ with the second, $\hbox{pr}_2=f_d^+\circ \tau_Q$) \cite[\S3.2.1]{marsdenDiscreteMechanicsVariational2001}.
 
 \begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalembert}
 	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
@@ -57,7 +57,7 @@ Figuring out the convergence criteria is trickier. A natural way to proceed is t
 	This is because this is precisely the case where the Lagrange-D'Alembert principle \emph{is} an extremization. In fact, any system with Lagrangian $L_d$ with forces that admit a discrete potential $V_d$ is identical to an unforced system with Lagrangian $L'_d = L_d + V_d$. In other words, for conservative forces, every theorem of~\cite{ferraroParallelIterativeMethod2025} applies trivially. In the rest of the discussion we focus on non-conservative forces.
 \end{remark}
 
-For generic forces, the relevant criterion that can be applied is given in~\cite[Lemma 4.4]{ferraroParallelIterativeMethod2025} which we restate here:
+For generic forces, the relevant criterion that can be applied is given in~\cite[Lem.~4.4]{ferraroParallelIterativeMethod2025} which we restate here:
 
 \begin{lemma}[Convergence of 1-step Jacobi-Newton]\label{lem:jacobi-newton-convergence}
 	For a general smooth system $f(x) = 0$ (not necessarily a gradient system), the 1-step block Jacobi-Newton method converges locally to $x^*$ if the diagonal blocks of $\mdif* f(x^*)$ are regular and $\rho(J(x^*)) < 1$, where $J = -D^{-1}C$, and $D$ and $C$ are the diagonal and off-diagonal parts of $\mdif* f$ respectively.
