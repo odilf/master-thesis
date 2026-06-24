@@ -1,0 +1,37 @@
+\begin{tikzpicture}[>=Stealth]
+	\node[]                                              (p0) at (-1.85, 3.6) {};
+	\node[circle, draw, minimum size=8mm, inner sep=1pt] (pa) at (-0.15, 3.6) {$q_{k-1}$};
+	\node[circle, draw, minimum size=8mm, inner sep=1pt] (pb) at (1.55, 3.6) {$q_{k}$};
+	\node[circle, draw, minimum size=8mm, inner sep=1pt] (pc) at (3.25, 3.6) {$q_{k+1}$};
+	\node[]                                              (pn) at (4.95, 3.6) {};
+
+	% \draw[dashed] (p0) -- (pa);
+	\draw[thick] (pa) -- coordinate (ea) (pb);
+	\draw[thick] (pb) -- coordinate (eb) (pc);
+	\draw[dashed] (pc) -- (pn);
+
+	\matrix (H) [matrix of math nodes,
+		left delimiter=(, right delimiter=),
+		nodes={minimum width=1.7cm, minimum height=1.05cm, anchor=center},
+		column sep=-\pgflinewidth, row sep=-\pgflinewidth] {
+		\mathcal{A}_{k-1}     & \mathcal{C}_{k-1}                       & 0                 & {}      \\
+		\mathcal{C}_{k-1}^{T} & \mathcal{B}_{k-1}{+}\mathcal{A}_{k}     & \mathcal{C}_{k}   & {}      \\
+		0                     & \mathcal{C}_{k}^{T}                     & \mathcal{B}_{k}{+}\,\ddots & {} \\
+		{}                    & {}                                      & {}                & \ddots  \\
+	};
+
+	\node[draw=orange!80!black, very thick, rounded corners, inner sep=1.5pt,
+		fit=(H-1-1)(H-2-2)] (Hkm) {};
+	\node[draw=blue, very thick, rounded corners, inner sep=3pt,
+		fit=(H-2-2)(H-3-3)] (Hk) {};
+
+	\draw[->, orange!80!black, very thick] (ea) to[bend right=-15] (Hkm.north east);
+	\draw[->, blue, very thick] (eb) to[bend left=15]  (Hk.north east);
+	\node[orange!80!black, font=\footnotesize, anchor=east] at ($(Hkm.north)+(0.2,0.2)$) {$H_{k-1}$};
+	\node[blue, font=\footnotesize, anchor=west] at ($(Hk.east)+(0.1,0)$) {$H_{k}$};
+
+	\draw[->, gray, thick] ($(H-2-2.south)+(-0.5,-1.4)$) to[bend left=35] ($(H-2-2.south)+(-0.3,0.2)$);
+	\node[gray, font=\footnotesize, align=center, anchor=north]
+		at ($(H-2-2.south)+(-0.3,-1.45)$) {shared block\\$\mathcal{D}_k=\mathcal{B}_{k-1}+\mathcal{A}_k$};
+
+\end{tikzpicture}

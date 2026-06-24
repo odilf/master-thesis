@@ -1,0 +1,62 @@
+\begin{tikzpicture}[
+	>=Stealth,
+	old/.style={circle, draw=gray, fill=gray!12, minimum size=10mm, inner sep=1pt},
+	new/.style={circle, draw=blue, fill=blue!8, minimum size=10mm, inner sep=1pt},
+	fixed/.style={circle, draw, thick, fill=lightblue, minimum size=10mm, inner sep=1pt},
+	pathline/.style={gray!45, thin},
+	fan/.style={->, blue, thick},
+	fanfaint/.style={->, gray!55, thin},
+	lock/.style={gray, line width=0.9pt},
+]
+	\def\ya{1.9} \def\yb{0}
+	\def\xa{0} \def\xb{2} \def\xc{4} \def\xd{6} \def\xdots{7.4} \def\xe{8.9} \def\xf{11}
+
+	\node[fixed] (t0) at (\xa,\ya) {$q_0$};
+	\node[old]   (t1) at (\xb,\ya) {$q_1$};
+	\node[old]   (t2) at (\xc,\ya) {$q_2$};
+	\node[old]   (t3) at (\xd,\ya) {$q_3$};
+	\node        (td) at (\xdots,\ya) {};
+	\node[old]   (te) at (\xe,\ya) {$q_{N-1}$};
+	\node[fixed] (tf) at (\xf,\ya) {$q_N$};
+
+	\node[fixed] (b0) at (\xa,\yb) {$q_0$};
+	\node[new]   (b1) at (\xb,\yb) {$\overline q_1$};
+	\node[new]   (b2) at (\xc,\yb) {$\overline q_2$};
+	\node[new]   (b3) at (\xd,\yb) {$\overline q_3$};
+	\node        (bd) at (\xdots,\yb) {};
+	\node[new]   (be) at (\xe,\yb) {$\overline q_{N-1}$};
+	\node[fixed] (bf) at (\xf,\yb) {$q_N$};
+
+	\draw[pathline] (t0) -- (t1);
+	\draw[pathline] (t1) -- (t2);
+	\draw[pathline] (t2) -- (t3);
+	\draw[pathline, dashed] (t3) -- (te);
+	\draw[pathline] (te) -- (tf);
+	\draw[pathline] (b0) -- (b1);
+	\draw[pathline] (b1) -- (b2);
+	\draw[pathline] (b2) -- (b3);
+	\draw[pathline, dashed] (b3) -- (be);
+	\draw[pathline] (be) -- (bf);
+
+	\draw[lock] (t0) -- (b0);
+	\draw[lock] (tf) -- (bf);
+
+	\draw[fan] (t1) -- (b2);
+	\draw[fan] (t2) -- (b2);
+	\draw[fan] (t3) -- (b2);
+
+	\draw[fanfaint] (t0) -- (b1);
+	\draw[fanfaint] (t1) -- (b1);
+	\draw[fanfaint] (t2) -- (b1);
+
+	\draw[fanfaint] (t2) -- (b3);
+	\draw[fanfaint] (t3) -- (b3);
+	\draw[fanfaint] (td) -- (b3);
+
+	\draw[fanfaint] (td) -- (be);
+	\draw[fanfaint] (tf) -- (be);
+	\draw[fanfaint] (te) -- (be);
+
+	\node[anchor=east, font=\small] at ($(t0.west)+(-0.45,0)$) {current, $\mathbf q$};
+	\node[anchor=east, font=\small] at ($(b0.west)+(-0.45,0)$) {updated, $\overline{\mathbf q}$};
+\end{tikzpicture}

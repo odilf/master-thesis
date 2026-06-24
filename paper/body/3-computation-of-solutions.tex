@@ -153,6 +153,13 @@ In a standard discrete Lagrangian system, this derivative of the residual is giv
 
 It is equation~\eqref{eq:jacobi-newton} which is computable using any linear solver. The algorithm consists of repeating this step until we converge to a solution. Of course, the question now is to verify under what conditions this algorithm does, in fact, converge.
 
+\begin{figure}[ht]
+	\centering
+	\vspace{1cm}
+	\input{figures/update-scheme.tex}\label{fig:discrete-path-stencil}
+	\caption{Update scheme of parallel Jacobi-Newton method. Each point in the path is updated using data from the initial position itself and its direct neighbors. All updates are done in parallel, endpoints are kept fixed.}
+\end{figure}
+
 \subsection{Convergence criteria}\label{sec:standard-convergence}
 
 The convergence of the method (both in the standard case as well in the forced and Lie group cases) is mainly related to the Hessian of the action, which we refer to as the \newterm{global Hessian matrix}, $H$. This is because, given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the hessian of $F$ is positive definite~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025}. Hamilton's principle is precisely such a formulation: the residual that we want to eliminate is the gradient of the action, $R = \nabla S$.
@@ -202,7 +209,9 @@ Thus, the following theorem gives one of the fundamental criteria for convergenc
 	If the Hessian $H(\mathbf{q})$ is positive definite, there is a neighborhood $\mathcal{D}$ around a solution $\mathbf{q}^*$ such that any path $\mathbf{q} \in \mathcal{D}$ converges to $\mathbf{q}^*$;
 \end{theorem}
 
-This condition is sufficient, although in practice it is hard to compute, since it involves checking for positive-definiteness of an $N \times N$ matrix. The most common way to do this involves the Cholesky factorization, which has an $\mathcal{O}(N^3)$ runtime. An easier-to-check condition can be given in terms of a \newterm{local Hessian matrix} $H_k$:
+This condition is sufficient, although in practice it is hard to compute, since it involves checking for positive-definiteness of an $N \times N$ matrix. The most common way to do this involves the Cholesky factorization, which has an $\mathcal{O}(N^3)$ runtime.
+
+An easier-to-check condition can be given in terms of a \newterm{local Hessian matrix} $H_k$, which is obtained by decomposing the blocks of the global Hessian matrix as shown in \cref{fig:hessian-assembly}. The entries of the local Hessian matrix are the following:
 \begin{equation}
 	H_k(q_k, q_{k+1}) = \begin{pmatrix}
 		\mathcal{A}_k   & \mathcal{C}_k \\
@@ -218,6 +227,12 @@ where
 	\label{eq:hessian-terms-2}
 \end{equation}
 (note that $\mathcal{D}_k = \mathcal{B}_{k-1} + \mathcal{A}_k$).
+
+\begin{figure}[ht]
+	\centering
+	\input{figures/hessian-assembly.tex}
+	\caption{Diagram showing how to assemble the global Hessian from the local Hessians. Each local Hessian sub-block corresponds to one edge of the trajectory.}\label{fig:hessian-assembly}
+\end{figure}
 
 \begin{theorem}[Local Hessian convergence~{\cite[Thm.~4.1]{ferraroParallelComputingVariational}}]\label{thm:local-hessian-pd-convergence}
 	If all the local Hessian matrices $H_k$ (as defined above) are positive definite, then the global Hessian matrix $H$ is positive definite and the method converges locally.
