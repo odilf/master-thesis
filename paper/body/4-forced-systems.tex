@@ -163,7 +163,7 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 		\label{eq:diag-block-inv-bound}
 	\end{equation}
 
-	Now, recall that $J^f = -D^{-1}(L+U)$, where $D$ is the block-diagonal of $H^f$ and $L+U$ is its off-diagonal part. Since $H^f$ is block-tridiagonal, so is $L+U$, with ${(L+U)}_{j,j-1} = \hat{\mathcal{C}}^-_{j-1}$ and ${(L+U)}_{j,j+1} = \hat{\mathcal{C}}^+_j$. Left-multiplying by the block-diagonal matrix $-D^{-1}$ acts row-block-by-row-block: the $j$th row-block of $D^{-1}(L+U)$ picks up only the $(j,j)$-block of $D^{-1}$, namely $\hat{\mathcal{D}}_j^{-1}$, since every other column of row $j$ of $D^{-1}$ is zero. So the entire $j$th row of $L+U$ is just rescaled on the left by $\hat{\mathcal{D}}_j^{-1}$, and its sparsity pattern is preserved. Reading this off, $J^f$ is block-tridiagonal with ${(J^f)}_{j,j-1} = -\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^-_{j-1}$ and ${(J^f)}_{j,j+1} = -\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^+_j$:
+	Now, recall that $J^f = -D^{-1}(L+U)$, where $D$ is the block-diagonal of $H^f$ and $L+U$ is its off-diagonal part. Since $H^f$ is block-tridiagonal, so is $L+U$, with $(L+U)_{j,j-1} = \hat{\mathcal{C}}^-_{j-1}$ and $(L+U)_{j,j+1} = \hat{\mathcal{C}}^+_j$. Left-multiplying by the block-diagonal matrix $-D^{-1}$ acts row-block-by-row-block: the $j$th row-block of $D^{-1}(L+U)$ picks up only the $(j,j)$-block of $D^{-1}$, namely $\hat{\mathcal{D}}_j^{-1}$, since every other column of row $j$ of $D^{-1}$ is zero. So the entire $j$th row of $L+U$ is just rescaled on the left by $\hat{\mathcal{D}}_j^{-1}$, and its sparsity pattern is preserved. Reading this off, $J^f$ is block-tridiagonal with $(J^f)_{j,j-1} = -\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^-_{j-1}$ and $(J^f)_{j,j+1} = -\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^+_j$:
 	\[
 		J^f = \begin{pmatrix}
 			0                                              & -\hat{\mathcal{D}}_1^{-1}\hat{\mathcal{C}}^+_1 &                                                        &        \\
@@ -174,14 +174,14 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 	\]
 	Since $\rho(J^f) \leq \|J^f\|$ in any induced operator norm, it suffices to bound $\|J^f\|$ in one convenient choice. The block-tridiagonal structure suggests the block max-norm $\|x\|_{\infty,2} = \max_j \|x_j\|_2$, where $x_j \in \RR^n$ is the $j$th size-$n$ block of $x$. Its induced operator norm is
 	\[
-		\|J^f\|_{\infty,2} \;=\; \sup_{x \neq 0} \frac{\max_j \|{(J^f x)}_j\|_2}{\|x\|_{\infty,2}}.
+		\|J^f\|_{\infty,2} \;=\; \sup_{x \neq 0} \frac{\max_j \|(J^f x)_j\|_2}{\|x\|_{\infty,2}}.
 	\]
 
-	Therefore, bounding $\|{(J^f x)}_j\|_2$ by a multiple of $\|x\|_{\infty,2}$ uniformly in $j$ bounds $\rho(J^f)$ by the same constant. Each row of $J^f$ has form
-	\[ {(J^f x)}_j = -\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1} x_{j-1} - \hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j x_{j+1}, \]
+	Therefore, bounding $\|(J^f x)_j\|_2$ by a multiple of $\|x\|_{\infty,2}$ uniformly in $j$ bounds $\rho(J^f)$ by the same constant. Each row of $J^f$ has form
+	\[ (J^f x)_j = -\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1} x_{j-1} - \hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j x_{j+1}, \]
 	and submultiplicativity of the spectral norm together with~\eqref{eq:diag-block-inv-bound} give
 	\begin{align*}
-		\|{(J^f x)}_j\|_2
+		\|(J^f x)_j\|_2
 		 & \leq \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 \|x_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2 \|x_{j+1}\|_2                                        \\
 		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                                      \\
 		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                            \\
@@ -200,7 +200,7 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 		\hat{\mathcal{A}}_k = \mdif{11}\Ld(q_k, q_{k+1}),\quad
 		 & \hat{\mathcal{C}}^+_k = \mdif{12}\Ld(q_k, q_{k+1}),\quad \\
 		\hat{\mathcal{B}}_k = \mdif{22}\Ld(q_k, q_{k+1}),\quad
-		 & \hat{\mathcal{C}}^-_k = {(\hat{\mathcal{C}}^+_k)}^T.
+		 & \hat{\mathcal{C}}^-_k = (\hat{\mathcal{C}}^+_k)^T.
 	\end{align*}
 	All four are symmetric or transposes of each other, so $\Sym(\hat{\mathcal{A}}_k) = \hat{\mathcal{A}}_k$, $\Sym(\hat{\mathcal{B}}_k) = \hat{\mathcal{B}}_k$, and $\|\hat{\mathcal{C}}^+_k\|_2 = \|\hat{\mathcal{C}}^-_k\|_2$. The two inequalities of~\eqref{eq:local-edge-dominance} therefore collapse to the single per-edge condition
 	\[
@@ -236,15 +236,15 @@ The following theorem states in a rigourous and quantitative manner the intuitiv
 \begin{proof}
 	Let $D, L, U$ denote the block-diagonal, strict block-lower, and strict block-upper parts of the unforced Hessian $H$, and similarly $\Delta D, \Delta L, \Delta U$ for the perturbation $\Delta F$. Then the forced iteration matrix is
 	\[
-		J^f = -{(D + \Delta D)}^{-1}\bigl( (L + U) + (\Delta L + \Delta U) \bigr),
+		J^f = -(D + \Delta D)^{-1}\bigl( (L + U) + (\Delta L + \Delta U) \bigr),
 	\]
 	and the unforced one ($\Delta F = 0$) is $J = -D^{-1}(L + U)$ with $\rho(J) < 1$ by hypothesis.
 
 	First, notice that the map $\Delta F \mapsto J^f$ is continuous at $\Delta F = 0$. This is because each $D_k$ is invertible by hypothesis, so $\|D^{-1}\|_2$ is finite block-wise. Since $\Delta D$ is the block-diagonal part of $\Delta F$, the spectral norm satisfies $\|\Delta D\|_2 \leq \|\Delta F\|_2$ (block-diagonal projection does not increase the spectral norm). Hence for $\|\Delta F\|_2 < \|D^{-1}\|_2^{-1}$, we have that $\|\Delta D\|_2 < \|D^{-1}\|_2^{-1}$. Then, we can write the Neumann series (\cite[Corollary 5.6.16]{hornMatrixAnalysis2012})
 	\[
-		{(D + \Delta D)}^{-1} = D^{-1}\sum_{n \geq 0} {(-\Delta D \, D^{-1})}^n
+		(D + \Delta D)^{-1} = D^{-1}\sum_{n \geq 0} (-\Delta D \, D^{-1})^n
 	\]
-	which converges uniformly on a neighborhood of $\Delta F = 0$. The series itself is the inverse, establishing that $D + \Delta D$ is invertible there; and since each partial sum is a polynomial (hence, continuous) function of $\Delta D$, uniform convergence implies that ${(D + \Delta D)}^{-1}$ depends continuously on $\Delta F$. Matrix multiplication and addition are continuous, so $J^f$ also depends continuously on $\Delta F$ on the same neighborhood. In particular, $J^f \to J$ in any matrix norm as $\|\Delta F\| \to 0$.
+	which converges uniformly on a neighborhood of $\Delta F = 0$. The series itself is the inverse, establishing that $D + \Delta D$ is invertible there; and since each partial sum is a polynomial (hence, continuous) function of $\Delta D$, uniform convergence implies that $(D + \Delta D)^{-1}$ depends continuously on $\Delta F$. Matrix multiplication and addition are continuous, so $J^f$ also depends continuously on $\Delta F$ on the same neighborhood. In particular, $J^f \to J$ in any matrix norm as $\|\Delta F\| \to 0$.
 
 	Notice also that the spectral radius $\rho$ cannot jump upward under small perturbations of its matrix argument. By Gelfand's formula~\cite[Cor.~5.6.14]{hornMatrixAnalysis2012},
 	\[
@@ -253,7 +253,7 @@ The following theorem states in a rigourous and quantitative manner the intuitiv
 	Each $A \mapsto \|A^k\|^{1/k}$ is continuous in $A$, and an infimum of continuous functions is upper semicontinuous. Concretely, for any matrix $A_0$ and any $\eta > \rho(A_0)$, there is a neighborhood of $A_0$ (in $M_n(\RR)$) where $\rho(A) < \eta$.
 
 
-	Combining these two observations, since $\rho(J) < 1$, there is some $\eta$ with $\rho(J) < \eta < 1$. Upper semicontinuity applied at $A_0 = J$ gives a neighborhood $U \subset M_n(\RR)$ of $J$ on which $\rho(A) < \eta$. By continuity of $\Delta F \mapsto J^f$, the preimage $V' = {(J^f)}^{-1}(U)$ is open in perturbation-space and contains $\Delta F = 0$. Invertibility of $D + \Delta D$ holds on the open set $V'' = \{\|\Delta F\|_2 < \|D^{-1}\|_2^{-1}\}$, also a neighborhood of $\Delta F = 0$. Their intersection $V = V' \cap V''$ is therefore an open neighborhood of $\Delta F = 0$ on which both $J^f \in U$ and $D + \Delta D$ is invertible. Since $V$ is open and contains $0$, it contains an open ball of some radius $\varepsilon > 0$ around $0$, so $\|\Delta F\|_2 < \varepsilon$ implies
+	Combining these two observations, since $\rho(J) < 1$, there is some $\eta$ with $\rho(J) < \eta < 1$. Upper semicontinuity applied at $A_0 = J$ gives a neighborhood $U \subset M_n(\RR)$ of $J$ on which $\rho(A) < \eta$. By continuity of $\Delta F \mapsto J^f$, the preimage $V' = (J^f)^{-1}(U)$ is open in perturbation-space and contains $\Delta F = 0$. Invertibility of $D + \Delta D$ holds on the open set $V'' = \{\|\Delta F\|_2 < \|D^{-1}\|_2^{-1}\}$, also a neighborhood of $\Delta F = 0$. Their intersection $V = V' \cap V''$ is therefore an open neighborhood of $\Delta F = 0$ on which both $J^f \in U$ and $D + \Delta D$ is invertible. Since $V$ is open and contains $0$, it contains an open ball of some radius $\varepsilon > 0$ around $0$, so $\|\Delta F\|_2 < \varepsilon$ implies
 	\[
 		\rho(J^f) < \eta < 1 \quad\text{and}\quad D + \Delta D \text{ is invertible.}
 	\]
@@ -271,11 +271,11 @@ In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exist
 	\end{equation}
 \end{lemma}
 \begin{proof}
-	Let $\beta = \|D^{-1}\|$ and $\gamma = \|\Delta F\|$. The identity ${(D + \Delta D)}^{-1} - D^{-1} = -{(D + \Delta D)}^{-1}\Delta D \, D^{-1}$, combined with $J = -D^{-1}(L+U)$, gives by direct manipulation
+	Let $\beta = \|D^{-1}\|$ and $\gamma = \|\Delta F\|$. The identity $(D + \Delta D)^{-1} - D^{-1} = -(D + \Delta D)^{-1}\Delta D \, D^{-1}$, combined with $J = -D^{-1}(L+U)$, gives by direct manipulation
 	\[
-		J^f - J = -{(D + \Delta D)}^{-1}\bigl[\Delta D \cdot J + (\Delta L + \Delta U)\bigr].
+		J^f - J = -(D + \Delta D)^{-1}\bigl[\Delta D \cdot J + (\Delta L + \Delta U)\bigr].
 	\]
-	The three factors on the right are bounded by, respectively, $\|\Delta D\| \leq \gamma$ (projection contractivity), $\|\Delta L + \Delta U\| = \|\Delta F - \Delta D\| \leq 2\gamma$ (triangle inequality), and $\|{(D + \Delta D)}^{-1}\| \leq \beta/(1 - \beta\gamma)$ (Neumann tail estimate\footnote{We can get this by factoring $D + \Delta D$ as $D(I + D^{-1}\Delta D)$. Then, we known that $|D^{-1}\Delta D| \leq \beta\gamma$ and if $\beta\gamma < 1$, the Neumann series ${(I+M)}^{-1} = \sum_{k\geq 0}{(-M)}^k$ converges and so we can take the geometric series of the norms of the Neumann sum, resulting in $|{(I + D^{-1}\Delta D)}^{-1}| \leq 1/(1-\beta\gamma)$, giving the claimed bound after multiplying by $|D^{-1}| = \beta$.}, valid for $\beta\gamma < 1$). Combining,
+	The three factors on the right are bounded by, respectively, $\|\Delta D\| \leq \gamma$ (projection contractivity), $\|\Delta L + \Delta U\| = \|\Delta F - \Delta D\| \leq 2\gamma$ (triangle inequality), and $\|(D + \Delta D)^{-1}\| \leq \beta/(1 - \beta\gamma)$ (Neumann tail estimate\footnote{We can get this by factoring $D + \Delta D$ as $D(I + D^{-1}\Delta D)$. Then, we known that $|D^{-1}\Delta D| \leq \beta\gamma$ and if $\beta\gamma < 1$, the Neumann series $(I+M)^{-1} = \sum_{k\geq 0}(-M)^k$ converges and so we can take the geometric series of the norms of the Neumann sum, resulting in $|(I + D^{-1}\Delta D)^{-1}| \leq 1/(1-\beta\gamma)$, giving the claimed bound after multiplying by $|D^{-1}| = \beta$.}, valid for $\beta\gamma < 1$). Combining,
 	\[
 		\|J^f - J\| \leq \frac{\beta\gamma(\|J\| + 2)}{1 - \beta\gamma}.
 	\]
@@ -321,7 +321,7 @@ which has the following Lagrangian:
 \end{align*}
 We discretize the Lagrangian and the force with the trapezoidal rule, evaluating both at the two endpoints $q_k, q_{k+1}$ (since the damping is velocity-only, the force quadrature here coincides with the midpoint rule):
 \begin{align*}
-	L_d(q_k, q_{k+1})   & = \frac{{(q_{k+1}-q_k)}^2}{2h} - \frac{\omega^2 h}{4}(q_k^2 + q_{k+1}^2) \\
+	L_d(q_k, q_{k+1})   & = \frac{(q_{k+1}-q_k)^2}{2h} - \frac{\omega^2 h}{4}(q_k^2 + q_{k+1}^2) \\
 	f_d^+(q_k, q_{k+1}) & = -\frac{\gamma}{2}(q_{k+1}-q_k)                                         \\
 	f_d^-(q_k, q_{k+1}) & = -\frac{\gamma}{2}(q_{k+1}-q_k).
 \end{align*}

@@ -20,10 +20,10 @@ which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half
 	\]
 	where $d_1, d_2$ are the scalar diagonal blocks $\hat{\mathcal{D}}_1, \hat{\mathcal{D}}_2$ and $c^+, c^-$ the cross terms $\hat{\mathcal{C}}^+_1, \hat{\mathcal{C}}^-_1$ of~\eqref{eq:hessian-matrix-forced}. The Jacobi matrix is then
 	\[
-		J^f = -\operatorname{diag}{(d_1, d_2)}^{-1}\left(H^f - \operatorname{diag}(d_1, d_2)\right)
+		J^f = -\operatorname{diag}(d_1, d_2)^{-1}\left(H^f - \operatorname{diag}(d_1, d_2)\right)
 		= \begin{pmatrix} 0 & -c^+/d_1 \\ -c^-/d_2 & 0 \end{pmatrix},
 	\]
-	with characteristic polynomial $\lambda^2 - c^+ c^- / (d_1 d_2)$. Hence $\rho{(J^f)}^2 = |c^+ c^-| / (d_1 d_2)$, and the claim $\rho(J^f) < 1$ amounts to showing $|c^+ c^-| < d_1 d_2$.
+	with characteristic polynomial $\lambda^2 - c^+ c^- / (d_1 d_2)$. Hence $\rho(J^f)^2 = |c^+ c^-| / (d_1 d_2)$, and the claim $\rho(J^f) < 1$ amounts to showing $|c^+ c^-| < d_1 d_2$.
 
 	To separate the symmetric and skew parts of $H^f$, let $s = (c^+ + c^-)/2$ and $a = (c^+ - c^-)/2$, so that $c^+ c^- = s^2 - a^2$ and
 	\[
@@ -34,10 +34,10 @@ which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half
 	The eigenvalues of $\Sym(H^f)$ are given by $\lambda^2 - (d_1+d_2)\lambda + (d_1 d_2 - s^2) = 0$, so
 	\begin{align*}
 		\lambda_{\min}(\Sym(H^f))
-		&= \frac{d_1+d_2}{2} - \sqrt{{\left(\frac{d_1+d_2}{2}\right)}^2 - (d_1 d_2 - s^2)} \\
-		&= \frac{d_1+d_2}{2} - \sqrt{{\left(\frac{d_1-d_2}{2}\right)}^2 + s^2},
+		&= \frac{d_1+d_2}{2} - \sqrt{\left(\frac{d_1+d_2}{2}\right)^2 - (d_1 d_2 - s^2)} \\
+		&= \frac{d_1+d_2}{2} - \sqrt{\left(\frac{d_1-d_2}{2}\right)^2 + s^2},
 	\end{align*}
-	where the last step uses ${(d_1+d_2)}^2/4 - d_1 d_2 = {(d_1-d_2)}^2/4$. The hypothesis therefore becomes
+	where the last step uses $(d_1+d_2)^2/4 - d_1 d_2 = (d_1-d_2)^2/4$. The hypothesis therefore becomes
 	\begin{equation}
 		\tfrac{d_1 + d_2}{2} - |a| \;>\; \sqrt{\left(\tfrac{d_1 - d_2}{2}\right)^2 + s^2}.
 		\label{eq:hyp-scalar}
@@ -50,7 +50,7 @@ which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half
 
 	By AM-GM, $d_1 + d_2 \geq 2 \sqrt{d_1 d_2}$, so the left-hand side of~\eqref{eq:hyp-scalar-simplified} only decreases when $d_1 + d_2$ is replaced by $2\sqrt{d_1 d_2}$:
 	\begin{align*}
-		{\left(\sqrt{d_1 d_2} - |a|\right)}^2
+		\left(\sqrt{d_1 d_2} - |a|\right)^2
 		&= d_1 d_2 - 2 \sqrt{d_1 d_2}|a| + a^2 \\
 		&\geq d_1 d_2 - (d_1 + d_2)|a| + a^2 \\
 		& > s^2.
@@ -60,7 +60,7 @@ which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half
 		|c^+ c^-| 
 		&= |s^2 - a^2| \\
 		&= |s - a| |s + a| \\
-		&\leq {(|s| + |a|)}^2 \\
+		&\leq (|s| + |a|)^2 \\
 		&< d_1 d_2,
 	\end{align*}
 	which gives ${\rho(J^f)}^2 = |c^+ c^-|/(d_1 d_2) < 1$, as required.

@@ -137,11 +137,11 @@ Note that this is the step where we apply the hypothesis that $Q$ is a vector sp
 Finding the root is easy, amounting to solving the linear system
 \begin{align*}
 	r_k(\mathbf{q}, q_k) + \mdif{2} r_k(\mathbf{q}, q_k) (\overline{q} - q_k) & = 0                                                                                    \\
-	\overline{q} - q_k                                                        & = {\left(\mdif{2} r_k(\mathbf{q}, q_k)\right)}^{-1} \left(-r_k(\mathbf{q}, q_k)\right)
+	\overline{q} - q_k                                                        & = \left(\mdif{2} r_k(\mathbf{q}, q_k)\right)^{-1} \left(-r_k(\mathbf{q}, q_k)\right)
 \end{align*}
 from which we get the general Jacobi-Newton update rule:
 \begin{equation}
-	\overline{q} = q_k - {\left(\mdif{2} r_k(\mathbf{q}, q_k)\right)}^{-1} r_k(\mathbf{q}, q_k).
+	\overline{q} = q_k - \left(\mdif{2} r_k(\mathbf{q}, q_k)\right)^{-1} r_k(\mathbf{q}, q_k).
 	% \tag{Jacobi-Newton}
 	\label{eq:jacobi-newton}
 \end{equation}
@@ -174,7 +174,7 @@ the derivative with respect to the $i$-th component is, as usual,
 \end{align*}
 and then the entries of the Hessian are
 \begin{align*}
-	{(H (\mathbf{q}))}_{ij} = \pdv{S_d}!{q_i, q_j}(\mathbf{q})
+	(H (\mathbf{q}))_{ij} = \pdv{S_d}!{q_i, q_j}(\mathbf{q})
 	& = \pdv{\left(\mdif{1} \Ld(q_i, q_{i+1}) + \mdif{2} \Ld(q_{i-1}, q_i)\right)}!{q_j}          \\
 	& = \delta_{i, j} \left( \mdif{11}{\Ld}(q_i, q_{i+1}) + \mdif{22}{\Ld}(q_{i - 1}, q_i) \right) \\
 	& + \delta_{i+1,j} \mdif{12}{\Ld}(q_i, q_{i+1})                                               \\
