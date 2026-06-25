@@ -54,7 +54,7 @@ Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, th
 
 Furthermore, if $Q$ is not a vector space, sometimes the updates are done in a bigger ambient vector space that $Q$ can be embedded into. Then, accumulation of local errors can result in values that are not elements of $Q$ at all. For instance, with 3-dimensional rotations, integration of $\SO(3)$ matrices in the ambient matrix space $\RR^9$ often leads to loss of orthogonality and unit determinant. This can be mitigated to some extent by reprojecting onto the relevant manifold, but that might increase errors and makes converge harder to analyze.
 
-In short, naive integration leads in certain aspects to long-term behavior that is qualitatively unphysical. This is especially problematic for conservation laws, as they are often assumed as invariants in a broader analytical context where a numerical integrator might be used. 
+In short, naive integration leads in certain aspects to long-term behavior that is qualitatively unphysical. This is especially problematic for conservation laws, as they might be assumed as invariants in a broader analytical context where a numerical integrator might be used. 
 
 % Sometimes having a \todo{unphysical trajectories can be closer to the real trajectory.}
 

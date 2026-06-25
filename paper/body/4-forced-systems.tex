@@ -194,7 +194,7 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 \end{proof}
 
 \begin{remark}[Reduction to the unforced case]\label{rem:forced-local-recovery}
-	When $f_d^\pm \equiv 0$, the forced blocks reduce to
+	When $f_d^\pm = 0$, the forced blocks reduce to
 	\begin{align*}
 		\hat{\mathcal{A}}_k = \mdif{11}\Ld(q_k, q_{k+1}),\quad
 		 & \hat{\mathcal{C}}^+_k = \mdif{12}\Ld(q_k, q_{k+1}),\quad \\
@@ -347,8 +347,8 @@ Thus $\Delta F$ is purely off-diagonal with antisymmetric blocks ($\Delta\hat{\m
 
 Assuming the unforced oscillator converges at $\mathbf{q}^*$ for the chosen step size $h$, Theorem~\ref{thm:forced-perturbation} and Lemma~\ref{lem:forced-perturbation-explicit} guarantee that the forced method also converges whenever
 \[
-	\gamma\cos\frac{\pi}{N} < \varepsilon = \frac{1 - \|J^0\|}{3\|D_0^{-1}\|},
-	\qquad\text{equivalently}\qquad
+	\gamma\cos\frac{\pi}{N} < \varepsilon = \frac{1 - \|J^0\|}{3\|D_0^{-1}\|}
+	\quad\Rightarrow\quad
 	\gamma < \frac{\varepsilon}{\cos(\pi/N)},
 \]
 where $J^0$ and $D_0^{-1}$ are the Jacobi matrix and inverse diagonal of the unforced system at $\mathbf{q}^*$. This gives a concrete bound on the admissible damping coefficient in terms of the step size and the unforced convergence margin; since $\cos(\pi/N) < 1$, the simpler condition $\gamma < \varepsilon$ is already sufficient. Note that using instead the per-block magnitude $\tfrac{\gamma}{2}$ as a proxy for $\|\Delta F\|_2$ would have \emph{overestimated} the admissible damping by roughly a factor of two, as $\|\Delta F\|_2 \to \gamma$ for large $N$.

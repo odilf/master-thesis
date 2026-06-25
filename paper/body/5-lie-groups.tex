@@ -53,7 +53,7 @@ Then, the residual can be written as a function of a vector direction, all in th
 \end{equation}
 This expression is linearizable around $\delta\xi_k = 0$ as $\pdv{\widetilde{r_k}(\delta \xi_k)}!{\delta \xi_k} \delta\xi_k + \widetilde{r_k}(\delta\xi_k)$. To carry out the computations we will follow a common convention of denoting $T_e L_g(\eta) = g \cdot \eta$, which in the general case is no more than notational shorthand, but for matrix Lie groups the pushforwarded multiplication does literally correspond with matrix multiplication, denoted with the same symbol. 
 
-Then, applying the product rule in direction $\eta \in \fg$ gives two terms: one from differentiating $r_k$ itself, and one from differentiating the pullback $(T_e L_{g_k \tau(\delta\xi)})^*$, which is proportional to $r_k(\mathbf{g}, g_k)$. We will only use the first term, making the iteration a quasi-Newton method \todo{cite? or explain?} whose fixed points coincide with solutions of the DEL equations (since the dropped term vanishes whenever $r_k = 0$, i.e., at the solution), and whose convergence we analyse in \cref{sec:lie-groups-convergence}.
+Then, applying the product rule in direction $\eta \in \fg$ gives two terms: one from differentiating $r_k$ itself, and one from differentiating the pullback $(T_e L_{g_k \tau(\delta\xi)})^*$, which is proportional to $r_k(\mathbf{g}, g_k)$. We will only use the first term, making the iteration an approximate Newton method. The operator we invert agrees with the exact linearization at the solution, so the fixed points coincide with solutions of the DEL equations.
 
 This first term, using $r_k(\mathbf{g}, g) = \mdif{2}\Ld(g_{k-1}, g) + \mdif{1}\Ld(g, g_{k+1})$, evaluates (via chain rule of $T_e L_g$) to
 \[
@@ -181,13 +181,12 @@ If $G = \RR^n$, then $T_e L_g = (T_e L_g)^* = \mathrm{Id}$ and so~\eqref{eq:lie-
 
 The Jacobi-Newton-G iteration is a smooth map $T : G^{N-1} \to G^{N-1}$ with $\mathbf{g}^*$ as a fixed point.
 To apply classical fixed-point theory, we move $T$ to the Lie algebra chart based on a peturbation $\mathbf{\xi}$ from the fixed point $\mathbf{g}^*$
-\[
-	\Psi : V \subset \fg^{N-1} \to U \subset G^{N-1},
-	\qquad
-	\Psi(\boldsymbol \xi) = (g_1^*\tau(\xi_1), \ldots, g_{N-1}^*\tau(\xi_{N-1})),
-\]
+\begin{align*}
+	\Psi & : V \subset \fg^{N-1} \to U \subset G^{N-1} \\
+	\Psi(\boldsymbol \xi) & = (g_1^*\tau(\xi_1), \ldots, g_{N-1}^*\tau(\xi_{N-1})),
+\end{align*}
 defined on a neighbourhood $V$ of $0$ where $\tau$ is a local diffeomorphism on $\fg$ (note that this lifting is different from the use of the Lie algebra we do inside the update step itself represented by $T$).
-The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \Psi : V \to \fg^{N-1}$, satisfying $\widetilde{T}(0) = 0$.\ \todo{clarify? Since $\widetilde{T}$ is a smooth map between open subsets of the vector space $\fg^{N-1}$, its derivative $\widetilde{T}'(0)$ is the ordinary Fréchet derivative at $0 \in \fg^{N-1}$, i.e.\ a linear endomorphism of $\fg^{N-1}$.}
+The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \Psi : V \to \fg^{N-1}$, satisfying $\widetilde{T}(0) = 0$.
 
 \begin{lemma}[Derivative of the perturbation iteration]\label{lem:chart-iteration-jacobian}
 	Suppose each diagonal block $\widetilde{\mathcal{D}}_k(\mathbf{g}^*)$ is positive definite.
