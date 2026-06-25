@@ -4,7 +4,7 @@
 \usepackage{newtx}
 % \usepackage{libertinus}
 \usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+% inputenc not needed with LuaLaTeX (natively UTF-8)
 
 % Line spacing
 \renewcommand{\baselinestretch}{1.15}
@@ -17,6 +17,8 @@
 \definecolor{gray45}{gray}{.45}
 
 % PDF/A support
+\usepackage{silence}
+\WarningFilter{pdfx}{Setting all color commands}
 \usepackage[a-1b]{pdfx}
 
 \usepackage{hyperref}
