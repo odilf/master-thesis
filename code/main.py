@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import se3, forced
 
+
 mpl.rcParams["text.usetex"] = True
 mpl.rcParams["font.family"] = "serif"
 mpl.rcParams["text.latex.preamble"] = r"\usepackage{newtx}"
@@ -144,6 +145,10 @@ def plot_forced():
 def main():
     plot_se3()
     plot_forced()
+
+    fig, ax = plt.subplots(figsize=(8, 5), dpi=300)
+    forced.plot_perturbation_bound(ax)
+    save("forced-perturbation-bound.png")
 
 
 if __name__ == "__main__":
