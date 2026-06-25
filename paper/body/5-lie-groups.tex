@@ -254,7 +254,7 @@ The following theorem is essentially the same as \cref{thm:hessian-pd-convergenc
 \end{theorem}
 
 \begin{proof}
-	The diagonal blocks $\widetilde{\mathcal{D}}_k(\mathbf{g}^*)$ are principal blocks of the positive-definite symmetric matrix $\widetilde{H}(\mathbf{g}^*)$, hence positive definite (by Sylvester's criterion and a permutation argument). In particular, $\widetilde{D}(\mathbf{g}^*)$ is nonsingular, so $\widetilde{J} = -\widetilde{D}^{-1}(\widetilde{L}+\widetilde{U})$ is well-defined, and \cite[Thm.~6.38]{axelssonIterativeSolutionMethods1994} gives $\rho(\widetilde{J}) < 1$.
+	The diagonal blocks $\widetilde{\mathcal{D}}_k(\mathbf{g}^*)$ are principal blocks of the positive-definite symmetric matrix $\widetilde{H}(\mathbf{g}^*)$, hence positive definite (by Sylvester's criterion and a permutation argument). In particular, $\widetilde{D}(\mathbf{g}^*)$ is nonsingular, so $\widetilde{J} = -\widetilde{D}^{-1}(\widetilde{L}+\widetilde{U})$ is well-defined, and~\cite[Thm.~6.38]{axelssonIterativeSolutionMethods1994} gives $\rho(\widetilde{J}) < 1$.
 
 	By \cref{lem:chart-iteration-jacobian}, $\widetilde{T}'(0) = \widetilde{J}$, so the smooth fixed-point map $\widetilde{T}$ on $\fg^{N-1}$ satisfies $\widetilde{T}(0) = 0$ and $\rho(\widetilde{T}'(0)) < 1$. Ostrowski's theorem~\cite[Thm.~10.1.3]{ortegaIterativeSolutionNonlinear1970} yields an open neighbourhood $V_0 \ni 0$ in $\fg^{N-1}$ such that $\widetilde{T}^a(\boldsymbol\xi) \to 0$ for all $\boldsymbol\xi \in V_0$; since $\Psi$ is a local diffeomorphism at $0$, setting $\mathcal{D} = \Psi(V_0)$ gives the result.
 \end{proof}
@@ -272,19 +272,18 @@ Just as in the vector space case (\cref{thm:local-hessian-pd-convergence}), the 
 \end{remark}
 
 \begin{remark}[Lie algebra Hessian positive definiteness criterion]\label{rmk:lie-hessian-pd-criterion}
-	By \cref{rmk:where-manifold-enters}, $\widetilde{H}(\mathbf{g}^*)$ is a symmetric block-tridiagonal matrix on $\fg^{N-1} \cong \RR^{(N-1)\dim\fg}$, so the necessary-and-sufficient criterion of \cref{thm:hessian-pd-criterion} applies verbatim: $\widetilde{H}(\mathbf{g}^*)$ is positive definite if and only if the matrices $\widetilde{\Lambda}_1 = \widetilde{\mathcal{D}}_1$ and
+	By \cref{rmk:where-manifold-enters}, $\widetilde{H}(\mathbf{g}^*)$ is a symmetric block-tridiagonal matrix on $\fg^{N-1} \cong \RR^{(N-1)\dim\fg}$, so the necessary and sufficient criterion of \cref{thm:hessian-pd-criterion} applies verbatim: $\widetilde{H}(\mathbf{g}^*)$ is positive definite if and only if the matrices $\widetilde{\Lambda}_1 = \widetilde{\mathcal{D}}_1$ and
 	\[
 		\widetilde{\Lambda}_i = \widetilde{\mathcal{D}}_i - \widetilde{\mathcal{C}}_{i-1}^T\, \widetilde{\Lambda}_{i-1}^{-1}\, \widetilde{\mathcal{C}}_{i-1},
 		\qquad 2 \leq i \leq N - 1,
-	\]
-	are all positive definite, in which case the Jacobi-Newton-G method converges locally to $\mathbf{g}^*$ by \cref{thm:lie-group-convergence}.
+	\]	are all positive definite, in which case the Jacobi-Newton-G method converges locally to $\mathbf{g}^*$ by \cref{thm:lie-group-convergence}.
 \end{remark}
 
-The blocks $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\mathcal{C}}_k, \widetilde{\mathcal{D}}_k$ depend on the choice of trivialisation (left vs. right) and retraction $\tau$, but positive definiteness of $\widetilde{H}(\mathbf{g}^*)$ does not: a change of chart at $\mathbf{g}^*$ acts on $\widetilde{H}$ by congruence with a block-diagonal invertible matrix, which preserves the sign of the spectrum.
+The blocks $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\mathcal{C}}_k, \widetilde{\mathcal{D}}_k$ depend on the choice of trivialisation (left vs.\ right) and retraction $\tau$, but positive definiteness of $\widetilde{H}(\mathbf{g}^*)$ does not: a change of chart at $\mathbf{g}^*$ acts on $\widetilde{H}$ by congruence with a block-diagonal invertible matrix, which preserves the sign of the spectrum.
 
 \begin{remark}[Connection to the discrete Euler-Poincaré equations]\label{rmk:lie-DEP}
-	Many mechanical systems on Lie groups are naturally \newterm{left-invariant} (or right-invariant), meaning that $\Ld(g_k, g_{k+1}) = \Ld(h g_k, h g_{k+1})$ for all $h \in G$. If this is the case, the Lagrangian factors through the quotient $f_k = g_k^{-1} g_{k+1}$, resulting in a \newterm{reduced Lagrangian} $\ell : G \to \RR$ with $\ell(f_k) = \Ld(g_k, g_{k+1})$.
-	Then, the DEL equations on $G$ are equivalent to the \newterm{discrete Euler-Poincaré (DEP)} equations \cite[\S3.4]{satomartindealmagroDiscreteMechanicsForced2020}
+	Many mechanical systems on Lie groups are \newterm{left-invariant} (or right-invariant), meaning that $\Ld(g_k, g_{k+1}) = \Ld(h g_k, h g_{k+1})$ for all $h \in G$. If this is the case, the Lagrangian factors through the quotient $f_k = g_k^{-1} g_{k+1}$, resulting in a \newterm{reduced Lagrangian} $\ell : G \to \RR$ with $\ell(f_k) = \Ld(g_k, g_{k+1})$.
+	Then, the DEL equations on $G$ are equivalent to the \newterm{discrete Euler-Poincaré (DEP)} equations~\cite[\S3.4]{satomartindealmagroDiscreteMechanicsForced2020}
 	\begin{equation}
 		(T_e L_{f_{k-1}})^* \odif{\ell(f_{k-1})} = (T_e R_{f_k})^* \odif{\ell(f_k)}.
 		\tag{DEP}

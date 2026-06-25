@@ -1,7 +1,7 @@
 \chapter{Forced systems}\label{sec:forced-systems}
 
 Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[\S4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. In this setting it is not Hamilton's principle that applies, but rather its forced analog, called the \newterm{Lagrange-d'Alembert principle}:
-\begin{definition}[Lagrange-d'Alembert principle {\cite[Definition 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}}]
+\begin{definition}[Lagrange-d'Alembert principle {\cite[Def.~4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}}]
 	A path $q(t) : [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the forced Lagrangian system defined by $L: TQ \to \RR$ and force $f^L : TQ \to T^*Q$ if and only if
 	\[
 		\odv{}{t} \pdv{L}{\dot{q}} - \pdv{L}{q} = f^L (q(t), \dot{q}(t))
@@ -11,10 +11,9 @@ Unlike Hamilton's principle, this is \emph{not} in general the extremization of 
 
 As in the unforced case, it is possible to carry out a discretization of the state space, the Lagrangian and the forces. The first two are the same: from $TQ$ to $Q \times Q$ and from $L : TQ \to \RR$ to $L_d : Q \times Q \to \RR$.
 
-The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=f_d^-\circ \tau_Q$ and $f^+$ with the second, $\hbox{pr}_2=f_d^+\circ \tau_Q$)~\cite[\S3.2.1]{marsdenDiscreteMechanicsVariational2001}.
-\todo{Esto no sería así? $\hbox{pr}_1=\pi_Q \circ f_d^-$, $\hbox{pr}_2=\pi_Q \circ f_d^+$. Sebastián}
+The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=\pi_Q \circ f_d^-$; and $f^+$ with the second, $\hbox{pr}_2=\pi_Q \circ f_d^+$)~\cite[\S3.2.1]{marsdenDiscreteMechanicsVariational2001}.
 
-\begin{definition}[Discrete Lagrange-d'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalembert}
+\begin{definition}[Discrete Lagrange-d'Alembert principle {\cite[Def.~4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalembert}
 	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
 	\begin{equation*}
 		\sum_{k=1}^{N-1} \Bigl( \mdif{2} \Ld(q_{k-1}, q_k) + f_d^+(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1}) + f_d^-(q_k, q_{k+1}) \Bigr) \cdot \delta q_k = 0.
@@ -114,7 +113,7 @@ There are two ways to proceed from here. On one hand, we can try to find some cr
 
 \subsection{A local condition}\label{sec:forced-local-condition}
 
-A natural way to try to extend a result for symmetric to asymetric matrices is to split them in their \newterm{symmetric} and \newterm{skew} components. Namely, any matrix $M$ can be written as $M = \Sym(M) + \Skew(M)$, where $\Sym(M) = \tfrac{1}{2}(M + M^T)$ is symmetric and $\Skew(M) = \tfrac{1}{2}(M - M^T)$ is skew.
+A natural way to try to extend a result for symmetric to asymmetric matrices is to split them in their \newterm{symmetric} and \newterm{skew} components. Namely, any matrix $M$ can be written as $M = \Sym(M) + \Skew(M)$, where $\Sym(M) = \tfrac{1}{2}(M + M^T)$ is symmetric and $\Skew(M) = \tfrac{1}{2}(M - M^T)$ is skew.
 
 One might expect that an analog of \cref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \left(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\right)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is \textcolor{red}{unbounded}.
 
@@ -210,7 +209,7 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 \end{remark}
 
 \begin{remark}[Time complexity]\label{rem:forced-local-complexity}
-	Checking~\eqref{eq:local-edge-dominance} reduces to, per edge $k$, two smallest-eigenvalue computations on $\Sym(\hat{\mathcal{A}}_k)$ and $\Sym(\hat{\mathcal{B}}_k)$ (both $n \times n$ symmetric, $O(n^3)$ each) and two spectral-norm computations on $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_k$ ($O(n^3)$ each via SVD, cheaper via power iteration). Total cost: $O(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section.
+	Checking~\eqref{eq:local-edge-dominance} reduces to, per edge $k$, two smallest\Hyphdash{eigenvalue} computations on $\Sym(\hat{\mathcal{A}}_k)$ and $\Sym(\hat{\mathcal{B}}_k)$ (both $n \times n$ symmetric, $O(n^3)$ each) and two spectral-norm computations on $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_k$ ($O(n^3)$ each via SVD, cheaper via power iteration). Total cost: $O(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section.
 \end{remark}
 
 \subsection{A perturbation condition}
@@ -301,7 +300,7 @@ This perturbation bound is checkable in terms of derivatives of the discrete for
 		\item $\|J\|_2$ via power iteration on $J^T J$: $O(m^2 k)$ for $k$ iterations.
 		\item $\|\Delta F\|_2$ at the chosen point: same cost as $\|J\|_2$, $O(m^2 k)$.
 	\end{itemize}
-	The dominant cost is therefore $O(m^2 k) = O(n^2 N^2 k)$. This is substantially cheaper than the $O(m^3)$ Cholesky or eigendecomposition that would be needed to check positive-definiteness of $H^f$ globally, and is comparable in cost to a single iteration of the parallel method itself. Note that, like the parallel algorithm (\cref{sec:parallel-algorithm}), all three computations are also easily paralelizable across the $N$ timesteps, so this check can be sped up using parallel computing devices like a GPU\@.
+	The dominant cost is therefore $O(m^2 k) = O(n^2 N^2 k)$. This is substantially cheaper than the $O(m^3)$ Cholesky or eigendecomposition that would be needed to check positive\Hyphdash{}definiteness of $H^f$ globally, and is comparable in cost to a single iteration of the parallel method itself. Note that, like the parallel algorithm (\cref{sec:parallel-algorithm}), all three computations are also easily paralelizable across the $N$ timesteps, so this check can be sped up using parallel computing devices like a GPU\@.
 \end{remark}
 
 \section{Examples}\label{sec:forced-examples}

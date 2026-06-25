@@ -16,7 +16,6 @@
 
 \usepackage{derivative}
 \derivset{\pdv}[delims-eval=.|, delims-eval-!=.|]
-% \derivset{\odv}[style-inf=\textrm{D}]
 
 \usepackage{cleveref}
 
@@ -28,6 +27,11 @@
 
 \usepackage{caption}
 \usepackage{subcaption}
+
+\usepackage{url}
+\setcounter{biburlnumpenalty}{100}
+\setcounter{biburllcpenalty}{100}
+\setcounter{biburlucpenalty}{100}
 
 \input{utils.tex}
 
@@ -47,7 +51,7 @@
 
 \newpage
 \addcontentsline{toc}{chapter}{Bibliography}
-\printbibliography
+{\emergencystretch=3em\printbibliography{}}
 
 \input{appendix/main.tex}
 
