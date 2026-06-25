@@ -16,7 +16,7 @@ The Jacobi step of the parallel algorithm, written for an interior node $k$ and 
 In this setting, taking the derivative with $g_{k\pm1}$ fixed entails going from $L_d^\pm : G \to \RR$ to $T_{\overline{g}_k} G \to T_{L_d^\pm (\overline{g}_k)} \RR$, and using the fact that every tangent space of $\RR^n$ is isomorphic to $\RR^n$, this becomes a sum in $T_{\overline{g}_k}^* G$. This forms a vector space so this step is well-defined.
 
 What does fail is the Newton update~\eqref{eq:jacobi-newton}:
-\[ \overline{q} = q_k - \bigl(\mdif{2} r_k(\mathbf{q}, q_k)\bigr)^{-1}\, r_k(\mathbf{q}, q_k), \]
+\[ \overline{q} = q_k - \left(\mdif{2} r_k(\mathbf{q}, q_k)\right)^{-1}\, r_k(\mathbf{q}, q_k), \]
 because this uses subtraction in a space $Q$ where no canonical subtraction is available.
 
 One solution to this is working on the corresponding \newterm{Lie algebra}.
@@ -48,7 +48,7 @@ Note that since $L_g$ is a diffeomorphism, both $T_e L_g$ and its transpose are 
 
 Then, the residual can be written as a function of a vector direction, all in the Lie algebra:
 \begin{equation}
-	\widetilde{r}_k(\delta\xi_k) : \fg \to \fg^* = (T_e L_{g_k \tau(\delta\xi_k)})^* r_k\bigl(\mathbf{g}, g_k\tau(\delta\xi_k)\bigr),
+	\widetilde{r}_k(\delta\xi_k) : \fg \to \fg^* = (T_e L_{g_k \tau(\delta\xi_k)})^* r_k\left(\mathbf{g}, g_k\tau(\delta\xi_k)\right),
 	\label{eq:lie-residual}
 \end{equation}
 This expression is linearizable around $\delta\xi_k = 0$ as $\pdv{\widetilde{r_k}(\delta \xi_k)}!{\delta \xi_k} \delta\xi_k + \widetilde{r_k}(\delta\xi_k)$. To carry out the computations we will follow a common convention of denoting $T_e L_g(\eta) = g \cdot \eta$, which in the general case is no more than notational shorthand, but for matrix Lie groups the pushforwarded multiplication does literally correspond with matrix multiplication, denoted with the same symbol. 
@@ -68,14 +68,14 @@ Pulling back with $(T_e L_{g_k})^*$ and setting the result to zero gives the lin
 \end{equation}
 where $\widetilde{\mathcal{D}}_k : \fg \to \fg^*$ at node $k$ is
 \begin{equation}
-	\widetilde{\mathcal{D}}_k = (T_e L_{g_k})^* \bigl(\mdif{22} \Ld(g_{k-1}, g_k) + \mdif{11} \Ld(g_k, g_{k+1})\bigr)\, (T_e L_{g_k})
+	\widetilde{\mathcal{D}}_k = (T_e L_{g_k})^* \left(\mdif{22} \Ld(g_{k-1}, g_k) + \mdif{11} \Ld(g_k, g_{k+1})\right)\, (T_e L_{g_k})
 	\label{eq:lie-jacobi-newton-blocks}
 \end{equation}
 (it will be shown later that this is in fact the diagonal blocks of the Lie algebra Hessian at $\mathbf{g}^*$, as in the vector space case; the discrepancy between $\widetilde{\mathcal{D}}_k$ and the true Hessian diagonal away from $\mathbf{g}^*$ is the retraction-curvature term, which vanishes at solutions).
 
 Finally, the update rule is
 \begin{equation}
-	\overline{g}_k = g_k\, \tau\bigl(-\widetilde{\mathcal{D}}_k^{-1}\, \widetilde{r}_k\bigr).
+	\overline{g}_k = g_k\, \tau\left(-\widetilde{\mathcal{D}}_k^{-1}\, \widetilde{r}_k\right).
 	\label{eq:jacobi-newton-G-update}
 \end{equation}
 
@@ -101,7 +101,7 @@ with $\xi_0 = \xi_N = 0$ at the (fixed) endpoints.
 The discrete action restricted to this family is now a smooth function on the \emph{vector space} $\fg^{N-1}$:
 \begin{equation}
 	\Sigma(\boldsymbol \xi) = S_d(\mathbf{g}(\boldsymbol \xi))
-	= \sum_{k=0}^{N-1} \Ld\bigl(g_k\tau(\xi_k),\; g_{k+1}\tau(\xi_{k+1})\bigr).
+	= \sum_{k=0}^{N-1} \Ld\left(g_k\tau(\xi_k),\; g_{k+1}\tau(\xi_{k+1})\right).
 	\label{eq:lie-lifted-action}
 \end{equation}
 This puts us back in the vector space setting of \cref{sec:parallel-algorithm}, where we will show that the gradient and Hessian of $\Sigma$ at $\boldsymbol \xi = 0$ play the same role that $\nabla S_d$ and $\nabla^2 S_d$ played there.
@@ -115,7 +115,7 @@ We write
 Differentiating~\eqref{eq:lie-lifted-action} with respect to $\xi_k$ at $\boldsymbol \xi = 0$, only the $(k-1)$-th and $k$-th summands contribute, and the chain rule with $T_e L_g$ recovers the Lie algebra residual~\eqref{eq:lie-residual} introduced for the algorithm:
 \[
 	\pdv{\Sigma}!{\xi_k}(0)
-	= (T_e L_{g_k})^* \bigl(\mdif{2} \Ld(g_{k-1}, g_k) + \mdif{1} \Ld(g_k, g_{k+1})\bigr)
+	= (T_e L_{g_k})^* \left(\mdif{2} \Ld(g_{k-1}, g_k) + \mdif{1} \Ld(g_k, g_{k+1})\right)
 	= \widetilde{r}_k
 \]
 which is expected. In particular, solutions of the DEL equations on $G$ are exactly the critical points of $\Sigma$.
@@ -144,7 +144,7 @@ and similarly for the $k$-th summand:
 % $\mdif{11} \Ld(g_k, g_{k+1})$ and $\mdif{1} \Ld(g_k, g_{k+1})$.
 Summing the two retraction-curvature terms collects $\mdif{2} \Ld(g_{k-1}, g_k) + \mdif{1} \Ld(g_k, g_{k+1}) = r_k(\mathbf{g}, g_k)$, so at a solution $\mathbf{g}^*$ where $r_k(\mathbf{g}^*, g_k^*) = 0$ the curvature term vanishes and
 \[
-	\widetilde{\mathcal{D}}_k\big|_{\mathbf{g}^*} = (T_e L_{g_k^*})^* \bigl(\mdif{22} \Ld(g_{k-1}^*, g_k^*) + \mdif{11} \Ld(g_k^*, g_{k+1}^*)\bigr)(T_e L_{g_k^*}),
+	\widetilde{\mathcal{D}}_k\big|_{\mathbf{g}^*} = (T_e L_{g_k^*})^* \left(\mdif{22} \Ld(g_{k-1}^*, g_k^*) + \mdif{11} \Ld(g_k^*, g_{k+1}^*)\right)(T_e L_{g_k^*}),
 \]
 which matches~\eqref{eq:lie-jacobi-newton-blocks} from \cref{sec:lie-groups-algorithm}, confirming that the Hessian of the lifted action agrees with the Newton step at the solution.
 
@@ -200,7 +200,7 @@ The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \
 	\[
 		\begin{aligned}
 			\overline{g}_k   & = g_k\,\tau(\delta\xi_k) = g_k^*\,\tau(\xi_k)\,\tau(\delta\xi_k), \\
-			\overline{\xi_k} & = \tau^{-1}\!\bigl(\tau(\xi_k)\,\tau(\delta\xi_k)\bigr),
+			\overline{\xi_k} & = \tau^{-1}\!\left(\tau(\xi_k)\,\tau(\delta\xi_k)\right),
 		\end{aligned}
 	\]
 	so

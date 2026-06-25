@@ -116,7 +116,7 @@ There are two ways to proceed from here. On one hand, we can try to find some cr
 
 A natural way to try to extend a result for symmetric to asymetric matrices is to split them in their \newterm{symmetric} and \newterm{skew} components. Namely, any matrix $M$ can be written as $M = \Sym(M) + \Skew(M)$, where $\Sym(M) = \tfrac{1}{2}(M + M^T)$ is symmetric and $\Skew(M) = \tfrac{1}{2}(M - M^T)$ is skew.
 
-One might expect that an analog of \cref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \bigl(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\bigr)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is \textcolor{red}{unbounded}.
+One might expect that an analog of \cref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \left(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\right)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is \textcolor{red}{unbounded}.
 
 % All of this is pointless. Maybe I could mention it.
 % \begin{theorem}[Local sym-positivity implies global]\label{thm:forced-local-implies-global}
@@ -183,8 +183,8 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 	\begin{align*}
 		\|(J^f x)_j\|_2
 		 & \leq \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 \|x_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2 \|x_{j+1}\|_2                                        \\
-		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                                      \\
-		 & \leq \bigl(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\bigr) \|x\|_{\infty, 2}                            \\
+		 & \leq \left(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\right) \|x\|_{\infty, 2}                                      \\
+		 & \leq \left(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\right) \|x\|_{\infty, 2}                            \\
 		 & \leq \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \|x\|_{\infty, 2}.
 	\end{align*}
 	By~\eqref{eq:local-edge-dominance} applied at edges $j$ and $j - 1$, the fraction is strictly less than $1$. Taking $\max_j$,
@@ -204,7 +204,7 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 	\end{align*}
 	All four are symmetric or transposes of each other, so $\Sym(\hat{\mathcal{A}}_k) = \hat{\mathcal{A}}_k$, $\Sym(\hat{\mathcal{B}}_k) = \hat{\mathcal{B}}_k$, and $\|\hat{\mathcal{C}}^+_k\|_2 = \|\hat{\mathcal{C}}^-_k\|_2$. The two inequalities of~\eqref{eq:local-edge-dominance} therefore collapse to the single per-edge condition
 	\[
-		\min\!\bigl(\lambda_{\min}(\mdif{11}\Ld),\, \lambda_{\min}(\mdif{22}\Ld)\bigr) > \|\mdif{12}\Ld\|_2,
+		\min\!\left(\lambda_{\min}(\mdif{11}\Ld),\, \lambda_{\min}(\mdif{22}\Ld)\right) > \|\mdif{12}\Ld\|_2,
 	\]
 	which is exactly the diagonal-block dominance condition on the unforced local Hessian $H_k$: each diagonal block must dominate the off-diagonal coupling in spectral norm, which in particular implies $H_k \succ 0$ and recovers the convergence criterion of \cref{thm:local-hessian-pd-convergence}.
 \end{remark}
@@ -236,7 +236,7 @@ The following theorem states in a rigourous and quantitative manner the intuitiv
 \begin{proof}
 	Let $D, L, U$ denote the block-diagonal, strict block-lower, and strict block-upper parts of the unforced Hessian $H$, and similarly $\Delta D, \Delta L, \Delta U$ for the perturbation $\Delta F$. Then the forced iteration matrix is
 	\[
-		J^f = -(D + \Delta D)^{-1}\bigl( (L + U) + (\Delta L + \Delta U) \bigr),
+		J^f = -(D + \Delta D)^{-1}\left( (L + U) + (\Delta L + \Delta U) \right),
 	\]
 	and the unforced one ($\Delta F = 0$) is $J = -D^{-1}(L + U)$ with $\rho(J) < 1$ by hypothesis.
 
@@ -273,7 +273,7 @@ In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exist
 \begin{proof}
 	Let $\beta = \|D^{-1}\|$ and $\gamma = \|\Delta F\|$. The identity $(D + \Delta D)^{-1} - D^{-1} = -(D + \Delta D)^{-1}\Delta D \, D^{-1}$, combined with $J = -D^{-1}(L+U)$, gives by direct manipulation
 	\[
-		J^f - J = -(D + \Delta D)^{-1}\bigl[\Delta D \cdot J + (\Delta L + \Delta U)\bigr].
+		J^f - J = -(D + \Delta D)^{-1}\left[\Delta D \cdot J + (\Delta L + \Delta U)\right].
 	\]
 	The three factors on the right are bounded by, respectively, $\|\Delta D\| \leq \gamma$ (projection contractivity), $\|\Delta L + \Delta U\| = \|\Delta F - \Delta D\| \leq 2\gamma$ (triangle inequality), and $\|(D + \Delta D)^{-1}\| \leq \beta/(1 - \beta\gamma)$ (Neumann tail estimate\footnote{We can get this by factoring $D + \Delta D$ as $D(I + D^{-1}\Delta D)$. Then, we known that $|D^{-1}\Delta D| \leq \beta\gamma$ and if $\beta\gamma < 1$, the Neumann series $(I+M)^{-1} = \sum_{k\geq 0}(-M)^k$ converges and so we can take the geometric series of the norms of the Neumann sum, resulting in $|(I + D^{-1}\Delta D)^{-1}| \leq 1/(1-\beta\gamma)$, giving the claimed bound after multiplying by $|D^{-1}| = \beta$.}, valid for $\beta\gamma < 1$). Combining,
 	\[
@@ -283,7 +283,7 @@ In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exist
 	\begin{align*}
 		\frac{\beta\gamma(\|J\| + 2)}{1 - \beta\gamma} & \leq 1 - \|J\|                  \\
 		\beta\gamma(\|J\| + 2)                         & \leq (1-\|J\|)(1 - \beta\gamma) \\
-		\beta\gamma\bigl(\|J\| + 2 + (1-\|J\|)\bigr)   & \leq 1 - \|J\|                  \\
+		\beta\gamma\left(\|J\| + 2 + (1-\|J\|)\right)   & \leq 1 - \|J\|                  \\
 		3\beta\gamma                                   & \leq 1 - \|J\|                  \\
 		\gamma                                         & \leq \frac{1-\|J\|}{3\beta},
 	\end{align*}

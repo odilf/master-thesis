@@ -46,7 +46,7 @@ More generally, a $k$-\newterm{form} on $M$ is a smooth assignment of an alterna
 In coordinates on $\RR^2$, $\odif{x} \wedge \odif{y}$ evaluated on two tangent vectors returns the signed area of the parallelogram they span (i.e., the determinant). The definition extends to higher degree forms as $\alpha \wedge \beta = (-1)^{k l} \beta \wedge \alpha$ for a $k$-form and an $l$-form.
 
 \notion{Pullback of forms*}\label{notion:pullback}~\cite[p. 359]{leeSmoothManifolds2013} Given a smooth map $f : M \to N$ and a $k$-form $\omega$ on $N$, the \newterm{pullback} $f^* \omega$ is the $k$-form on $M$ defined by
-\[ (f^* \omega)_p (v_1, \ldots, v_k) = \omega_{f(p)}\bigl(T_p f(v_1), \ldots, T_p f(v_k)\bigr). \]
+\[ (f^* \omega)_p (v_1, \ldots, v_k) = \omega_{f(p)}\left(T_p f(v_1), \ldots, T_p f(v_k)\right). \]
 That is, the pullback ``reverses'' the order of operation by pre-applying the differential of $f$, and then evaluating $\omega$ at $f(p)$. Pullbacks respect the wedge product in the sense that $f^* (\alpha \wedge \beta) = f^* \alpha \wedge f^* \beta$.
 
 \notion{Exterior derivative*}\label{notion:exterior-derivative}~\cite[\S14]{leeSmoothManifolds2013} The \newterm{exterior derivative} $\odif*{}: \Omega^k(M) \to \Omega^{k+1}(M)$ is the unique linear operation that agrees with the ordinary differential on functions ($k = 0$), satisfies the graded Leibniz rule
