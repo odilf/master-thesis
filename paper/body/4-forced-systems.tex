@@ -2,7 +2,7 @@
 
 Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[\S4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. In this setting it is not Hamilton's principle that applies, but rather its forced analog, called the \newterm{Lagrange-D'Alembert principle}:
 \begin{definition}[Lagrange-D'Alembert principle {\cite[Definition 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}}]
-	A path $q(t) : [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the forced Largangian system defined by $L: TQ \to \RR$ and force $f^L : TQ \to T^*Q$ if and only if
+	A path $q(t) : [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the forced Lagrangian system defined by $L: TQ \to \RR$ and force $f^L : TQ \to T^*Q$ if and only if
 	\[
 		\odv{}{t} \pdv{L}{\dot{q}} - \pdv{L}{q} = f^L (q(t), \dot{q}(t))
 	\]
@@ -12,6 +12,7 @@ Unlike Hamilton's principle, this is \emph{not} in general the extremization of 
 As in the unforced case, it is possible to carry out a discretization of the state space, the Lagrangian and the forces. The first two are the same: from $TQ$ to $Q \times Q$ and from $L : TQ \to \RR$ to $L_d : Q \times Q \to \RR$.
 
 The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=f_d^-\circ \tau_Q$ and $f^+$ with the second, $\hbox{pr}_2=f_d^+\circ \tau_Q$)~\cite[\S3.2.1]{marsdenDiscreteMechanicsVariational2001}.
+\todo{Esto no sería así? $\hbox{pr}_1=\pi_Q \circ f_d^-$, $\hbox{pr}_2=\pi_Q \circ f_d^+$. Sebastián}
 
 \begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalembert}
 	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
@@ -55,6 +56,7 @@ Figuring out the convergence criteria is trickier. A natural way to proceed is t
 		f_d^-(q_k, q_{k+1}) = \mdif{1} V_d(q_k, q_{k+1}).
 	\]
 	This is because this is precisely the case where the Lagrange-D'Alembert principle \emph{is} an extremization. In fact, any system with Lagrangian $L_d$ with forces that admit a discrete potential $V_d$ is identical to an unforced system with Lagrangian $L'_d = L_d + V_d$. In other words, for conservative forces, every theorem of~\cite{ferraroParallelIterativeMethod2025} applies trivially. In the rest of the discussion we focus on non-conservative forces.
+    \todo{Lo que voy a decir es una tontería, pero se vería mejor cambiarle el signo a $V_d$, para que esté con el signo habitual que tiene la energía cinética. Así tienes $f^\pm=-D_{1/2}V_d$, y $L'_d=L_d-V_d$. Sebastián.}
 \end{remark}
 
 For generic forces, the relevant criterion that can be applied is given in~\cite[Lem.~4.4]{ferraroParallelIterativeMethod2025} which we restate here:
@@ -79,7 +81,7 @@ To get an expression for $J^f$, we start by computing the derivative of~\eqref{e
 	 & + \delta_{i-1,j} \left(\mdif{21}{\Ld}(q_{i-1}, q_i) + \mdif{1}{f_d^+}(q_{i-1}, q_i) \right).
 \end{align*}
 
-This again has a tridiagonal structure, but is not (necessarilly) symmetric. In~\eqref{eq:hessian-terms-1} we only had to define the diagonal and the off-diagonal matrices, but now we need three matrices
+This again has a tridiagonal structure, but is not (necessarily) symmetric. In~\eqref{eq:hessian-terms-1} we only had to define the diagonal and the off-diagonal matrices, but now we need three matrices
 \begin{align*}
 	\hat{\mathcal{D}}_k   & = \mdif{22} \Ld(q_{k-1}, q_k) + \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{11} \Ld(q_k, q_{k+1}) + \mdif{1} f_d^-(q_k, q_{k+1}) \\
 	\hat{\mathcal{C}}^+_k & = \mdif{12} \Ld(q_k, q_{k+1}) + \mdif{2} f_d^-(q_k, q_{k+1})                                                              \\
@@ -291,9 +293,6 @@ In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exist
 We call the factor $1 - \|J\|$ in~\eqref{eq:forced-perturbation-epsilon} the \newterm{contraction margin} of the unforced iteration, and $\|D^{-1}\|$ measures how well-conditioned the diagonal is. A smaller margin or a worse-conditioned diagonal will shrink $\varepsilon$, making the margin of the magnitude of allowed forces tighter.
 This perturbation bound is checkable in terms of derivatives of the discrete forces $f_d^\pm$ alone, which depend on the discrete Lagrangian and the chosen discretization of the force, but not on the (unknown) solution trajectory (although it does not say anything about whether the unforced system converges in the first place).
 
-\todo{
-	\cite[Lemma~5.6.10]{hornMatrixAnalysis2012} says that for any $\epsilon > 0$ there exists a (implied submultiplicative?) matrix norm with $\|J\| \leq \rho(J) + \epsilon$, which is almost what we want, but doesn't have the diagonal contraction condition. Should we mention it?
-}
 
 \begin{remark}[Time complexity]\label{rem:forced-perturbation-complexity}
 	Let $m = n(N-1)$ be the dimension of the iteration matrix, with $n = \dim Q$ and $N$ the path length. Checking the bound~\eqref{eq:forced-perturbation-epsilon} requires:
@@ -316,18 +315,17 @@ Consider a one-dimensional harmonic oscillator with linear viscous damping,
 	\ddot{q} + \gamma\dot{q} + \omega^2 q = 0, \qquad \gamma > 0,
 \]
 which has the following Lagrangian:
-\[
-	L(q,\dot{q}) = \tfrac{1}{2}\dot{q}^2 - \tfrac{1}{2}\omega^2 q^2,
-	\qquad
-	f^L(q,\dot{q}) = -\gamma\dot{q}.
-\]
+\begin{align*}
+	L(q,\dot{q}) &= \tfrac{1}{2}\dot{q}^2 - \tfrac{1}{2}\omega^2 q^2 \\
+	f^L(q,\dot{q}) &= -\gamma\dot{q}.
+\end{align*}
 We discretize the Lagrangian and the force with the trapezoidal rule, evaluating both at the two endpoints $q_k, q_{k+1}$ (since the damping is velocity-only, the force quadrature here coincides with the midpoint rule):
 \begin{align*}
 	L_d(q_k, q_{k+1})   & = \frac{{(q_{k+1}-q_k)}^2}{2h} - \frac{\omega^2 h}{4}(q_k^2 + q_{k+1}^2) \\
 	f_d^+(q_k, q_{k+1}) & = -\frac{\gamma}{2}(q_{k+1}-q_k)                                         \\
 	f_d^-(q_k, q_{k+1}) & = -\frac{\gamma}{2}(q_{k+1}-q_k).
 \end{align*}
-The ``blocks'' of the forced Hessian are just scalars, evaluating to
+The ``blocks'' of the forced Hessian are just scalars, which by~\eqref{eq:hessian-terms-forced-2} evaluate to
 \begin{alignat*}{2}
 	\hat{\mathcal{A}}_k   & = \frac{1}{h} - \frac{\omega^2 h}{2} + \frac{\gamma}{2} & \qquad
 	\hat{\mathcal{C}}^+_k & = -\frac{1}{h} - \frac{\gamma}{2}                                \\
@@ -348,7 +346,7 @@ Thus $\Delta F$ is purely off-diagonal with antisymmetric blocks ($\Delta\hat{\m
 	\|\Delta F\|_2 = \gamma\cos\frac{\pi}{N} < \gamma.
 \]
 
-Assuming the unforced oscillator converges at $\mathbf{q}^*$ for the chosen step size $h$ (a condition on $h$ and $\omega$ alone), Theorem~\ref{thm:forced-perturbation} and Lemma~\ref{lem:forced-perturbation-explicit} guarantee that the forced method also converges whenever
+Assuming the unforced oscillator converges at $\mathbf{q}^*$ for the chosen step size $h$, Theorem~\ref{thm:forced-perturbation} and Lemma~\ref{lem:forced-perturbation-explicit} guarantee that the forced method also converges whenever
 \[
 	\gamma\cos\frac{\pi}{N} < \varepsilon = \frac{1 - \|J^0\|}{3\|D_0^{-1}\|},
 	\qquad\text{equivalently}\qquad

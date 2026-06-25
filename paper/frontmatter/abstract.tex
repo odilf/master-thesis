@@ -2,9 +2,11 @@
 \begin{abstract}
 \thispagestyle{plain}
 \setcounter{page}{3}
-	
-	Hello world.
-	
+	Variational integrators discretize the configuration space of a Lagrangian mechanical system rather than its equations of motion, making it possible to construct algorithms that preserve the geometric structure of the underlying manifold. Solving the resulting discrete Euler-Lagrange (DEL) equations is typically sequential, but a recent parallel Jacobi-Newton algorithm overcomes this, combining parallel Jacobi updates with local Newton-Raphson steps; its convergence is governed by a block-tridiagonal Hessian matrix. The algorithm is, however, formulated only for unforced systems on vector spaces.
+
+	This thesis extends it in two directions, together with the corresponding convergence analysis. The first is to forced (Lagrange-d'Alembert) systems, such as those with dissipation; the method adapts by adding a force term, and converges if a per-edge condition holds, or if forces small enough relative to the contraction margin of the iteration are added to a convergent unforced system. The second is to configuration spaces that are Lie groups, such as those arising in rigid body dynamics; here the Newton-Raphson correction is computed in the Lie algebra and applied via a retraction and a pullback, and the convergence criteria, read in a Lie algebra chart at the solution where the retraction's curvature terms vanish, are structurally identical to the vector space case.
+
+	\bigskip
 	\noindent\textbf{Keywords:}
 	Variational Integration, 
     Discrete Euler-Lagrange Equations, 
