@@ -8,7 +8,7 @@ Instead, one can discretize the tangent bundle of the configuration space $TQ$ a
 
 \section{Geometric properties of the Euler-Lagrange equations}\label{sec:geometric-properties-el}
 
-The Euler-Lagrange equations can be viewed as a dynamical system on the \newterm{phase-space} $TQ$. Given a Lagrangian $L: TQ \to \RR$, the \newterm{Lagrangian vector field} $X_L: TQ \to T(TQ)$ is the second-order vector field whose integral curves (i.e., curves whose velocity matches $X_L$ at every point) are the solutions of the Euler-Lagrange equation~\eqref{eq:euler-lagrange}. This has an associated flow, called the \newterm{EL (Euler-Lagrange) flow},
+The Euler-Lagrange equations can be viewed as a dynamical system on the \newterm{phase space} $TQ$. Given a Lagrangian $L: TQ \to \RR$, the \newterm{Lagrangian vector field} $X_L: TQ \to T(TQ)$ is the second-order vector field whose integral curves (i.e., curves whose velocity matches $X_L$ at every point) are the solutions of the Euler-Lagrange equation~\eqref{eq:euler-lagrange}. This has an associated flow, called the \newterm{EL (Euler-Lagrange) flow},
 \[ F_t : TQ \to TQ, \quad (q(0), \dot{q}(0)) \mapsto (q(t), \dot{q}(t)), \]
 that sends each initial state to the state reached after time $t$ along the corresponding solution. In other words, $F_t$ packages the physical evolution of \emph{every} initial condition simultaneously, rather than one trajectory at a time.
 
@@ -46,7 +46,7 @@ In the Euler-Lagrange derivation, integration by parts~\eqref{eq:el-parts} leave
 \]
 is non-degenerate and closed, making it a symplectic form on $TQ$. The EL flow preserves this symplectic form $\omega_L$, in the sense that $F_t^* \omega_L = \omega_L$ for all $t$~\cite[\S1.2.3]{marsdenDiscreteMechanicsVariational2001}. This makes the EL flow \newterm{symplectic} (with respect to $\omega_L$).
 
-Symplecticity of a flow implies that it is (locally) the flow of some Hamiltonian function $H$, and that that function is exactly preserved along the flow~\cite{marsdenIntroductionMechanicsSymmetry1999}. Additionally, symplectic flow also implies \newterm{Liouville's theorem}, which states that the EL flow preserves phase-space volume. In particular, no region of phase space contracts or expands, so there are no attractors or sinks in the dynamics.
+Symplecticity of a flow implies that it is (locally) the flow of some Hamiltonian function $H$, and that that function is exactly preserved along the flow~\cite{marsdenIntroductionMechanicsSymmetry1999}. Additionally, symplectic flow also implies \newterm{Liouville's theorem}, which states that the EL flow preserves phase space volume. In particular, no region of phase space contracts or expands, so there are no attractors or sinks in the dynamics.
 
 \section{Pitfalls of discretizing the equations of motion}\label{sec:pitfalls-discrete-el-ode}
 
@@ -240,7 +240,7 @@ where
 
 Checking this condition has an $\mathcal{O}(N)$ runtime in terms of the size $N$ of the path. However, this condition is not necessary, and in practice it is common for p.d.\ global Hessians to not be locally p.d..
 
-This is where a third convergence result comes into play, which gives an easy to check sufficient \emph{and necessary} condition for the positive definiteness of the global Hessian matrix:
+This is where a third convergence result comes into play, which gives an easy-to-check sufficient \emph{and necessary} condition for the positive definiteness of the global Hessian matrix:
 
 \begin{theorem}[Hessian positive definiteness criterion ({\cite[Thm.~4.12]{ferraroParallelIterativeMethod2025}})]\label{thm:hessian-pd-criterion}
 	The Hessian matrix $H(\mathbf{q})$ is positive definite if and only if the matrices defined iteratively by $\Lambda_1 = \mathcal{D}_1$ and

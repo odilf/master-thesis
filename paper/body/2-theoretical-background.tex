@@ -29,7 +29,7 @@ where $\gamma(t) : (-\varepsilon, \varepsilon) \to Q$ are differentiable paths o
 
 The \newterm{tangent bundle} is the disjoint union of all tangent spaces, $TQ = \sqcup_q T_q Q$, which forms a $2n$-dimensional manifold itself (that is not in general a vector space). The \newterm{cotangent bundle} is defined in the same way.
 
-For our purposes, a mapping to and from tangent and cotangent bundles such as $f : TM \to TM$ is said to be \newterm{fiber-preserving} if for every $q \in M$ and every $\eta \in T_q M$, $f(\eta) \in T_q M$. In other words, $f$ does not move the point at which it is tangent or $\tau_Q\circ f=\tau_Q$. %\todo{Maybe remove here and just mention in forces.}.
+For our purposes, a mapping to and from tangent and cotangent bundles such as $f : TM \to TM$ is said to be \newterm{fibre-preserving} if for every $q \in M$ and every $\eta \in T_q M$, $f(\eta) \in T_q M$. In other words, $f$ does not move the point at which it is tangent or $\tau_Q\circ f=\tau_Q$. %\todo{Maybe remove here and just mention in forces.}.
 
 \notion{Differential}\label{notion:differential}~\cite[p.\ 55]{leeSmoothManifolds2013} A differential or derivative of a function on manifolds $f : M \to N$ evaluated at $p \in M$ is a mapping between the tangent spaces of the manifolds $T_p f : T_p M \to T_{f(p)} N$, defined  as $T_p f (\dot{\gamma}(0)) = \odv{}{t}_0 f(\gamma(t))$.
 
@@ -89,8 +89,8 @@ This is the standard Lagrangian formulation, that describes closed systems. In p
 
 \begin{itemize}
 	\item \newterm{Time-dependent Lagrangians}, $L : \RR \times TQ \to \RR$, depend explicitly on a time parameter. This models a system whose effective laws of physics change over time, typically because it is coupled to an external influence that varies with time. Hamilton's principle applies but energy is no longer conserved.
-	\item \newterm{Forced systems} are one of the main topics of this paper (\cref{sec:forced-systems}). They have some forcing applied (such as dissipation) and follow the Lagrange-D'Alembert principle (\cref{def:lagrange-dalembert}).
-	\item \newterm{Constrained} systems restrict the admissible configurations or velocities to a submanifold of $TQ$. Classic examples include the rigid links of a robotic arm (holonomic constraints) or rolling contact of a wheel on a surface (non-holonomic constraints).
+	\item \newterm{Forced systems} are one of the main topics of this paper (\cref{sec:forced-systems}). They have some forcing applied (such as dissipation) and follow the Lagrange-d'Alembert principle (\cref{def:lagrange-dalembert}).
+	\item \newterm{Constrained} systems restrict the admissible configurations or velocities to a submanifold of $TQ$. Classic examples include the rigid links of a robotic arm (holonomic constraints) or rolling contact of a wheel on a surface (nonholonomic constraints).
 	\item \newterm{Higher-order} Lagrangians depend on higher derivatives of $q$, e.g. $L(q, \dot{q}, \ddot{q})$. In principle, the results of this paper are able to be carried over automatically to Lagrangians of arbitrary order~\cite{ferraroParallelIterativeMethod2025, gay-balmazInvariantHigherorderVariational2012}.
 \end{itemize}
 
@@ -112,7 +112,7 @@ and for this to hold given any variation $\delta q$, we need the integrand to be
 	\label{eq:euler-lagrange}
 \end{equation}
 
-Computing the relevant derivatives of the Lagrangian provides us with an implicit second order differential equation with respect to $q(t)$. A path that satisfies this differential equation is a path that can occur in the system. The ODE arising from a Lagrangian system results in what are often called the \newterm{equations of motion} for that system.
+Computing the relevant derivatives of the Lagrangian provides us with an implicit second-order differential equation with respect to $q(t)$. A path that satisfies this differential equation is a path that can occur in the system. The ODE arising from a Lagrangian system results in what are often called the \newterm{equations of motion} for that system.
 
 % (esto sobra vasto, no?)
 % In general, we can define the \emph{Euler-Lagrange map} $D_\text{EL} L: \ddot{Q} \to T^*Q$ as

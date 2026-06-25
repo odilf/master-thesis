@@ -1,13 +1,13 @@
 \chapter{Lie groups}\label{sec:lie-groups}
 
 
-The study of many physical systems are naturally defined on a configuration manifold where no notion of linear combination can exist, thus not being able to be described as a vector-space. However, most of these still have some structure; namely, that of a \newterm{Lie group} $G$: a smooth manifold together with a group operation $\cdot : G \times G \to G$ such that multiplication and inversion are smooth. Examples of such manifolds are the rotation groups $\SO(n)$, the Euclidean motion groups $\SE(n)$, the unitary groups $\textrm{U}(n)$, and in fact every vector space (under addition).
+The study of many physical systems are naturally defined on a configuration manifold where no notion of linear combination can exist, thus not being able to be described as a vector space. However, most of these still have some structure; namely, that of a \newterm{Lie group} $G$: a smooth manifold together with a group operation $\cdot : G \times G \to G$ such that multiplication and inversion are smooth. Examples of such manifolds are the rotation groups $\SO(n)$, the Euclidean motion groups $\SE(n)$, the unitary groups $\textrm{U}(n)$, and in fact every vector space (under addition).
 
 In this section we extend the parallel algorithm (\cref{sec:parallel-algorithm}) to work on Lie groups.
 
 \section{The parallel algorithm on Lie algebras}\label{sec:lie-groups-algorithm}
 
-\paragraph{Where the vector-space step fails}\label{sec:lie-vector-space-fails}
+\paragraph{Where the vector space step fails}\label{sec:lie-vector space-fails}
 
 The Jacobi step of the parallel algorithm, written for an interior node $k$ and a current path $\mathbf{g}$, looks the same as before:
 \[
@@ -23,7 +23,7 @@ One solution to this is working on the corresponding \newterm{Lie algebra}.
 The Lie algebra $\fg = T_e G$ is the tangent space at the identity, forming a vector space of the same dimension as $G$.
 For any other point $g \in G$, tangent directions can be supplied by the differential $T_e L_g : \fg \to T_g G$ of the left-multiplication map $L_g : h \mapsto gh$, which is a isomorphism between these two vector spaces. The technique of ``moving'' some computation of a Lie group to its algebra is often called \newterm{lifting} (into the algebra).
 
-In the vector-space case, the Newton update has form of $q_\textrm{new} = q_k + \delta q$: you compute a correction $\delta q$ in a vector space and add it. On $G$, there is no addition, so ``compute a correction and add it'' is not well defined. Instead, we pick a vector space (here, $\fg$), compute a correction $\delta \xi$ there, and then map it to a nearby point in $G$ via some smooth map.
+In the vector space case, the Newton update has form of $q_\textrm{new} = q_k + \delta q$: you compute a correction $\delta q$ in a vector space and add it. On $G$, there is no addition, so ``compute a correction and add it'' is not well-defined. Instead, we pick a vector space (here, $\fg$), compute a correction $\delta \xi$ there, and then map it to a nearby point in $G$ via some smooth map.
 
 Such a map is called a \newterm{retraction} $\tau : \fg \to G$, which (for our purposes) we require to satisfy $\tau(0) = e$ and $T_0\tau = \mathrm{Id}_\fg$.
 Left-translating $\tau$ by $g_k$ gives a map centred at $g_k$:
@@ -31,7 +31,7 @@ Left-translating $\tau$ by $g_k$ gives a map centred at $g_k$:
 	\overline{g}_k = g_k\tau(\delta \xi_k), \qquad \delta \xi_k \in \fg,
 	\label{eq:lie-retraction}
 \end{equation}
-the Lie-group analog of $q_k + \delta q$ in the vector-space case.
+the Lie group analog of $q_k + \delta q$ in the vector space case.
 The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved for by a linear system (which we show how to set up in the next section).
 
 \begin{remark}[Concrete retractions]
@@ -40,13 +40,13 @@ The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved 
 
 \paragraph{Linearization}
 
-As it stands, the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ is an element of $T_{g_k}^*G$. We are going to linearize it in the Lie-algebra by considering the expression $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ as a function of a vector direction $\delta \xi \in \fg$. This gives a map $\fg \to T_{g_k \tau(\delta \xi)}^* G$, i.e., from the algebra to a cotangent space. Similarly to how we can move from $T_g G \to \fg$ via $T_e L_g$, we can move from $T_g^*G \to \fg^*$ using the \newterm{transpose} ${(T_e L_g)}^*$ by interpreting the duals as linear applications and pre-appling $T_e L_g$ to $T_g^*G$. That is,
+As it stands, the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ is an element of $T_{g_k}^*G$. We are going to linearize it in the Lie algebra by considering the expression $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ as a function of a vector direction $\delta \xi \in \fg$. This gives a map $\fg \to T_{g_k \tau(\delta \xi)}^* G$, i.e., from the algebra to a cotangent space. Similarly to how we can move from $T_g G \to \fg$ via $T_e L_g$, we can move from $T_g^*G \to \fg^*$ using the \newterm{transpose} ${(T_e L_g)}^*$ by interpreting the duals as linear applications and pre-appling $T_e L_g$ to $T_g^*G$. That is,
 \[ ({(T_e L_g)}^* \underbrace{\alpha}_{T_g^* G}) \underbrace{\eta}_{T_g G} = \alpha(T_e L_g (\eta)). \]
 (the transpose is a specific case of a pullback, see~\ref{notion:pullback}).
 
 Note that since $L_g$ is a diffeomorphism, both $T_e L_g$ and its transpose are isomorphisms and so this mapping can be done without loss of information.
 
-Then, the residual can be written as a function of a vector direction, all in the Lie-algebra:
+Then, the residual can be written as a function of a vector direction, all in the Lie algebra:
 \begin{equation}
 	\widetilde{r}_k(\delta\xi_k) : \fg \to \fg^* = {(T_e L_{g_k \tau(\delta\xi_k)})}^* r_k\bigl(\mathbf{g}, g_k\tau(\delta\xi_k)\bigr),
 	\label{eq:lie-residual}
@@ -71,7 +71,7 @@ where $\widetilde{\mathcal{D}}_k : \fg \to \fg^*$ at node $k$ is
 	\widetilde{\mathcal{D}}_k = {(T_e L_{g_k})}^* \bigl(\mdif{22} \Ld(g_{k-1}, g_k) + \mdif{11} \Ld(g_k, g_{k+1})\bigr)\, (T_e L_{g_k})
 	\label{eq:lie-jacobi-newton-blocks}
 \end{equation}
-(it will be shown later that this is in fact the diagonal blocks of the Lie-algebra Hessian at $\mathbf{g}^*$, as in the vector space case; the discrepancy between $\widetilde{\mathcal{D}}_k$ and the true Hessian diagonal away from $\mathbf{g}^*$ is the retraction-curvature term, which vanishes at solutions).
+(it will be shown later that this is in fact the diagonal blocks of the Lie algebra Hessian at $\mathbf{g}^*$, as in the vector space case; the discrepancy between $\widetilde{\mathcal{D}}_k$ and the true Hessian diagonal away from $\mathbf{g}^*$ is the retraction-curvature term, which vanishes at solutions).
 
 Finally, the update rule is
 \begin{equation}
@@ -79,18 +79,18 @@ Finally, the update rule is
 	\label{eq:jacobi-newton-G-update}
 \end{equation}
 
-The global parallel loop is unchanged from the vector-space and forced cases: each inner node $k$ independently solves~\eqref{eq:jacobi-newton-G}, and the results are assembled into the next iterate path $\overline{\mathbf{g}}$.
+The global parallel loop is unchanged from the vector space and forced cases: each inner node $k$ independently solves~\eqref{eq:jacobi-newton-G}, and the results are assembled into the next iterate path $\overline{\mathbf{g}}$.
 The only difference is that the local solve happens in $\fg$, and the update uses the retraction $\tau$ instead of vector addition.
-The parallelism structure (\cref{sec:parallel-algorithm}) carries over without modification. The treatment of forces (\cref{sec:forced-systems}) can also be applied in the same way, namely by inserting the discrete forces $f_d^\pm$ into the residual $r_k$ before taking the Lie-algebra pullback.
+The parallelism structure (\cref{sec:parallel-algorithm}) carries over without modification. The treatment of forces (\cref{sec:forced-systems}) can also be applied in the same way, namely by inserting the discrete forces $f_d^\pm$ into the residual $r_k$ before taking the Lie algebra pullback.
 
 \section{Convergence}\label{sec:lie-groups-convergence}
 
-The convergence analysis largly follows the vector-space case (\cref{thm:hessian-pd-convergence}) from~\cite{ferraroParallelIterativeMethod2025}, but with two adaptations: we work with the Lie-algebra Hessian $\widetilde{H}$ (the analog of $H$, with all blocks pulled back to $\fg$ via left translation), and the iteration on $G^{N-1}$ has to be read in a Lie-algebra chart at the solution before we can apply classical fixed-point/convergence theorems.
+The convergence analysis largly follows the vector space case (\cref{thm:hessian-pd-convergence}) from~\cite{ferraroParallelIterativeMethod2025}, but with two adaptations: we work with the Lie algebra Hessian $\widetilde{H}$ (the analog of $H$, with all blocks pulled back to $\fg$ via left translation), and the iteration on $G^{N-1}$ has to be read in a Lie algebra chart at the solution before we can apply classical fixed-point/convergence theorems.
 
 The strategy consists of lifting the discrete action to a function on the vector space $\fg^{N-1}$, computing its gradient and Hessian there, and reading off the convergence criterion.
 We carry out the lifting in \cref{sec:lie-hessian} and give the convergencence results in \cref{sec:lie-convergence}.
 
-\subsection{The Hessian in Lie-algebra coordinates}\label{sec:lie-hessian}
+\subsection{The Hessian in Lie algebra coordinates}\label{sec:lie-hessian}
 
 The Hessian cannot be computed on the Lie group directly (neither the gradient, for that matter), but it can be written in the Lie algebra. To do this, we fix the current iterate $\mathbf{g} = (g_0, g_1, \ldots, g_N)$ with endpoints $g_0$ and $g_N$ pinned, and for each interior node $k = 1, \ldots, N-1$, we introduce a perturbation $\xi_k \in \fg$ and define the perturbed path
 \[
@@ -104,7 +104,7 @@ The discrete action restricted to this family is now a smooth function on the \e
 	= \sum_{k=0}^{N-1} \Ld\bigl(g_k\tau(\xi_k),\; g_{k+1}\tau(\xi_{k+1})\bigr).
 	\label{eq:lie-lifted-action}
 \end{equation}
-This puts us back in the vector-space setting of \cref{sec:parallel-algorithm}, where we will show that the gradient and Hessian of $\Sigma$ at $\boldsymbol \xi = 0$ play the same role that $\nabla S_d$ and $\nabla^2 S_d$ played there.
+This puts us back in the vector space setting of \cref{sec:parallel-algorithm}, where we will show that the gradient and Hessian of $\Sigma$ at $\boldsymbol \xi = 0$ play the same role that $\nabla S_d$ and $\nabla^2 S_d$ played there.
 We write
 \[
 	\widetilde{R} = \nabla \Sigma(0) \in {(\fg^*)}^{N-1},
@@ -112,7 +112,7 @@ We write
 	\widetilde{H} = \nabla^2 \Sigma(0).
 \]
 
-Differentiating~\eqref{eq:lie-lifted-action} with respect to $\xi_k$ at $\boldsymbol \xi = 0$, only the $(k-1)$-th and $k$-th summands contribute, and the chain rule with $T_e L_g$ recovers the Lie-algebra residual~\eqref{eq:lie-residual} introduced for the algorithm:
+Differentiating~\eqref{eq:lie-lifted-action} with respect to $\xi_k$ at $\boldsymbol \xi = 0$, only the $(k-1)$-th and $k$-th summands contribute, and the chain rule with $T_e L_g$ recovers the Lie algebra residual~\eqref{eq:lie-residual} introduced for the algorithm:
 \[
 	\pdv{\Sigma}!{\xi_k}(0)
 	= {(T_e L_{g_k})}^* \bigl(\mdif{2} \Ld(g_{k-1}, g_k) + \mdif{1} \Ld(g_k, g_{k+1})\bigr)
@@ -155,7 +155,7 @@ The block $\widetilde{\mathcal{C}}_k = \pdv{\Sigma}!{\xi_k, \xi_{k+1}}(0)$ picks
 \end{equation}
 This expression holds at every path, not just at $\mathbf{g}^*$.
 
-Defining, on each edge $k = 0, 1, \ldots, N-1$, the \newterm{Lie-algebra Hessian blocks}
+Defining, on each edge $k = 0, 1, \ldots, N-1$, the \newterm{Lie algebra Hessian blocks}
 \begin{equation}
 	\begin{aligned}
 		\widetilde{\mathcal{A}}_k & = {(T_e L_{g_k})}^*\, \mdif{11} \Ld(g_k, g_{k+1})\, (T_e L_{g_k}),         \\
@@ -164,7 +164,7 @@ Defining, on each edge $k = 0, 1, \ldots, N-1$, the \newterm{Lie-algebra Hessian
 	\end{aligned}
 	\label{eq:lie-hessian-blocks}
 \end{equation}
-we have $\widetilde{\mathcal{D}}_k = \widetilde{\mathcal{B}}_{k-1} + \widetilde{\mathcal{A}}_k$ at $\mathbf{g}^*$, just as in~\eqref{eq:hessian-terms-1} and~\eqref{eq:hessian-terms-2}. Putting it all together, the full Lie-algebra Hessian at $\mathbf{g}^*$ is a familiar-looking block-tridiagonal matrix
+we have $\widetilde{\mathcal{D}}_k = \widetilde{\mathcal{B}}_{k-1} + \widetilde{\mathcal{A}}_k$ at $\mathbf{g}^*$, just as in~\eqref{eq:hessian-terms-1} and~\eqref{eq:hessian-terms-2}. Putting it all together, the full Lie algebra Hessian at $\mathbf{g}^*$ is a familiar-looking block-tridiagonal matrix
 \begin{equation}
 	\widetilde{H}(\mathbf{g}^*) = \begin{pmatrix}
 		\widetilde{\mathcal{D}}_1   & \widetilde{\mathcal{C}}_1 &                                 &                                 &                               \\
@@ -180,7 +180,7 @@ If $G = \RR^n$, then $T_e L_g = {(T_e L_g)}^* = \mathrm{Id}$ and so~\eqref{eq:li
 \subsection{Convergence criteria}\label{sec:lie-convergence}
 
 The Jacobi-Newton-G iteration is a smooth map $T : G^{N-1} \to G^{N-1}$ with $\mathbf{g}^*$ as a fixed point.
-To apply classical fixed-point theory, we move $T$ to the Lie-algebra chart based on a peturbation $\mathbf{\xi}$ from the fixed point $\mathbf{g}^*$
+To apply classical fixed-point theory, we move $T$ to the Lie algebra chart based on a peturbation $\mathbf{\xi}$ from the fixed point $\mathbf{g}^*$
 \[
 	\Psi : V \subset \fg^{N-1} \to U \subset G^{N-1},
 	\qquad
@@ -244,13 +244,13 @@ The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \
 \end{proof}
 
 \begin{remark}[Where the manifold structure enters]\label{rmk:where-manifold-enters}
-	The Lie group $G$ enters the convergence story only through the chart $\Psi$ and the Lie-algebra Hessian blocks of \cref{sec:lie-hessian}. \Cref{lem:chart-iteration-jacobian} packages this geometric content into a single linear-algebraic identity, $\widetilde{T}'(0) = \widetilde{J}$. From that point on, $\widetilde{T}$ is just a smooth map on $\fg^{N-1} \cong \RR^{(N-1)\dim\fg}$, and the remaining work \todo{the linearisation theorem and the bound $\rho(\widetilde{J}) < 1$ from positive-definiteness of $\widetilde{H}$} is, effectively, classical analysis in $\RR^n$.
+	The Lie group $G$ enters the convergence story only through the chart $\Psi$ and the Lie algebra Hessian blocks of \cref{sec:lie-hessian}. \Cref{lem:chart-iteration-jacobian} packages this geometric content into a single linear-algebraic identity, $\widetilde{T}'(0) = \widetilde{J}$. From that point on, $\widetilde{T}$ is just a smooth map on $\fg^{N-1} \cong \RR^{(N-1)\dim\fg}$, and the remaining work \todo{the linearisation theorem and the bound $\rho(\widetilde{J}) < 1$ from positive-definiteness of $\widetilde{H}$} is, effectively, classical analysis in $\RR^n$.
 \end{remark}
 
 The following theorem is essentially the same as \cref{thm:hessian-pd-convergence}, but the proof is slightly different because we cannot directly apply Lemma~\ref{lem:jacobi-newton-convergence} (since that talks about Jacobi-Newton applied to vector spaces). The main difference is that we use~\cite[Thm.~10.1.3]{ortegaIterativeSolutionNonlinear1970} which assumes less about how the iteration procedure is set up, and is the reason we needed Lemma~\ref{lem:chart-iteration-jacobian}. Regardless, the proof is brief and similar in spirit to the one in~\cite[Prop.~4.5]{ferraroParallelIterativeMethod2025}.
 
-\begin{theorem}[Lie-group convergence]\label{thm:lie-group-convergence}
-	Let $\mathbf{g}^*$ be a solution of the DEL equations. If the Lie-algebra Hessian $\widetilde{H}(\mathbf{g}^*)$ is positive definite, then the Jacobi-Newton-G method converges locally to $\mathbf{g}^*$.
+\begin{theorem}[Lie group convergence]\label{thm:lie-group-convergence}
+	Let $\mathbf{g}^*$ be a solution of the DEL equations. If the Lie algebra Hessian $\widetilde{H}(\mathbf{g}^*)$ is positive definite, then the Jacobi-Newton-G method converges locally to $\mathbf{g}^*$.
 \end{theorem}
 
 \begin{proof}
@@ -259,7 +259,7 @@ The following theorem is essentially the same as \cref{thm:hessian-pd-convergenc
 	By \cref{lem:chart-iteration-jacobian}, $\widetilde{T}'(0) = \widetilde{J}$, so the smooth fixed-point map $\widetilde{T}$ on $\fg^{N-1}$ satisfies $\widetilde{T}(0) = 0$ and $\rho(\widetilde{T}'(0)) < 1$. Ostrowski's theorem~\cite[Thm.~10.1.3]{ortegaIterativeSolutionNonlinear1970} yields an open neighbourhood $V_0 \ni 0$ in $\fg^{N-1}$ such that $\widetilde{T}^a(\boldsymbol\xi) \to 0$ for all $\boldsymbol\xi \in V_0$; since $\Psi$ is a local diffeomorphism at $0$, setting $\mathcal{D} = \Psi(V_0)$ gives the result.
 \end{proof}
 
-Just as in the vector-space case (\cref{thm:local-hessian-pd-convergence}), the global positive-definiteness check on $\widetilde{H}$ reduces to per-edge checks on the local $2 \times 2$-block Hessians
+Just as in the vector space case (\cref{thm:local-hessian-pd-convergence}), the global positive-definiteness check on $\widetilde{H}$ reduces to per-edge checks on the local $2 \times 2$-block Hessians
 \[
 	\widetilde{H}_k = \begin{pmatrix}
 		\widetilde{\mathcal{A}}_k   & \widetilde{\mathcal{C}}_k \\
@@ -267,11 +267,11 @@ Just as in the vector-space case (\cref{thm:local-hessian-pd-convergence}), the 
 	\end{pmatrix}.
 \]
 
-\begin{remark}[Local Lie-algebra Hessian condition]\label{rmk:lie-local-hessian}
+\begin{remark}[Local Lie algebra Hessian condition]\label{rmk:lie-local-hessian}
 	If $\widetilde{H}_k$ is positive definite for every edge $k = 0, 1, \ldots, N-1$, then $\widetilde{H}(\mathbf{g}^*)$ is positive definite, and by \cref{thm:lie-group-convergence} the Jacobi-Newton-G method converges locally to $\mathbf{g}^*$. The argument is identical to that of \cref{thm:local-hessian-pd-convergence}, since $\widetilde{H}$ has the same block-tridiagonal structure (\cref{rmk:where-manifold-enters}).
 \end{remark}
 
-\begin{remark}[Lie-algebra Hessian positive definiteness criterion]\label{rmk:lie-hessian-pd-criterion}
+\begin{remark}[Lie algebra Hessian positive definiteness criterion]\label{rmk:lie-hessian-pd-criterion}
 	By \cref{rmk:where-manifold-enters}, $\widetilde{H}(\mathbf{g}^*)$ is a symmetric block-tridiagonal matrix on $\fg^{N-1} \cong \RR^{(N-1)\dim\fg}$, so the necessary-and-sufficient criterion of \cref{thm:hessian-pd-criterion} applies verbatim: $\widetilde{H}(\mathbf{g}^*)$ is positive definite if and only if the matrices $\widetilde{\Lambda}_1 = \widetilde{\mathcal{D}}_1$ and
 	\[
 		\widetilde{\Lambda}_i = \widetilde{\mathcal{D}}_i - \widetilde{\mathcal{C}}_{i-1}^T\, \widetilde{\Lambda}_{i-1}^{-1}\, \widetilde{\mathcal{C}}_{i-1},
@@ -358,7 +358,7 @@ The resulting trajectory of a prism-like satellite under interesting conditions 
          \includegraphics[width=\textwidth]{satellite-top.png}
          \caption{Top view.}\label{fig:satellite-top}
      \end{subfigure}
-    \caption{Satellite physical simulation. Satellite starts at lower $z$ needs to reach the position and orientation at higher $z$. Blue prism indicates evenly-spaced snapshots of the satellite's position and orientation. Green path indicates positional trajectory, fainter green paths indicate intermediate solver iterations. Circles indicate celestial bodies that affect the satellite, size indicating pulling strength (i.e., mass).}\label{fig:satellite}
+    \caption{Satellite physical simulation. Satellite starts at lower $z$ needs to reach the position and orientation at higher $z$. Blue prism indicates evenly spaced snapshots of the satellite's position and orientation. Green path indicates positional trajectory, fainter green paths indicate intermediate solver iterations. Circles indicate celestial bodies that affect the satellite, size indicating pulling strength (i.e., mass).}\label{fig:satellite}
 \end{figure}
 
 We see in the front view (\cref{fig:satellite-front}) that even though the satellite only has to increase its height by a small amount, the physical trajectory needs to take a detour and make a bigger arc movement. The simulation shows us that a direct approach does not seem to allow reaching the final desired orientation, as the pull from the two bodies would rotate the satellite. In fact, in the top view (\cref{fig:satellite-top}) we can see that the path taken in the end does a smooth approach from above, where the pull from both bodies seems to be balanced in such a way that the satellite can rendezvouz with the target orientation.

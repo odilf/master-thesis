@@ -6,7 +6,7 @@ In \cref{sec:forced-local-condition} we considered the condition
 \]
 which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half-plane and is a natural generalization of $H^f \succ 0$ to the non-symmetric setting. We claimed there that it implies $\rho(J^f) < 1$ in the scalar case, but that the general block case remains open. Here we prove the scalar case.
 
-\begin{theorem}[Scalar local condition]\label{thm:conjecture-scalar}
+\begin{theorem}[Scalar local condition]
 	Let $n = 1$ and $N = 3$, so that $H^f$ is a $2 \times 2$ matrix with positive diagonal (two interior nodes). Then
 	\[
 		\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2 \implies \rho(J^f) < 1.
@@ -20,10 +20,10 @@ which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half
 	\]
 	where $d_1, d_2$ are the scalar diagonal blocks $\hat{\mathcal{D}}_1, \hat{\mathcal{D}}_2$ and $c^+, c^-$ the cross terms $\hat{\mathcal{C}}^+_1, \hat{\mathcal{C}}^-_1$ of~\eqref{eq:hessian-matrix-forced}. The Jacobi matrix is then
 	\[
-		J^f = -\operatorname{diag}(d_1, d_2)^{-1}\bigl(H^f - \operatorname{diag}(d_1, d_2)\bigr)
+		J^f = -\operatorname{diag}{(d_1, d_2)}^{-1}\left(H^f - \operatorname{diag}(d_1, d_2)\right)
 		= \begin{pmatrix} 0 & -c^+/d_1 \\ -c^-/d_2 & 0 \end{pmatrix},
 	\]
-	with characteristic polynomial $\lambda^2 - c^+ c^- / (d_1 d_2)$. Hence $\rho(J^f)^2 = |c^+ c^-| / (d_1 d_2)$, and the claim $\rho(J^f) < 1$ amounts to showing $|c^+ c^-| < d_1 d_2$.
+	with characteristic polynomial $\lambda^2 - c^+ c^- / (d_1 d_2)$. Hence $\rho{(J^f)}^2 = |c^+ c^-| / (d_1 d_2)$, and the claim $\rho(J^f) < 1$ amounts to showing $|c^+ c^-| < d_1 d_2$.
 
 	To separate the symmetric and skew parts of $H^f$, let $s = (c^+ + c^-)/2$ and $a = (c^+ - c^-)/2$, so that $c^+ c^- = s^2 - a^2$ and
 	\[
@@ -37,9 +37,9 @@ which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half
 		&= \frac{d_1+d_2}{2} - \sqrt{{\left(\frac{d_1+d_2}{2}\right)}^2 - (d_1 d_2 - s^2)} \\
 		&= \frac{d_1+d_2}{2} - \sqrt{{\left(\frac{d_1-d_2}{2}\right)}^2 + s^2},
 	\end{align*}
-	where the last step uses $(d_1+d_2)^2/4 - d_1 d_2 = (d_1-d_2)^2/4$. The hypothesis therefore becomes
+	where the last step uses ${(d_1+d_2)}^2/4 - d_1 d_2 = {(d_1-d_2)}^2/4$. The hypothesis therefore becomes
 	\begin{equation}
-		\tfrac{d_1 + d_2}{2} - |a| \;>\; \sqrt{\bigl(\tfrac{d_1 - d_2}{2}\bigr)^2 + s^2}.
+		\tfrac{d_1 + d_2}{2} - |a| \;>\; \sqrt{\left(\tfrac{d_1 - d_2}{2}\right)^2 + s^2}.
 		\label{eq:hyp-scalar}
 	\end{equation}
 	Both sides are positive: the right-hand side is a norm, and the left-hand side because otherwise the hypothesis would be vacuous. We may therefore square, and using $(d_1+d_2)^2 - (d_1-d_2)^2 = 4 d_1 d_2$ and rearranging,~\eqref{eq:hyp-scalar} becomes

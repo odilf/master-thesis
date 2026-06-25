@@ -1,7 +1,7 @@
 \chapter{Forced systems}\label{sec:forced-systems}
 
-Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[\S4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. In this setting it is not Hamilton's principle that applies, but rather its forced analog, called the \newterm{Lagrange-D'Alembert principle}:
-\begin{definition}[Lagrange-D'Alembert principle {\cite[Definition 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}}]
+Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[\S4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. In this setting it is not Hamilton's principle that applies, but rather its forced analog, called the \newterm{Lagrange-d'Alembert principle}:
+\begin{definition}[Lagrange-d'Alembert principle {\cite[Definition 4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}}]
 	A path $q(t) : [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the forced Lagrangian system defined by $L: TQ \to \RR$ and force $f^L : TQ \to T^*Q$ if and only if
 	\[
 		\odv{}{t} \pdv{L}{\dot{q}} - \pdv{L}{q} = f^L (q(t), \dot{q}(t))
@@ -14,7 +14,7 @@ As in the unforced case, it is possible to carry out a discretization of the sta
 The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=f_d^-\circ \tau_Q$ and $f^+$ with the second, $\hbox{pr}_2=f_d^+\circ \tau_Q$)~\cite[\S3.2.1]{marsdenDiscreteMechanicsVariational2001}.
 \todo{Esto no sería así? $\hbox{pr}_1=\pi_Q \circ f_d^-$, $\hbox{pr}_2=\pi_Q \circ f_d^+$. Sebastián}
 
-\begin{definition}[Discrete Lagrange-D'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalembert}
+\begin{definition}[Discrete Lagrange-d'Alembert principle {\cite[Definition 4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalembert}
 	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
 	\begin{equation*}
 		\sum_{k=1}^{N-1} \Bigl( \mdif{2} \Ld(q_{k-1}, q_k) + f_d^+(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1}) + f_d^-(q_k, q_{k+1}) \Bigr) \cdot \delta q_k = 0.
@@ -22,7 +22,7 @@ The discretization of the force is similar to the one of the Lagrangian, except 
 \end{definition}
 
 This discretization preserves the relevant geometric properties the same way that is explained in \cref{sec:geometric-properties-el,sec:variational-integration}.
-Solutions that satisfy the discrete Lagrange-D'Alembert principle are given by the forced analog of~\eqref{eq:euler-lagrange-discrete}, the \newterm{forced discrete Euler-Lagrange equations}:
+Solutions that satisfy the discrete Lagrange-d'Alembert principle are given by the forced analog of~\eqref{eq:euler-lagrange-discrete}, the \newterm{forced discrete Euler-Lagrange equations}:
 \begin{equation}
 	\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1}) = 0
 	\label{eq:euler-lagrange-discrete-forced}
@@ -46,7 +46,7 @@ Utilizing these definitions for the residual, and supposing that $Q$ is a vector
 
 \section{Convergence}\label{sec:forced-systems-convergence}
 
-Figuring out the convergence criteria is trickier. A natural way to proceed is to try to make an argument similar to how~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025} is proved. In short, they pose the problem as an extremization $f = \nabla F$, they calculate the Hessian $H = \nabla^2 F$, and if $H$ is p.d.\ then the algorithm converges. However, this approach fundamentally breaks down because, as mentioned previously, the discrete Lagrange-D'Alembert principle is \emph{not} necessarily an extremization of some $F$.
+Figuring out the convergence criteria is trickier. A natural way to proceed is to try to make an argument similar to how~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025} is proved. In short, they pose the problem as an extremization $f = \nabla F$, they calculate the Hessian $H = \nabla^2 F$, and if $H$ is p.d.\ then the algorithm converges. However, this approach fundamentally breaks down because, as mentioned previously, the discrete Lagrange-d'Alembert principle is \emph{not} necessarily an extremization of some $F$.
 
 \begin{remark}[Conservative forces]
 	It is easy to find convergence criteria for a specific family of forces, called \newterm{conservative forces}, which \emph{can} be written in terms of a \newterm{discrete potential} $V_d : Q \times Q \to \RR$ as:
@@ -55,7 +55,7 @@ Figuring out the convergence criteria is trickier. A natural way to proceed is t
 		\qquad
 		f_d^-(q_k, q_{k+1}) = \mdif{1} V_d(q_k, q_{k+1}).
 	\]
-	This is because this is precisely the case where the Lagrange-D'Alembert principle \emph{is} an extremization. In fact, any system with Lagrangian $L_d$ with forces that admit a discrete potential $V_d$ is identical to an unforced system with Lagrangian $L'_d = L_d + V_d$. In other words, for conservative forces, every theorem of~\cite{ferraroParallelIterativeMethod2025} applies trivially. In the rest of the discussion we focus on non-conservative forces.
+	This is because this is precisely the case where the Lagrange-d'Alembert principle \emph{is} an extremization. In fact, any system with Lagrangian $L_d$ with forces that admit a discrete potential $V_d$ is identical to an unforced system with Lagrangian $L'_d = L_d + V_d$. In other words, for conservative forces, every theorem of~\cite{ferraroParallelIterativeMethod2025} applies trivially. In the rest of the discussion we focus on non-conservative forces.
     \todo{Lo que voy a decir es una tontería, pero se vería mejor cambiarle el signo a $V_d$, para que esté con el signo habitual que tiene la energía cinética. Así tienes $f^\pm=-D_{1/2}V_d$, y $L'_d=L_d-V_d$. Sebastián.}
 \end{remark}
 
