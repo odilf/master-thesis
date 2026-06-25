@@ -117,20 +117,6 @@ A natural way to try to extend a result for symmetric to asymmetric matrices is 
 
 One might expect that an analog of \cref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \left(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\right)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is \textcolor{red}{unbounded}.
 
-% All of this is pointless. Maybe I could mention it.
-% \begin{theorem}[Local sym-positivity implies global]\label{thm:forced-local-implies-global}
-% 	If $\Sym(H_k^f)$ is positive definite for every $k$, then $\Sym(H^f)$ is positive definite, and each diagonal block $\hat{\mathcal{D}}_k$ is invertible.
-% \end{theorem}
-% \begin{proof}
-% 	Since $z^T M z = z^T \Sym(M) z$ for any square $M$ and vector $z$, it suffices to show $x^T H^f x > 0$. Append $x_0 = x_N = 0$ and set $y_k = (x_k, x_{k+1})^T$. The identity
-% 	\[
-% 		x^T H^f x = \sum_{k=0}^{N-1} y_k^T H_k^f\, y_k
-% 	\]
-% 	follows by expanding each $y_k^T H_k^f y_k$ and collecting terms using $\hat{\mathcal{D}}_k = \hat{\mathcal{A}}_k + \hat{\mathcal{B}}_{k-1}$ (see \texttt{notes/forced-systems-convergence.tex} for the full expansion). If $x \neq 0$, some $x_j \neq 0$, making $y_{j-1}$ and $y_j$ nonzero; the hypothesis then gives a strictly positive sum. Invertibility of $\hat{\mathcal{D}}_k$ follows because diagonal blocks of a matrix with p.d.\ symmetric part inherit the same property.
-% \end{proof}
-
-% This reduces checking $\Sym(H^f) > 0$ from an $(N\!-\!1)$-block computation to $N$ local $2\times 2$-block checks, exactly as in the unforced case. The remaining step for convergence would be to conclude $\rho(J^f) < 1$ from $\Sym(H^f) > 0$. In the symmetric case this is automatic (the skew part of $H$ vanishes). In the forced case it is \textbf{not}: the implication fails for matrices whose skew part is large relative to their symmetric part.
-
 At this point, to motivate the result that will be shown shortly, it might be useful to get a better mental model of what each matrix block represents. The update at an interior node $q_j$ is a Newton step on $R_j^f$ as a function of $q_j$, with the current values of the neighbors $q_{j-1}, q_{j+1}$ held as data. The diagonal block $\hat{\mathcal{D}}_j$ captures how the residual at node $j$ depends on $q_j$ alone, while the off-diagonal blocks $\hat{\mathcal{C}}^+_j$ and $\hat{\mathcal{C}}^-_{j-1}$ capture how it depends on the neighbors. Linearizing $R_j^f$ at $\mathbf{q}^*$, the $j$th component of the global residual at the current path reads $\hat{\mathcal{D}}_j e_j + \hat{\mathcal{C}}^-_{j-1} e_{j-1} + \hat{\mathcal{C}}^+_j e_{j+1}$, where $e_i$ denotes the error at node $i$. The Newton step sets this to zero (to first order) and solves for the new error at $j$: the neighbor errors are multiplied forward by $\hat{\mathcal{C}}^\pm$ (data side), and the resulting residual is converted back into a coordinate update at $j$ by inverting $\hat{\mathcal{D}}_j$ (unknown side). The error transfer factor from a neighbor to $j$ is therefore $\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^\pm$ (which, incidentally, gives an intuition of why $J^f$ is defined as $-D^{-1} C$).
 
 Crucially, when $\hat{\mathcal{D}}_j$ is ``large enough'' to dominate $\hat{\mathcal{C}}^\pm$, this factor has norm $<1$. That is, $\hat{\mathcal{D}}_j^{-1}$ attenuates the incoming error and the global error contracts at every step, which is what $\rho(J^f) < 1$ conveys
@@ -209,7 +195,7 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 \end{remark}
 
 \begin{remark}[Time complexity]\label{rem:forced-local-complexity}
-	Checking~\eqref{eq:local-edge-dominance} reduces to, per edge $k$, two smallest\Hyphdash{eigenvalue} computations on $\Sym(\hat{\mathcal{A}}_k)$ and $\Sym(\hat{\mathcal{B}}_k)$ (both $n \times n$ symmetric, $O(n^3)$ each) and two spectral-norm computations on $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_k$ ($O(n^3)$ each via SVD, cheaper via power iteration). Total cost: $O(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section.
+	Checking~\eqref{eq:local-edge-dominance} reduces to two smallest\Hyphdash{eigenvalue} computations on $\Sym(\hat{\mathcal{A}}_k)$ and $\Sym(\hat{\mathcal{B}}_k)$, $\mathcal{O}(n^3)$ each, and two spectral-norm computations on $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_k$ ($\mathcal{O}(n^3)$ each via SVD, cheaper via power iteration). Total cost is $\mathcal{O}(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section.
 \end{remark}
 
 \subsection{A perturbation condition}
@@ -298,13 +284,13 @@ In practice, however, this guarantee is pessimistic, and (somewhat counterintuit
 
 
 \begin{remark}[Time complexity]\label{rem:forced-perturbation-complexity}
-	Let $m = n(N-1)$ be the dimension of the iteration matrix, with $n = \dim Q$ and $N$ the path length. Checking the bound~\eqref{eq:forced-perturbation-epsilon} requires:
+	Checking the bound~\eqref{eq:forced-perturbation-epsilon} requires, in terms of the path length $N$ and the configuration space dimension $n$:
 	\begin{itemize}
-		\item $\|D^{-1}\|_2 = \max_k \|\hat{\mathcal{D}}_k^{-1}\|_2$: $N$ independent $n \times n$ block inversions, costing $O(N n^3)$.
-		\item $\|J\|_2$ via power iteration on $J^T J$: $O(m^2 k)$ for $k$ iterations.
-		\item $\|\Delta F\|_2$ at the chosen point: same cost as $\|J\|_2$, $O(m^2 k)$.
+		\item $\|D^{-1}\|_2 = \max_k \|\hat{\mathcal{D}}_k^{-1}\|_2$: $N$ independent $n \times n$ block inversions, costing $\mathcal{O}(N n^3)$.
+		\item $\|J\|_2$ via power iteration on $J^T J$: $\mathcal{O}(k N n^2)$ for $k$ iterations.
+		\item $\|\Delta F\|_2$ at the chosen point: same cost as $\|J\|_2$, $\mathcal{O}(N^2 n^2 k)$.
 	\end{itemize}
-	The dominant cost is therefore $O(m^2 k) = O(n^2 N^2 k)$. This is substantially cheaper than the $O(m^3)$ Cholesky or eigendecomposition that would be needed to check positive\Hyphdash{}definiteness of $H^f$ globally, and is comparable in cost to a single iteration of the parallel method itself. Note that, like the parallel algorithm (\cref{sec:parallel-algorithm}), all three computations are also easily paralelizable across the $N$ timesteps, so this check can be sped up using parallel computing devices like a GPU\@.
+	The dominant cost is therefore $\mathcal{O}(k N n^2)$ (since usually $k \gtrsim n$). This is substantially cheaper than the $\mathcal{O}(N^3 n^3)$ Cholesky or eigendecomposition that would be needed to check positive\Hyphdash{}definiteness of $H^f$ globally.
 \end{remark}
 
 \section{Examples}\label{sec:forced-examples}
