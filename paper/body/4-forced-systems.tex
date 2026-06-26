@@ -50,12 +50,11 @@ Figuring out the convergence criteria is trickier. A natural way to proceed is t
 \begin{remark}[Conservative forces]
 	It is easy to find convergence criteria for a specific family of forces, called \newterm{conservative forces}, which \emph{can} be written in terms of a \newterm{discrete potential} $V_d : Q \times Q \to \RR$ as:
 	\[
-		f_d^+(q_k, q_{k+1}) = \mdif{2} V_d (q_k, q_{k+1})
+		f_d^+(q_k, q_{k+1}) = -\mdif{2} V_d (q_k, q_{k+1})
 		\qquad
-		f_d^-(q_k, q_{k+1}) = \mdif{1} V_d(q_k, q_{k+1}).
+		f_d^-(q_k, q_{k+1}) = -\mdif{1} V_d(q_k, q_{k+1}).
 	\]
-	This is because this is precisely the case where the Lagrange-d'Alembert principle \emph{is} an extremization. In fact, any system with Lagrangian $L_d$ with forces that admit a discrete potential $V_d$ is identical to an unforced system with Lagrangian $L'_d = L_d + V_d$. In other words, for conservative forces, every theorem of~\cite{ferraroParallelIterativeMethod2025} applies trivially. In the rest of the discussion we focus on non-conservative forces.
-	\todo{Lo que voy a decir es una tontería, pero se vería mejor cambiarle el signo a $V_d$, para que esté con el signo habitual que tiene la energía cinética. Así tienes $f^\pm=-D_{1/2}V_d$, y $L'_d=L_d-V_d$. Sebastián.}
+	This is because this is precisely the case where the Lagrange-d'Alembert principle \emph{is} an extremization. In fact, any system with Lagrangian $L_d$ with forces that admit a discrete potential $V_d$ is identical to an unforced system with Lagrangian $L'_d = L_d - V_d$. In other words, for conservative forces, every theorem of~\cite{ferraroParallelIterativeMethod2025} applies trivially. In the rest of the discussion we focus on non-conservative forces.
 \end{remark}
 
 For generic forces, the relevant criterion that can be applied is given in~\cite[Lem.~4.4]{ferraroParallelIterativeMethod2025} which we restate here:
@@ -246,7 +245,7 @@ The following theorem states in a rigourous and quantitative manner the intuitiv
 
 \end{proof}
 
-In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exists. In the following lemma, we find an explicit computation, under the mild additional assumption that $\|J\| < 1$ holds in some submultiplicative matrix norm (i.e., a norm such that $|A B| \leq |A| |B|$). This condition is stricter than $\rho(J) < 1$, but is typically satisfied for stable variational integrators.
+In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exists. In the following lemma, we find an explicit computation, under the mild additional assumption that $\|J\| < 1$ holds in some submultiplicative matrix norm (i.e., a norm such that $\|A B\| \leq \|A\| \|B\|$). This condition is stricter than $\rho(J) < 1$, but is typically satisfied for stable variational integrators.
 
 \begin{lemma}[Explicit perturbation bound]\label{lem:forced-perturbation-explicit}
 	Assume the hypotheses of \cref{thm:forced-perturbation}, and further that $\|J\| < 1$ in a submultiplicative norm $\|\cdot\|$ in which the block-diagonal projection is contractive (e.g.\ the spectral norm). Then the conclusion of the theorem holds with
@@ -295,7 +294,9 @@ In practice, however, this guarantee is pessimistic, and (somewhat counterintuit
 
 \section{Examples}\label{sec:forced-examples}
 
-We illustrate the forced algorithm and the convergence criteria on two systems: example~\ref{ex:damped-oscillator} applies the perturbation theorem to a simple dissipative force, and example~\ref{ex:parachutist} shows a practical application of the algorithm to find trajectories for a parachutist in turbulent wind conditions.
+We illustrate the forced algorithm and the convergence criteria on two systems: example~\ref{ex:damped-oscillator} applies the perturbation theorem to a simple dissipative force, and example~\ref{ex:parachutist} shows a practical application of the algorithm to find trajectories for a parachutist in turbulent wind conditions. 
+
+\sourceandrepo{}.
 
 \tocless\subsection{Damped harmonic oscillator}\label{ex:damped-oscillator}
 
@@ -353,7 +354,7 @@ where $J^0$ and $D_0^{-1}$ are the Jacobi matrix and inverse diagonal of the unf
 
 The discrepancy has two sources. Firstly, the bound decreases because the numerator scales like $1 - \|J\| = 1 - \cos(\pi/N) \sim \tfrac{1}{2}(\pi/N)^2 \sim h^2$ while the denominator only scales like $\|D^{-1}\| \sim h/2$, giving an overall $\varepsilon \sim h$.
 
-But more fundamentally, the bound is norm-based and cannot see a near-cancellation in how the damping actually moves the spectrum. Here the blocks are scalar and constant along the path, so $H^f$ is Toeplitz and $J^f$ can be diagonalized explicitly. Its diagonal is $\hat{\mathcal{D}} = 2/h - \omega^2 h$ (independent of $\gamma$), so $J^f$ is a tridiagonal Toeplitz matrix with off-diagonals $-\hat{\mathcal{C}}^\pm/\hat{\mathcal{D}}$, whose eigenvalues are
+But more fundamentally, the bound is norm-based and cannot see a near-cancellation in how the damping actually moves the spectrum. $H^f$ is Toeplitz and $J^f$ has diagonal $\hat{\mathcal{D}} = 2/h - \omega^2 h$ (independent of $\gamma$), and off-diagonals $-\hat{\mathcal{C}}^\pm/\hat{\mathcal{D}}$, whose eigenvalues are
 \[
 	\lambda_j = \frac{2\cos(j\pi/N)}{\hat{\mathcal{D}}}\sqrt{\hat{\mathcal{C}}^+\hat{\mathcal{C}}^-}
 	= \cos\frac{j\pi}{N}\,\frac{\sqrt{1 - \gamma^2 h^2/4}}{1 - \omega^2 h^2/2},
@@ -376,7 +377,7 @@ where $g$ is the gravitational acceleration and $m$ is the diver's mass. Further
 \end{align*}
 where $k$ is the parachute drag coefficient.
 
-The problem can be discretized with the midpoint rule, for instance. The only additional data needed are the length of the path $N$, which then gives us the timestep $h = \frac{T}{N}$. Finally, solving it allows us to recover what the initial velocity must be to reach the desired endpoint by just being dragged by the wind.
+The problem can be discretized with the midpoint rule, for instance. The only additional data needed are the length of the path $N$, which then gives us the timestep $h = T/N$. Finally, solving it allows us to recover what the initial velocity must be to reach the desired endpoint by just being dragged by the wind.
 
 \begin{figure}[ht]
 	\centering

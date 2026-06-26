@@ -243,7 +243,7 @@ The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \
 \end{proof}
 
 \begin{remark}[Where the manifold structure enters]\label{rmk:where-manifold-enters}
-	The Lie group $G$ enters the convergence story only through the chart $\Psi$ and the Lie algebra Hessian blocks of \cref{sec:lie-hessian}. \Cref{lem:chart-iteration-jacobian} packages this geometric content into a single linear-algebraic identity, $\widetilde{T}'(0) = \widetilde{J}$. From that point on, $\widetilde{T}$ is just a smooth map on $\fg^{N-1} \cong \RR^{(N-1)\dim\fg}$, and the remaining work \todo{the linearisation theorem and the bound $\rho(\widetilde{J}) < 1$ from positive-definiteness of $\widetilde{H}$} is, effectively, classical analysis in $\RR^n$.
+	The Lie group $G$ enters the convergence story only through the chart $\Psi$ and the Lie algebra Hessian blocks of \cref{sec:lie-hessian}. \Cref{lem:chart-iteration-jacobian} packages this geometric content into a single linear-algebraic identity, $\widetilde{T}'(0) = \widetilde{J}$. From that point on, $\widetilde{T}$ is just a smooth map on $\fg^{N-1} \cong \RR^{(N-1)\dim\fg}$, and the remaining work is, effectively, classical analysis in $\RR^n$.
 \end{remark}
 
 The following theorem is essentially the same as \cref{thm:hessian-pd-convergence}, but the proof is slightly different because we cannot directly apply Lemma~\ref{lem:jacobi-newton-convergence} (since that talks about Jacobi-Newton applied to vector spaces). The main difference is that we use~\cite[Thm.~10.1.3]{ortegaIterativeSolutionNonlinear1970} which assumes less about how the iteration procedure is set up, and is the reason we needed Lemma~\ref{lem:chart-iteration-jacobian}. Regardless, the proof is brief and similar in spirit to the one in~\cite[Prop.~4.5]{ferraroParallelIterativeMethod2025}.
@@ -314,7 +314,7 @@ The only thing missing is a way to calculate the second derivative, but this can
 
 This is enough to implement the algorithm, although in practice we also ask for a way to construct a tangent ``velocity'' vector as \verb|tangent(q0, q1, h)| which we use to be able to define just the continuous Lagrangian and discretize it automatically.
 
-The source code, including all the code for the following examples, is available in the repository \todo{Add link}.
+\sourceandrepo{}.
 
 \tocless\subsection{Rigid body satellite positioning}
 
@@ -335,7 +335,7 @@ We discretize with the midpoint rule. Writing each edge as $g_{k+1} = g_k \tau(h
 	\qquad
 	\Ld(g_k, g_{k+1}) = h\, L\left(g_{k+\frac{1}{2}},\, \omega_k,\, v_k\right).
 \]
-The resulting trajectory of a prism-like satellite under interesting conditions is shown in \cref{fig:satellite} (full parameter setup in the source code).
+The resulting trajectory of a prism-like satellite under interesting conditions is shown in \cref{fig:satellite} (full parameter setup in the source code\footnote{The relative size of the satellite to the celestial bodies is exaggerated to make the rotational effects easier to see. One could think of it as a very big spaceship, or as very small planets/asteroids/comets.}).
 
 \begin{figure}
      \centering
@@ -360,8 +360,6 @@ The resulting trajectory of a prism-like satellite under interesting conditions 
 \end{figure}
 
 We see in the front view (\cref{fig:satellite-front}) that even though the satellite only has to increase its height by a small amount, the physical trajectory needs to take a detour and make a bigger arc movement. The simulation shows us that a direct approach does not seem to allow reaching the final desired orientation, as the pull from the two bodies would rotate the satellite. In fact, in the top view (\cref{fig:satellite-top}) we can see that the path taken in the end does a smooth approach from above, where the pull from both bodies seems to be balanced in such a way that the satellite can rendezvouz with the target orientation.
-
-\todo{mention: The relative size of the satellite to the celestial bodies is exaggerated to make the rotational effects clearer.}
 
 \tocless\subsection{Zermelo fuel-optimal navigation in $\SE(3)$}
 

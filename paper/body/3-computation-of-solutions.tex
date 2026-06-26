@@ -50,7 +50,7 @@ Symplecticity of a flow implies that it is (locally) the flow of some Hamiltonia
 
 \section{Pitfalls of discretizing the equations of motion}\label{sec:pitfalls-discrete-el-ode}
 
-Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, the obvious move is to plug it into an off-the-shelf integrator (e.g., Runge-Kutta). While the local error per step is controlled, this approach loses the geometric structure and with it the geometric properties described in \cref{sec:geometric-properties-el}. A priori, a generic integrator does not preserve momentum maps nor is it symplectic. It is possible to construct, on case-by-case basis, integrators that conserve a quantity by preserving a symmetry of $L$~\cite[\S\S{IV},V]{hairerGeometricNumericalIntegration2006}, but it is hard to make this work for more than one quantity at a time. Symplectic integrators (that are not specific cases of the variational principle) are rarer still~\cite[\S{VI.4}]{hairerGeometricNumericalIntegration2006}; and algorithms that exactly preserve energy cannot be symplectic~\cite[\S3]{zhongLiePoissonHamiltonJacobiTheory1988}.
+Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, the obvious move is to plug it into an off-the-shelf integrator (e.g., Runge-Kutta). While the local error per step is controlled, this approach loses the geometric structure and with it the geometric properties described in \cref{sec:geometric-properties-el}. A priori, a generic integrator does not preserve momentum maps nor is it symplectic. It is possible to construct, on case-by-case basis, integrators that conserve a quantity of the system~\cite[\S\S IV.1--IV.2,~V.5]{hairerGeometricNumericalIntegration2006}, but it is hard to make this work for more than one quantity at a time~\cite[Thm.~IV.3.3]{hairerGeometricNumericalIntegration2006}. Symplectic integrators (that are not specific cases of the variational principle) are rarer still~\cite[\S\S VI.4.1,~VI.6.3;~Thm.~6.4]{hairerGeometricNumericalIntegration2006}; and algorithms that exactly preserve energy cannot be symplectic for general (non-integrable) systems at fixed step size~\cite[\S3]{zhongLiePoissonHamiltonJacobiTheory1988}.
 
 Furthermore, if $Q$ is not a vector space, sometimes the updates are done in a bigger ambient vector space that $Q$ can be embedded into. Then, accumulation of local errors can result in values that are not elements of $Q$ at all. For instance, with 3-dimensional rotations, integration of $\SO(3)$ matrices in the ambient matrix space $\RR^9$ often leads to loss of orthogonality and unit determinant. This can be mitigated to some extent by reprojecting onto the relevant manifold, but that might increase errors and makes convergence harder to analyze.
 
@@ -74,13 +74,13 @@ Then, the discrete action is now composed of sums of these discrete Lagrangians.
 	\label{eq:action-discrete}
 \end{equation}
 
-Notice that this is a reformulation that can be done with no loss of information. That is, an \newterm{exact discrete Lagrangian} $\Ld^e$ can be defined as
+Notice that this is a reformulation that can be done with no loss of information. That is, an \newterm{exact discrete Lagrangian} $\Ld^e$ can be defined for a step size $h$ as
 \begin{equation}
 	L_d^e (q_0, q_1) = \int_0^h L(q_{0, 1}(t), \dot{q}_{0, 1}(t)) \odif{t}
 \end{equation}
 where $q_{0, 1}$ is the path that extremizes the action along all the paths that connect $q_0$ and $q_1$. This way the discrete formulation gives identical results to the continuous one. Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; so, in practice, the discrete Lagrangian $\Ld$ is defined using some quadrature rule that essentially approximates the integral of the exact discrete Lagrangian.
 
-Applying Hamilton's principle to the discrete action (that is, $\nabla S_d = 0$), the \newterm{discrete Euler-Lagrange} (DEL) equations can be derived:
+Applying Hamilton's principle to the discrete action (that is, $\mdif*{S_d} = 0$), the \newterm{discrete Euler-Lagrange} (DEL) equations can be derived:
 \begin{equation}
 	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0.
 	\label{eq:euler-lagrange-discrete}\

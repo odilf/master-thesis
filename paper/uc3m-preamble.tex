@@ -86,14 +86,14 @@
 \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
 \DeclareCaptionFormat{upper}{#1#2\uppercase{#3}\par}
 
-\captionsetup[table]{
-	format=upper,
-	justification=centering,
-	labelsep=period,
-	width=.75\linewidth,
-	labelfont=small,
-	font=small,
-}
+% \captionsetup[table]{
+% 	format=upper,
+% 	justification=centering,
+% 	labelsep=period,
+% 	width=.75\linewidth,
+% 	labelfont=small,
+% 	font=small,
+% }
 
 % figures
 \usepackage{graphicx}
@@ -141,8 +141,8 @@
 	xleftmargin=\parindent
 }
 
-\captionsetup[lstlisting]{font=small, labelsep=period}
-% fijamos el estilo a utilizar 
+% \captionsetup[lstlisting]{font=small, labelsep=period}
+% % fijamos el estilo a utilizar 
 \lstset{style=estilo}
 \renewcommand{\lstlistingname}{\uppercase{Código}}
 
