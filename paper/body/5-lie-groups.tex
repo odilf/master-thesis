@@ -13,7 +13,7 @@ The Jacobi step of the parallel algorithm, written for an interior node $k$ and 
 \[
 	r_k(\mathbf{g}, \overline{g}_k) = \mdif{2} \Ld(g_{k-1}, \overline{g}_k) + \mdif{1} \Ld(\overline{g}_k, g_{k+1}) = 0.
 \]
-In this setting, taking the derivative with $g_{k\pm1}$ fixed entails going from $L_d^\pm : G \to \RR$ to $T_{\overline{g}_k} G \to T_{L_d^\pm (\overline{g}_k)} \RR$, and using the fact that every tangent space of $\RR^n$ is isomorphic to $\RR^n$, this becomes a sum in $T_{\overline{g}_k}^* G$. This forms a vector space so this step is well-defined.
+In this setting, taking the derivative with $g_{k\pm1}$ fixed entails going from $L_d^\pm : G \to \RR$ to $T_{\overline{g}_k} G \to T_{L_d^\pm (\overline{g}_k)} \RR$, and using the fact that every tangent space of $\RR$ is isomorphic to $\RR$, this becomes a sum in $T_{\overline{g}_k}^* G$. This forms a vector space so this step is well-defined.
 
 What does fail is the Newton update~\eqref{eq:jacobi-newton}:
 \[ \overline{q} = q_k - \left(\mdif{2} r_k(\mathbf{q}, q_k)\right)^{-1}\, r_k(\mathbf{q}, q_k), \]
@@ -209,7 +209,7 @@ The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \
 		\label{eq:Tk-mu}
 	\end{equation}
 
-	At $\boldsymbol \xi = 0$: $\mathbf{g} = \mathbf{g}^*$, so $r_k(\mathbf{g}^*, g_k^*) = 0$, hence $\widetilde{r}_k(\mathbf{g}^*) = 0$, $\delta \xi_k(0) = 0$ (note that the update exists because $\widetilde{\mathcal{D}_k}$ is invertible by hypothesis), and $\widetilde{T}_k(0) = \mu(0,0) = 0$.
+	At $\boldsymbol \xi = 0$: $\mathbf{g} = \mathbf{g}^*$, so $r_k(\mathbf{g}^*, g_k^*) = 0$, hence $\widetilde{r}_k(\mathbf{g}^*) = 0$, $\delta \xi_k(0) = 0$ (note that the update exists because $\widetilde{\mathcal{D}}_k$ is invertible by hypothesis), and $\widetilde{T}_k(0) = \mu(0,0) = 0$.
 
 	Since $\tau(0) = e$ and $T_0\tau = \mathrm{Id}_\fg$, differentiating $\mu(\alpha,\beta) = \tau^{-1}(\tau(\alpha)\tau(\beta))$ at $(0,0)$ gives $\pdv{\mu}!{\alpha}(0, 0) = \pdv{\mu}!{\beta}(0, 0) = \mathrm{Id}_\fg$.
 	Differentiating~\eqref{eq:Tk-mu} at $\boldsymbol \xi = 0$ and using $\delta \xi_k(0) = 0$,
@@ -220,7 +220,7 @@ The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \
 	The product rule applied to $\delta \xi_k(\boldsymbol \xi) = -\widetilde{\mathcal{D}}_k(\mathbf{g})^{-1} \widetilde{r}_k(\mathbf{g})$ gives, at $\boldsymbol \xi = 0$,
 	\[
 		\pdv{\delta \xi_k}!{\xi_j}_0
-		= \underbrace{-\pdv{\widetilde{\mathcal{D}_k^{-1}}}!{\xi_j}_0\, \widetilde{r}_k(\mathbf{g}^*)}_{=\, 0\text{ since } \widetilde{r}_k(\mathbf{g}^*) = 0}
+		= \underbrace{-\pdv{\widetilde{\mathcal{D}}_k^{-1}}!{\xi_j}_0\, \widetilde{r}_k(\mathbf{g}^*)}_{=\, 0\text{ since } \widetilde{r}_k(\mathbf{g}^*) = 0}
 		\;-\; \widetilde{\mathcal{D}}_k(\mathbf{g}^*)^{-1}\, \pdv{\widetilde{r}_k}!{\xi_j}_0.
 	\]
 	Differentiating $\widetilde{r}_k(\mathbf{g})[\eta] = r_k(\mathbf{g}, g_k)[T_e L_{g_k} \eta]$ in $\xi_j$ results in
@@ -302,7 +302,7 @@ Implementing this extension in practice is not completely straightforward if one
 	\item a retraction, $\tau : \fg \to G $
 \end{enumerate}
 
-Elements of the tangent and cotangent space are represented by their trivialized counterparts in the algebra, and elements of the algebra (and coalgebra) are represented via the $\RR^n$ isomorphism we know must exist. For instance, on $G = SO(3)$, elements of $\fg = \mathfrak{so}(3)$ are skew-symmetric $3 \times 3$ matrices that have an isomorphism with $\RR^3$ via the hat map:
+Elements of the tangent and cotangent space are represented by their trivialized counterparts in the algebra, and elements of the algebra (and coalgebra) are represented via the $\RR^n$ isomorphism we know must exist. For instance, on $G = \SO(3)$, elements of $\fg = \mathfrak{so}(3)$ are skew-symmetric $3 \times 3$ matrices that have an isomorphism with $\RR^3$ via the hat map:
 
 \[ \hat{\xi} = \widehat{\begin{bmatrix} x \\ y \\ z\end{bmatrix}} = \begin{bmatrix}
 	0  & -z & y \\
@@ -359,7 +359,7 @@ The resulting trajectory of a prism-like satellite under interesting conditions 
     \caption{Satellite physical simulation. Satellite starts at lower $z$ needs to reach the position and orientation at higher $z$. Blue prism indicates evenly spaced snapshots of the satellite's position and orientation. Green path indicates positional trajectory, fainter green paths indicate intermediate solver iterations. Circles indicate celestial bodies that affect the satellite, size indicating pulling strength (i.e., mass).}\label{fig:satellite}
 \end{figure}
 
-We see in the front view (\cref{fig:satellite-front}) that even though the satellite only has to increase its height by a small amount, the physical trajectory needs to take a detour and make a bigger arc movement. The simulation shows us that a direct approach does not seem to allow reaching the final desired orientation, as the pull from the two bodies would rotate the satellite. In fact, in the top view (\cref{fig:satellite-top}) we can see that the path taken in the end does a smooth approach from above, where the pull from both bodies seems to be balanced in such a way that the satellite can rendezvouz with the target orientation.
+We see in the front view (\cref{fig:satellite-front}) that even though the satellite only has to increase its height by a small amount, the physical trajectory needs to take a detour and make a bigger arc movement. The simulation shows us that a direct approach does not seem to allow reaching the final desired orientation, as the pull from the two bodies would rotate the satellite. In fact, in the top view (\cref{fig:satellite-top}) we can see that the path taken in the end does a smooth approach from above, where the pull from both bodies seems to be balanced in such a way that the satellite can rendezvous with the target orientation.
 
 \tocless\subsection{Zermelo fuel-optimal navigation in $\SE(3)$}
 

@@ -1,6 +1,6 @@
 \chapter[Numerical approximation to Euler-Lagrange solutions]{Numerical approximation to\protect\\ Euler-Lagrange solutions}\label{sec:euler-lagrange-solutions}
 
-Perhaps the most straightforward approach to compute numerically solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange~\eqref{eq:euler-lagrange}, and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q \cong \RR^n$ then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaas~\cite{munthe-kaasRungeKuttaMethodsLie1998} or similar methods.
+Perhaps the most straightforward approach to numerically compute solutions that extremize the action given a Lagrangian is to compute the ODE that results from Euler-Lagrange~\eqref{eq:euler-lagrange}, and then use some numerical ODE computation scheme based on the underlying type of manifold. For example, if $Q \cong \RR^n$ then we can use Runge-Kutta, or if $Q$ is a Lie group we could use Runge-Kutta-Kaas~\cite{munthe-kaasRungeKuttaMethodsLie1998} or similar methods.
 
 However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the underlying geometric picture. In \cref{sec:geometric-properties-el} we explain what these properties are and in \cref{sec:pitfalls-discrete-el-ode} we discuss what is lost when one stops working geometrically.
 
@@ -22,7 +22,7 @@ Suppose $L$ admits a \newterm{continuous symmetry}: a family of diffeomorphisms 
 	L\left(\Phi_s(q),\; T\Phi_s \cdot \dot q\right) = L(q, \dot q) \qquad \text{for all } s, q, \dot q,
 	\label{eq:symmetry-condition}
 \end{equation}
-These diffeomorpisms are generated infinitesimally by a vector field $X$ on $Q$ given by
+These diffeomorphisms are generated infinitesimally by a vector field $X$ on $Q$ given by
 \[
 	X(q) = \odv{}{s}_{s=0} \Phi_s(q).
 \]
@@ -40,7 +40,7 @@ Well-known conservation laws can be derived in this way: translational symmetry 
 
 \paragraph{Symplecticity}
 
-In the Euler-Lagrange derivation, integration by parts~\eqref{eq:el-parts} leaves in a boundary term that ultimately evaluates to $0$ since the endpoints are fixed. However, we can consider this term on its own. Specifically, this term is a one-form on $TQ$, called the \newterm{Cartan one-form} $\theta_L$, expressed as $\pdv{L}{\dot{q}^i}\odif{q^i}$ in coordinates. Its exterior derivative
+In the Euler-Lagrange derivation, integration by parts~\eqref{eq:el-parts} leaves a boundary term that ultimately evaluates to $0$ since the endpoints are fixed. However, we can consider this term on its own. Specifically, this term is a one-form on $TQ$, called the \newterm{Cartan one-form} $\theta_L$, expressed as $\pdv{L}{\dot{q}^i}\odif{q^i}$ in coordinates. Its exterior derivative
 \[
 	\omega_L = \odif*{} \theta_L
 \]
@@ -84,7 +84,7 @@ where $q_{0, 1}$ is the path that extremizes the action along all the paths that
 Applying Hamilton's principle to the discrete action (that is, $\mdif*{S_d} = 0$), the \newterm{discrete Euler-Lagrange} (DEL) equations can be derived:
 \begin{equation}
 	\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) = 0.
-	\label{eq:euler-lagrange-discrete}\
+	\label{eq:euler-lagrange-discrete}
 	\tag{DEL}
 \end{equation}
 Similarly to Hamilton's principle (\cref{def:hamiltons-principle}), the DEL equations underpin every result in this paper.
@@ -108,7 +108,7 @@ Given this approach to discretization, a trajectory can be computed point-by-poi
 
 In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations is proposed. The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = {\{q_k\}}_{k=0}^N \in Q^{N+1}$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
 \begin{equation}
-	R(\mathbf{q}) = \bigoplus_{k=0}^{N-1}
+	R(\mathbf{q}) = \bigoplus_{k=1}^{N-1}
 	\left(\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})\right) = 0
 	\label{eq:residual-global}
 \end{equation}
@@ -126,7 +126,7 @@ The Jacobi update step consists of finding a new path $\overline{\mathbf{q}} = \
 which is a term of the sum, replacing the central $q_k$ by some new value $\overline{q}$. An updated path $\overline{\mathbf{q}}$ where for all inner points $k$, $r_k(\mathbf{q}, \overline{q_k}) = 0$, is not generally a solution, but under certain conditions (discussed in \cref{sec:standard-convergence}), iterating this update will converge to a solution. Crucially, the local residual $r_k$ only involves $q_k$ and its two neighbors $q_{k-1}$ and $q_{k+1}$ (see \cref{fig:discrete-path-stencil}), so all interior points can be updated independently and in parallel.
 
 \paragraph{Newton-Raphson.}
-Since the Lagrangian can be arbitrarily complex, the Jacobi step does not have a general way to be computed. Specific kinds of Lagrangians, such as quadratic or cubic ones, have clear closed-form solutions. In lieu of knowing if the Lagrangian has one of these forms ahead of time, we use the Newton-Raphson method to solve a linearization of the problem. So, instead of consider the residual $r_k(\mathbf{q}, \overline{q})$, we consider the linearization $\rho_k$ around $q_k$:
+Since the Lagrangian can be arbitrarily complex, the Jacobi step does not have a general way to be computed. Specific kinds of Lagrangians, such as quadratic or cubic ones, have clear closed-form solutions. In lieu of knowing if the Lagrangian has one of these forms ahead of time, we use the Newton-Raphson method to solve a linearization of the problem. So, instead of considering the residual $r_k(\mathbf{q}, \overline{q})$, we consider the linearization $\rho_k$ around $q_k$:
 \[
 	\rho_k (\mathbf{q}, \overline{q}) = r_k(\mathbf{q}, q_k) + \mdif{2} r_k(\mathbf{q}, q_k) (\overline{q} - q_k)
 \]
@@ -154,16 +154,16 @@ It is equation~\eqref{eq:jacobi-newton} which is computable using any linear sol
 \begin{figure}[ht]
 	\centering
 	\vspace{1cm}
-	\input{figures/update-scheme.tex}\label{fig:discrete-path-stencil}
-	\caption{Update scheme of parallel Jacobi-Newton method. Each point in the path is updated using data from the initial position itself and its direct neighbors. All updates are done in parallel, endpoints are kept fixed.}
+	\input{figures/update-scheme.tex}
+	\caption{Update scheme of parallel Jacobi-Newton method. Each point in the path is updated using data from the initial position itself and its direct neighbors. All updates are done in parallel, endpoints are kept fixed.}\label{fig:discrete-path-stencil}
 \end{figure}
 
 \subsection{Convergence criteria}\label{sec:standard-convergence}
 
-The convergence of the method (both in the standard case as well in the forced and Lie group cases) is mainly related to the Hessian of the action, which we refer to as the \newterm{global Hessian matrix}, $H$. This is because, given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the hessian of $F$ is positive definite~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025}. Hamilton's principle is precisely such a formulation: the residual that we want to eliminate is the gradient of the action, $R = \nabla S$.
+The convergence of the method (both in the standard case as well in the forced and Lie group cases) is mainly related to the Hessian of the action, which we refer to as the \newterm{global Hessian matrix}, $H$. This is because, given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the hessian of $F$ is positive definite~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025}. Hamilton's principle is precisely such a formulation: the residual that we want to eliminate is the gradient of the action, $R = \nabla S_d$.
 
 Given the structure of the action, its Hessian can be written in terms of second-order derivatives of the Lagrangian. That is, given the action defined as in~\eqref{eq:action-discrete} for a path $\mathbf{q}$ of length $N$
-\[ 	S_d (\mathbf{q}) : Q^N \to \RR, \qquad  S_d (\mathbf{q}) = \sum_{k=0}^{N-1} \Ld(q_k, q_{k+1})
+\[ 	S_d (\mathbf{q}) : Q^{N+1} \to \RR, \qquad  S_d (\mathbf{q}) = \sum_{k=0}^{N-1} \Ld(q_k, q_{k+1})
 \]
 the derivative with respect to the $i$-th component is, as usual,
 \begin{align*}
@@ -204,10 +204,10 @@ where by Schwarz's theorem, $\mathcal{C}_k^T = \mdif{21} \Ld(q_k, q_{k+1})$.
 
 Thus, the following theorem gives one of the fundamental criteria for convergence of the parallel algorithm (\cite[Prop. 4.3, 4.5, remark 4.6]{ferraroParallelIterativeMethod2025})
 \begin{theorem}[Jacobi-Newton convergence criterion]\label{thm:hessian-pd-convergence}
-	If the Hessian $H(\mathbf{q})$ is positive definite, there is a neighborhood $\mathcal{D}$ around a solution $\mathbf{q}^*$ such that any path $\mathbf{q} \in \mathcal{D}$ converges to $\mathbf{q}^*$;
+	If the Hessian $H(\mathbf{q})$ is positive definite, there is a neighborhood $\mathcal{D}$ around a solution $\mathbf{q}^*$ such that any path $\mathbf{q} \in \mathcal{D}$ converges to $\mathbf{q}^*$.
 \end{theorem}
 
-This condition is sufficient, although in practice it is hard to compute, since it involves checking for positive-definiteness of an $Nn \times Nn$ matrix. The most common way to do this involves the Cholesky factorization, which has an $\mathcal{O}(N^3 n^3)$ runtime.
+This condition is sufficient, although in practice it is hard to compute, since it involves checking for positive-definiteness of an $(N-1)n \times (N-1)n$ matrix. The most common way to do this involves the Cholesky factorization, which has an $\mathcal{O}(N^3 n^3)$ runtime.
 
 An easier-to-check condition can be given in terms of a \newterm{local Hessian matrix} $H_k$, which is obtained by decomposing the blocks of the global Hessian matrix as shown in \cref{fig:hessian-assembly}. The entries of the local Hessian matrix are the following:
 \begin{equation}
