@@ -88,11 +88,9 @@ Applying Hamilton's principle to the discrete action (that is, $\nabla S_d = 0$)
 \end{equation}
 Similarly to Hamilton's principle (\cref{def:hamiltons-principle}), the DEL equations underpin every result in this paper.
 
-These equations are well-defined for any manifold, since both $\mdif{2} L_d (q_{k-1}, q_k)$ and $\mdif{1} L_d (q_k, q_{k+1})$ live in $T_{q_k} Q$, which forms a vector space with well-defined addition.
+These equations are well-defined for any manifold, since both $\mdif{2} L_d (q_{k-1}, q_k)$ and $\mdif{1} L_d (q_k, q_{k+1})$ live in $T^*_{q_k} Q$, which forms a vector space with well-defined addition.
 
-\subsubsection{Geometric properties of the DEL equations}
-
-As in the continuous case, the DEL equations~\eqref{eq:euler-lagrange-discrete} define a discrete flow $(q_{k-1}, q_k) \mapsto (q_k, q_{k+1})$ on $Q \times Q$. Using this discretization, the properties of \cref{sec:geometric-properties-el} are automatically inherited. The boundary term in the variation of the discrete action defines a discrete one-form\footnote{Technically, there are \emph{two} one-forms, $\theta^+$ and $\theta^-$, but both of these define the same symplectic two-form via the exterior derivative~\cite[p. 15]{marsdenDiscreteMechanicsVariational2001}.} on $Q \times Q$, whose exterior derivative is a symplectic form $\omega_{L_d}$. The discrete flow preserves $\omega_{L_d}$ exactly at every step. This makes the discrete flow symplectic, so it also exactly preserves some Hamiltonian $\widetilde H$. For the exact discrete Lagrangian $\Ld^e$, that Hamiltonian is the physical energy $H$; for a quadrature-based $L_d$ of order $p$, it approximates $H$ at order $O(h^p)$. This makes it so that the energy along the numerical trajectory never oscillates further than $O(h^p)$, so while energy might not be 100\% conserved locally, the error is bounded globally. 
+\paragraph{Geometric properties of the DEL equations} As in the continuous case, the DEL equations~\eqref{eq:euler-lagrange-discrete} define a discrete flow $(q_{k-1}, q_k) \mapsto (q_k, q_{k+1})$ on $Q \times Q$. Using this discretization, the properties of \cref{sec:geometric-properties-el} are automatically inherited. The boundary term in the variation of the discrete action defines a discrete one-form\footnote{Technically, there are \emph{two} one-forms, $\theta^+$ and $\theta^-$, but both of these define the same symplectic two-form via the exterior derivative~\cite[p. 15]{marsdenDiscreteMechanicsVariational2001}.} on $Q \times Q$, whose exterior derivative is a symplectic form $\omega_{L_d}$. The discrete flow preserves $\omega_{L_d}$ exactly at every step. This makes the discrete flow symplectic, so it also exactly preserves some Hamiltonian $\widetilde H$. For the exact discrete Lagrangian $\Ld^e$, that Hamiltonian is the physical energy $H$; for a quadrature-based $L_d$ of order $p$, it approximates $H$ at order $O(h^p)$. This makes it so that the energy along the numerical trajectory never oscillates further than $O(h^p)$, so while energy might not be 100\% conserved locally, the error is bounded globally. 
 
 A discrete analog of Noether's theorem holds as well: any continuous symmetry of $L$ inherited by $L_d$ corresponds with a scalar quantity conserved exactly at every step. This is arguably stronger than the continuous Noether statement, since conservation now holds for the actual numerical trajectory rather than for an ideal one being approximated.
 
@@ -113,8 +111,7 @@ In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can so
 	\left(\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})\right) = 0
 	\label{eq:residual-global}
 \end{equation}
-\todo{maybe introduce $\bigoplus$ notation properly}
-and we want to find a path $\mathbf{q}^*$ such that $R(\mathbf{q}^*) = 0$ where $q_0$ and $q_N$ are fixed.
+(where $\bigoplus$ stacks the residuals into a vector in $\bigoplus_k T^*_{q_k}Q$), and we want to find a path $\mathbf{q}^*$ such that $R(\mathbf{q}^*) = 0$ where $q_0$ and $q_N$ are fixed.
 
 At a high level, two schemes are used to find this root. First, we frame the algorithm as a block Jacobi update step that can be done in parallel. However, the Jacobi update is still not directly computable, so we use one or more Newton-Raphson steps to compute the Jacobi update.
 

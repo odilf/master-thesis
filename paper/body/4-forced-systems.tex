@@ -55,7 +55,7 @@ Figuring out the convergence criteria is trickier. A natural way to proceed is t
 		f_d^-(q_k, q_{k+1}) = \mdif{1} V_d(q_k, q_{k+1}).
 	\]
 	This is because this is precisely the case where the Lagrange-d'Alembert principle \emph{is} an extremization. In fact, any system with Lagrangian $L_d$ with forces that admit a discrete potential $V_d$ is identical to an unforced system with Lagrangian $L'_d = L_d + V_d$. In other words, for conservative forces, every theorem of~\cite{ferraroParallelIterativeMethod2025} applies trivially. In the rest of the discussion we focus on non-conservative forces.
-    \todo{Lo que voy a decir es una tontería, pero se vería mejor cambiarle el signo a $V_d$, para que esté con el signo habitual que tiene la energía cinética. Así tienes $f^\pm=-D_{1/2}V_d$, y $L'_d=L_d-V_d$. Sebastián.}
+	\todo{Lo que voy a decir es una tontería, pero se vería mejor cambiarle el signo a $V_d$, para que esté con el signo habitual que tiene la energía cinética. Así tienes $f^\pm=-D_{1/2}V_d$, y $L'_d=L_d-V_d$. Sebastián.}
 \end{remark}
 
 For generic forces, the relevant criterion that can be applied is given in~\cite[Lem.~4.4]{ferraroParallelIterativeMethod2025} which we restate here:
@@ -73,10 +73,10 @@ In the remainder of this section we aim to provide \emph{structural} sufficient 
 To get an expression for $J^f$, we start by computing the derivative of~\eqref{eq:euler-lagrange-discrete-forced} which we will name $H^f$ as it is the forced analog of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function). The result is the following (similar to~\eqref{eq:hessian-matrix}):
 \begin{align*}
 	H^f_{ij} (\mathbf{q})
-	 & = \mdif*{\hat{R}(\mathbf{q})}                                                                                                                            \\
-	 & = \pdv{\left(\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})\right)}!{q_k}                        \\
+	 & = \mdif*{\hat{R}(\mathbf{q})}                                                                                                                                \\
+	 & = \pdv{\left(\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})\right)}!{q_k}                           \\
 	 & = \delta_{i, j} \left( \mdif{22}{\Ld}(q_{i - 1}, q_i) + \mdif{2}{f_d^+}(q_{i-1}, q_i) + \mdif{11}{\Ld}(q_i, q_{i+1}) + \mdif{1}{f_d^-}(q_i, q_{i+1}) \right) \\
-	 & + \delta_{i+1,j} \left(\mdif{12}{\Ld}(q_i, q_{i+1}) + \mdif{2}{f_d^-}(q_i, q_{i+1}) \right)                                                                \\
+	 & + \delta_{i+1,j} \left(\mdif{12}{\Ld}(q_i, q_{i+1}) + \mdif{2}{f_d^-}(q_i, q_{i+1}) \right)                                                                  \\
 	 & + \delta_{i-1,j} \left(\mdif{21}{\Ld}(q_{i-1}, q_i) + \mdif{1}{f_d^+}(q_{i-1}, q_i) \right).
 \end{align*}
 
@@ -168,8 +168,8 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 	\begin{align*}
 		\|(J^f x)_j\|_2
 		 & \leq \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 \|x_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2 \|x_{j+1}\|_2                                        \\
-		 & \leq \left(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\right) \|x\|_{\infty, 2}                                      \\
-		 & \leq \left(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\right) \|x\|_{\infty, 2}                            \\
+		 & \leq \left(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\right) \|x\|_{\infty, 2}                                     \\
+		 & \leq \left(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\right) \|x\|_{\infty, 2}                           \\
 		 & \leq \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \|x\|_{\infty, 2}.
 	\end{align*}
 	By~\eqref{eq:local-edge-dominance} applied at edges $j$ and $j - 1$, the fraction is strictly less than $1$. Taking $\max_j$,
@@ -268,7 +268,7 @@ In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exist
 	\begin{align*}
 		\frac{\beta\gamma(\|J\| + 2)}{1 - \beta\gamma} & \leq 1 - \|J\|                  \\
 		\beta\gamma(\|J\| + 2)                         & \leq (1-\|J\|)(1 - \beta\gamma) \\
-		\beta\gamma\left(\|J\| + 2 + (1-\|J\|)\right)   & \leq 1 - \|J\|                  \\
+		\beta\gamma\left(\|J\| + 2 + (1-\|J\|)\right)  & \leq 1 - \|J\|                  \\
 		3\beta\gamma                                   & \leq 1 - \|J\|                  \\
 		\gamma                                         & \leq \frac{1-\|J\|}{3\beta},
 	\end{align*}
@@ -305,13 +305,13 @@ Consider a one-dimensional harmonic oscillator with linear viscous damping,
 \]
 which has the following Lagrangian:
 \begin{align*}
-	L(q,\dot{q}) &= \tfrac{1}{2}\dot{q}^2 - \tfrac{1}{2}\omega^2 q^2 \\
-	f^L(q,\dot{q}) &= -\gamma\dot{q}.
+	L(q,\dot{q})   & = \tfrac{1}{2}\dot{q}^2 - \tfrac{1}{2}\omega^2 q^2 \\
+	f^L(q,\dot{q}) & = -\gamma\dot{q}.
 \end{align*}
 We discretize the Lagrangian and the force with the trapezoidal rule, evaluating both at the two endpoints $q_k, q_{k+1}$ (since the damping is velocity-only, the force quadrature here coincides with the midpoint rule):
 \begin{align*}
 	L_d(q_k, q_{k+1})   & = \frac{(q_{k+1}-q_k)^2}{2h} - \frac{\omega^2 h}{4}(q_k^2 + q_{k+1}^2) \\
-	f_d^+(q_k, q_{k+1}) & = -\frac{\gamma}{2}(q_{k+1}-q_k)                                         \\
+	f_d^+(q_k, q_{k+1}) & = -\frac{\gamma}{2}(q_{k+1}-q_k)                                       \\
 	f_d^-(q_k, q_{k+1}) & = -\frac{\gamma}{2}(q_{k+1}-q_k).
 \end{align*}
 The ``blocks'' of the forced Hessian are just scalars, which by~\eqref{eq:hessian-terms-forced-2} evaluate to
@@ -330,9 +330,9 @@ That is, the midpoint quadrature leaves the diagonal blocks of $H^f$ unchanged r
 \[
 	\Delta\hat{\mathcal{C}}^+_k = -\frac{\gamma}{2}, \qquad \Delta\hat{\mathcal{C}}^-_k = \frac{\gamma}{2}.
 \]
-Thus $\Delta F$ is purely off-diagonal with antisymmetric blocks ($\Delta\hat{\mathcal{C}}^-_k = -\Delta\hat{\mathcal{C}}^+_k$), so the skew part of $H^f$ grows with $\gamma$ while the symmetric part remains that of the unforced oscillator. Here, $\|\Delta F\|_2$ can be computed exactly. $\Delta F = \tfrac{\gamma}{2} S$, where $S$ is the $(N-1)\times(N-1)$ skew-symmetric tridiagonal Toeplitz matrix with $-1$ on the super-diagonal and $+1$ on the sub-diagonal, which has known eigenvalues $\lambda_j = 2i\cos\tfrac{j\pi}{N}$ for $j = 1, \dots, N-1$. Therefore, $\|S\|_2 = 2\cos\tfrac{\pi}{N}$ and
+Thus $\Delta F$ is purely off-diagonal with antisymmetric blocks ($\Delta\hat{\mathcal{C}}^-_k = -\Delta\hat{\mathcal{C}}^+_k$), so the skew part of $H^f$ grows with $\gamma$ while the symmetric part remains that of the unforced oscillator. Here, $\|\Delta F\|_2$ can be computed exactly. $\Delta F = \tfrac{\gamma}{2} S$, where $S$ is the $(N-1)\times(N-1)$ skew-symmetric tridiagonal Toeplitz matrix with $-1$ on the super-diagonal and $+1$ on the sub-diagonal, which has known eigenvalues $\lambda_j = 2i\cos\tfrac{j\pi}{N}$ for $j = 1, \dots, N-1$. Since $S$ is normal (being skew-symmetric), its singular values are $|\lambda_j|$, so $\|S\|_2 = \max_j|\lambda_j| = 2\cos\tfrac{\pi}{N}$ and
 \[
-	\|\Delta F\|_2 = \gamma\cos\frac{\pi}{N} < \gamma.
+	\|\Delta F\|_2 = \gamma\cos\frac{\pi}{N}.
 \]
 
 Assuming the unforced oscillator converges at $\mathbf{q}^*$ for the chosen step size $h$, Theorem~\ref{thm:forced-perturbation} and Lemma~\ref{lem:forced-perturbation-explicit} guarantee that the forced method also converges whenever
