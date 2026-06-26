@@ -8,7 +8,7 @@ The underlying observation of the presented work is that the idea of the paralle
 
 \Cref{sec:lie-groups} drops the vector space hypothesis. Here, the algorithm itself has to be adapted, computing updates in the Lie algebra and applying them via retractions $\tau : \fg \to G$. For the convergence analysis, the residual is pulled back to the Lie algebra via left-translation and the lifted action on $\fg^{N-1}$ has a (true) Hessian $\widetilde{H}$ with the same block-tridiagonal structure as $H$. The iteration, read in a Lie algebra chart at the solution, is similar to a block Jacobi-quasi-Newton iteration on a vector space. \Cref{thm:lie-group-convergence} therefore looks identical to the vector space theorem, and \cref{thm:hessian-pd-criterion} applies to $\widetilde{H}$ without modification. The work is in showing that ``read in a chart at the solution'' is the right thing to do (\cref{lem:chart-iteration-jacobian}) and in translating the local Hessian blocks into Lie algebra coordinates (\cref{sec:lie-hessian}); once that is set up, the algebraic content of the proofs is the same.
 
-Taken together, these two extensions cover many of the systems that motivate variational integrators in practice, such as \todo{dissipative mechanical systems, control-affine systems, rigid bodies, and attitude dynamics?}. The criteria obtained are sufficient but not necessary, and the forced and Lie group cases were treated independently rather than in combination, which are some ways that the presented work can be expanded upon.
+Taken together, these two extensions cover many of the systems that motivate variational integrators in practice, such as dissipative systems and rigid bodies. The criteria obtained are sufficient but not necessary, and the forced and Lie group cases were treated independently rather than in combination, which are some ways that the presented work can be expanded upon.
 
 \section{Future work}
 
@@ -28,7 +28,7 @@ The other direction of future work is on extending the algorithm to work with ev
 
 In terms of configuration space, Lie groups are less restrictive than vector spaces, but the structure could be loosened even more. For instance, one could consider \emph{homogeneous groups} $G/H$, where the symmetries are provided by a group external to the manifold. The sphere, $S^n = \SO(n+1)/\SO(n)$, is an example of such a manifold with physical relevance. Another loosening can be done in the form of \emph{Lie groupoids}, a groupoid $G \rightrightarrows M$ where $G$ and $M$ are manifolds, which also model real physical systems~\cite{weinsteinGroupoidsUnifyingInternal1996}.
 
-Beyond the configuration space, the algorithm could also be of use in \emph{optimal control}, where the forcing of \cref{sec:forced-systems} plays the role of a control input and the DEL equations enter as constraints in an optimization problem~\tc{}. Whether the parallel structure carries over to that setting is left as an open question.
+Beyond the configuration space, the algorithm could also be of use in \emph{optimal control}, where the forcing of \cref{sec:forced-systems} plays the role of a control input and the DEL equations enter as constraints in an optimization problem~\cite{lewisOptimalControl2012}. Whether the parallel structure carries over to that setting is left as an open question.
 
 \subsection*{Refinements of the parallel algorithm}
 
