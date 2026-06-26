@@ -7,7 +7,7 @@ In this section we extend the parallel algorithm (\cref{sec:parallel-algorithm})
 
 \section{The parallel algorithm on Lie algebras}\label{sec:lie-groups-algorithm}
 
-\paragraph{Where the vector space step fails}\label{sec:lie-vector space-fails}
+\paragraph{Where the vector space step fails}\label{sec:lie-vector-space-fails}
 
 The Jacobi step of the parallel algorithm, written for an interior node $k$ and a current path $\mathbf{g}$, looks the same as before:
 \[
@@ -21,7 +21,7 @@ because this uses subtraction in a space $Q$ where no canonical subtraction is a
 
 One solution to this is working on the corresponding \newterm{Lie algebra}.
 The Lie algebra $\fg = T_e G$ is the tangent space at the identity, forming a vector space of the same dimension as $G$.
-For any other point $g \in G$, tangent directions can be supplied by the differential $T_e L_g : \fg \to T_g G$ of the left-multiplication map $L_g : h \mapsto gh$, which is a isomorphism between these two vector spaces. The technique of ``moving'' some computation of a Lie group to its algebra is often called \newterm{lifting} (into the algebra).
+For any other point $g \in G$, tangent directions can be supplied by the differential $T_e L_g : \fg \to T_g G$ of the left-multiplication map $L_g : h \mapsto gh$, which is an isomorphism between these two vector spaces. The technique of ``moving'' some computation of a Lie group to its algebra is often called \newterm{lifting} (into the algebra).
 
 In the vector space case, the Newton update has form of $q_\textrm{new} = q_k + \delta q$: you compute a correction $\delta q$ in a vector space and add it. On $G$, there is no addition, so ``compute a correction and add it'' is not well-defined. Instead, we pick a vector space (here, $\fg$), compute a correction $\delta \xi$ there, and then map it to a nearby point in $G$ via some smooth map.
 
@@ -40,7 +40,7 @@ The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved 
 
 \paragraph{Linearization}
 
-As it stands, the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ is an element of $T_{g_k}^*G$. We are going to linearize it in the Lie algebra by considering the expression $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ as a function of a vector direction $\delta \xi \in \fg$. This gives a map $\fg \to T_{g_k \tau(\delta \xi)}^* G$, i.e., from the algebra to a cotangent space. Similarly to how we can move from $T_g G \to \fg$ via $T_e L_g$, we can move from $T_g^*G \to \fg^*$ using the \newterm{transpose} $(T_e L_g)^*$ by interpreting the duals as linear applications and pre-appling $T_e L_g$ to $T_g^*G$. That is,
+As it stands, the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ is an element of $T_{g_k}^*G$. We are going to linearize it in the Lie algebra by considering the expression $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ as a function of a vector direction $\delta \xi \in \fg$. This gives a map $\fg \to T_{g_k \tau(\delta \xi)}^* G$, i.e., from the algebra to a cotangent space. Similarly to how we can move from $T_g G \to \fg$ via $T_e L_g$, we can move from $T_g^*G \to \fg^*$ using the \newterm{transpose} $(T_e L_g)^*$ by interpreting the duals as linear applications and pre-applying $T_e L_g$ to $T_g^*G$. That is,
 \[ ((T_e L_g)^* \underbrace{\alpha}_{T_g^* G}) \underbrace{\eta}_{T_g G} = \alpha(T_e L_g (\eta)). \]
 (the transpose is a specific case of a pullback, see~\ref{notion:pullback}).
 
@@ -85,10 +85,10 @@ The parallelism structure (\cref{sec:parallel-algorithm}) carries over without m
 
 \section{Convergence}\label{sec:lie-groups-convergence}
 
-The convergence analysis largly follows the vector space case (\cref{thm:hessian-pd-convergence}) from~\cite{ferraroParallelIterativeMethod2025}, but with two adaptations: we work with the Lie algebra Hessian $\widetilde{H}$ (the analog of $H$, with all blocks pulled back to $\fg$ via left translation), and the iteration on $G^{N-1}$ has to be read in a Lie algebra chart at the solution before we can apply classical fixed-point/convergence theorems.
+The convergence analysis largely follows the vector space case (\cref{thm:hessian-pd-convergence}) from~\cite{ferraroParallelIterativeMethod2025}, but with two adaptations: we work with the Lie algebra Hessian $\widetilde{H}$ (the analog of $H$, with all blocks pulled back to $\fg$ via left translation), and the iteration on $G^{N-1}$ has to be read in a Lie algebra chart at the solution before we can apply classical fixed-point/convergence theorems.
 
 The strategy consists of lifting the discrete action to a function on the vector space $\fg^{N-1}$, computing its gradient and Hessian there, and reading off the convergence criterion.
-We carry out the lifting in \cref{sec:lie-hessian} and give the convergencence results in \cref{sec:lie-convergence}.
+We carry out the lifting in \cref{sec:lie-hessian} and give the convergence results in \cref{sec:lie-convergence}.
 
 \subsection{The Hessian in Lie algebra coordinates}\label{sec:lie-hessian}
 
@@ -125,7 +125,7 @@ The Hessian computation needs the second derivative of $g\tau(\xi)$ at $\xi = 0$
 	\mdif*[order=2]{(g \tau)}(0) = g \cdot \mdif*[order=2]{\tau}(0).
 	\label{eq:lie-retraction-second}
 \end{equation}
-The actual value of this term depends on the retraction. For the exponential map in matrix Lie groups, $\mdif*[order=2]{\exp}(0)[\eta,\zeta] = \tfrac{1}{2}(\eta\zeta+\zeta\eta)$. The Caley map also evaluates to this, since it happens to agree with $\exp$ up to second order.
+The actual value of this term depends on the retraction. For the exponential map in matrix Lie groups, $\mdif*[order=2]{\exp}(0)[\eta,\zeta] = \tfrac{1}{2}(\eta\zeta+\zeta\eta)$. The Cayley map also evaluates to this, since it happens to agree with $\exp$ up to second order.
 
 The diagonal block $\widetilde{\mathcal{D}}_k = \pdv[order=2]{\Sigma}!{\xi_k}(0)$ picks up contributions from the two summands containing $\xi_k$ (just as in \cref{eq:hessian-matrix}).
 For each, the chain rule gives a ``Hessian of $\Ld$'' term plus a ``retraction-curvature'' term coming from~\eqref{eq:lie-retraction-second}.
@@ -180,12 +180,12 @@ If $G = \RR^n$, then $T_e L_g = (T_e L_g)^* = \mathrm{Id}$ and so~\eqref{eq:lie-
 \subsection{Convergence criteria}\label{sec:lie-convergence}
 
 The Jacobi-Newton-G iteration is a smooth map $T : G^{N-1} \to G^{N-1}$ with $\mathbf{g}^*$ as a fixed point.
-To apply classical fixed-point theory, we move $T$ to the Lie algebra chart based on a peturbation $\mathbf{\xi}$ from the fixed point $\mathbf{g}^*$
+To apply classical fixed-point theory, we move $T$ to the Lie algebra chart based on a perturbation $\mathbf{\xi}$ from the fixed point $\mathbf{g}^*$
 \begin{align*}
 	\Psi & : V \subset \fg^{N-1} \to U \subset G^{N-1} \\
 	\Psi(\boldsymbol \xi) & = (g_1^*\tau(\xi_1), \ldots, g_{N-1}^*\tau(\xi_{N-1})),
 \end{align*}
-defined on a neighbourhood $V$ of $0$ where $\tau$ is a local diffeomorphism on $\fg$ (note that this lifting is different from the use of the Lie algebra we do inside the update step itself represented by $T$).
+defined on a neighborhood $V$ of $0$ where $\tau$ is a local diffeomorphism on $\fg$ (note that this lifting is different from the use of the Lie algebra we do inside the update step itself represented by $T$).
 The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \Psi : V \to \fg^{N-1}$, satisfying $\widetilde{T}(0) = 0$.
 
 \begin{lemma}[Derivative of the perturbation iteration]\label{lem:chart-iteration-jacobian}
@@ -255,7 +255,7 @@ The following theorem is essentially the same as \cref{thm:hessian-pd-convergenc
 \begin{proof}
 	The diagonal blocks $\widetilde{\mathcal{D}}_k(\mathbf{g}^*)$ are principal blocks of the positive-definite symmetric matrix $\widetilde{H}(\mathbf{g}^*)$, hence positive definite (by Sylvester's criterion and a permutation argument). In particular, $\widetilde{D}(\mathbf{g}^*)$ is nonsingular, so $\widetilde{J} = -\widetilde{D}^{-1}(\widetilde{L}+\widetilde{U})$ is well-defined, and~\cite[Thm.~6.38]{axelssonIterativeSolutionMethods1994} gives $\rho(\widetilde{J}) < 1$.
 
-	By \cref{lem:chart-iteration-jacobian}, $\widetilde{T}'(0) = \widetilde{J}$, so the smooth fixed-point map $\widetilde{T}$ on $\fg^{N-1}$ satisfies $\widetilde{T}(0) = 0$ and $\rho(\widetilde{T}'(0)) < 1$. Ostrowski's theorem~\cite[Thm.~10.1.3]{ortegaIterativeSolutionNonlinear1970} yields an open neighbourhood $V_0 \ni 0$ in $\fg^{N-1}$ such that $\widetilde{T}^a(\boldsymbol\xi) \to 0$ for all $\boldsymbol\xi \in V_0$; since $\Psi$ is a local diffeomorphism at $0$, setting $\mathcal{D} = \Psi(V_0)$ gives the result.
+	By \cref{lem:chart-iteration-jacobian}, $\widetilde{T}'(0) = \widetilde{J}$, so the smooth fixed-point map $\widetilde{T}$ on $\fg^{N-1}$ satisfies $\widetilde{T}(0) = 0$ and $\rho(\widetilde{T}'(0)) < 1$. Ostrowski's theorem~\cite[Thm.~10.1.3]{ortegaIterativeSolutionNonlinear1970} yields an open neighborhood $V_0 \ni 0$ in $\fg^{N-1}$ such that $\widetilde{T}^a(\boldsymbol\xi) \to 0$ for all $\boldsymbol\xi \in V_0$; since $\Psi$ is a local diffeomorphism at $0$, setting $\mathcal{D} = \Psi(V_0)$ gives the result.
 \end{proof}
 
 Just as in the vector space case (\cref{thm:local-hessian-pd-convergence}), the global positive-definiteness check on $\widetilde{H}$ reduces to per-edge checks on the local $2 \times 2$-block Hessians
@@ -278,7 +278,7 @@ Just as in the vector space case (\cref{thm:local-hessian-pd-convergence}), the 
 	\]	are all positive definite, in which case the Jacobi-Newton-G method converges locally to $\mathbf{g}^*$ by \cref{thm:lie-group-convergence}.
 \end{remark}
 
-The blocks $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\mathcal{C}}_k, \widetilde{\mathcal{D}}_k$ depend on the choice of trivialisation (left vs.\ right) and retraction $\tau$, but positive definiteness of $\widetilde{H}(\mathbf{g}^*)$ does not: a change of chart at $\mathbf{g}^*$ acts on $\widetilde{H}$ by congruence with a block-diagonal invertible matrix, which preserves the sign of the spectrum.
+The blocks $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\mathcal{C}}_k, \widetilde{\mathcal{D}}_k$ depend on the choice of trivialization (left vs.\ right) and retraction $\tau$, but positive definiteness of $\widetilde{H}(\mathbf{g}^*)$ does not: a change of chart at $\mathbf{g}^*$ acts on $\widetilde{H}$ by congruence with a block-diagonal invertible matrix, which preserves the sign of the spectrum.
 
 \begin{remark}[Connection to the discrete Euler-Poincaré equations]\label{rmk:lie-DEP}
 	Many mechanical systems on Lie groups are \newterm{left-invariant} (or right-invariant), meaning that $\Ld(g_k, g_{k+1}) = \Ld(h g_k, h g_{k+1})$ for all $h \in G$. If this is the case, the Lagrangian factors through the quotient $f_k = g_k^{-1} g_{k+1}$, resulting in a \newterm{reduced Lagrangian} $\ell : G \to \RR$ with $\ell(f_k) = \Ld(g_k, g_{k+1})$.
@@ -322,14 +322,14 @@ Consider a satellite at some position that we want to get to some other point at
 
 The trajectory of the satellite is affected by the gravitational pull of nearby bodies in space. To find what trajectories are possible, one could try to just model the path in $\RR^3$ and use a constant angular velocity to re-orient the satellite. However, the pull from nearby bodies can change how the satellite rotates, and the experienced pull in turn changes depending on the orientation.
 
-A more accurate way of modelling this situation is by using $\SE(3)$, the group of rigid body motions, which automatically handles this complexity in its manifold geometry. We model the satellite as a finite collection of body-frame points $\{r_i^b\}$ with masses $m_i$, so the world-frame position of point $i$ is $x + R\, r_i^b$. For $J$ celestial bodies at positions $x_j$ with gravitational parameters $\mu_j = G M_j$, the potential and kinetic energies are
+A more accurate way of modeling this situation is by using $\SE(3)$, the group of rigid body motions, which automatically handles this complexity in its manifold geometry. We model the satellite as a finite collection of body-frame points $\{r_i^b\}$ with masses $m_i$, so the world-frame position of point $i$ is $x + R\, r_i^b$. For $J$ celestial bodies at positions $x_j$ with gravitational parameters $\mu_j = G M_j$, the potential and kinetic energies are
 \begin{align*}
 	V(R, x)      & = -\sum_{i, j} \frac{\mu_j\, m_i}{\|x + R\, r_i^b - x_j\|}, \\
 	T(\omega, v) & = \tfrac{1}{2}\,\omega^T I\, \omega + \tfrac{1}{2}\, m\, \|v\|^2,
 \end{align*}
 where $I$ is the body-frame inertia tensor and $\omega, v \in \RR^3$ are the world-frame angular and translational velocities. The Lagrangian is $L = T - V$.
 
-We discretise with the midpoint rule. Writing each edge as $g_{k+1} = g_k \tau(h\, \xi_k)$ with $\xi_k = (\omega_k, v_k) \in \mathfrak{se}(3)$ and timestep $h = T/N$, we set
+We discretize with the midpoint rule. Writing each edge as $g_{k+1} = g_k \tau(h\, \xi_k)$ with $\xi_k = (\omega_k, v_k) \in \mathfrak{se}(3)$ and timestep $h = T/N$, we set
 \[
 	g_{k+\frac{1}{2}} = g_k \tau\left(\tfrac{h}{2}\, \xi_k\right),
 	\qquad
@@ -376,7 +376,7 @@ where the world-frame slip $v - W(x)$ is rotated into the body-frame by $R^T$ an
 	W(x) = W_0 + \Omega \times (x - c),
 	\qquad W_0, \Omega, c \in \RR^3.
 \]
-We discretise with the midpoint rule, exactly as in the satellite case.
+We discretize with the midpoint rule, exactly as in the satellite case.
 
 \begin{figure}
      \centering

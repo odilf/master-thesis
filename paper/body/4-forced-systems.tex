@@ -115,7 +115,7 @@ There are two ways to proceed from here. On one hand, we can try to find some cr
 
 A natural way to try to extend a result for symmetric to asymmetric matrices is to split them in their \newterm{symmetric} and \newterm{skew} components. Namely, any matrix $M$ can be written as $M = \Sym(M) + \Skew(M)$, where $\Sym(M) = \tfrac{1}{2}(M + M^T)$ is symmetric and $\Skew(M) = \tfrac{1}{2}(M - M^T)$ is skew.
 
-One might expect that an analog of \cref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \left(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\right)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is \textcolor{red}{unbounded}.
+One might expect that an analog of \cref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of Lemma~\ref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \left(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\right)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is unbounded.
 
 At this point, to motivate the result that will be shown shortly, it might be useful to get a better mental model of what each matrix block represents. The update at an interior node $q_j$ is a Newton step on $R_j^f$ as a function of $q_j$, with the current values of the neighbors $q_{j-1}, q_{j+1}$ held as data. The diagonal block $\hat{\mathcal{D}}_j$ captures how the residual at node $j$ depends on $q_j$ alone, while the off-diagonal blocks $\hat{\mathcal{C}}^+_j$ and $\hat{\mathcal{C}}^-_{j-1}$ capture how it depends on the neighbors. Linearizing $R_j^f$ at $\mathbf{q}^*$, the $j$th component of the global residual at the current path reads $\hat{\mathcal{D}}_j e_j + \hat{\mathcal{C}}^-_{j-1} e_{j-1} + \hat{\mathcal{C}}^+_j e_{j+1}$, where $e_i$ denotes the error at node $i$. The Newton step sets this to zero (to first order) and solves for the new error at $j$: the neighbor errors are multiplied forward by $\hat{\mathcal{C}}^\pm$ (data side), and the resulting residual is converted back into a coordinate update at $j$ by inverting $\hat{\mathcal{D}}_j$ (unknown side). The error transfer factor from a neighbor to $j$ is therefore $\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^\pm$ (which, incidentally, gives an intuition of why $J^f$ is defined as $-D^{-1} C$).
 
@@ -364,7 +364,7 @@ so that $\rho(J^f) \approx \cos(\pi/N) \sqrt{1 - \gamma^2 h^2/4}$. The spectral 
 
 \tocless\subsection{Parachutist in turbulent wind}\label{ex:parachutist}
 
-A parachutist wants to jump from a helicopter at some position $(x_0, y_0)$ and reach a target point in the ground $(x_T, 0)$ at some time $T$ by letting themselves be carried by the wind, which is given as some vector field $W(x, y) = (w_x, w_y)$.
+A parachutist wants to jump from a helicopter at some position $(x_0, y_0)$ and reach a target point on the ground $(x_T, 0)$ at some time $T$ by letting themselves be carried by the wind, which is given as some vector field $W(x, y) = (w_x, w_y)$.
 
 This problem can be modelled with the Lagrangian
 \[
@@ -376,12 +376,12 @@ where $g$ is the gravitational acceleration and $m$ is the diver's mass. Further
 \end{align*}
 where $k$ is the parachute drag coefficient.
 
-The problem can be discretized with the midpoint rule, for instance. The only additional data needed are the length of the path $N$, which then gives us the timestep $h = \frac{T}{N}$. Finally, solving it allows us to recover what the initial must be to reached the desired endpoint by just being dragged by the wind.
+The problem can be discretized with the midpoint rule, for instance. The only additional data needed are the length of the path $N$, which then gives us the timestep $h = \frac{T}{N}$. Finally, solving it allows us to recover what the initial velocity must be to reach the desired endpoint by just being dragged by the wind.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=\textwidth]{parachutist-main.png}
-	\caption{Trajectory and initial velocity that a parachutist need to reach a desired endpoint in a wind field with two vortexes. Green path indicates trajcetory, fainter green paths indicate intermediate iterations solver iterations.}\label{fig:parachutist-main}
+	\caption{Trajectory and initial velocity that a parachutist needs to reach a desired endpoint in a wind field with two vortexes. Green path indicates trajectory, fainter green paths indicate intermediate solver iterations.}\label{fig:parachutist-main}
 \end{figure}
 
 The results of the implementation are shown in \cref{fig:parachutist-main,fig:parachutist-many}. \Cref{fig:parachutist-main} shows how the trajectory starts as a straight line to the endpoint, but it curves upwards to be made physical. It turns out that for this particular wind field that has two vortexes, the parachutist needs to jump with velocity mostly to the right, and slightly upwards.

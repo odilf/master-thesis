@@ -4,7 +4,7 @@ Perhaps the most straightforward approach to compute numerically solutions that 
 
 However, discretization of the resulting ODE based on $q(t)$ can have undesirable effects due to the loss of the underlying geometric picture. In \cref{sec:geometric-properties-el} we explain what these properties are and in \cref{sec:pitfalls-discrete-el-ode} we discuss what is lost when one stops working geometrically.
 
-Instead, one can discretize the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and derive discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration}~\cite[\S1.3]{marsdenDiscreteMechanicsVariational2001} will be explained in \cref{sec:variational-integration}
+Instead, one can discretize the tangent bundle of the configuration space $TQ$ as $Q \times Q$, and derive discrete analogs of the Euler-Lagrange equations themselves. This approach, called \newterm{variational integration}~\cite[\S1.3]{marsdenDiscreteMechanicsVariational2001}, will be explained in \cref{sec:variational-integration}.
 
 \section{Geometric properties of the Euler-Lagrange equations}\label{sec:geometric-properties-el}
 
@@ -40,7 +40,7 @@ Well-known conservation laws can be derived in this way: translational symmetry 
 
 \paragraph{Symplecticity}
 
-In the Euler-Lagrange derivation, integration by parts~\eqref{eq:el-parts} leaves in a boundary term that ultimately evaulates to $0$ since the endpoints are fixed. However, we can consider this term on its own. Specifically, this term it is a one-form on $TQ$, called the \newterm{Cartan one-form} $\theta_L$, expressed as $\pdv{L}{\dot{q}^i}\odif{q^i}$ in coordinates. Its exterior derivative
+In the Euler-Lagrange derivation, integration by parts~\eqref{eq:el-parts} leaves in a boundary term that ultimately evaluates to $0$ since the endpoints are fixed. However, we can consider this term on its own. Specifically, this term is a one-form on $TQ$, called the \newterm{Cartan one-form} $\theta_L$, expressed as $\pdv{L}{\dot{q}^i}\odif{q^i}$ in coordinates. Its exterior derivative
 \[
 	\omega_L = \odif*{} \theta_L
 \]
@@ -52,7 +52,7 @@ Symplecticity of a flow implies that it is (locally) the flow of some Hamiltonia
 
 Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, the obvious move is to plug it into an off-the-shelf integrator (e.g., Runge-Kutta). While the local error per step is controlled, this approach loses the geometric structure and with it the geometric properties described in \cref{sec:geometric-properties-el}. A priori, a generic integrator does not preserve momentum maps nor is it symplectic. It is possible to construct, on case-by-case basis, integrators that conserve a quantity by preserving a symmetry of $L$~\cite[\S\S{IV},V]{hairerGeometricNumericalIntegration2006}, but it is hard to make this work for more than one quantity at a time. Symplectic integrators (that are not specific cases of the variational principle) are rarer still~\cite[\S{VI.4}]{hairerGeometricNumericalIntegration2006}; and algorithms that exactly preserve energy cannot be symplectic~\cite[\S3]{zhongLiePoissonHamiltonJacobiTheory1988}.
 
-Furthermore, if $Q$ is not a vector space, sometimes the updates are done in a bigger ambient vector space that $Q$ can be embedded into. Then, accumulation of local errors can result in values that are not elements of $Q$ at all. For instance, with 3-dimensional rotations, integration of $\SO(3)$ matrices in the ambient matrix space $\RR^9$ often leads to loss of orthogonality and unit determinant. This can be mitigated to some extent by reprojecting onto the relevant manifold, but that might increase errors and makes converge harder to analyze.
+Furthermore, if $Q$ is not a vector space, sometimes the updates are done in a bigger ambient vector space that $Q$ can be embedded into. Then, accumulation of local errors can result in values that are not elements of $Q$ at all. For instance, with 3-dimensional rotations, integration of $\SO(3)$ matrices in the ambient matrix space $\RR^9$ often leads to loss of orthogonality and unit determinant. This can be mitigated to some extent by reprojecting onto the relevant manifold, but that might increase errors and makes convergence harder to analyze.
 
 In short, naive integration leads in certain aspects to long-term behavior that is qualitatively unphysical. This is especially problematic for conservation laws, as they might be assumed as invariants in a broader analytical context where a numerical integrator might be used. 
 
@@ -78,7 +78,7 @@ Notice that this is a reformulation that can be done with no loss of information
 \begin{equation}
 	L_d^e (q_0, q_1) = \int_0^h L(q_{0, 1}(t), \dot{q}_{0, 1}(t)) \odif{t}
 \end{equation}
-where $q_{0, 1}$ is the path that extermizes the action along all the paths that connect $q_0$ and $q_1$. This way the discrete formulation gives identical results to the continuous one. Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; so, in practice, the discrete Lagrangian $\Ld$ is defined using some quadrature rule that essentially approximates the integral of the exact discrete Lagrangian.
+where $q_{0, 1}$ is the path that extremizes the action along all the paths that connect $q_0$ and $q_1$. This way the discrete formulation gives identical results to the continuous one. Of course, finding the path $q_{0,1}$ is as hard as the original continuous problem; so, in practice, the discrete Lagrangian $\Ld$ is defined using some quadrature rule that essentially approximates the integral of the exact discrete Lagrangian.
 
 Applying Hamilton's principle to the discrete action (that is, $\nabla S_d = 0$), the \newterm{discrete Euler-Lagrange} (DEL) equations can be derived:
 \begin{equation}
@@ -92,7 +92,7 @@ These equations are well-defined for any manifold, since both $\mdif{2} L_d (q_{
 
 \subsubsection{Geometric properties of the DEL equations}
 
-As in the continuous case, the DEL equations~\eqref{eq:euler-lagrange-discrete} define a discrete flow $(q_{k-1}, q_k) \mapsto (q_k, q_{k+1})$ on $Q \times Q$. Using this discretization, the properties of \cref{sec:geometric-properties-el} are automatically inherited. The boundary term in the variation of the discrete action defines a discrete one-form\footnote{Technically, there are \emph{two} one-forms, $\theta^+$ and $\theta^-$, but both of these define the same simplectic two form via the exterior derivative~\cite[p. 15]{marsdenDiscreteMechanicsVariational2001}.} on $Q \times Q$, whose exterior derivative is a symplectic form $\omega_{L_d}$. The discrete flow preserves $\omega_{L_d}$ exactly at every step. This makes the discrete flow symplectic, so it also exactly preserves some Hamiltonian $\widetilde H$. For the exact discrete Lagrangian $\Ld^e$, that Hamiltonian is the physical energy $H$; for a quadrature-based $L_d$ of order $p$, it approximates $H$ at order $O(h^p)$. This makes it so that the energy along the numerical trajectory never oscillates further than $O(h^p)$, so while energy might not be 100\% conserved locally, the error is bounded globally. 
+As in the continuous case, the DEL equations~\eqref{eq:euler-lagrange-discrete} define a discrete flow $(q_{k-1}, q_k) \mapsto (q_k, q_{k+1})$ on $Q \times Q$. Using this discretization, the properties of \cref{sec:geometric-properties-el} are automatically inherited. The boundary term in the variation of the discrete action defines a discrete one-form\footnote{Technically, there are \emph{two} one-forms, $\theta^+$ and $\theta^-$, but both of these define the same symplectic two-form via the exterior derivative~\cite[p. 15]{marsdenDiscreteMechanicsVariational2001}.} on $Q \times Q$, whose exterior derivative is a symplectic form $\omega_{L_d}$. The discrete flow preserves $\omega_{L_d}$ exactly at every step. This makes the discrete flow symplectic, so it also exactly preserves some Hamiltonian $\widetilde H$. For the exact discrete Lagrangian $\Ld^e$, that Hamiltonian is the physical energy $H$; for a quadrature-based $L_d$ of order $p$, it approximates $H$ at order $O(h^p)$. This makes it so that the energy along the numerical trajectory never oscillates further than $O(h^p)$, so while energy might not be 100\% conserved locally, the error is bounded globally. 
 
 A discrete analog of Noether's theorem holds as well: any continuous symmetry of $L$ inherited by $L_d$ corresponds with a scalar quantity conserved exactly at every step. This is arguably stronger than the continuous Noether statement, since conservation now holds for the actual numerical trajectory rather than for an ideal one being approximated.
 

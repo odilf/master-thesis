@@ -55,7 +55,7 @@ and squares to zero, $\odif*{}^2 = 0$. A form $\omega$ with $\odif{\omega} = 0$ 
 
 In coordinates, given $f : U \to \RR$, if $\omega = f \, \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$ then $\odif{\omega} = \odif{f} \wedge \odif{x^{i_1}} \wedge \cdots \wedge \odif{x^{i_k}}$. For $\RR^3$, applied to a 0-form ($Q \to \RR$) it gives the gradient $\nabla$, to a 1-form the curl $\nabla \times$, and to a 2-form the divergence $\nabla \cdot$. The identities $\nabla \times \nabla = 0$ and $\nabla \cdot (\nabla \times) = 0$ are both instances of $\odif*{}^2 = 0$.
 
-\notion{Symplectic forms*}\label{notion:symplectic-forms}~\cite[\S22]{leeSmoothManifolds2013} A \newterm{symplectic form} on a manifold $M$ is a 2-form $\omega$ that is closed ($\odif{\omega} = 0$) and non-degenerate, meaning that $\omega_p(v, \cdot) = 0$ as a 1-form implies $v = 0$. Non-degeneracy forces $M$ to be even-dimensional. A diffeomorphism $F : M \to M$ is called \newterm{symplectic} it preserves a symplectic form $\omega$, in the sense that $F^* \omega = \omega$.
+\notion{Symplectic forms*}\label{notion:symplectic-forms}~\cite[\S22]{leeSmoothManifolds2013} A \newterm{symplectic form} on a manifold $M$ is a 2-form $\omega$ that is closed ($\odif{\omega} = 0$) and non-degenerate, meaning that $\omega_p(v, \cdot) = 0$ as a 1-form implies $v = 0$. Non-degeneracy forces $M$ to be even-dimensional. A diffeomorphism $F : M \to M$ is called \newterm{symplectic} if it preserves a symplectic form $\omega$, in the sense that $F^* \omega = \omega$.
 
 \newpage % I think it looks nice to separate them, right now there is very little space left.
 \section{Physical systems, configuration space and Lagrangians}\label{sec:physical-systems-lagrangians}
@@ -121,4 +121,4 @@ Computing the relevant derivatives of the Lagrangian provides us with an implici
 
 \bigskip
 
-We can try to solve this ODE analytically. Sometimes, this is possible; but often, it is intractable to do so (either because the Lagrangian is too large, or the Lagrangian is computed based on some empirical numerical data), and hence numerical methods are used instead. In the next section, we discuss the framework to discrete and solve the Euler-Lagrange equations numerically.
+We can try to solve this ODE analytically. Sometimes, this is possible; but often, it is intractable to do so (either because the Lagrangian is too large, or the Lagrangian is computed based on some empirical numerical data), and hence numerical methods are used instead. In the next section, we discuss the framework to discretize and solve the Euler-Lagrange equations numerically.
