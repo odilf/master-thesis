@@ -44,16 +44,55 @@ def plot_se3():
 
     print("Solving Zermello...")
     example, box = se3.get_example(ZermeloSE3)
-    repetitions = 1000
+    repetitions = 2000
     paths, residuals = example.snapshot(repetitions, snapshots=8, tol=0.0)
 
     print("Plotting...")
-    se3.plot(0, example=example, paths=paths, box=box, elev=0, azim=-90, static=True)
+    se3.plot(
+        0,
+        example=example,
+        paths=paths,
+        box=box,
+        elev=4,
+        azim=-72,
+        static=True,
+        show_intermediate_paths=False,
+    )
     save("zermelo-side.png")
-    se3.plot(0, example=example, paths=paths, box=box, elev=37, azim=-72, static=True)
-    save("zermelo-diag.png")
-    se3.plot(0, example=example, paths=paths, box=box, elev=90, azim=0, static=True)
+    se3.plot(
+        0,
+        example=example,
+        paths=paths,
+        box=box,
+        elev=90,
+        azim=-90,
+        static=True,
+        show_intermediate_paths=False,
+    )
     save("zermelo-top.png")
+
+    se3.plot(
+        0,
+        example=example,
+        paths=paths,
+        box=box,
+        elev=37,
+        azim=-60,
+        static=True,
+        show_intermediate_paths=False,
+    )
+    save("zermelo-diag.png")
+    se3.plot(
+        0,
+        example=example,
+        paths=paths,
+        box=box,
+        elev=59,
+        azim=-84,
+        static=True,
+        hide_rotations=True,
+    )
+    save("zermelo-trajectory.png")
     print("Done")
 
 

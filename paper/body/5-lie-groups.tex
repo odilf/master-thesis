@@ -365,27 +365,45 @@ We see in the front view (\cref{fig:satellite-front}) that even though the satel
 
 Lagrangian formulations can also be used to find optimal solutions to certain problems. In~\cite[Example 5.2]{ferraroParallelIterativeMethod2025} they formulate a fuel-optimal navigation problem in a wind field. We extend it to $\SE(3)$ by letting the system take into account the orientation of the ship, which is in fact a spaceship in our model that can reorient itself in three dimensions.
 
-Specifically, we think of a prism-like ship with one long axis and two short ones, such that the flow effectively pushes the ship more if it is perpendicular to the long axis rather than parallel. Let $D = \operatorname{diag}(d_1, d_2, d_3)$ be the body-frame drag weights, with $d_1$ on the long axis and $d_1 \ll d_2, d_3$. The Lagrangian, associated now to the cost of moving, is
-\[
-	L(R, x, \omega, v) = \tfrac{1}{2}\, \omega^T I\, \omega + \tfrac{1}{2}\, (v - W(x))^T R D\, R^T (v - W(x)),
-\]
-where the world-frame slip $v - W(x)$ is rotated into the body-frame by $R^T$ and then weighted by $D$. We discretize with the trapezoidal quadrature, exactly as in the satellite case.
+We model the ship as a box with side lengths $(a, b, c)$ and one long axis ($a \gg b, c$). The cost of moving is the sum of two quadratic forms. The first is a \emph{turning cost} that penalizes spinning,
+\[ \tfrac{1}{2}\, \omega^T I\, \omega, \qquad I = \operatorname{diag}(b^2 + c^2,\; a^2 + c^2,\; a^2 + b^2), \]
+where $I$ is the body-frame inertia of the box. The second is a \emph{drag cost} that penalizes moving against the flow $W(x)$. The resistance along each body axis is proportional to the area of the face perpendicular to it, so the drag weights are those face areas,
+\[ D = k \operatorname{diag}(bc,\; ac,\; ab), \]
+where $k$ is the drag coefficient. The long axis gets the smallest weight $bc$, so the ship slips most easily when travelling lengthwise.
 
-\begin{figure}
+Since turning also drags the ship's corners through the flow, the drag is evaluated not at the center but at each of the eight corners $r_c$ of the box. The velocity of corner $r_c$ relative to the flow, expressed in the body frame, is
+\[ s_c = R^T\big(v - W(x)\big) + \omega \times r_c, \]
+the world-frame slip $v - W(x)$ rotated into the body frame by $R^T$, plus the rotational contribution $\omega \times r_c$ coming from the corner's offset. Averaging over the $8$ corners gives the Lagrangian
+\[
+	L(R, x, \omega, v) = \tfrac{1}{2}\, \omega^T I\, \omega + \frac{1}{16} \sum_{c} s_c^T D\, s_c.
+\]
+We discretize with the trapezoidal quadrature, exactly as in the satellite case.
+
+\begin{figure}[ht]
      \centering
-     \begin{subfigure}[ht]{0.48\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{zermelo-diag.png}
-         \caption{Diagonal view.}\label{fig:zermelo-diag}
-     \end{subfigure}
-     \hfill
-     \begin{subfigure}[ht]{0.48\textwidth}
+     \begin{subfigure}[ht]{0.80\textwidth}
          \centering
          \includegraphics[width=\textwidth]{zermelo-top.png}
          \caption{Top view.}\label{fig:zermelo-top}
      \end{subfigure}
-    \caption{Zermelo fuel optimization problem in $\SE(3)$. Bottom red arrows show flow field, upper arrows show how the flow affects the rigidbody in the given position.}\label{fig:zermelo}
+     \begin{subfigure}[ht]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{zermelo-side.png}
+         \caption{Side view.}\label{fig:zermelo-side}
+     \end{subfigure}
+     \hfill
+     % \begin{subfigure}[ht]{0.48\textwidth}
+     %     \centering
+     %     \includegraphics[width=\textwidth]{zermelo-diag.png}
+     %     \caption{Diagonal view.}\label{fig:zermelo-diag}
+     % \end{subfigure}
+     % \hfill
+     \begin{subfigure}[ht]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{zermelo-trajectory.png}
+         \caption{Positional trajectory only. Fainter green paths indicate intermediate solver iterations.}\label{fig:zermelo-trajectory}
+     \end{subfigure}
+    \caption{Zermelo fuel-optimal navigation in $\SE(3)$. Ship starts at the orange square and needs to reach the position and orientation at the violet star. Prisms indicate evenly spaced snapshots of the ship's position and orientation. Green path indicates positional trajectory. Red arrows indicate the wind field, the blue arrows indicate the slip at the ship's current position.}\label{fig:zermelo}
 \end{figure}
 
-\todo{explain behavior}
-% OLD: Here, we see that in the first 3--4 snapshots the ship is orientating itself using the direction of the flow. Interestingly, we see that between the last and second-to-last snapshot, the ship does a sharp turn. This is to maximize the amount of time the ship is being maximally pushed by the flow. In fact, the flow helps the ship turn in that direction and the flow is greater away from the center, so delaying the turn also helps make the turn itself cheaper.
+The simulation results are presented in \cref{fig:zermelo}. We see in the top view (\cref{fig:zermelo-top}) that the ship does not head straight for the target but rather follows two arcs, continually turning so that its long, low-drag axis stays aligned with the slip $v - W(x)$. Midway through, the snapshots bunch tightly together at the center of the vortex where the wind is small. The ship slows almost to a standstill, and the drag is cheap regardless of orientation, it uses this stretch to set up the final rotation. In the side view (\cref{fig:zermelo-side}) we can then see it re-align and accelerate out into the final approach, orientating itself to take advantage of the slight upwards wind, reaching the target position and orientation.
