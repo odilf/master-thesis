@@ -329,7 +329,7 @@ A more accurate way of modeling this situation is by using $\SE(3)$, the group o
 \end{align*}
 where $I$ is the body-frame inertia tensor and $\omega, v \in \RR^3$ are the world-frame angular and translational velocities. The Lagrangian is $L = T - V$.
 
-We discretize with the midpoint rule. Writing each edge as $g_{k+1} = g_k \tau(h\, \xi_k)$ with $\xi_k = (\omega_k, v_k) \in \mathfrak{se}(3)$ and timestep $h = T/N$, we set
+We discretize with the trapezoidal quadrature. Writing each edge as $g_{k+1} = g_k \tau(h\, \xi_k)$ with $\xi_k = (\omega_k, v_k) \in \mathfrak{se}(3)$ and timestep $h = T/N$, we set
 \[
 	g_{k+\frac{1}{2}} = g_k \tau\left(\tfrac{h}{2}\, \xi_k\right),
 	\qquad
@@ -369,12 +369,7 @@ Specifically, we think of a prism-like ship with one long axis and two short one
 \[
 	L(R, x, \omega, v) = \tfrac{1}{2}\, \omega^T I\, \omega + \tfrac{1}{2}\, (v - W(x))^T R D\, R^T (v - W(x)),
 \]
-where the world-frame slip $v - W(x)$ is rotated into the body-frame by $R^T$ and then weighted by $D$. The flow field $W$ is a uniform drift plus a vortex about a vertical axis through $c$:
-\[
-	W(x) = W_0 + \Omega \times (x - c),
-	\qquad W_0, \Omega, c \in \RR^3.
-\]
-We discretize with the midpoint rule, exactly as in the satellite case.
+where the world-frame slip $v - W(x)$ is rotated into the body-frame by $R^T$ and then weighted by $D$. We discretize with the trapezoidal quadrature, exactly as in the satellite case.
 
 \begin{figure}
      \centering
