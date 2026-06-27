@@ -13,7 +13,7 @@ The Jacobi step of the parallel algorithm, written for an interior node $k$ and 
 \[
 	r_k(\mathbf{g}, \overline{g}_k) = \mdif{2} \Ld(g_{k-1}, \overline{g}_k) + \mdif{1} \Ld(\overline{g}_k, g_{k+1}) = 0.
 \]
-In this setting, taking the derivative with $g_{k\pm1}$ fixed entails going from $L_d^\pm : G \to \RR$ to $T_{\overline{g}_k} G \to T_{L_d^\pm (\overline{g}_k)} \RR$, and using the fact that every tangent space of $\RR$ is isomorphic to $\RR$, this becomes a sum in $T_{\overline{g}_k}^* G$. This forms a vector space so this step is well-defined.
+In this setting, taking the derivative with $g_{k\pm1}$ fixed entails going from the two partially-applied Lagrangians $L_d^-(\cdot) = \Ld(g_{k-1}, \cdot)$ and $L_d^+(\cdot) = \Ld(\cdot, g_{k+1})$, each a map $G \to \RR$, to $T_{\overline{g}_k} G \to T_{L_d^\pm (\overline{g}_k)} \RR$, and using the fact that every tangent space of $\RR$ is isomorphic to $\RR$, this becomes a sum in $T_{\overline{g}_k}^* G$. This forms a vector space so this step is well-defined.
 
 What does fail is the Newton update~\eqref{eq:jacobi-newton}:
 \[ \overline{q} = q_k - \left(\mdif{2} r_k(\mathbf{q}, q_k)\right)^{-1}\, r_k(\mathbf{q}, q_k), \]
@@ -353,15 +353,19 @@ A more accurate way of modeling this situation is by using $\SE(3)$, the group o
 	V(R, x)      & = -\sum_{i, j} \frac{\mu_j\, m_i}{\|x + R\, r_i^b - x_j\|},       \\
 	T(\omega, v) & = \tfrac{1}{2}\,\omega^T I\, \omega + \tfrac{1}{2}\, m\, \|v\|^2,
 \end{align*}
-where $I$ is the body-frame inertia tensor and $\omega, v \in \RR^3$ are the world-frame angular and translational velocities. The Lagrangian is $L = T - V$.
+where $I$ is the body-frame inertia tensor, $\omega \in \RR^3$ is the body-frame angular velocity and $v \in \RR^3$ is the world-frame translational velocity (this mixed convention is because of the discretization: the angular part is $\log(R_k^T R_{k+1})$, hence body-frame; while the translational part is $x_{k+1} - x_k$, hence world-frame). The Lagrangian is $L = T - V$.
 
-We discretize with the trapezoidal quadrature. Writing each edge as $g_{k+1} = g_k \tau(h\, \xi_k)$ with $\xi_k = (\omega_k, v_k) \in \mathfrak{se}(3)$ and timestep $h = T/N$, we set
+We discretize with the trapezoidal quadrature. With timestep $h = T/N$, each edge carries the finite-difference velocity $\xi_k = (\omega_k, v_k) \in \mathfrak{se}(3)$,
 \[
-	g_{k+\frac{1}{2}} = g_k \tau\left(\tfrac{h}{2}\, \xi_k\right),
+	\omega_k = \tfrac{1}{h}\log\!\left(R_k^T R_{k+1}\right),
 	\qquad
-	\Ld(g_k, g_{k+1}) = h\, L\left(g_{k+\frac{1}{2}},\, \omega_k,\, v_k\right).
+	v_k = \tfrac{1}{h}\left(x_{k+1} - x_k\right),
 \]
-The resulting trajectory of a prism-like satellite under interesting conditions is shown in \cref{fig:satellite} (full parameter setup in the source code\footnote{The relative size of the satellite to the celestial bodies is exaggerated to make the rotational effects easier to see. One could think of it as a very big spaceship, or as very small planets/asteroids/comets.}).
+whose angular part is body-frame and translational part world-frame, and we set
+\[
+	\Ld(g_k, g_{k+1}) = \tfrac{h}{2}\left(L\left(g_k,\, \xi_k\right) + L\left(g_{k+1},\, \xi_k\right)\right).
+\]
+The resulting trajectory of a prism-like satellite under interesting conditions is shown in \cref{fig:satellite} (full parameter setup\footnote{The relative size of the satellite to the celestial bodies is exaggerated to make the rotational effects easier to see. One could think of it as a very big spaceship, or as very small planets/asteroids/comets.} in the source code).
 
 \begin{figure}
 	\centering

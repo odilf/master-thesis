@@ -325,7 +325,7 @@ which has the following Lagrangian:
 	L(q,\dot{q})   & = \tfrac{1}{2}\dot{q}^2 - \tfrac{1}{2}\omega^2 q^2 \\
 	f^L(q,\dot{q}) & = -\gamma\dot{q}.
 \end{align*}
-We discretize the Lagrangian and the force with the trapezoidal rule, evaluating both at the two endpoints $q_k, q_{k+1}$ (since the damping is velocity-only, the force quadrature here coincides with the midpoint rule):
+We discretize the Lagrangian and the force with the trapezoidal rule, evaluating both at the two endpoints $q_k, q_{k+1}$ (since the damping is velocity-only, the force quadrature here coincides with the trapezoidal quadrature):
 \begin{align*}
 	L_d(q_k, q_{k+1})   & = \frac{(q_{k+1}-q_k)^2}{2h} - \frac{\omega^2 h}{4}(q_k^2 + q_{k+1}^2) \\
 	f_d^+(q_k, q_{k+1}) & = -\frac{\gamma}{2}(q_{k+1}-q_k)                                       \\
