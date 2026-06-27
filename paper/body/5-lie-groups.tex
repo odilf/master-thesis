@@ -48,19 +48,28 @@ Note that since $L_g$ is a diffeomorphism, both $T_e L_g$ and its transpose are 
 
 Then, the residual can be written as a function of a vector direction, all in the Lie algebra:
 \begin{equation}
-	\widetilde{r}_k(\delta\xi_k) : \fg \to \fg^* = (T_e L_{g_k \tau(\delta\xi_k)})^* r_k\left(\mathbf{g}, g_k\tau(\delta\xi_k)\right),
+	\begin{aligned}
+		\widetilde{r}_k              & : \fg \to \fg^*                                                                       \\
+		\widetilde{r}_k(\delta\xi_k) & = (T_e L_{g_k \tau(\delta\xi_k)})^* r_k\left(\mathbf{g}, g_k\tau(\delta\xi_k)\right),
+	\end{aligned}
 	\label{eq:lie-residual}
 \end{equation}
-This expression is linearizable around $\delta\xi_k = 0$ as $\pdv{\widetilde{r_k}}!{\delta \xi_k}_0 \delta\xi_k + \widetilde{r_k}(0)$. To carry out the computations we will follow a common convention of denoting $T_e L_g(\eta) = g \cdot \eta$, which in the general case is no more than notational shorthand, but for matrix Lie groups the pushforwarded multiplication does literally correspond with matrix multiplication, denoted with the same symbol. 
+This expression is linearizable around $\delta\xi_k = 0$ as $\pdv{\widetilde{r_k}}!{\delta \xi_k}_0 \delta\xi_k + \widetilde{r_k}(0)$. To carry out the computations we will follow a common convention of denoting $T_e L_g(\eta) = g \cdot \eta$, which in the general case is no more than notational shorthand, but for matrix Lie groups the pushforwarded multiplication does literally correspond with matrix multiplication, denoted with the same symbol.
 
-Then, applying the product rule in direction $\eta \in \fg$ gives two terms: one from differentiating $r_k$ itself, and one from differentiating the pullback $(T_e L_{g_k \tau(\delta\xi)})^*$, which is proportional to $r_k(\mathbf{g}, g_k)$. We will only use the first term, making the iteration an approximate Newton method. The operator we invert agrees with the exact linearization at the solution, so the fixed points coincide with solutions of the DEL equations.
-
-The derivative of the local residual~\eqref{eq:lie-residual}, evaluates via chain rule to
+The residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ takes values in the cotangent fibre $T_{g_k\tau(\delta\xi)}^*G$, which moves with $\delta\xi$; elements of distinct fibres cannot be compared canonically, so $\pdv{r_k}!{\delta\xi}$ is not by itself well-defined. What we differentiate instead is the trivialized residual $\widetilde{r}_k(\delta\xi) \in \fg^*$ of~\eqref{eq:lie-residual}, which does live in a fixed vector space. For a direction $\eta \in \fg$, the result is
 \[
-	\odv*{r_k\left(\mathbf{g},\, g_k\tau(t\eta)\right)}{t}_{t=0} 
+	\pdv{\widetilde{r}_k}!{\delta\xi}_0[\eta] =
+	\underbrace{(T_e L_{g_k})^* \odv*{r_k(\mathbf{g},\, g_k\tau(t\eta))}{t}_{t=0}}_{\text{(I)}}
+	+ \underbrace{\left(\odv*{(T_e L_{g_k\tau(t\eta)})^*}{t}_{t=0}\right) r_k(\mathbf{g}, g_k)}_{\text{(II)}},
+\]
+where (I) differentiates $r_k$ in the frame at $g_k$ and (II) differentiates the moving frame itself. Term (II) is proportional to the untrivialized residual $r_k(\mathbf{g}, g_k)$, which vanishes at every solution $\mathbf{g}^*$ of the DEL equations. We keep only term (I), making the iteration an approximate Newton method; since (II) vanishes at solutions, the operator we invert agrees with the exact linearization there, and so the fixed points of the iteration coincide with solutions of the DEL equations.
+
+Term (I) evaluates via the chain rule to
+\[
+	\odv*{r_k\left(\mathbf{g},\, g_k\tau(t\eta)\right)}{t}_{t=0}
 	= \left(\mdif{22}\Ld(g_{k-1},g_k) + \mdif{11}\Ld(g_k,g_{k+1})\right)\left[g_k \cdot \eta\right].
 \]
-Pulling back with $(T_e L_{g_k})^*$ and setting the result to zero gives the linear system
+Pulling this back with $(T_e L_{g_k})^*$ and setting the result to zero gives the linear system
 \begin{equation}
 	\widetilde{\mathcal{D}}_k\, \delta \xi_k = -\widetilde{r}_k,
 	\tag{Jacobi-Newton-G}
@@ -112,13 +121,21 @@ We write
 	\widetilde{H} = \nabla^2 \Sigma(0).
 \]
 
-Differentiating~\eqref{eq:lie-lifted-action} with respect to $\xi_k$ at $\boldsymbol \xi = 0$, only the $(k-1)$-th and $k$-th summands contribute, and the chain rule with $T_e L_g$ recovers the Lie algebra residual~\eqref{eq:lie-residual} introduced for the algorithm:
+Differentiating~\eqref{eq:lie-lifted-action} with respect to $\xi_k$, only the $(k-1)$-th and $k$-th summands contribute. Both apply $\Ld$ through the chart $\xi_k \mapsto g_k\tau(\xi_k)$, so the chain rule gives, at any $\boldsymbol\xi$,
+\begin{equation}
+\begin{aligned}
+	\pdv{\Sigma}!{\xi_k}(\boldsymbol\xi) &= \Phi_k(\xi_k)^*\, r_k\!\left(\mathbf{g}(\boldsymbol\xi),\, g_k\tau(\xi_k)\right) \\
+	\Phi_k(\xi_k) &= T_{\tau(\xi_k)}L_{g_k}\, T_{\xi_k}\tau,
+\end{aligned}
+\label{eq:lie-gradient-general}
+\end{equation}
+where $\Phi_k(\xi_k) : \fg \to T_{g_k\tau(\xi_k)}G$ is the differential of the chart and $r_k(\mathbf{g}, g_k)$ is the untrivialized residual. At $\boldsymbol \xi = 0$, $\Phi_k(0)$ simplifies to $T_e L_{g_k}$, recovering the Lie algebra residual~\eqref{eq:lie-residual}:
 \[
 	\pdv{\Sigma}!{\xi_k}(0)
 	= (T_e L_{g_k})^* \left(\mdif{2} \Ld(g_{k-1}, g_k) + \mdif{1} \Ld(g_k, g_{k+1})\right)
-	= \widetilde{r}_k
+	= \widetilde{r}_k.
 \]
-which is expected. In particular, solutions of the DEL equations on $G$ are exactly the critical points of $\Sigma$.
+In particular, solutions of the DEL equations on $G$ are exactly the critical points of $\Sigma$.
 
 The Hessian computation needs the second derivative of $g\tau(\xi)$ at $\xi = 0$, which is a bilinear form on tangent vectors:
 \begin{equation}
@@ -132,13 +149,13 @@ For each, the chain rule gives a ``Hessian of $\Ld$'' term plus a ``retraction-c
 That is, for the $(k-1)$-th summand:
 \begin{align*}
 	\pdv[order={2}]{\Ld(g_{k-1}, g_k\tau(\xi_k))}!{\xi_k}_0 [\eta, \zeta]
-	= & \mdif{22}{\Ld(g_{k-1}, g_k)}[T_e L_{g_k} \eta,\, T_e L_{g_k} \zeta] \\
+	= & \mdif{22}{\Ld(g_{k-1}, g_k)}[T_e L_{g_k} \eta,\, T_e L_{g_k} \zeta]                      \\
 	+ & \mdif{2}{\Ld(g_{k-1}, g_k)}\left[g_k \cdot \mdif*[order=2]{\tau}(0)[\eta, \zeta]\right],
 \end{align*}
 and similarly for the $k$-th summand:
 \begin{align*}
 	\pdv[order=2]{\Ld(g_k \tau(\xi_k), g_{k+1})}!{\xi_k}_0 [\eta, \zeta]
-	= & \mdif{11}{\Ld(g_k, g_{k+1})}[T_e L_{g_k} \eta,\, T_e L_{g_k} \zeta] \\
+	= & \mdif{11}{\Ld(g_k, g_{k+1})}[T_e L_{g_k} \eta,\, T_e L_{g_k} \zeta]                      \\
 	+ & \mdif{1}{\Ld(g_k, g_{k+1})}\left[g_k \cdot \mdif*[order=2]{\tau}(0)[\eta, \zeta]\right],
 \end{align*}
 % $\mdif{11} \Ld(g_k, g_{k+1})$ and $\mdif{1} \Ld(g_k, g_{k+1})$.
@@ -148,7 +165,7 @@ Summing the two retraction-curvature terms collects $\mdif{2} \Ld(g_{k-1}, g_k) 
 \]
 which matches~\eqref{eq:lie-jacobi-newton-blocks} from \cref{sec:lie-groups-algorithm}, confirming that the Hessian of the lifted action agrees with the Newton step at the solution.
 
-The block $\widetilde{\mathcal{C}}_k = \pdv{\Sigma}!{\xi_k, \xi_{k+1}}(0)$ picks up only one summand (the $k$-th), and since the parametrisation $(\xi_k, \xi_{k+1}) \mapsto (g_k\tau(\xi_k), g_{k+1}\tau(\xi_{k+1}))$ is a product of independent retractions, there is no retraction-curvature term:
+The off-diagonal block $\widetilde{\mathcal{C}}_k = \pdv{\Sigma}!{\xi_k, \xi_{k+1}}(0)$ picks up only one summand (the $k$-th), and since the parametrisation $(\xi_k, \xi_{k+1}) \mapsto (g_k\tau(\xi_k), g_{k+1}\tau(\xi_{k+1}))$ is a product of independent retractions, there is no retraction-curvature term:
 \begin{equation}
 	\widetilde{\mathcal{C}}_k = (T_e L_{g_k})^*\, \mdif{12} \Ld(g_k, g_{k+1})\, (T_e L_{g_{k+1}}).
 	\label{eq:lie-hessian-C}
@@ -182,7 +199,7 @@ If $G = \RR^n$, then $T_e L_g = (T_e L_g)^* = \mathrm{Id}$ and so~\eqref{eq:lie-
 The Jacobi-Newton-G iteration is a smooth map $T : G^{N-1} \to G^{N-1}$ with $\mathbf{g}^*$ as a fixed point.
 To apply classical fixed-point theory, we move $T$ to the Lie algebra chart based on a perturbation $\mathbf{\xi}$ from the fixed point $\mathbf{g}^*$
 \begin{align*}
-	\Psi & : V \subset \fg^{N-1} \to U \subset G^{N-1} \\
+	\Psi                  & : V \subset \fg^{N-1} \to U \subset G^{N-1}             \\
 	\Psi(\boldsymbol \xi) & = (g_1^*\tau(\xi_1), \ldots, g_{N-1}^*\tau(\xi_{N-1})),
 \end{align*}
 defined on a neighborhood $V$ of $0$ where $\tau$ is a local diffeomorphism on $\fg$ (note that this lifting is different from the use of the Lie algebra we do inside the update step itself represented by $T$).
@@ -229,13 +246,22 @@ The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \
 		\underbrace{\pdv{r_k}!{\xi_j}_0(T_e L_{g_k^*}\eta)}_\text{main term} +
 		\underbrace{r_k(\mathbf{g}^*, g_k^*) \left(\pdv{(T_e L_{g_k})}!{\xi_j}_0 \eta\right)}_\text{variation-of-pullback} = 0
 	\]
-	where the variation-of-pullback term is $0$ due to $r_k(\mathbf{g}^*, g_k^*) = 0$, and for $j \in \{k-1, k, k+1\}$, we get:
+	where the variation-of-pullback term is $0$ due to $r_k(\mathbf{g}^*, g_k^*) = 0$, so only the main term survives:
+	\[
+		\pdv{\widetilde{r}_k}!{\xi_j}_0 = (T_e L_{g_k^*})^*\, \pdv{r_k}!{\xi_j}_0.
+	\]
+
+	We can now identify this expression with the gradient~\eqref{eq:lie-gradient-general}, which has a similar form $\pdv{\Sigma}!{\xi_k}(\boldsymbol\xi) = \Phi_k(\xi_k)^*\, r_k$, but with the chart frame $\Phi_k$ in place of the left translation. Its derivative has again the pattern of a term $\Phi_k(0) = T_e L_{g_k^*}$ multiplied by the derivative of the residual, and a variation term weighted by $r_k(\mathbf{g}^*, g_k^*) = 0$ that dissappears. This leaves us with the same expression as above. That is,
+	\[
+		\pdv{\widetilde{r}_k}!{\xi_j}_0 = \pdv{\Sigma}!{\xi_j, \xi_k}(0) = \widetilde{H}_{kj},
+	\]
+	the $(k,j)$ block of the Lie algebra Hessian, whose value was computed in \cref{sec:lie-hessian}: for $j \in \{k-1, k, k+1\}$,
 	\begin{align*}
 		\pdv{\widetilde{r}_k}!{\xi_{k-1}}_0 & = \widetilde{\mathcal{C}}_{k-1}^T, \\
 		\pdv{\widetilde{r}_k}!{\xi_k}_0     & = \widetilde{\mathcal{D}}_k,       \\
 		\pdv{\widetilde{r}_k}!{\xi_{k+1}}_0 & = \widetilde{\mathcal{C}}_k,
 	\end{align*}
-	and $0$ otherwise. These are precisely the $(k,j)$ blocks of $\widetilde{H}(\mathbf{g}^*)$.
+	and $0$ otherwise.
 	Substituting into~\eqref{eq:Tprime-decomp},
 	\[
 		\widetilde{T}'(0) = I - \widetilde{D}^{-1}\, \widetilde{H}(\mathbf{g}^*) = -\widetilde{D}^{-1}(\widetilde{L} + \widetilde{U}) = \widetilde{J}. \qedhere
@@ -288,7 +314,7 @@ The blocks $\widetilde{\mathcal{A}}_k, \widetilde{\mathcal{B}}_k, \widetilde{\ma
 		\tag{DEP}
 		\label{eq:lie-DEP}
 	\end{equation}
-	 Convergence of the DEP iteration on quotients $\{f_k\}$ is equivalent to convergence of the DEL iteration on $\{g_k\}$~\cite[Thm.~2.1]{marsdenDiscreteEulerPoincareLiePoisson1999}.
+	Convergence of the DEP iteration on quotients $\{f_k\}$ is equivalent to convergence of the DEL iteration on $\{g_k\}$~\cite[Thm.~2.1]{marsdenDiscreteEulerPoincareLiePoisson1999}.
 	Consequently, \cref{thm:lie-group-convergence} can equivalently be stated for the DEP iteration. The non-reduced formulation we use is more general, and for invariant systems simplifies the convergence analysis at the cost of a slightly larger state space.
 \end{remark}
 
@@ -305,10 +331,10 @@ Implementing this extension in practice is not completely straightforward if one
 Elements of the tangent and cotangent space are represented by their trivialized counterparts in the algebra, and elements of the algebra (and coalgebra) are represented via the $\RR^n$ isomorphism we know must exist. For instance, on $G = \SO(3)$, elements of $\fg = \mathfrak{so}(3)$ are skew-symmetric $3 \times 3$ matrices that have an isomorphism with $\RR^3$ via the hat map:
 
 \[ \hat{\xi} = \widehat{\begin{bmatrix} x \\ y \\ z\end{bmatrix}} = \begin{bmatrix}
-	0  & -z & y \\
-	z  & 0  & -x \\
-	-y & x  & 0
-\end{bmatrix}. \]
+		0  & -z & y  \\
+		z  & 0  & -x \\
+		-y & x  & 0
+	\end{bmatrix}. \]
 
 The only thing missing is a way to calculate the second derivative, but this can actually be calculated with no additional knowledge, given that we are representing $\fg$ and $\fg^*$ as vectors. Namely, we differentiate directly the residual as a function of the algebra, by taking directly the Jacobian of~\eqref{eq:lie-residual}. Since we represent $\fg$ and $\fg^*$ as $\RR^n$, this can be done using any autodifferentiation library (such as JAX).
 
@@ -324,7 +350,7 @@ The trajectory of the satellite is affected by the gravitational pull of nearby 
 
 A more accurate way of modeling this situation is by using $\SE(3)$, the group of rigid body motions, which automatically handles this complexity in its manifold geometry. We model the satellite as a finite collection of body-frame points $\{r_i^b\}$ with masses $m_i$, so the world-frame position of point $i$ is $x + R\, r_i^b$. For $J$ celestial bodies at positions $x_j$ with gravitational parameters $\mu_j = G M_j$, the potential and kinetic energies are
 \begin{align*}
-	V(R, x)      & = -\sum_{i, j} \frac{\mu_j\, m_i}{\|x + R\, r_i^b - x_j\|}, \\
+	V(R, x)      & = -\sum_{i, j} \frac{\mu_j\, m_i}{\|x + R\, r_i^b - x_j\|},       \\
 	T(\omega, v) & = \tfrac{1}{2}\,\omega^T I\, \omega + \tfrac{1}{2}\, m\, \|v\|^2,
 \end{align*}
 where $I$ is the body-frame inertia tensor and $\omega, v \in \RR^3$ are the world-frame angular and translational velocities. The Lagrangian is $L = T - V$.
@@ -338,25 +364,25 @@ We discretize with the trapezoidal quadrature. Writing each edge as $g_{k+1} = g
 The resulting trajectory of a prism-like satellite under interesting conditions is shown in \cref{fig:satellite} (full parameter setup in the source code\footnote{The relative size of the satellite to the celestial bodies is exaggerated to make the rotational effects easier to see. One could think of it as a very big spaceship, or as very small planets/asteroids/comets.}).
 
 \begin{figure}
-     \centering
-     \begin{subfigure}[ht]{0.80\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{satellite-diag.png}
-         \caption{Diagonal view.}\label{fig:satellite-diag}
-     \end{subfigure}
-     \hfill
-     \begin{subfigure}[ht]{0.45\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{satellite-front.png}
-         \caption{Front view.}\label{fig:satellite-front}
-     \end{subfigure}
-     \hfill
-     \begin{subfigure}[ht]{0.45\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{satellite-top.png}
-         \caption{Top view.}\label{fig:satellite-top}
-     \end{subfigure}
-    \caption{Satellite physical simulation. Satellite starts at lower $z$ needs to reach the position and orientation at higher $z$. Blue prism indicates evenly spaced snapshots of the satellite's position and orientation. Green path indicates positional trajectory, fainter green paths indicate intermediate solver iterations. Circles indicate celestial bodies that affect the satellite, size indicating pulling strength (i.e., mass).}\label{fig:satellite}
+	\centering
+	\begin{subfigure}[ht]{0.80\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{satellite-diag.png}
+		\caption{Diagonal view.}\label{fig:satellite-diag}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[ht]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{satellite-front.png}
+		\caption{Front view.}\label{fig:satellite-front}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[ht]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{satellite-top.png}
+		\caption{Top view.}\label{fig:satellite-top}
+	\end{subfigure}
+	\caption{Satellite physical simulation. Satellite starts at lower $z$ needs to reach the position and orientation at higher $z$. Blue prism indicates evenly spaced snapshots of the satellite's position and orientation. Green path indicates positional trajectory, fainter green paths indicate intermediate solver iterations. Circles indicate celestial bodies that affect the satellite, size indicating pulling strength (i.e., mass).}\label{fig:satellite}
 \end{figure}
 
 We see in the front view (\cref{fig:satellite-front}) that even though the satellite only has to increase its height by a small amount, the physical trajectory needs to take a detour and make a bigger arc movement. The simulation shows us that a direct approach does not seem to allow reaching the final desired orientation, as the pull from the two bodies would rotate the satellite. In fact, in the top view (\cref{fig:satellite-top}) we can see that the path taken in the end does a smooth approach from above, where the pull from both bodies seems to be balanced in such a way that the satellite can rendezvous with the target orientation.
@@ -380,30 +406,30 @@ the world-frame slip $v - W(x)$ rotated into the body frame by $R^T$, plus the r
 We discretize with the trapezoidal quadrature, exactly as in the satellite case.
 
 \begin{figure}[ht]
-     \centering
-     \begin{subfigure}[ht]{0.80\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{zermelo-top.png}
-         \caption{Top view.}\label{fig:zermelo-top}
-     \end{subfigure}
-     \begin{subfigure}[ht]{0.48\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{zermelo-side.png}
-         \caption{Side view.}\label{fig:zermelo-side}
-     \end{subfigure}
-     \hfill
-     % \begin{subfigure}[ht]{0.48\textwidth}
-     %     \centering
-     %     \includegraphics[width=\textwidth]{zermelo-diag.png}
-     %     \caption{Diagonal view.}\label{fig:zermelo-diag}
-     % \end{subfigure}
-     % \hfill
-     \begin{subfigure}[ht]{0.48\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{zermelo-trajectory.png}
-         \caption{Positional trajectory only. Fainter green paths indicate intermediate solver iterations.}\label{fig:zermelo-trajectory}
-     \end{subfigure}
-    \caption{Zermelo fuel-optimal navigation in $\SE(3)$. Ship starts at the orange square and needs to reach the position and orientation at the violet star. Prisms indicate evenly spaced snapshots of the ship's position and orientation. Green path indicates positional trajectory. Red arrows indicate the wind field, the blue arrows indicate the slip at the ship's current position.}\label{fig:zermelo}
+	\centering
+	\begin{subfigure}[ht]{0.80\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{zermelo-top.png}
+		\caption{Top view.}\label{fig:zermelo-top}
+	\end{subfigure}
+	\begin{subfigure}[ht]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{zermelo-side.png}
+		\caption{Side view.}\label{fig:zermelo-side}
+	\end{subfigure}
+	\hfill
+	% \begin{subfigure}[ht]{0.48\textwidth}
+	%     \centering
+	%     \includegraphics[width=\textwidth]{zermelo-diag.png}
+	%     \caption{Diagonal view.}\label{fig:zermelo-diag}
+	% \end{subfigure}
+	% \hfill
+	\begin{subfigure}[ht]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{zermelo-trajectory.png}
+		\caption{Positional trajectory only. Fainter green paths indicate intermediate solver iterations.}\label{fig:zermelo-trajectory}
+	\end{subfigure}
+	\caption{Zermelo fuel-optimal navigation in $\SE(3)$. Ship starts at the orange square and needs to reach the position and orientation at the violet star. Prisms indicate evenly spaced snapshots of the ship's position and orientation. Green path indicates positional trajectory. Red arrows indicate the wind field, the blue arrows indicate the slip at the ship's current position.}\label{fig:zermelo}
 \end{figure}
 
 The simulation results are presented in \cref{fig:zermelo}. We see in the top view (\cref{fig:zermelo-top}) that the ship does not head straight for the target but rather follows two arcs, continually turning so that its long, low-drag axis stays aligned with the slip $v - W(x)$. Midway through, the snapshots bunch tightly together at the center of the vortex where the wind is small. The ship slows almost to a standstill, and the drag is cheap regardless of orientation, it uses this stretch to set up the final rotation. In the side view (\cref{fig:zermelo-side}) we can then see it re-align and accelerate out into the final approach, orientating itself to take advantage of the slight upwards wind, reaching the target position and orientation.
