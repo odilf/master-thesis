@@ -40,9 +40,9 @@ The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved 
 
 \paragraph{Linearization}
 
-As it stands, the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ is an element of $T_{g_k}^*G$. We are going to linearize it in the Lie algebra by considering the expression $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ as a function of a vector direction $\delta \xi \in \fg$. This gives a map $\fg \to T_{g_k \tau(\delta \xi)}^* G$, i.e., from the algebra to a cotangent space. Similarly to how we can move from $T_g G \to \fg$ via $T_e L_g$, we can move from $T_g^*G \to \fg^*$ using the \newterm{transpose} $(T_e L_g)^*$ by interpreting the duals as linear applications and pre-applying $T_e L_g$ to $T_g^*G$. That is,
+As it stands, the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ is an element of $T_{g_k \tau(\delta \xi)}^*G$. We are going to linearize it in the Lie algebra by considering the expression $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ as a function of a vector direction $\delta \xi \in \fg$. This gives a map $\fg \to T_{g_k \tau(\delta \xi)}^* G$, i.e., from the algebra to a cotangent space. Similarly to how we can move from $T_g G \to \fg$ via $T_e L_g$, we can move from $T_g^*G \to \fg^*$ using the \newterm{transpose} $(T_e L_g)^*$ by interpreting the duals as linear applications and pre-applying $T_e L_g$ to $T_g^*G$. That is,
 \[ ((T_e L_g)^* \underbrace{\alpha}_{T_g^* G}) \underbrace{\eta}_{T_g G} = \alpha(T_e L_g (\eta)). \]
-(the transpose is a specific case of a pullback, see~\ref{notion:pullback}).
+(the transpose is a specific case of a pullback, see~\ref{notion:pullback}). % ref instead of cref is intentional.
 
 Note that since $L_g$ is a diffeomorphism, both $T_e L_g$ and its transpose are isomorphisms and so this mapping can be done without loss of information.
 
@@ -51,11 +51,11 @@ Then, the residual can be written as a function of a vector direction, all in th
 	\widetilde{r}_k(\delta\xi_k) : \fg \to \fg^* = (T_e L_{g_k \tau(\delta\xi_k)})^* r_k\left(\mathbf{g}, g_k\tau(\delta\xi_k)\right),
 	\label{eq:lie-residual}
 \end{equation}
-This expression is linearizable around $\delta\xi_k = 0$ as $\pdv{\widetilde{r_k}(\delta \xi_k)}!{\delta \xi_k} \delta\xi_k + \widetilde{r_k}(\delta\xi_k)$. To carry out the computations we will follow a common convention of denoting $T_e L_g(\eta) = g \cdot \eta$, which in the general case is no more than notational shorthand, but for matrix Lie groups the pushforwarded multiplication does literally correspond with matrix multiplication, denoted with the same symbol. 
+This expression is linearizable around $\delta\xi_k = 0$ as $\pdv{\widetilde{r_k}}!{\delta \xi_k}_0 \delta\xi_k + \widetilde{r_k}(0)$. To carry out the computations we will follow a common convention of denoting $T_e L_g(\eta) = g \cdot \eta$, which in the general case is no more than notational shorthand, but for matrix Lie groups the pushforwarded multiplication does literally correspond with matrix multiplication, denoted with the same symbol. 
 
 Then, applying the product rule in direction $\eta \in \fg$ gives two terms: one from differentiating $r_k$ itself, and one from differentiating the pullback $(T_e L_{g_k \tau(\delta\xi)})^*$, which is proportional to $r_k(\mathbf{g}, g_k)$. We will only use the first term, making the iteration an approximate Newton method. The operator we invert agrees with the exact linearization at the solution, so the fixed points coincide with solutions of the DEL equations.
 
-This first term, using $r_k(\mathbf{g}, g) = \mdif{2}\Ld(g_{k-1}, g) + \mdif{1}\Ld(g, g_{k+1})$, evaluates (via chain rule of $T_e L_g$) to
+The derivative of the local residual~\eqref{eq:lie-residual}, evaluates via chain rule to
 \[
 	\odv*{r_k\left(\mathbf{g},\, g_k\tau(t\eta)\right)}{t}_{t=0} 
 	= \left(\mdif{22}\Ld(g_{k-1},g_k) + \mdif{11}\Ld(g_k,g_{k+1})\right)\left[g_k \cdot \eta\right].
