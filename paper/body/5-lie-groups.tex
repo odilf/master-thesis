@@ -21,7 +21,7 @@ because this uses subtraction in a space $Q$ where no canonical subtraction is a
 
 One solution to this is working on the corresponding \newterm{Lie algebra}.
 The Lie algebra $\fg = T_e G$ is the tangent space at the identity, forming a vector space of the same dimension as $G$.
-For any other point $g \in G$, tangent directions can be supplied by the differential $T_e L_g : \fg \to T_g G$ of the left-multiplication map $L_g : h \mapsto gh$, which is an isomorphism between these two vector spaces. The technique of ``moving'' some computation of a Lie group to its algebra is often called \newterm{lifting} (into the algebra).
+For any other point $g \in G$, tangent directions can be supplied by the differential $T_e L_g : \fg \to T_g G$ of the left-translation map $L_g : h \mapsto gh$, which is an isomorphism between these two vector spaces. The technique of ``moving'' some computation of a Lie group to its algebra is often called \newterm{lifting} (into the algebra).
 
 In the vector space case, the Newton update has form of $q_\textrm{new} = q_k + \delta q$: you compute a correction $\delta q$ in a vector space and add it. On $G$, there is no addition, so ``compute a correction and add it'' is not well-defined. Instead, we pick a vector space (here, $\fg$), compute a correction $\delta \xi$ there, and then map it to a nearby point in $G$ via some smooth map.
 
@@ -40,7 +40,7 @@ The correction $\delta \xi_k$ lives in the vector space $\fg$ and can be solved 
 
 \paragraph{Linearization}
 
-As it stands, the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ is an element of $T_{g_k \tau(\delta \xi)}^*G$. We are going to linearize it in the Lie algebra by considering the expression $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ as a function of a vector direction $\delta \xi \in \fg$. This gives a map $\fg \to T_{g_k \tau(\delta \xi)}^* G$, i.e., from the algebra to a cotangent space. Similarly to how we can move from $T_g G \to \fg$ via $T_e L_g$, we can move from $T_g^*G \to \fg^*$ using the \newterm{transpose} $(T_e L_g)^*$ by interpreting the duals as linear applications and pre-applying $T_e L_g$ to $T_g^*G$. That is,
+As it stands, the residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ is an element of $T_{g_k \tau(\delta \xi)}^*G$. We are going to linearize it in the Lie algebra by considering the expression $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ as a function of a vector direction $\delta \xi \in \fg$. This gives a map $\fg \to T_{g_k \tau(\delta \xi)}^* G$, i.e., from the algebra to a cotangent space. Similarly to how we can move from $T_g G \to \fg$ via $T_e L_g$, we can move from $T_g^*G \to \fg^*$ using the \newterm{transpose} $(T_e L_g)^*$ by interpreting the duals as linear form and pre-applying $T_e L_g$ to $T_g^*G$. That is,
 \[ ((T_e L_g)^* \underbrace{\alpha}_{T_g^* G}) \underbrace{\eta}_{T_g G} = \alpha(T_e L_g (\eta)). \]
 (the transpose is a specific case of a pullback, see~\ref{notion:pullback}). % ref instead of cref is intentional.
 
@@ -54,7 +54,7 @@ Then, the residual can be written as a function of a vector direction, all in th
 	\end{aligned}
 	\label{eq:lie-residual}
 \end{equation}
-This expression is linearizable around $\delta\xi_k = 0$ as $\pdv{\widetilde{r}_k}!{\delta \xi_k}_0 \delta\xi_k + \widetilde{r}_k(0)$. To carry out the computations we will follow a common convention of denoting $T_e L_g(\eta) = g \cdot \eta$, which in the general case is no more than notational shorthand, but for matrix Lie groups the pushforwarded multiplication does literally correspond with matrix multiplication, denoted with the same symbol.
+This expression is linearizable around $\delta\xi_k = 0$ as $\pdv{\widetilde{r}_k}!{\delta \xi_k}_0 \delta\xi_k + \widetilde{r}_k(0)$. To carry out the computations we will follow a common convention of denoting $T_e L_g(\eta) = g \cdot \eta$, which in the general case is no more than notational shorthand, but for matrix Lie groups the pushforwarded translation does literally correspond to matrix multiplication, denoted with the same symbol.
 
 The residual $r_k(\mathbf{g}, g_k\tau(\delta\xi))$ takes values in the cotangent fibre $T_{g_k\tau(\delta\xi)}^*G$, which moves with $\delta\xi$; elements of distinct fibres cannot be compared canonically, so $\pdv{r_k}!{\delta\xi}$ is not by itself well-defined. What we differentiate instead is the trivialized residual $\widetilde{r}_k(\delta\xi) \in \fg^*$ of~\eqref{eq:lie-residual}, which does live in a fixed vector space. For a direction $\eta \in \fg$, the result is
 \[
