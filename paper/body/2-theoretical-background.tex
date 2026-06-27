@@ -13,6 +13,7 @@ Notions~\ref{notion:manifold}--\ref{notion:lie-algebra-trivialization} are used 
 
 \notion{Notation for derivatives}
 
+% ref instead of cref is intentional.
 We use $\mdif{i} f$ to represent the partial derivative of a function $f$ over its $i$-th argument, and interpret repeated indices as higher derivatives, $\mdif{ij} = \mdif{j} \circ \mdif{i}$ (so $\mdif{12} \Ld$ is a mixed second derivative). Without a subscript, $\mdif* f$ denotes the full derivative over all arguments at once. When we differentiate over a named variable instead of a positional argument, we write $\partial_x f$, such as $\partial_{q_k} S_d$; and in the classical continuous setting we also use the Leibniz form $\pdv{L}{q}$. Furthermore, $\odv{f}{t}$ is the derivative over a scalar, $T_p f$ the differential of a map between manifolds (\ref{notion:differential}), and $\odif{\alpha}$ the exterior derivative (\ref{notion:exterior-derivative}).
 
 \notion{Smooth manifolds}\label{notion:manifold}~\cite[\S1]{leeSmoothManifolds2013} An $n$-dimensional manifold is a set $Q$ with some topology where for every point $q \in Q$ there exists a neighborhood $U \subset Q$ and a homeomorphism $\phi : U \to \hat{U}$ where $\hat{U} \subset \RR^n$. The tuple $(U, \phi)$ is called a \newterm{chart}, and can be thought of as providing \newterm{local coordinates} around a point $q$.
@@ -94,7 +95,7 @@ This is the standard Lagrangian formulation, that describes closed systems. In p
 	\item \newterm{Higher-order} Lagrangians depend on higher derivatives of $q$, e.g. $L(q, \dot{q}, \ddot{q})$. In principle, the results of this paper are able to be carried over automatically to Lagrangians of arbitrary order~\cite{ferraroParallelIterativeMethod2025, gay-balmazInvariantHigherorderVariational2012}.
 \end{itemize}
 
-\section{The Euler-Lagrange equations}
+\subsection{The Euler-Lagrange equations}
 
 Following Hamilton's principle~\cite[\S1.3]{marsdenIntroductionMechanicsSymmetry1999}, we seek to find the extrema of the action defined by a Lagrangian $L$. This can be done by taking a variation of the action and equating it to $0$. Namely, we consider a one-parameter family of paths $q_\varepsilon(t)$ with $q_0 = q$, whose infinitesimal variation is the vector field along $q$ given by $\delta q=\odv*{q_{\varepsilon}}{\varepsilon}_{\varepsilon=0}$, with fixed endpoints $\delta q(0) = \delta q(T) = 0$. We then define the variation of the action as $\delta S(q) = \odv*{S(q_\varepsilon)}{\varepsilon}_{\varepsilon=0}$.
 Applying this to the action, we get:

@@ -72,7 +72,7 @@ In the remainder of this section we aim to provide \emph{structural} sufficient 
 To get an expression for $J^f$, we start by computing the derivative of~\eqref{eq:euler-lagrange-discrete-forced} which we will name $H^f$ as it is the forced analog of $H$ in~\cite{ferraroParallelIterativeMethod2025} (even though $H^f$ is not the Hessian of any function). The result is the following (similar to~\eqref{eq:hessian-matrix}):
 \begin{align*}
 	H^f_{ij} (\mathbf{q})
-	 & = \mdif*{\hat{R}(\mathbf{q})}                                                                                                                                \\
+	 & = \left(\mdif*{\hat{R}(\mathbf{q})}\right)_{ij}                                                                                                              \\
 	 & = \pdv{\left(\mdif{2} L_d (q_{k-1}, q_k) + f_d^+ (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1}) + f_d^- (q_k, q_{k+1})\right)}!{q_k}                           \\
 	 & = \delta_{i, j} \left( \mdif{22}{\Ld}(q_{i - 1}, q_i) + \mdif{2}{f_d^+}(q_{i-1}, q_i) + \mdif{11}{\Ld}(q_i, q_{i+1}) + \mdif{1}{f_d^-}(q_i, q_{i+1}) \right) \\
 	 & + \delta_{i+1,j} \left(\mdif{12}{\Ld}(q_i, q_{i+1}) + \mdif{2}{f_d^-}(q_i, q_{i+1}) \right)                                                                  \\
@@ -277,6 +277,7 @@ In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exist
 We call the factor $1 - \|J\|$ in~\eqref{eq:forced-perturbation-epsilon} the \newterm{contraction margin} of the unforced iteration, and $\|D^{-1}\|$ measures how well-conditioned the diagonal is. A smaller margin or a worse-conditioned diagonal will shrink $\varepsilon$, making the margin of the magnitude of allowed forces tighter.
 This perturbation bound is checkable in terms of derivatives of the discrete forces $f_d^\pm$ alone, which depend on the discrete Lagrangian and the chosen discretization of the force, but not on the (unknown) solution trajectory (although it does not say anything about whether the unforced system converges in the first place).
 
+% ref instead of cref is intentional.
 In practice, however, this guarantee is pessimistic, and (somewhat counterintuitively) it weakens as the discretization is refined. For many problems, as $h \to 0$ the contraction margin $1 - \|J\|$ decreases faster than $\|D^{-1}\|$, so $\varepsilon \to 0$ even though the true admissible force grows. This is shown in example~\ref{ex:damped-oscillator}.
 
 \medskip
