@@ -116,18 +116,27 @@ A natural way to try to extend a result for symmetric to asymmetric matrices is 
 
 One might expect that an analog of \cref{thm:hessian-pd-convergence} (that the method converges if $H$ is p.d.) might be that the method converges in the forced case if $\Sym(H^f)$ is p.d.. However, this falls short of giving $\rho(J^f) < 1$ on its own (one of the conditions of \cref{lem:jacobi-newton-convergence}). A minimal counter-example is $M = \left(\begin{smallmatrix}1 & a \\ -a & 1\end{smallmatrix}\right)$ with $D = I$, since then $\Sym(M) = I \succ 0$ for every $a$, but $J = I - D^{-1}M$ has $\rho(J) = |a|$, which is unbounded.
 
-At this point, to motivate the result that will be shown shortly, it might be useful to get a better mental model of what each matrix block represents. The update at an interior node $q_j$ is a Newton step on $R_j^f$ as a function of $q_j$, with the current values of the neighbors $q_{j-1}, q_{j+1}$ held as data. The diagonal block $\hat{\mathcal{D}}_j$ captures how the residual at node $j$ depends on $q_j$ alone, while the off-diagonal blocks $\hat{\mathcal{C}}^+_j$ and $\hat{\mathcal{C}}^-_{j-1}$ capture how it depends on the neighbors. Linearizing $R_j^f$ at $\mathbf{q}^*$, the $j$th component of the global residual at the current path reads $\hat{\mathcal{D}}_j e_j + \hat{\mathcal{C}}^-_{j-1} e_{j-1} + \hat{\mathcal{C}}^+_j e_{j+1}$, where $e_i$ denotes the error at node $i$. The Newton step sets this to zero (to first order) and solves for the new error at $j$: the neighbor errors are multiplied forward by $\hat{\mathcal{C}}^\pm$ (data side), and the resulting residual is converted back into a coordinate update at $j$ by inverting $\hat{\mathcal{D}}_j$ (unknown side). The error transfer factor from a neighbor to $j$ is therefore $\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^\pm$ (which, incidentally, gives an intuition of why $J^f$ is defined as $-D^{-1} C$).
+At this point it is worth getting a mental model of what each block represents. Near a solution $\mathbf{q}^*$ the residual vanishes, so to first order the $k$th component of the global residual reads
+\[
+	R_k^f = \hat{\mathcal{D}}_k e_k + \hat{\mathcal{C}}^-_{k-1} e_{k-1} + \hat{\mathcal{C}}^+_k e_{k+1},
+\]
+where $e_k = q_k - q_k^*$ is the error at node $k$. The diagonal block $\hat{\mathcal{D}}_k$ captures how the residual at node $k$ depends on $q_k$, while the off-diagonal blocks $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_{k-1}$ capture how it depends on its two neighbors. The Jacobi-Newton update at node $k$ zeroes \emph{its own} residual while holding the neighbors fixed, that is, it solves $\hat{\mathcal{D}}_k e_k^{\text{new}} = -(\hat{\mathcal{C}}^-_{k-1} e_{k-1} + \hat{\mathcal{C}}^+_k e_{k+1})$, so
+\[
+	e_k^{\text{new}} = -\hat{\mathcal{D}}_k^{-1}\left(\hat{\mathcal{C}}^-_{k-1} e_{k-1} + \hat{\mathcal{C}}^+_k e_{k+1}\right).
+\]
+The new error at $k$ is thus the neighbor errors fed through $-\hat{\mathcal{D}}_k^{-1}\hat{\mathcal{C}}^\pm$, which is exactly one block-row of $J^f = -D^{-1}C$. Note that $\hat{\mathcal{D}}_k$ is itself assembled from the two edges of node $k$ (recall, $\hat{\mathcal{D}}_k = \hat{\mathcal{B}}_{k-1} + \hat{\mathcal{A}}_k$).
 
-Crucially, when $\hat{\mathcal{D}}_j$ is ``large enough'' to dominate $\hat{\mathcal{C}}^\pm$, this factor has norm $<1$. That is, $\hat{\mathcal{D}}_j^{-1}$ attenuates the incoming error and the global error contracts at every step, which is what $\rho(J^f) < 1$ conveys.
+Crucially, when $\hat{\mathcal{D}}_k$ is ``large enough'' to dominate $\hat{\mathcal{C}}^\pm$, these gains have norm $<1$: $\hat{\mathcal{D}}_k^{-1}$ attenuates the incoming error, the global error contracts at every step, and $\rho(J^f) < 1$.
 
 Of course, the question is how to make ``large enough'' precise. An approach that seems like it would work is to ask whether $\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2$ (this confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half-plane and is another natural generalization of $M \succ 0$ to a non-symmetric setting). This is provable in the scalar $n = 1$, $N = 3$ case (see \cref{apx:conjecture-scalar}) but open in the general block case. What we can prove is a stronger condition \emph{per edge}: ask the symmetric part of each diagonal sub-block of $H_k^f$ to strictly dominate the corresponding cross sub-block in spectral norm. This way, we arrive at the following theorem.
 
 \begin{theorem}[Local edge dominance implies convergence]\label{thm:forced-local-dominance}
-	Suppose that, at $\mathbf{q}^*$, for every edge $k \in \{0, 1, \ldots, N-1\}$,
+	Suppose that, at $\mathbf{q}^*$,
 	\begin{equation}
-		\lambda_{\min}(\Sym(\hat{\mathcal{A}}_k)) > \|\hat{\mathcal{C}}^+_k\|_2,
-		\qquad
-		\lambda_{\min}(\Sym(\hat{\mathcal{B}}_k)) > \|\hat{\mathcal{C}}^-_k\|_2,
+		\begin{aligned}
+			\lambda_{\min}(\Sym(\hat{\mathcal{A}}_k)) & > \|\hat{\mathcal{C}}^+_k\|_2  \qquad  \text{for } & k \in \{1, 2, \ldots, N-1\}  \\
+			\lambda_{\min}(\Sym(\hat{\mathcal{B}}_k)) & > \|\hat{\mathcal{C}}^-_k\|_2 \qquad   \text{for } & k \in \{0, 1, \ldots, N-2\},
+		\end{aligned}
 		\label{eq:local-edge-dominance}
 	\end{equation}
 	with the boundary convention $\hat{\mathcal{C}}^+_{N-1} = \hat{\mathcal{C}}^-_0 = 0$ (these blocks do not appear in $H^f$). Then each diagonal block $\hat{\mathcal{D}}_j$ is invertible, $\rho(J^f(\mathbf{q}^*)) < 1$, and the forced Jacobi-Newton method converges locally to $\mathbf{q}^*$.
@@ -135,12 +144,12 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 \begin{proof}
 	Recall that $\hat{\mathcal{D}}_j = \hat{\mathcal{A}}_j + \hat{\mathcal{B}}_{j-1}$. Since taking $\Sym$ is linear, we also have that $\Sym(\hat{\mathcal{D}}_j) = \Sym(\hat{\mathcal{A}}_j) + \Sym(\hat{\mathcal{B}}_{j-1})$.
 	By Weyl's inequality and then by hypothesis:
-	\begin{align}
+	\begin{align*}
 		\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))
 		 & \geq \lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1})) \\
 		 & > \|\hat{\mathcal{C}}^+_j\|_2 + \|\hat{\mathcal{C}}^-_{j-1}\|_2                                \\
 		 & \geq 0,
-	\end{align}
+	\end{align*}
 	so $\Sym(\hat{\mathcal{D}}_j) \succ 0$. Then, for any $v \neq 0$, Cauchy-Schwarz gives $\|\hat{\mathcal{D}}_j v\|_2 \|v\|_2 \geq v^T \hat{\mathcal{D}}_j v = v^T \Sym(\hat{\mathcal{D}}_j) v \geq \lambda_{\min}(\Sym(\hat{\mathcal{D}}_j)) \|v\|_2^2$, hence $\hat{\mathcal{D}}_j$ is invertible with
 	\begin{equation}
 		\|\hat{\mathcal{D}}_j^{-1}\|_2 \;\leq\; \frac{1}{\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))}.
@@ -152,16 +161,16 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 		J^f = \begin{pmatrix}
 			0                                              & -\hat{\mathcal{D}}_1^{-1}\hat{\mathcal{C}}^+_1 &                                                        &        \\
 			-\hat{\mathcal{D}}_2^{-1}\hat{\mathcal{C}}^-_1 & 0                                              & -\hat{\mathcal{D}}_2^{-1}\hat{\mathcal{C}}^+_2         &        \\
-			                                               & \ddots                                         & \ddots                                                 & \ddots \\
+			                                                \ddots                                         & \ddots                                                 & \ddots \\
 			                                               &                                                & -\hat{\mathcal{D}}_{N-1}^{-1}\hat{\mathcal{C}}^-_{N-2} & 0
 		\end{pmatrix}
 	\]
-	Since $\rho(J^f) \leq \|J^f\|$ in any induced operator norm, it suffices to bound $\|J^f\|$ in one convenient choice. The block-tridiagonal structure suggests the block max-norm $\|x\|_{\infty,2} = \max_j \|x_j\|_2$, where $x_j \in \RR^n$ is the $j$th size-$n$ block of $x$. Its induced operator norm is
+	Since $\rho(J^f) \leq \|J^f\|$ in any induced operator norm, it suffices to bound $\|J^f\|$ in one convenient choice. The block-tridiagonal structure suggests the block max-norm $\|x\|_{\infty,2} = \max_j \|x_j\|_2$, where $x_j \in \RR^n$ is the $j$th size-$n$ block of $x$. Its induced operator form is
 	\[
 		\|J^f\|_{\infty,2} \;=\; \sup_{x \neq 0} \frac{\max_j \|(J^f x)_j\|_2}{\|x\|_{\infty,2}}.
 	\]
 
-	Therefore, bounding $\|(J^f x)_j\|_2$ by a multiple of $\|x\|_{\infty,2}$ uniformly in $j$ bounds $\rho(J^f)$ by the same constant. Each row of $J^f$ has form
+	Therefore, bounding $\|(J^f x)_j\|_2$ by a multiple of $\|x\|_{\infty,2}$ bounds $\rho(J^f)$ by the same constant. Each block of $J^f x$ has form
 	\[ (J^f x)_j = -\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1} x_{j-1} - \hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j x_{j+1}, \]
 	and submultiplicativity of the spectral norm together with~\eqref{eq:diag-block-inv-bound} give
 	\begin{align*}
@@ -295,7 +304,7 @@ In practice, however, this guarantee is pessimistic, and (somewhat counterintuit
 
 \section{Examples}\label{sec:forced-examples}
 
-We illustrate the forced algorithm and the convergence criteria on two systems: example~\ref{ex:damped-oscillator} applies the perturbation theorem to a simple dissipative force, and example~\ref{ex:parachutist} shows a practical application of the algorithm to find trajectories for a parachutist in turbulent wind conditions. 
+We illustrate the forced algorithm and the convergence criteria on two systems: example~\ref{ex:damped-oscillator} applies the perturbation theorem to a simple dissipative force, and example~\ref{ex:parachutist} shows a practical application of the algorithm to find trajectories for a parachutist in turbulent wind conditions.
 
 \sourceandrepo{}.
 
