@@ -6,12 +6,12 @@ In \cref{sec:forced-local-condition} we considered the condition
 \]
 which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half-plane and is a natural generalization of $H^f \succ 0$ to the non-symmetric setting. We claimed there that it implies $\rho(J^f) < 1$ in the scalar case, but that the general block case remains open. Here we prove the scalar case.
 
-\begin{theorem}[Scalar local condition]
+\begin{lemma}[Scalar local condition]
 	Let $n = 1$ and $N = 3$, so that $H^f$ is a $2 \times 2$ matrix with positive diagonal (two interior nodes). Then
 	\[
 		\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2 \implies \rho(J^f) < 1.
 	\]
-\end{theorem}
+\end{lemma}
 \begin{proof}
 	Let the entries of the forced Hessian be
 	\[
@@ -42,7 +42,7 @@ which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half
 		\tfrac{d_1 + d_2}{2} - |a| \;>\; \sqrt{\left(\tfrac{d_1 - d_2}{2}\right)^2 + s^2}.
 		\label{eq:hyp-scalar}
 	\end{equation}
-	Both sides are positive: the right-hand side is a norm, and the left-hand side because otherwise the hypothesis would be vacuous. Before squaring, we record a bound on $|a|$ that we will need below: dropping $s^2$ under the root in~\eqref{eq:hyp-scalar} only decreases the right-hand side, so $\sqrt{\left(\tfrac{d_1-d_2}{2}\right)^2 + s^2} \geq \tfrac{|d_1-d_2|}{2}$ and therefore
+	The right-hand side is a norm and the left-hand side is greater than it, so it is positive too. Before squaring, we record a bound on $|a|$ that we will need below: dropping $s^2$ under the root in~\eqref{eq:hyp-scalar} only decreases the right-hand side, so $\sqrt{\left(\tfrac{d_1-d_2}{2}\right)^2 + s^2} \geq \tfrac{|d_1-d_2|}{2}$ and therefore
 	\begin{equation}
 		\tfrac{d_1 + d_2}{2} - |a| > \tfrac{|d_1 - d_2|}{2}
 		\implies

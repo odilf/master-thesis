@@ -64,7 +64,7 @@ In coordinates, given $f : U \to \RR$, if $\omega = f \, \odif{x^{i_1}} \wedge \
 A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we focus largely on the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
 
 \paragraph{Configuration space}
-Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space at all. Using manifolds that have some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states, like rigid motions. That is, the geometry of the manifold can encode constraints about periodicity, topology or other types of global constraints.
+Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space at all. Using manifolds that have some geometric structure can encode constraints directly in the description of the system (such as rigid motions), making it impossible by construction to have physically unrealizable states. That is, the geometry of the manifold can encode constraints about periodicity, topology or other types of global constraints.
 
 For instance, one can try to encode the state of a pendulum with $\RR^1$, using the angle as a real number. However, this representation does not take into account the periodicity of the angle, since $0$ and $2\pi$ are different elements of $\RR$, but they represent the same physical state. Mathematically, the more accurate approach is to model the angle as an element of $S^1$, which is a smooth manifold that encodes the periodicity. The use of $\RR^1$ forces one to interpret the fact that $0$ and $2\pi$ are the same state outside of the mathematical framework, where mathematical rigor can no longer help. Furthermore, if some result hinges on the periodicity of the pendulum, this again needs to be done ``out of band'' and it cannot be rigorously, mathematically, justified anymore.
 
@@ -104,7 +104,7 @@ Applying this to the action, we get:
 	\delta S(q)                     & = \delta \int_0^T L(q(t), \dot{q}(t)) \odif{t}                                                                                                     \nonumber           \\
 	                                & = \int_0^T \left(\pdv{L}{q} \delta q + \pdv{L}{\dot{q}} \delta \dot{q}\right) \odif{t}                                                             \nonumber           \\
 	\text{\faint{(by parts)}} \quad & = \int_0^T \left(\pdv{L}{q} \delta q - \odv{}{t} \pdv{L}{\dot{q}} \delta q \right) \odif{t} + \pdv{L}{\dot{q}} \underbrace{\delta q \big|_0^T}_{0} \label{eq:el-parts} \\
-	                                & = \int_0^T \left(\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \right) \delta q \, \odif{t}                                                              \nonumber           \\
+	                                & = \int_0^T \left(\pdv{L}{q} - \odv{}{t} \pdv{L}{\dot{q}} \right) \delta q \, \odif{t}                                                              \nonumber           
 \end{align}
 and for this to hold given any variation $\delta q$, we need the integrand to be identically $0$. This is how we derive the Euler-Lagrange equation:
 

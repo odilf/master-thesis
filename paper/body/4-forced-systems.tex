@@ -159,9 +159,9 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 	Now, recall that $J^f = -D^{-1}(L+U)$, where $D$ is the block-diagonal of $H^f$ and $L+U$ is its off-diagonal part. Since $H^f$ is block-tridiagonal, so is $L+U$, with $(L+U)_{j,j-1} = \hat{\mathcal{C}}^-_{j-1}$ and $(L+U)_{j,j+1} = \hat{\mathcal{C}}^+_j$. Left-multiplying by the block-diagonal matrix $-D^{-1}$ acts row-block-by-row-block: the $j$th row-block of $D^{-1}(L+U)$ picks up only the $(j,j)$-block of $D^{-1}$, namely $\hat{\mathcal{D}}_j^{-1}$, since every other column of row $j$ of $D^{-1}$ is zero. So the entire $j$th row of $L+U$ is just rescaled on the left by $\hat{\mathcal{D}}_j^{-1}$, and its sparsity pattern is preserved. Reading this off, $J^f$ is block-tridiagonal with $(J^f)_{j,j-1} = -\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^-_{j-1}$ and $(J^f)_{j,j+1} = -\hat{\mathcal{D}}_j^{-1}\hat{\mathcal{C}}^+_j$:
 	\[
 		J^f = \begin{pmatrix}
-			0                                              & -\hat{\mathcal{D}}_1^{-1}\hat{\mathcal{C}}^+_1 &                                                        &        \\
-			-\hat{\mathcal{D}}_2^{-1}\hat{\mathcal{C}}^-_1 & 0                                              & -\hat{\mathcal{D}}_2^{-1}\hat{\mathcal{C}}^+_2         &        \\
-			                                                \ddots                                         & \ddots                                                 & \ddots \\
+			0                                              & -\hat{\mathcal{D}}_1^{-1}\hat{\mathcal{C}}^+_1 &                                                        &   \\
+			-\hat{\mathcal{D}}_2^{-1}\hat{\mathcal{C}}^-_1 & 0                                              & -\hat{\mathcal{D}}_2^{-1}\hat{\mathcal{C}}^+_2         &   \\
+			\ddots                                         & \ddots                                         & \ddots                                                     \\
 			                                               &                                                & -\hat{\mathcal{D}}_{N-1}^{-1}\hat{\mathcal{C}}^-_{N-2} & 0
 		\end{pmatrix}
 	\]
@@ -172,12 +172,13 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 
 	Therefore, bounding $\|(J^f x)_j\|_2$ by a multiple of $\|x\|_{\infty,2}$ bounds $\rho(J^f)$ by the same constant. Each block of $J^f x$ has form
 	\[ (J^f x)_j = -\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1} x_{j-1} - \hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j x_{j+1}, \]
-	and submultiplicativity of the spectral norm together with~\eqref{eq:diag-block-inv-bound} give
+	and submultiplicativity of the spectral norm together with~\eqref{eq:diag-block-inv-bound} and Weyl's inequality give
 	\begin{align*}
 		\|(J^f x)_j\|_2
 		 & \leq \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 \|x_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2 \|x_{j+1}\|_2                                        \\
 		 & \leq \left(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\right) \|x\|_{\infty, 2}                                     \\
 		 & \leq \left(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\right) \|x\|_{\infty, 2}                           \\
+		 & \leq \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))} \|x\|_{\infty, 2}                                                  \\
 		 & \leq \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \|x\|_{\infty, 2}.
 	\end{align*}
 	By~\eqref{eq:local-edge-dominance} applied at edges $j$ and $j - 1$, the fraction is strictly less than $1$. Taking $\max_j$,
@@ -264,11 +265,16 @@ In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exist
 	\end{equation}
 \end{lemma}
 \begin{proof}
-	Let $\beta = \|D^{-1}\|$ and $\gamma = \|\Delta F\|$. The identity $(D + \Delta D)^{-1} - D^{-1} = -(D + \Delta D)^{-1}\Delta D \, D^{-1}$, combined with $J = -D^{-1}(L+U)$, gives by direct manipulation
-	\[
-		J^f - J = -(D + \Delta D)^{-1}\left[\Delta D \cdot J + (\Delta L + \Delta U)\right].
-	\]
-	The three factors on the right are bounded by, respectively, $\|\Delta D\| \leq \gamma$ (projection contractivity), $\|\Delta L + \Delta U\| = \|\Delta F - \Delta D\| \leq 2\gamma$ (triangle inequality), and $\|(D + \Delta D)^{-1}\| \leq \beta/(1 - \beta\gamma)$ (Neumann tail estimate\footnote{We can get this by factoring $D + \Delta D$ as $D(I + D^{-1}\Delta D)$. Then, we known that $|D^{-1}\Delta D| \leq \beta\gamma$ and if $\beta\gamma < 1$, the Neumann series $(I+M)^{-1} = \sum_{k\geq 0}(-M)^k$ converges and so we can take the geometric series of the norms of the Neumann sum, resulting in $|(I + D^{-1}\Delta D)^{-1}| \leq 1/(1-\beta\gamma)$, giving the claimed bound after multiplying by $|D^{-1}| = \beta$.}, valid for $\beta\gamma < 1$). Combining,
+	Let $\beta = \|D^{-1}\|$ and $\gamma = \|\Delta F\|$. The identity $A^{-1} - B^{-1} = A^{-1}(B-A) B^{-1}$, combined with $J = -D^{-1}(L+U)$, gives by direct manipulation
+	\begin{align*}
+		J^f - J
+		                                             & = \underbrace{-(D + \Delta D)^{-1}\left[(L+U) + (\Delta L + \Delta U)\right]}_{J^f} + \underbrace{D^{-1}(L+U)}_{-J} \\
+		                                             & = -\left[(D + \Delta D)^{-1} - D^{-1}\right](L+U) - (D + \Delta D)^{-1}(\Delta L + \Delta U)                        \\
+		                                             & = (D + \Delta D)^{-1}\Delta D \, D^{-1}(L+U) - (D + \Delta D)^{-1}(\Delta L + \Delta U)                             \\
+		                                             & = -(D + \Delta D)^{-1}\Delta D \cdot J - (D + \Delta D)^{-1}(\Delta L + \Delta U)                                   \\
+		                                             & = -(D + \Delta D)^{-1}\left[\Delta D \cdot J + (\Delta L + \Delta U)\right].
+	\end{align*}
+	The three factors on the right are bounded by, respectively, $\|\Delta D\| \leq \gamma$ (projection contractivity), $\|\Delta L + \Delta U\| = \|\Delta F - \Delta D\| \leq 2\gamma$ (triangle inequality), and $\|(D + \Delta D)^{-1}\| \leq \beta/(1 - \beta\gamma)$ (Neumann tail estimate\footnote{We factor $D + \Delta D = D(I + D^{-1}\Delta D)$, so $(D + \Delta D)^{-1} = (I + D^{-1}\Delta D)^{-1}D^{-1}$. Since $\|D^{-1}\Delta D\| \leq \beta\gamma < 1$, the Neumann series $(I+M)^{-1} = \sum_{k\geq 0}(-M)^k$ converges and $\|(I + D^{-1}\Delta D)^{-1}\| \leq \sum_{k\geq 0}(\beta\gamma)^k = 1/(1-\beta\gamma)$. Multiplying by $\|D^{-1}\| = \beta$ gives the claimed bound.}, valid for $\beta\gamma < 1$). Combining,
 	\[
 		\|J^f - J\| \leq \frac{\beta\gamma(\|J\| + 2)}{1 - \beta\gamma}.
 	\]

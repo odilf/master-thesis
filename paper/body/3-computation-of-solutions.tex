@@ -55,7 +55,7 @@ Once we have written the Euler-Lagrange equation as a system of ODEs on $TQ$, th
 
 Furthermore, if $Q$ is not a vector space, sometimes the updates are done in a bigger ambient vector space that $Q$ can be embedded into. Then, accumulation of local errors can result in values that are not elements of $Q$ at all. For instance, with 3-dimensional rotations, integration of $\SO(3)$ matrices in the ambient matrix space $\RR^9$ often leads to loss of orthogonality and unit determinant. This can be mitigated to some extent by reprojecting onto the relevant manifold, but that might increase errors and makes convergence harder to analyze.
 
-In short, naive integration leads in certain aspects to long-term behavior that is qualitatively unphysical. This is especially problematic for conservation laws, as they might be assumed as invariants in a broader analytical context where a numerical integrator might be used. 
+In short, naive integration produces long-term behavior that is qualitatively unphysical. This is especially problematic for conservation laws, as they might be assumed as invariants in a broader analytical context where a numerical integrator might be used. 
 
 % Sometimes having a \todo{unphysical trajectories can be closer to the real trajectory.}
 
@@ -91,7 +91,7 @@ Similarly to Hamilton's principle (\cref{def:hamiltons-principle}), the DEL equa
 
 These equations are well-defined for any manifold, since both $\mdif{2} L_d (q_{k-1}, q_k)$ and $\mdif{1} L_d (q_k, q_{k+1})$ live in $T^*_{q_k} Q$, which forms a vector space with well-defined addition.
 
-\paragraph{Geometric properties of the DEL equations} As in the continuous case, the DEL equations~\eqref{eq:euler-lagrange-discrete} define a discrete flow $(q_{k-1}, q_k) \mapsto (q_k, q_{k+1})$ on $Q \times Q$. Using this discretization, the properties of \cref{sec:geometric-properties-el} are automatically inherited. The boundary term in the variation of the discrete action defines a discrete one-form\footnote{Technically, there are \emph{two} one-forms, $\theta^+$ and $\theta^-$, but both of these define the same symplectic two-form via the exterior derivative~\cite[p. 15]{marsdenDiscreteMechanicsVariational2001}.} on $Q \times Q$, whose exterior derivative is a symplectic form $\omega_{L_d}$. The discrete flow preserves $\omega_{L_d}$ exactly at every step. This makes the discrete flow symplectic, so it also exactly preserves some Hamiltonian $\widetilde H$. For the exact discrete Lagrangian $\Ld^e$, that Hamiltonian is the physical energy $H$; for a quadrature-based $L_d$ of order $p$, it approximates $H$ at order $O(h^p)$. This makes it so that the energy along the numerical trajectory never oscillates further than $O(h^p)$, so while energy might not be 100\% conserved locally, the error is bounded globally. 
+\paragraph{Geometric properties of the DEL equations} As in the continuous case, the DEL equations~\eqref{eq:euler-lagrange-discrete} define a discrete flow $(q_{k-1}, q_k) \mapsto (q_k, q_{k+1})$ on $Q \times Q$. Using this discretization, the properties of \cref{sec:geometric-properties-el} are automatically inherited. The boundary term in the variation of the discrete action defines a discrete one-form\footnote{Technically, there are \emph{two} one-forms, $\theta^+$ and $\theta^-$, but both of these define the same symplectic two-form via the exterior derivative~\cite[p. 15]{marsdenDiscreteMechanicsVariational2001}.} on $Q \times Q$, whose exterior derivative is a symplectic form $\omega_{L_d}$. The discrete flow preserves $\omega_{L_d}$ exactly at every step. This makes the discrete flow symplectic, so it also exactly preserves some Hamiltonian $\widetilde H$. For the exact discrete Lagrangian $\Ld^e$, that Hamiltonian is the physical energy $H$; for a quadrature-based $L_d$ of order $p$, it approximates $H$ at order $O(h^p)$. This makes it so that the energy along the numerical trajectory doesn't oscillate further than $O(h^p)$, so while energy might not be 100\% conserved locally, the error is globally bounded. 
 
 A discrete analog of Noether's theorem holds as well: any continuous symmetry of $L$ inherited by $L_d$ corresponds with a scalar quantity conserved exactly at every step. This is arguably stronger than the continuous Noether statement, since conservation now holds for the actual numerical trajectory rather than for an ideal one being approximated.
 
@@ -109,7 +109,7 @@ Given this approach to discretization, a trajectory can be computed point-by-poi
 In~\cite{ferraroParallelIterativeMethod2025}, an iterative algorithm that can solve the discrete Euler-Lagrange equations is proposed. The idea of the parallel algorithm is to treat the (discrete) action as a function of which we want to find roots. I.e., given a path $\mathbf{q} = {\{q_k\}}_{k=0}^N \in Q^{N+1}$ and a discrete Lagrangian $\Ld$, we define its (global) residual $R$ as
 \begin{equation}
 	R(\mathbf{q}) = \bigoplus_{k=1}^{N-1}
-	\left(\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})\right) = 0
+	\left(\mdif{2} L_d (q_{k-1}, q_k) + \mdif{1} L_d (q_k, q_{k+1})\right)
 	\label{eq:residual-global}
 \end{equation}
 (where $\bigoplus$ stacks the residuals into a vector in $\bigoplus_k T^*_{q_k}Q$), and we want to find a path $\mathbf{q}^*$ such that $R(\mathbf{q}^*) = 0$ where $q_0$ and $q_N$ are fixed.
@@ -120,7 +120,7 @@ At a high level, two schemes are used to find this root. First, we frame the alg
 The Jacobi update step consists of finding a new path $\overline{\mathbf{q}} = \{{ \overline{q}_k \}}_{k=0}^N$ that makes each summand of the residual $0$ with respect to the previous path. That is, we define the \newterm{local residual} as
 \begin{equation}
 	r_k(\mathbf{q}, \overline{q}) =
-	\mdif{2} L_d (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1}) = 0
+	\mdif{2} L_d (q_{k-1}, \overline{q}) + \mdif{1} L_d (\overline{q}, q_{k+1})
 	\label{eq:residual-local}
 \end{equation}
 which is a term of the sum, replacing the central $q_k$ by some new value $\overline{q}$. An updated path $\overline{\mathbf{q}}$ where for all inner points $k$, $r_k(\mathbf{q}, \overline{q_k}) = 0$, is not generally a solution, but under certain conditions (discussed in \cref{sec:standard-convergence}), iterating this update will converge to a solution. Crucially, the local residual $r_k$ only involves $q_k$ and its two neighbors $q_{k-1}$ and $q_{k+1}$ (see \cref{fig:discrete-path-stencil}), so all interior points can be updated independently and in parallel.
