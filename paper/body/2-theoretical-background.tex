@@ -61,7 +61,7 @@ In coordinates, given $f : U \to \RR$, if $\omega = f \, \odif{x^{i_1}} \wedge \
 \newpage % I think it looks nice to separate them, right now there is very little space left.
 \section{Physical systems, configuration space and Lagrangians}\label{sec:physical-systems-lagrangians}
 
-A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we focus on the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
+A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we focus largely on the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
 
 \paragraph{Configuration space}
 Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space at all. Using manifolds that have some geometric structure can encode constraints directly in the description of the system, making it impossible by construction to have physically unrealizable states, like rigid motions. That is, the geometry of the manifold can encode constraints about periodicity, topology or other types of global constraints.
@@ -73,7 +73,7 @@ While these problems might seem minor for the pendulum example, they apply simil
 \newcommand{\action}{S}
 
 \paragraph{Lagrangian}
-On the other hand, the Lagrangian encodes the \emph{laws} of the physical system by governing how states in $Q$ evolve. Namely, we can talk about \newterm{paths} in configuration space $q(t): [0, T] \to Q \in C^2([0, T], Q)$ which define the \newterm{path space of $Q$}, $\mathrm{Path}(Q) = C^2([0, T], Q)$. Not all paths are realizable in the physical system, and in fact a path can only occur if it extremizes the \newterm{action} $\action: C^2([0, T], Q)\to \RR$, defined as:
+On the other hand, the Lagrangian encodes the \emph{laws} of the physical system by governing how states in $Q$ evolve. Namely, we can talk about \newterm{paths} in configuration space $q(t): [0, T] \to Q \in C^2([0, T], Q)$ which define the \newterm{path space of $Q$}, $\mathrm{Path}(Q) = C^2([0, T], Q)$. Not all paths are realizable in the physical system, and in fact a path can only occur if it is a critical point the \newterm{action} $\action: C^2([0, T], Q)\to \RR$, defined as:
 
 \begin{equation}
 	\action(q) = \int_0^T L(q(t), \dot{q}(t)) \odif{t}.
@@ -97,7 +97,7 @@ This is the standard Lagrangian formulation, that describes closed systems. In p
 
 \subsection{The Euler-Lagrange equations}
 
-Following Hamilton's principle~\cite[\S1.3]{marsdenIntroductionMechanicsSymmetry1999}, we seek to find the extrema of the action defined by a Lagrangian $L$. This can be done by taking a variation of the action and equating it to $0$. Namely, we consider a one-parameter family of paths $q_\varepsilon(t)$ with $q_0 = q$, whose infinitesimal variation is the vector field along $q$ given by $\delta q=\odv*{q_{\varepsilon}}{\varepsilon}_{\varepsilon=0}$, with fixed endpoints $\delta q(0) = \delta q(T) = 0$. We then define the variation of the action as $\delta S(q) = \odv*{S(q_\varepsilon)}{\varepsilon}_{\varepsilon=0}$.
+Following Hamilton's principle~\cite[\S1.3]{marsdenIntroductionMechanicsSymmetry1999}, we seek to find the critical points of the action defined by a Lagrangian $L$. This can be done by taking a variation of the action and equating it to $0$. Namely, we consider a one-parameter family of paths $q_\varepsilon(t)$ with $q_0 = q$, whose infinitesimal variation is the vector field along $q$ given by $\delta q=\odv*{q_{\varepsilon}}{\varepsilon}_{\varepsilon=0}$, with fixed endpoints $\delta q(0) = \delta q(T) = 0$. We then define the variation of the action as $\delta S(q) = \odv*{S(q_\varepsilon)}{\varepsilon}_{\varepsilon=0}$.
 Applying this to the action, we get:
 
 \begin{align}
