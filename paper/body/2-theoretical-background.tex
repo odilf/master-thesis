@@ -1,14 +1,14 @@
 \chapter{Theoretical Background}\label{sec:background}
 
-In this chapter we give a brief overview of the mathematical tools and the physical principles used in the paper. \Cref{sec:mathematical-tools} outlines the main geometrical concepts used that the reader should be familiar with; while \cref{sec:physical-systems-lagrangians} is a friendlier, more motivated introduction to modeling of physical systems using Lagrangians.
+In this chapter we give a brief overview of the mathematical tools and the physical principles used in the thesis. \Cref{sec:mathematical-tools} outlines the main geometrical concepts used that the reader should be familiar with; while \cref{sec:physical-systems-lagrangians} is a friendlier, more motivated introduction to modeling of physical systems using Lagrangians.
 
-In this section and in the rest of this paper, whenever a new term is introduced, it is \newterm{highlighted like this}.
+In this section and in the rest of this thesis, whenever a new term is introduced, it is \newterm{highlighted like this}.
 
 \section{Basic mathematical notions}\label{sec:mathematical-tools}
 
 As mentioned above, this section is not meant to be an introduction to the topics, but rather more of a clarification/refresher. For each mathematical notion listed, specific references to \cite{leeSmoothManifolds2013} are given, which contain motivated introductions and more in-depth explanations.
 
-Notions~\ref{notion:manifold}--\ref{notion:lie-algebra-trivialization} are used often throughout the paper. Notions~\ref{notion:differential-forms}--\ref{notion:symplectic-forms}, which are annotated with a star, are only invoked when describing certain geometric properties in \cref{sec:geometric-properties-el,sec:pitfalls-discrete-el-ode}, and can be glossed over without too much concern.
+Notions~\ref{notion:manifold}--\ref{notion:lie-algebra-trivialization} are used often throughout the thesis. Notions~\ref{notion:differential-forms}--\ref{notion:symplectic-forms}, which are annotated with a star, are only invoked when describing certain geometric properties in \cref{sec:geometric-properties-el,sec:pitfalls-discrete-el-ode}, and can be glossed over without too much concern.
 
 
 \notion{Notation for derivatives}
@@ -34,7 +34,7 @@ For our purposes, a mapping to and from tangent and cotangent bundles such as $f
 
 \notion{Differential}\label{notion:differential}~\cite[p.\ 55]{leeSmoothManifolds2013} A differential or derivative of a function on manifolds $f : M \to N$ evaluated at $p \in M$ is a mapping between the tangent spaces of the manifolds $T_p f : T_p M \to T_{f(p)} N$, defined  as $T_p f (\dot{\gamma}(0)) = \odv{}{t}_0 f(\gamma(t))$.
 
-\notion{Lie groups}~\cite[\S7]{leeSmoothManifolds2013} A Lie group is a smooth manifold $G$ equipped with a smooth group operation $\cdot : G \times G \to G$ respecting the usual group axioms (including having a smooth inverse). The tangent space at the identity of a Lie group is called a \newterm{Lie algebra}, denoted by $\fg$ (called this way because it forms an algebra with the Lie bracket, although we will not use it in this paper). We define the left and right application operators as $L_g = h \mapsto g \cdot h$ and $R_g = h \mapsto h \cdot g$ respectively.
+\notion{Lie groups}~\cite[\S7]{leeSmoothManifolds2013} A Lie group is a smooth manifold $G$ equipped with a smooth group operation $\cdot : G \times G \to G$ respecting the usual group axioms (including having a smooth inverse). The tangent space at the identity of a Lie group is called a \newterm{Lie algebra}, denoted by $\fg$ (called this way because it forms an algebra with the Lie bracket, although we will not use it in this thesis). We define the left and right application operators as $L_g = h \mapsto g \cdot h$ and $R_g = h \mapsto h \cdot g$ respectively.
 
 \notion{Lie algebra trivialization}\label{notion:lie-algebra-trivialization} The group structure of a Lie group allows us to \newterm{trivialize} tangent spaces to the Lie algebra. Specifically, the entire tangent bundle $TG$ is isomorphic to $G \times \fg$ via the differential of the left-application, $T_e L_g : \fg \to T_g G$. In other words, every tangent vector on a Lie group can be described by the point at which it is tangent, and an element of $\fg$.
 
@@ -61,7 +61,7 @@ In coordinates, given $f : U \to \RR$, if $\omega = f \, \odif{x^{i_1}} \wedge \
 \newpage % I think it looks nice to separate them, right now there is very little space left.
 \section{Physical systems, configuration space and Lagrangians}\label{sec:physical-systems-lagrangians}
 
-A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this paper, we focus largely on the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
+A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this thesis, we focus largely on the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
 
 \paragraph{Configuration space}
 Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space at all. Using manifolds that have some geometric structure can encode constraints directly in the description of the system (such as rigid motions), making it impossible by construction to have physically unrealizable states. That is, the geometry of the manifold can encode constraints about periodicity, topology or other types of global constraints.
@@ -80,7 +80,7 @@ On the other hand, the Lagrangian encodes the \emph{laws} of the physical system
 	\label{eq:action}
 \end{equation}
 
-This is the fundamental idea that underpins every result in this paper, called \newterm{Hamilton's principle}:
+This is the fundamental idea that underpins every result in this thesis, called \newterm{Hamilton's principle}:
 
 \begin{definition}[Hamilton's principle]\label{def:hamiltons-principle}
 	A path $q: [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the Lagrangian system defined by $L : TQ \rightarrow \RR$ if and only if $q$ is a critical point of the functional action $\action$.
@@ -90,9 +90,9 @@ This is the standard Lagrangian formulation, that describes closed systems. In p
 
 \begin{itemize}
 	\item \newterm{Time-dependent Lagrangians}, $L : \RR \times TQ \to \RR$, depend explicitly on a time parameter. This models a system whose effective laws of physics change over time, typically because it is coupled to an external influence that varies with time. Hamilton's principle applies but energy is no longer conserved.
-	\item \newterm{Forced systems} are one of the main topics of this paper (\cref{sec:forced-systems}). They have some forcing applied (such as dissipation) and follow the Lagrange-d'Alembert principle (\cref{def:lagrange-dalembert}).
+	\item \newterm{Forced systems} are one of the main topics of this thesis (\cref{sec:forced-systems}). They have some forcing applied (such as dissipation) and follow the Lagrange-d'Alembert principle (\cref{def:lagrange-dalembert}).
 	\item \newterm{Constrained} systems restrict the admissible configurations or velocities to a submanifold of $TQ$. Classic examples include the rigid links of a robotic arm (holonomic constraints) or rolling contact of a wheel on a surface (nonholonomic constraints).
-	\item \newterm{Higher-order} Lagrangians depend on higher derivatives of $q$, e.g. $L(q, \dot{q}, \ddot{q})$. In principle, the results of this paper are able to be carried over automatically to Lagrangians of arbitrary order~\cite{ferraroParallelIterativeMethod2025, gay-balmazInvariantHigherorderVariational2012}.
+	\item \newterm{Higher-order} Lagrangians depend on higher derivatives of $q$, e.g. $L(q, \dot{q}, \ddot{q})$. In principle, the results of this thesis are able to be carried over automatically to Lagrangians of arbitrary order~\cite{ferraroParallelIterativeMethod2025, gay-balmazInvariantHigherorderVariational2012}.
 \end{itemize}
 
 \subsection{The Euler-Lagrange equations}

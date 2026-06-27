@@ -87,7 +87,7 @@ Applying Hamilton's principle to the discrete action (that is, $\mdif*{S_d} = 0$
 	\label{eq:euler-lagrange-discrete}
 	\tag{DEL}
 \end{equation}
-Similarly to Hamilton's principle (\cref{def:hamiltons-principle}), the DEL equations underpin every result in this paper.
+Similarly to Hamilton's principle (\cref{def:hamiltons-principle}), the DEL equations underpin every result in this thesis.
 
 These equations are well-defined for any manifold, since both $\mdif{2} L_d (q_{k-1}, q_k)$ and $\mdif{1} L_d (q_k, q_{k+1})$ live in $T^*_{q_k} Q$, which forms a vector space with well-defined addition.
 
@@ -102,7 +102,7 @@ One symmetry that does not get automatically inherited is time-translation symme
 
 \bigskip
 
-Given this approach to discretization, a trajectory can be computed point-by-point, computing $q_{k+1}$ from $q_k$ and $q_{k-1}$, given two initial datapoints. This is theoretically sound (assuming existence and uniqueness conditions) and a reasonable approach, amounting essentially to forward integration in time. However, if an endpoint is needed, this approach fundamentally does not work~\cite[p. 6]{ferraroParallelIterativeMethod2025}. The algorithm presented in the next section, which we study for the rest of the paper, provides solutions to boundary value problems, and does so in parallel.
+Given this approach to discretization, a trajectory can be computed point-by-point, computing $q_{k+1}$ from $q_k$ and $q_{k-1}$, given two initial datapoints. This is theoretically sound (assuming existence and uniqueness conditions) and a reasonable approach, amounting essentially to forward integration in time. However, if an endpoint is needed, this approach fundamentally does not work~\cite[p. 6]{ferraroParallelIterativeMethod2025}. The algorithm presented in the next section, which we study for the rest of the thesis, provides solutions to boundary value problems, and does so in parallel.
 
 \section{Parallel algorithm}\label{sec:parallel-algorithm}
 
