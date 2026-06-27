@@ -2,7 +2,7 @@
 
 Lagrangian systems can be extended to \newterm{Lagrangian forced systems}, defined with a \newterm{Lagrangian external force} which is usually defined as a map $f^L : TQ \to T^* Q$~\cite[\S4.1.1]{satomartindealmagroDiscreteMechanicsForced2020} that is fibre-preserving. In this setting it is not Hamilton's principle that applies, but rather its forced analog, called the \newterm{Lagrange-d'Alembert principle}:
 \begin{definition}[Lagrange-d'Alembert principle {\cite[Def.~4.1.1]{satomartindealmagroDiscreteMechanicsForced2020}}]
-	A path $q(t) : [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the forced Lagrangian system defined by $L: TQ \to \RR$ and force $f^L : TQ \to T^*Q$ if and only if
+	A path $q : [0, T] \to Q \in C^2([0, T], Q)$ is the physical trajectory of the forced Lagrangian system defined by $L: TQ \to \RR$ and force $f^L : TQ \to T^*Q$ if and only if
 	\[
 		\odv{}{t} \pdv{L}{\dot{q}} - \pdv{L}{q} = f^L (q(t), \dot{q}(t))
 	\]
@@ -204,8 +204,10 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 \end{remark}
 
 \begin{remark}[Time complexity]\label{rem:forced-local-complexity}
-	Checking~\eqref{eq:local-edge-dominance} reduces to two smallest\Hyphdash{eigenvalue} computations on $\Sym(\hat{\mathcal{A}}_k)$ and $\Sym(\hat{\mathcal{B}}_k)$, $\mathcal{O}(n^3)$ each, and two spectral-norm computations on $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_k$ ($\mathcal{O}(n^3)$ each via SVD, cheaper via power iteration). Total cost is $\mathcal{O}(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section.
+	Checking~\eqref{eq:local-edge-dominance} reduces to two smallest\Hyphdash{eigenvalue} computations on $\Sym(\hat{\mathcal{A}}_k)$ and $\Sym(\hat{\mathcal{B}}_k)$, $\mathcal{O}(n^3)$ each, and two spectral-norm computations on $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_k$ ($\mathcal{O}(n^3)$ each via SVD, cheaper via power iteration). Total cost is $\mathcal{O}(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section. 
 \end{remark}
+
+The problem with this result is that it is very restrictive, so many convergent systems do not pass this criterion. This, together with the fact that it is not significantly cheaper than checking the spectral radius of $J^f$, makes this condition impractical to use. This result is provided as more of a theoretical result that matches \cref{thm:local-hessian-pd-convergence}, and its use is in demonstrating ideas to bound the spectral radius, that hopefully can be built upon in the future.
 
 \subsection{A perturbation condition}
 
@@ -355,7 +357,7 @@ Thus $\Delta F$ is purely off-diagonal with antisymmetric blocks ($\Delta\hat{\m
 Assuming the unforced oscillator converges at $\mathbf{q}^*$ for the chosen step size $h$, \cref{thm:forced-perturbation} and \cref{lem:forced-perturbation-explicit} guarantee that the forced method also converges whenever
 \[
 	\gamma\cos\frac{\pi}{N} < \varepsilon = \frac{1 - \|J^0\|}{3\|D_0^{-1}\|}
-	\quad\Rightarrow\quad
+	\quad\implies\quad
 	\gamma < \frac{\varepsilon}{\cos(\pi/N)},
 \]
 where $J^0$ and $D_0^{-1}$ are the Jacobi matrix and inverse diagonal of the unforced system at $\mathbf{q}^*$. This gives a concrete bound on the admissible damping coefficient in terms of the step size and the unforced convergence margin.
