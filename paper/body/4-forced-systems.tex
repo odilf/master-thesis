@@ -400,10 +400,10 @@ The problem can be discretized with the midpoint rule, for instance. The only ad
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=\textwidth]{parachutist-main.png}
-	\caption{Trajectory and initial velocity that a parachutist needs to reach a desired endpoint in a wind field with two vortexes. Green path indicates trajectory, fainter green paths indicate intermediate solver iterations.}\label{fig:parachutist-main}
+	\caption{Trajectory and initial velocity that a parachutist needs to reach a desired endpoint in a wind field with two vortices. Green path indicates trajectory, fainter green paths indicate intermediate solver iterations.}\label{fig:parachutist-main}
 \end{figure}
 
-The results of the implementation are shown in \cref{fig:parachutist-main,fig:parachutist-many}. \Cref{fig:parachutist-main} shows how the trajectory starts as a straight line to the endpoint, but it curves upwards to be made physical. It turns out that for this particular wind field that has two vortexes, the parachutist needs to jump with velocity mostly to the right, and slightly upwards.
+The results of the implementation are shown in \cref{fig:parachutist-main,fig:parachutist-many}. \Cref{fig:parachutist-main} shows how the trajectory starts as a straight line to the endpoint, but it curves upwards to be made physical. It turns out that for this particular wind field that has two vortices, the parachutist needs to jump with velocity mostly to the right, and slightly upwards.
 
 \Cref{fig:parachutist-many} shows many trajectories from different starting  positions, both for the vortex wind field (\cref{fig:parachutist-many-vortex}) as well as for a wind field that forms a shear (\cref{fig:parachutist-many-shear}). This serves to illustrate a couple non-trivial observations. For instance, trajectory 3 (hexagon) in \cref{fig:parachutist-many-vortex} needs a very high initial velocity, which indicates that it is most likely not realistic for the parachutist to jump from that point and reach the target; and trajectory 2 (star) in \cref{fig:parachutist-many-shear} shows that to reach the endpoint the parachutist has to first jump \emph{away} from the target to reach it in the desired time (i.e., jump up and to the right, while the target is down and to the left).
 
