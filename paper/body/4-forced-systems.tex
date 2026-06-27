@@ -307,7 +307,7 @@ In practice, however, this guarantee is pessimistic, and (somewhat counterintuit
 		\item $\|J\|_2$ via power iteration on $J^T J$: $\mathcal{O}(k N n^2)$ for $k$ iterations.
 		\item $\|\Delta F\|_2$ at the chosen point: same cost as $\|J\|_2$, $\mathcal{O}(k N n^2)$.
 	\end{itemize}
-	The dominant cost is therefore $\mathcal{O}(k N n^2)$ (since usually $k \gtrsim n$). This is substantially cheaper than the $\mathcal{O}(N^3 n^3)$ Cholesky or eigendecomposition that would be needed to check positive\Hyphdash{}definiteness of $H^f$ globally.
+	The dominant cost is therefore $\mathcal{O}(k N n^2)$ (since usually $k \gtrsim n$). I.e., linear in path size, which makes it practical.
 \end{remark}
 
 \section{Examples}\label{sec:forced-examples}
