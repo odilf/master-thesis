@@ -160,7 +160,7 @@ It is equation~\eqref{eq:jacobi-newton} which is computable using any linear sol
 
 \subsection{Convergence criteria}\label{sec:standard-convergence}
 
-The convergence of the method (both in the standard case as well in the forced and Lie group cases) is mainly related to the Hessian of the action, which we refer to as the \newterm{global Hessian matrix}, $H$. This is because, given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the hessian of $F$ is positive definite~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025}. Hamilton's principle is precisely such a formulation: the residual that we want to eliminate is the gradient of the action, $R = \nabla S_d$.
+The convergence of the method (both in the standard case as well in the forced and Lie group cases) is mainly related to the Hessian of the action, which we refer to as the \newterm{global Hessian matrix}, $H$. This is because, given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the Hessian of $F$ is positive definite~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025}. Hamilton's principle is precisely such a formulation: the residual that we want to eliminate is the gradient of the action, $R = \nabla S_d$.
 
 Given the structure of the action, its Hessian can be written in terms of second-order derivatives of the Lagrangian. That is, given the action defined as in~\eqref{eq:action-discrete} for a path $\mathbf{q}$ of length $N$
 \[ 	S_d (\mathbf{q}) : Q^{N+1} \to \RR, \qquad  S_d (\mathbf{q}) = \sum_{k=0}^{N-1} \Ld(q_k, q_{k+1})
