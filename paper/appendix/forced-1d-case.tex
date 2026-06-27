@@ -42,7 +42,14 @@ which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half
 		\tfrac{d_1 + d_2}{2} - |a| \;>\; \sqrt{\left(\tfrac{d_1 - d_2}{2}\right)^2 + s^2}.
 		\label{eq:hyp-scalar}
 	\end{equation}
-	Both sides are positive: the right-hand side is a norm, and the left-hand side because otherwise the hypothesis would be vacuous. We may therefore square, and using $(d_1+d_2)^2 - (d_1-d_2)^2 = 4 d_1 d_2$ and rearranging,~\eqref{eq:hyp-scalar} becomes
+	Both sides are positive: the right-hand side is a norm, and the left-hand side because otherwise the hypothesis would be vacuous. Before squaring, we record a bound on $|a|$ that we will need below: dropping $s^2$ under the root in~\eqref{eq:hyp-scalar} only decreases the right-hand side, so $\sqrt{\left(\tfrac{d_1-d_2}{2}\right)^2 + s^2} \geq \tfrac{|d_1-d_2|}{2}$ and therefore
+	\begin{equation}
+		\tfrac{d_1 + d_2}{2} - |a| > \tfrac{|d_1 - d_2|}{2}
+		\implies
+		|a| < \frac{(d_1 + d_2) - |d_1 - d_2|}{2} = \min(d_1, d_2) \leq \sqrt{d_1 d_2}.
+		\label{eq:hyp-scalar-amin}
+	\end{equation}
+	Squaring~\eqref{eq:hyp-scalar}, and using $(d_1+d_2)^2 - (d_1-d_2)^2 = 4 d_1 d_2$ and rearranging, it becomes
 	\begin{equation}
 		d_1 d_2 - (d_1 + d_2)|a| + a^2 \;>\; s^2.
 		\label{eq:hyp-scalar-simplified}
@@ -55,7 +62,7 @@ which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half
 		&\geq d_1 d_2 - (d_1 + d_2)|a| + a^2 \\
 		& > s^2.
 	\end{align*}
-	The positivity of the left-hand side of~\eqref{eq:hyp-scalar} forces (again by AM-GM) $\sqrt{d_1 d_2} > |a|$, so we may take positive square roots to obtain $\sqrt{d_1 d_2} - |a| > |s|$, that is, $\sqrt{d_1 d_2} > |s| + |a|$. Therefore
+	By~\eqref{eq:hyp-scalar-amin} we have $\sqrt{d_1 d_2} > |a|$, so we may take positive square roots to obtain $\sqrt{d_1 d_2} - |a| > |s|$, that is, $\sqrt{d_1 d_2} > |s| + |a|$. Therefore
 	\begin{align*}
 		|c^+ c^-| 
 		&= |s^2 - a^2| \\
@@ -66,4 +73,4 @@ which confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half
 	which gives ${\rho(J^f)}^2 = |c^+ c^-|/(d_1 d_2) < 1$, as required.
 \end{proof}
 
-The argument uses the scalar block structure in three essential ways: that $c^+ c^- = s^2 - a^2$ is a single number, that AM-GM applies to the pair $(d_1, d_2)$, and that there is a closed-form formula for $\lambda_{\min}(\Sym(H^f))$. None of these survive when increasing to $n > 1$ blocks without additional assumptions, which is why the general conjecture remains open and why in \cref{sec:forced-local-condition} we settle instead for the stronger per-edge dominance condition of \cref{thm:forced-local-dominance}.
+When the entries are blocks rather than scalars, the argument breaks down. The product $c^+ c^-$ becomes a product of matrices which is non-commuting, so it no longer reduces to the single number $s^2 - a^2$ and $\rho(J^f)$ is no longer controlled by it directly; the AM-GM step has no matrix analogue valid in this generality; and there is no closed-form for $\lambda_{\min}(\Sym(H^f))$ to turn the hypothesis into a usable scalar inequality. This is why the general conjecture remains open and why in \cref{sec:forced-local-condition} we settle instead for the stronger per-edge dominance condition of \cref{thm:forced-local-dominance}.
