@@ -352,15 +352,13 @@ where $J^0$ and $D_0^{-1}$ are the Jacobi matrix and inverse diagonal of the unf
 
 \Cref{fig:forced-perturbation-bound} compares this bound against the true convergence threshold as the step size is refined. We see that the two diverge as $h \to 0$, with the guaranteed $\gamma$ decreasing at order $h$ while the actual threshold grows at order $1/h$ (so the true limit would only be reached if $\gamma h$ was of order one).
 
-The discrepancy has two sources. Firstly, the bound decreases because the numerator scales like $1 - \|J\| = 1 - \cos(\pi/N) \sim \tfrac{1}{2}(\pi/N)^2 \sim h^2$ while the denominator only scales like $\|D^{-1}\| \sim h/2$, giving an overall $\varepsilon \sim h$.
-
-But more fundamentally, the bound is norm-based and cannot see a near-cancellation in how the damping actually moves the spectrum. $H^f$ is Toeplitz and $J^f$ has diagonal $\hat{\mathcal{D}} = 2/h - \omega^2 h$ (independent of $\gamma$), and off-diagonals $-\hat{\mathcal{C}}^\pm/\hat{\mathcal{D}}$, whose eigenvalues are
+Fundamentally, this discrepancy is due to the lemma bounding $\|J^f\| \leq \|J\| + \|J^f - J\|$ and treating $\hat{\mathcal{C}}^+$ and $\hat{\mathcal{C}}^-$ independently: $\Delta\hat{\mathcal{C}}^+ = -\gamma/2$ and $\Delta\hat{\mathcal{C}}^- = +\gamma/2$, so each contributes $\gamma/2$ of norm to $\|J^f - J\|$, giving a total first-order cost $\|J^f - J\| \sim \gamma h$. For this oscillator the unforced iteration has $\|J\| = \cos(\pi/N)$ (the $\gamma \to 0$ limit of $\rho(J^f)$ below), so the contraction margin is $1 - \|J\| = 1 - \cos(\pi/N) \approx \tfrac{\pi^2}{2N^2} = \tfrac{\pi^2 h^2}{2T^2} = O(h^2)$. With this $O(h^2)$ margin, $\|J^f - J\| \leq 1 - \|J\|$ forces $\gamma h \lesssim h^2$, i.e.\ $\gamma \lesssim h$. But, in reality, the two contributions cancel at first order. The eigenvalues of $J^f$ depend on the \emph{product} of the off-diagonal blocks:
 \[
-	\lambda_j = \frac{2\cos(j\pi/N)}{\hat{\mathcal{D}}}\sqrt{\hat{\mathcal{C}}^+\hat{\mathcal{C}}^-}
-	= \cos\frac{j\pi}{N}\,\frac{\sqrt{1 - \gamma^2 h^2/4}}{1 - \omega^2 h^2/2},
-	\qquad j = 1, \dots, N-1,
+	\sqrt{\hat{\mathcal{C}}^+\hat{\mathcal{C}}^-}
+	= \sqrt{\Bigl(\tfrac{1}{h}+\tfrac{\gamma}{2}\Bigr)\Bigl(\tfrac{1}{h}-\tfrac{\gamma}{2}\Bigr)}
+	= \tfrac{1}{h}\sqrt{1-\tfrac{\gamma^2h^2}{4}},
 \]
-so that $\rho(J^f) \approx \cos(\pi/N) \sqrt{1 - \gamma^2 h^2/4}$. The spectral radius depends on the damping only through $\gamma h$ at second order. For $\gamma h < 2$ it even \emph{decreases}, and it only climbs past $1$ on the sign change at $\gamma h = 2$, after which $\rho(J^f) \approx \cos(\pi/N)\sqrt{\gamma^2 h^2/4 - 1}$ grows and crosses $1$ near $\gamma h \approx 2\sqrt{2}$, giving the true threshold growth $\gamma \sim 1/h$. The norm bound, in contrast, must fit a linear penalty $\|J^f - J\| \sim \gamma h$ inside the small margin $1 - \|J\| \sim h^2$, forcing $\gamma \lesssim h$. That is, measured in units of $\gamma h$, the bound has an $O(h^2)$ margin it ``spends against'' while in reality there is an $O(1)$ margin available. This gives an $\sim N^2$ divergence between predicted and actual, which we observe in \cref{fig:forced-perturbation-bound}.
+so the $\pm\gamma/2$ shifts cancel and $\gamma$ enters only at second order. The spectral radius is then $\rho(J^f) \approx \cos(\pi/N)\sqrt{1-\gamma^2h^2/4}$, which only crosses $1$ near $\gamma h \approx 2\sqrt{2}$, giving the true threshold $\gamma \sim 1/h$, and hence the $\sim N^2$ divergence in \cref{fig:forced-perturbation-bound}.
 
 
 \tocless\subsection{Parachutist in turbulent wind}\label{ex:parachutist}
