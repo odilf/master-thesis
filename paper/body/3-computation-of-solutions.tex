@@ -46,7 +46,7 @@ In the Euler-Lagrange derivation, integration by parts~\eqref{eq:el-parts} leave
 \]
 is non-degenerate and closed, making it a symplectic form on $TQ$. The EL flow preserves this symplectic form $\omega_L$, in the sense that $F_t^* \omega_L = \omega_L$ for all $t$~\cite[\S1.2.3]{marsdenDiscreteMechanicsVariational2001}. This makes the EL flow \newterm{symplectic} (with respect to $\omega_L$).
 
-Symplecticity of a flow implies that it is (locally) the flow of some Hamiltonian function $H$, and that that function is exactly preserved along the flow~\cite{marsdenIntroductionMechanicsSymmetry1999}. Additionally, symplectic flow also implies \newterm{Liouville's theorem}, which states that the EL flow preserves phase space volume. In particular, no region of phase space contracts or expands, so there are no attractors or sinks in the dynamics.
+Symplecticity of a flow implies that it is (locally) the flow of some Hamiltonian function $H$, and that function is exactly preserved along the flow~\cite{marsdenIntroductionMechanicsSymmetry1999}. Additionally, symplectic flow also implies \newterm{Liouville's theorem}, which states that the EL flow preserves phase space volume. In particular, no region of phase space contracts or expands, so there are no attractors or sinks in the dynamics.
 
 \section{Pitfalls of discretizing the equations of motion}\label{sec:pitfalls-discrete-el-ode}
 
@@ -61,7 +61,7 @@ In short, naive integration produces long-term behavior that is qualitatively un
 
 \section{Variational integration}\label{sec:variational-integration}
 
-It is possible to discretize the variational principle itself \cref{def:hamiltons-principle}, rather than the resulting equations of motion. The discrete flow then inherits, by construction, a discrete analog of each of the geometric properties of \cref{sec:geometric-properties-el}.
+It is possible to discretize the variational principle itself (\cref{def:hamiltons-principle}), rather than the resulting equations of motion. The discrete flow then inherits, by construction, a discrete analog of each of the geometric properties of \cref{sec:geometric-properties-el}.
 
 \bigskip
 
@@ -163,8 +163,10 @@ It is equation~\eqref{eq:jacobi-newton} which is computable using any linear sol
 The convergence of the method (both in the standard case as well in the forced and Lie group cases) is mainly related to the Hessian of the action, which we refer to as the \newterm{global Hessian matrix}, $H$. This is because, given a problem in the form $\nabla F = 0$, the Jacobi-Newton method converges locally if the Hessian of $F$ is positive definite~\cite[Prop. 4.5]{ferraroParallelIterativeMethod2025}. Hamilton's principle is precisely such a formulation: the residual that we want to eliminate is the gradient of the action, $R = \nabla S_d$.
 
 Given the structure of the action, its Hessian can be written in terms of second-order derivatives of the Lagrangian. That is, given the action defined as in~\eqref{eq:action-discrete} for a path $\mathbf{q}$ of length $N$
-\[ 	S_d (\mathbf{q}) : Q^{N+1} \to \RR, \qquad  S_d (\mathbf{q}) = \sum_{k=0}^{N-1} \Ld(q_k, q_{k+1})
-\]
+\begin{align*}
+    S_d & : Q^{N+1} \to \RR \\ 
+    S_d (\mathbf{q}) & = \sum_{k=0}^{N-1} \Ld(q_k, q_{k+1})
+\end{align*}
 the derivative with respect to the $i$-th component is, as usual,
 \begin{align*}
 	\partial_{q_i} S_d (\mathbf{q}) & = \partial_{q_i} \sum_{k=0}^{N-1} \Ld(q_k, q_{k+1})           \\

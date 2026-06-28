@@ -61,7 +61,7 @@ In coordinates, given $f : U \to \RR$, if $\omega = f \, \odif{x^{i_1}} \wedge \
 \newpage % I think it looks nice to separate them, right now there is very little space left.
 \section{Physical systems, configuration space and Lagrangians}\label{sec:physical-systems-lagrangians}
 
-A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this thesis, we focus largely on the Lagrangian approach, where physical states are elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
+A physical system can be framed using either Hamiltonian or Lagrangian mechanics. In this thesis, we focus largely on the Lagrangian approach, where physical systems are described by elements of some \newterm{configuration space} $Q$, which has to be a smooth manifold; and a \newterm{Lagrangian} $L: TQ \to \RR$.
 
 \paragraph{Configuration space}
 Even though essentially all physical models try to model reality, which ultimately lives in $\RR^3$, the state space need not be $\RR^3$ or even a vector space at all. Using manifolds that have some geometric structure can encode constraints directly in the description of the system (such as rigid motions), making it impossible by construction to have physically unrealizable states. That is, the geometry of the manifold can encode constraints about periodicity, topology or other types of global constraints.
@@ -92,7 +92,7 @@ This is the standard Lagrangian formulation, that describes closed systems. In p
 	\item \newterm{Time-dependent Lagrangians}, $L : \RR \times TQ \to \RR$, depend explicitly on a time parameter. This models a system whose effective laws of physics change over time, typically because it is coupled to an external influence that varies with time. Hamilton's principle applies but energy is no longer conserved.
 	\item \newterm{Forced systems} are one of the main topics of this thesis (\cref{sec:forced-systems}). They have some forcing applied (such as dissipation) and follow the Lagrange-d'Alembert principle (\cref{def:lagrange-dalembert}).
 	\item \newterm{Constrained} systems restrict the admissible configurations or velocities to a submanifold of $TQ$. Classic examples include the rigid links of a robotic arm (holonomic constraints) or rolling contact of a wheel on a surface (nonholonomic constraints).
-	\item \newterm{Higher-order} Lagrangians depend on higher derivatives of $q$, e.g. $L(q, \dot{q}, \ddot{q})$. In principle, the results of this thesis are able to be carried over automatically to Lagrangians of arbitrary order~\cite{ferraroParallelIterativeMethod2025, gay-balmazInvariantHigherorderVariational2012}.
+	\item \newterm{Higher-order} Lagrangians depend on higher derivatives of $q$, e.g. $L(q, \dot{q}, \ddot{q})$. In principle, the results of this thesis are able to be carried over automatically to Lagrangians of arbitrary order~\cite[\S2.2]{ferraroParallelIterativeMethod2025}\cite[\S2]{gay-balmazInvariantHigherorderVariational2012}.
 \end{itemize}
 
 \subsection{The Euler-Lagrange equations}

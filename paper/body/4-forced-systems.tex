@@ -14,7 +14,7 @@ As in the unforced case, it is possible to carry out a discretization of the sta
 The discretization of the force is similar to the one of the Lagrangian, except that the force $f : TQ \to T^*Q$ is mapped to a \emph{pair} of discrete forces $f^\pm_d : Q \times Q \to T^*Q$ (where $f^-$ is fibre-preserving with respect to the first  argument, that is, $\hbox{pr}_1=\pi_Q \circ f_d^-$; and $f^+$ with the second, $\hbox{pr}_2=\pi_Q \circ f_d^+$)~\cite[\S3.2.1]{marsdenDiscreteMechanicsVariational2001}.
 
 \begin{definition}[Discrete Lagrange-d'Alembert principle {\cite[Def.~4.2.2]{satomartindealmagroDiscreteMechanicsForced2020}}]\label{def:lagrange-dalembert}
-	A path $\mathbf{q}$ is physical if and only if, for all virtual displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
+	A path $\mathbf{q}$ is physical if and only if, for all displacements ${\{\delta q_k\}}_{k=1}^{N-1}$ with $\delta q_0 = \delta q_N = 0$,
 	\begin{equation*}
 		\sum_{k=1}^{N-1} \Bigl( \mdif{2} \Ld(q_{k-1}, q_k) + f_d^+(q_{k-1}, q_k) + \mdif{1} \Ld(q_k, q_{k+1}) + f_d^-(q_k, q_{k+1}) \Bigr) \cdot \delta q_k = 0.
 	\end{equation*}
@@ -249,7 +249,7 @@ The following theorem states in a rigorous and quantitative manner the intuitive
 	Each $A \mapsto \|A^k\|^{1/k}$ is continuous in $A$, and an infimum of continuous functions is upper semicontinuous. Concretely, for any matrix $A_0$ and any $\eta > \rho(A_0)$, there is a neighborhood of $A_0$ (in $M_n(\RR)$) where $\rho(A) < \eta$.
 
 
-	Combining these two observations, since $\rho(J) < 1$, there is some $\eta$ with $\rho(J) < \eta < 1$. Upper semicontinuity applied at $A_0 = J$ gives a neighborhood $U \subset M_n(\RR)$ of $J$ on which $\rho(A) < \eta$. By continuity of $\Delta F \mapsto J^f$, the preimage $V' = (J^f)^{-1}(U)$ is open in perturbation-space and contains $\Delta F = 0$. Invertibility of $D + \Delta D$ holds on the open set $V'' = \{\|\Delta F\|_2 < \|D^{-1}\|_2^{-1}\}$, also a neighborhood of $\Delta F = 0$. Their intersection $V = V' \cap V''$ is therefore an open neighborhood of $\Delta F = 0$ on which both $J^f \in U$ and $D + \Delta D$ is invertible. Since $V$ is open and contains $0$, it contains an open ball of some radius $\varepsilon > 0$ around $0$, so $\|\Delta F\|_2 < \varepsilon$ implies
+	Combining these two observations, since $\rho(J) < 1$, there is some $\eta$ with $\rho(J) < \eta < 1$. Upper semicontinuity applied at $A_0 = J$ gives a neighborhood $U \subset M_n(\RR)$ of $J$ on which $\rho(A) < \eta$. By continuity of $\Delta F \mapsto J^f$, the preimage $V' = (J^f)^{-1}(U)$ is open in perturbation-space and contains $\Delta F = 0$. Invertibility of $D + \Delta D$ holds on the open set $V'' = \{ \Delta F : \|\Delta F\|_2 < \|D^{-1}\|_2^{-1}\}$, also a neighborhood of $\Delta F = 0$. Their intersection $V = V' \cap V''$ is therefore an open neighborhood of $\Delta F = 0$ on which both $J^f \in U$ and $D + \Delta D$ is invertible. Since $V$ is open and contains $0$, it contains an open ball of some radius $\varepsilon > 0$ around $0$, so $\|\Delta F\|_2 < \varepsilon$ implies
 	\[
 		\rho(J^f) < \eta < 1 \quad\text{and}\quad D + \Delta D \text{ is invertible.}
 	\]
@@ -257,7 +257,7 @@ The following theorem states in a rigorous and quantitative manner the intuitive
 
 \end{proof}
 
-In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exists. In the following lemma, we find an explicit computation, under the mild additional assumption that $\|J\| < 1$ holds in some submultiplicative matrix norm (i.e., a norm such that $\|A B\| \leq \|A\| \|B\|$). This condition is stricter than $\rho(J) < 1$, but is typically satisfied for stable variational integrators.
+In~\cref{thm:forced-perturbation} we only prove that such an $\varepsilon$ exists. In the following lemma, we find an explicit computation, under the mild additional assumption that $\|J\| < 1$ holds in some submultiplicative matrix norm (i.e., a norm such that $\|A B\| \leq \|A\| \|B\|$). 
 
 \begin{lemma}[Explicit perturbation bound]\label{lem:forced-perturbation-explicit}
 	Assume the hypotheses of \cref{thm:forced-perturbation}, and further that $\|J\| < 1$ in a submultiplicative norm $\|\cdot\|$ in which the block-diagonal projection is contractive (e.g.\ the spectral norm). Then the conclusion of the theorem holds with
@@ -307,7 +307,7 @@ In practice, however, this guarantee is pessimistic, and (somewhat counterintuit
 		\item $\|J\|_2$ via power iteration on $J^T J$: $\mathcal{O}(k N n^2)$ for $k$ iterations.
 		\item $\|\Delta F\|_2$ at the chosen point: same cost as $\|J\|_2$, $\mathcal{O}(k N n^2)$.
 	\end{itemize}
-	The dominant cost is therefore $\mathcal{O}(k N n^2)$ (since usually $k \gtrsim n$). I.e., linear in path size, which makes it practical.
+	The dominant cost is therefore $\mathcal{O}(k N n^2)$ (since usually $k \gtrsim n$). I.e., linear in path size, which makes it practical in terms of computation.
 \end{remark}
 
 \section{Examples}\label{sec:forced-examples}
@@ -345,7 +345,7 @@ Comparing with the unforced blocks $\mathcal{A}_k = \mathcal{B}_k = \frac{1}{h} 
 	\Delta\hat{\mathcal{D}}_k = \mdif{2} f_d^+(q_{k-1}, q_k) + \mdif{1} f_d^-(q_k, q_{k+1})
 	= -\frac{\gamma}{2} + \frac{\gamma}{2} = 0.
 \]
-That is, the midpoint quadrature leaves the diagonal blocks of $H^f$ unchanged relative to the unforced system and the damping force enters $H^f$ only through the off-diagonal blocks,
+That is, the trapezoidal quadrature leaves the diagonal blocks of $H^f$ unchanged relative to the unforced system and the damping force enters $H^f$ only through the off-diagonal blocks,
 \[
 	\Delta\hat{\mathcal{C}}^+_k = -\frac{\gamma}{2}, \qquad \Delta\hat{\mathcal{C}}^-_k = \frac{\gamma}{2}.
 \]
@@ -385,11 +385,11 @@ so that $\rho(J^f) \approx \cos(\pi/N) \sqrt{1 - \gamma^2 h^2/4}$. The spectral 
 
 A parachutist wants to jump from a helicopter at some position $(x_0, y_0)$ and reach a target point on the ground $(x_T, 0)$ at some time $T$ by letting themselves be carried by the wind, which is given as some vector field $W(x, y) = (w_x, w_y)$.
 
-This problem can be modelled with the Lagrangian
+This problem can be modeled with the Lagrangian
 \[
 	L(x, y, \dot{x}, \dot{y})=\frac{m}{2}(\dot{x}^2+\dot{y}^2)-m g y
 \]
-where $g$ is the gravitational acceleration and $m$ is the diver's mass. Furthermore, the parachutist feels some drag, which is modelled as an external force:
+where $g$ is the gravitational acceleration and $m$ is the diver's mass. Furthermore, the parachutist feels some drag, which is modeled as an external force:
 \begin{align*}
 	(F_x, F_y)=(-k(\dot{x}-w_x(x, y)), -k(\dot{y}-w_y(x, y))),
 \end{align*}

@@ -13,11 +13,11 @@ The Jacobi step of the parallel algorithm, written for an interior node $k$ and 
 \[
 	r_k(\mathbf{g}, \overline{g}_k) = \mdif{2} \Ld(g_{k-1}, \overline{g}_k) + \mdif{1} \Ld(\overline{g}_k, g_{k+1}) = 0.
 \]
-In this setting, taking the derivative with $g_{k\pm1}$ fixed entails going from the two partially-applied Lagrangians $L_d^-(\cdot) = \Ld(g_{k-1}, \cdot)$ and $L_d^+(\cdot) = \Ld(\cdot, g_{k+1})$, each a map $G \to \RR$, to $T_{\overline{g}_k} G \to T_{L_d^\pm (\overline{g}_k)} \RR$, and using the fact that every tangent space of $\RR$ is isomorphic to $\RR$, this becomes a sum in $T_{\overline{g}_k}^* G$. This forms a vector space so this step is well-defined.
+In this setting, taking the derivative with $g_{k\pm1}$ fixed entails going from the two partially-applied Lagrangians $L_d^-(\cdot) = \Ld(g_{k-1}, \cdot)$ and $L_d^+(\cdot) = \Ld(\cdot, g_{k+1})$, each a map $G \to \RR$, to $T_{\overline{g}_k} G \to T_{L_d^\pm (\overline{g}_k)} \RR$, and using the fact that every tangent space of $\RR$ is canonically isomorphic to $\RR$, this becomes a sum in $T_{\overline{g}_k}^* G$. This forms a vector space so this step is well-defined.
 
 What does fail is the Newton update~\eqref{eq:jacobi-newton}:
 \[ \overline{q} = q_k - \left(\mdif{2} r_k(\mathbf{q}, q_k)\right)^{-1}\, r_k(\mathbf{q}, q_k), \]
-because this uses subtraction in a space $Q$ where no canonical subtraction is available.
+because this uses subtraction in a space $G$ where no canonical subtraction is available.
 
 One solution to this is working on the corresponding \newterm{Lie algebra}.
 The Lie algebra $\fg = T_e G$ is the tangent space at the identity, forming a vector space of the same dimension as $G$.
@@ -202,7 +202,7 @@ To apply classical fixed-point theory, we move $T$ to the Lie algebra chart base
 	\Psi                  & : V \subset \fg^{N-1} \to U \subset G^{N-1}             \\
 	\Psi(\boldsymbol \xi) & = (g_1^*\tau(\xi_1), \ldots, g_{N-1}^*\tau(\xi_{N-1})),
 \end{align*}
-defined on a neighborhood $V$ of $0$ where $\tau$ is a local diffeomorphism on $\fg$ (note that this lifting is different from the use of the Lie algebra we do inside the update step itself represented by $T$).
+defined on a neighborhood $V$ of $0$ where $\tau$ is a local diffeomorphism on $\fg$.
 The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \Psi : V \to \fg^{N-1}$, satisfying $\widetilde{T}(0) = 0$.
 
 \begin{lemma}[Derivative of the perturbation iteration]\label{lem:chart-iteration-jacobian}
@@ -251,7 +251,7 @@ The perturbation is then updated with $\widetilde{T} = \Psi^{-1} \circ T \circ \
 		\pdv{\widetilde{r}_k}!{\xi_j}_0 = (T_e L_{g_k^*})^*\, \pdv{r_k}!{\xi_j}_0.
 	\]
 
-	We can now identify this expression with the gradient~\eqref{eq:lie-gradient-general}, which has a similar form $\pdv{\Sigma}!{\xi_k}(\boldsymbol\xi) = \Phi_k(\xi_k)^*\, r_k$, but with the chart frame $\Phi_k$ in place of the left translation. Its derivative has again the pattern of a term $\Phi_k(0) = T_e L_{g_k^*}$ multiplied by the derivative of the residual, and a variation term weighted by $r_k(\mathbf{g}^*, g_k^*) = 0$ that dissappears. This leaves us with the same expression as above. That is,
+	We can now identify this expression with the gradient~\eqref{eq:lie-gradient-general}, which has a similar form $\pdv{\Sigma}!{\xi_k}(\boldsymbol\xi) = \Phi_k(\xi_k)^*\, r_k$, but with the chart frame $\Phi_k$ in place of the left translation. Its derivative has again the pattern of a term $\Phi_k(0) = T_e L_{g_k^*}$ multiplied by the derivative of the residual, and a variation term weighted by $r_k(\mathbf{g}^*, g_k^*) = 0$ that disappears. This leaves us with the same expression as above. That is,
 	\[
 		\pdv{\widetilde{r}_k}!{\xi_j}_0 = \pdv{\Sigma}!{\xi_j, \xi_k}(0) = \widetilde{H}_{kj},
 	\]
@@ -387,7 +387,7 @@ The resulting trajectory of a prism-like satellite under interesting conditions 
 		\includegraphics[width=\textwidth]{satellite-top.png}
 		\caption{Top view.}\label{fig:satellite-top}
 	\end{subfigure}
-	\caption{Satellite physical simulation. Satellite starts at lower $z$ needs to reach the position and orientation at higher $z$. Blue prism indicates evenly spaced snapshots of the satellite's position and orientation. Green path indicates positional trajectory, fainter green paths indicate intermediate solver iterations. Circles indicate celestial bodies that affect the satellite, size indicating pulling strength (i.e., mass).}\label{fig:satellite}
+	\caption{Satellite physical simulation. Satellite starts at lower $z$ needs to reach the position and orientation at higher $z$. Prisms indicate evenly spaced snapshots of the satellite's position and orientation. Green path indicates positional trajectory, fainter green paths indicate intermediate solver iterations. Circles indicate celestial bodies that affect the satellite, size indicating pulling strength (i.e., mass).}\label{fig:satellite}
 \end{figure}
 
 We see in the front view (\cref{fig:satellite-front}) that even though the satellite only has to increase its height by a small amount, the physical trajectory needs to take a detour and make a bigger arc movement. The simulation shows us that a direct approach does not seem to allow reaching the final desired orientation, as the pull from the two bodies would rotate the satellite. In fact, in the top view (\cref{fig:satellite-top}) we can see that the path taken in the end does a smooth approach from above, where the pull from both bodies seems to be balanced in such a way that the satellite can rendezvous with the target orientation.
