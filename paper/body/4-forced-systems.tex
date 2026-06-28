@@ -128,27 +128,24 @@ The new error at $k$ is thus the neighbor errors fed through $-\hat{\mathcal{D}}
 
 Crucially, when $\hat{\mathcal{D}}_k$ is ``large enough'' to dominate $\hat{\mathcal{C}}^\pm$, these gains have norm $<1$: $\hat{\mathcal{D}}_k^{-1}$ attenuates the incoming error, the global error contracts at every step, and $\rho(J^f) < 1$.
 
-Of course, the question is how to make ``large enough'' precise. An approach that seems like it would work is to ask whether $\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2$ (this confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half-plane and is another natural generalization of $M \succ 0$ to a non-symmetric setting). This is provable in the scalar $n = 1$, $N = 3$ case (see \cref{apx:conjecture-scalar}) but open in the general block case. What we can prove is a stronger condition \emph{per edge}: ask the symmetric part of each diagonal sub-block of $H_k^f$ to strictly dominate the corresponding cross sub-block in spectral norm. This way, we arrive at the following theorem.
+Of course, the question is how to make ``large enough'' precise. An approach that seems like it would work is to ask whether $\lambda_{\min}(\Sym(H^f)) > \|\Skew(H^f)\|_2$ (this confines the eigenvalues of $H^f$ to a $45^\circ$ sector in the right half-plane and is another natural generalization of $M \succ 0$ to a non-symmetric setting). This is provable in the scalar $n = 1$, $N = 3$ case (see \cref{apx:conjecture-scalar}) but open in the general block case. What we can prove is a stronger condition \emph{per node}: ask the symmetric part of each diagonal sub-block of $H_k^f$ to strictly dominate the corresponding cross sub-block in spectral norm. This way, we arrive at the following theorem.
 
 \begin{theorem}[Local edge dominance implies convergence]\label{thm:forced-local-dominance}
-	Suppose that, at $\mathbf{q}^*$,
+	Suppose that, at $\mathbf{q}^*$, for $k = 1, 2, \ldots, N-1$,
 	\begin{equation}
-		\begin{aligned}
-			\lambda_{\min}(\Sym(\hat{\mathcal{A}}_k)) & > \|\hat{\mathcal{C}}^+_k\|_2  \qquad  \text{for } & k \in \{1, 2, \ldots, N-1\}  \\
-			\lambda_{\min}(\Sym(\hat{\mathcal{B}}_k)) & > \|\hat{\mathcal{C}}^-_k\|_2 \qquad   \text{for } & k \in \{0, 1, \ldots, N-2\},
-		\end{aligned}
+		\lambda_{\min}(\Sym(\hat{\mathcal{D}}_k)) > 
+        \|\hat{\mathcal{C}}^+_k\|_2 +
+        \|\hat{\mathcal{C}}^-_{k-1}\|_2,
 		\label{eq:local-edge-dominance}
 	\end{equation}
 	with the boundary convention $\hat{\mathcal{C}}^+_{N-1} = \hat{\mathcal{C}}^-_0 = 0$ (these blocks do not appear in $H^f$). Then each diagonal block $\hat{\mathcal{D}}_j$ is invertible, $\rho(J^f(\mathbf{q}^*)) < 1$, and the forced Jacobi-Newton method converges locally to $\mathbf{q}^*$.
 \end{theorem}
 \begin{proof}
-	Recall that $\hat{\mathcal{D}}_j = \hat{\mathcal{A}}_j + \hat{\mathcal{B}}_{j-1}$. Since taking $\Sym$ is linear, we also have that $\Sym(\hat{\mathcal{D}}_j) = \Sym(\hat{\mathcal{A}}_j) + \Sym(\hat{\mathcal{B}}_{j-1})$.
-	By Weyl's inequality and then by hypothesis:
+	By hypothesis:
 	\begin{align*}
-		\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))
-		 & \geq \lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1})) \\
-		 & > \|\hat{\mathcal{C}}^+_j\|_2 + \|\hat{\mathcal{C}}^-_{j-1}\|_2                                \\
-		 & \geq 0,
+		\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j)) 
+        > \|\hat{\mathcal{C}}^+_j\|_2 + \|\hat{\mathcal{C}}^-_{j-1}\|_2
+		  \geq 0,
 	\end{align*}
 	so $\Sym(\hat{\mathcal{D}}_j) \succ 0$. Then, for any $v \neq 0$, Cauchy-Schwarz gives $\|\hat{\mathcal{D}}_j v\|_2 \|v\|_2 \geq v^T \hat{\mathcal{D}}_j v = v^T \Sym(\hat{\mathcal{D}}_j) v \geq \lambda_{\min}(\Sym(\hat{\mathcal{D}}_j)) \|v\|_2^2$, hence $\hat{\mathcal{D}}_j$ is invertible with
 	\begin{equation}
@@ -172,42 +169,27 @@ Of course, the question is how to make ``large enough'' precise. An approach tha
 
 	Therefore, bounding $\|(J^f x)_j\|_2$ by a multiple of $\|x\|_{\infty,2}$ bounds $\rho(J^f)$ by the same constant. Each block of $J^f x$ has form
 	\[ (J^f x)_j = -\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1} x_{j-1} - \hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j x_{j+1}, \]
-	and submultiplicativity of the spectral norm together with~\eqref{eq:diag-block-inv-bound} and Weyl's inequality give
+	and submultiplicativity of the spectral norm together with~\eqref{eq:diag-block-inv-bound} give
 	\begin{align*}
 		\|(J^f x)_j\|_2
 		 & \leq \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 \|x_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2 \|x_{j+1}\|_2                                        \\
 		 & \leq \left(\|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1} \hat{\mathcal{C}}^+_j\|_2\right) \|x\|_{\infty, 2}                                     \\
 		 & \leq \left(\|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{D}}_j^{-1}\|_2\|\hat{\mathcal{C}}^+_j\|_2\right) \|x\|_{\infty, 2}                           \\
-		 & \leq \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))} \|x\|_{\infty, 2}                                                  \\
-		 & \leq \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \|x\|_{\infty, 2}.
+		 & \leq \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))} \|x\|_{\infty, 2}.
 	\end{align*}
-	By~\eqref{eq:local-edge-dominance} applied at edges $j$ and $j - 1$, the fraction is strictly less than $1$. Taking $\max_j$,
+	By~\eqref{eq:local-edge-dominance}, the fraction is strictly less than $1$. Taking $\max_j$,
 	\[
-		\rho(J^f) \;\leq\; \|J^f\|_{\infty, 2} \;\leq\; \max_j \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{A}}_j)) + \lambda_{\min}(\Sym(\hat{\mathcal{B}}_{j-1}))} \;<\; 1.
+		\rho(J^f) \;\leq\; \|J^f\|_{\infty, 2} \;\leq\; \max_j \frac{\|\hat{\mathcal{C}}^-_{j-1}\|_2 + \|\hat{\mathcal{C}}^+_j\|_2}{\lambda_{\min}(\Sym(\hat{\mathcal{D}}_j))} \;<\; 1.
 	\]
 	Invertibility of every $\hat{\mathcal{D}}_j$ and $\rho(J^f) < 1$ are exactly the hypotheses of~\cref{lem:jacobi-newton-convergence}, which gives local convergence of the forced Jacobi-Newton method to $\mathbf{q}^*$.
 \end{proof}
 
-\begin{remark}[Reduction to the unforced case]\label{rem:forced-local-recovery}
-	When $f_d^\pm = 0$, the forced blocks reduce to
-	\begin{align*}
-		\hat{\mathcal{A}}_k = \mdif{11}\Ld(q_k, q_{k+1}),\quad
-		 & \hat{\mathcal{C}}^+_k = \mdif{12}\Ld(q_k, q_{k+1}),\quad \\
-		\hat{\mathcal{B}}_k = \mdif{22}\Ld(q_k, q_{k+1}),\quad
-		 & \hat{\mathcal{C}}^-_k = (\hat{\mathcal{C}}^+_k)^T.
-	\end{align*}
-	All four are symmetric or transposes of each other, so $\Sym(\hat{\mathcal{A}}_k) = \hat{\mathcal{A}}_k$, $\Sym(\hat{\mathcal{B}}_k) = \hat{\mathcal{B}}_k$, and $\|\hat{\mathcal{C}}^+_k\|_2 = \|\hat{\mathcal{C}}^-_k\|_2$. The two inequalities of~\eqref{eq:local-edge-dominance} therefore collapse to the single per-edge condition
-	\[
-		\min\!\left(\lambda_{\min}(\mdif{11}\Ld),\, \lambda_{\min}(\mdif{22}\Ld)\right) > \|\mdif{12}\Ld\|_2,
-	\]
-	which is exactly the diagonal-block dominance condition on the unforced local Hessian $H_k$: each diagonal block must dominate the off-diagonal coupling in spectral norm, which in particular implies $H_k \succ 0$ and recovers the convergence criterion of \cref{thm:local-hessian-pd-convergence}.
-\end{remark}
 
 \begin{remark}[Time complexity]\label{rem:forced-local-complexity}
-	Checking~\eqref{eq:local-edge-dominance} reduces to two smallest\Hyphdash{eigenvalue} computations on $\Sym(\hat{\mathcal{A}}_k)$ and $\Sym(\hat{\mathcal{B}}_k)$, $\mathcal{O}(n^3)$ each, and two spectral-norm computations on $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_k$ ($\mathcal{O}(n^3)$ each via SVD, cheaper via power iteration). Total cost is $\mathcal{O}(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section. 
+	Checking~\eqref{eq:local-edge-dominance} reduces to a smallest\Hyphdash{eigenvalue} computation on $\Sym(\hat{\mathcal{D}}_k)$ of runtime $\mathcal{O}(n^3)$, and two spectral-norm computations on $\hat{\mathcal{C}}^+_k$ and $\hat{\mathcal{C}}^-_k$ ($\mathcal{O}(n^3)$ each via SVD, cheaper via power iteration). Total cost is $\mathcal{O}(N n^3)$, of the same order as the unforced check and as the power-iteration estimate of $\rho(J^f)$ discussed at the start of the section. 
 \end{remark}
 
-The problem with this result is that it is very restrictive, so many convergent systems do not pass this criterion. This, together with the fact that it is not significantly cheaper than checking the spectral radius of $J^f$, makes this condition impractical to use. This result is provided as more of a theoretical result that matches \cref{thm:local-hessian-pd-convergence}, and its use is in demonstrating ideas to bound the spectral radius, that hopefully can be built upon in the future.
+The problem with this result is that it is very restrictive, in the sense that many convergent systems do not pass this criterion. This, together with the fact that it is not significantly cheaper than checking the spectral radius of $J^f$, makes this condition impractical to use. This result is provided as more of a theoretical result that matches \cref{thm:local-hessian-pd-convergence}, and its use is in demonstrating ideas to bound the spectral radius, that hopefully can be built upon in the future.
 
 \subsection{A perturbation condition}
 
