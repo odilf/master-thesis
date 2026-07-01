@@ -3,3 +3,5 @@ CLAUDE.md
 videos/
 slides/
 __pycache__/
+*.egg-info
+latex_cache/

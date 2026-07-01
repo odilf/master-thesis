@@ -4,3 +4,6 @@
 # prose exactly. It's registered from the Nix store in main.py (register_font).
 text:
   font: "TeX Gyre Termes"
+
+window:
+  position_string: UR

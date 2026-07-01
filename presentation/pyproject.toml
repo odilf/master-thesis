@@ -1,15 +1,25 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scenes*"]
+
 [project]
-name = "code"
+name = "presentation"
 version = "0.1.0"
-description = "Add your description here"
+description = "Master's thesis defense"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "audioop-lts>=0.2.2",
     "manim-slides[pyside6]>=5.6.0",
-    "manimgl>=1.7.2",
+    "manimgl",
     "marimo>=0.23.9",
+    "pywavefront>=1.3.3",
     "setuptools==81.0.0",
+    "trimesh>=4.12.2",
 ]
 
 [dependency-groups]
@@ -19,3 +29,17 @@ dev = [
     "ruff>=0.15.16",
     "ty>=0.0.48",
 ]
+
+[tool.uv.sources]
+manimgl = { path = "../../manim", editable = true }
+
+[tool.ruff.lint]
+ignore = [
+    "F403",  # star imports are idiomatic in manim
+    "F405",  # names from star imports can't be statically resolved
+    "F841",  # unused local vars are common in manim scene methods
+]
+
+[tool.ty.environment]
+python = ".venv"
+extra-paths = ["../../manim"]  # manimgl editable install, not followed by ty

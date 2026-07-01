@@ -1,7 +1,11 @@
-"""Make manim render in the thesis fonts. Import once per scene file (the import
-runs the setup below as a side effect): `import theme`."""
+"""Thesis fonts and topic colors. Import once per scene file: `import slides.theme`.
+
+Topic colors (consistent with the title slide highlights):
+  COLOR_LAGRANGIANS, COLOR_PARALLEL, COLOR_FORCED, COLOR_LIE_GROUPS
+"""
 
 import subprocess
+from functools import lru_cache
 from pathlib import Path
 
 import manimpango
@@ -24,9 +28,18 @@ for _style in ("regular", "bold", "italic", "bolditalic"):
 _base_get_tex_config = _tex.get_tex_config
 
 
+@lru_cache
 def _get_tex_config(template: str = "") -> tuple[str, str]:
     compiler, preamble = _base_get_tex_config(template)
     return compiler, preamble + "\n\\usepackage{newtx}"
 
 
 _tex.get_tex_config = _get_tex_config
+
+# One accent color per topic, matching the title-slide highlights.
+from manimlib import BLUE, TEAL_C, YELLOW, ORANGE  # noqa: E402
+
+COLOR_LAGRANGIANS = BLUE
+COLOR_PARALLEL = YELLOW
+COLOR_FORCED = ORANGE
+COLOR_LIE_GROUPS = TEAL_C
