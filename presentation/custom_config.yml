@@ -1,0 +1,6 @@
+# Merged over manimlib's default_config.yml (read from the cwd).
+# Default Text() font — ManimGL otherwise defaults to Consolas (monospace).
+# TeX Gyre Termes is the face newtxtext is built on, so this matches the thesis
+# prose exactly. It's registered from the Nix store in main.py (register_font).
+text:
+  font: "TeX Gyre Termes"
