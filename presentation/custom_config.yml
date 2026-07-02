@@ -7,3 +7,11 @@ text:
 
 window:
   position_string: UR
+
+camera:
+  resolution: (3840, 2160)
+  background_color: "#000000"
+  fps: 60
+  background_opacity: 1.0
+file_writer:
+  saturation: 1.5

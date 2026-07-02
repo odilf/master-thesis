@@ -1,4 +1,7 @@
 [keys.normal."space"."m"]
-o = [":clipboard-yank", ":sh ./manim-send.sh 'uv run manimgl %{file_path_absolute} -se %{cursor_line}'"]
-p = "@F#xvf#<space>y:sh ./manim-send.sh 'checkpoint_paste()'<ret>"
-s = "@F#xvf#<space>y:sh ./manim-send.sh 'checkpoint_paste(skip=True)'<ret>"
+o = [":clipboard-yank", ":pipe-to ./manim-send.sh 'uv run manimgl %{file_path_absolute} -se %{cursor_line}'"]
+p = "@F@xvf@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret>"
+s = "@F#xvf#<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret>"
+
+
+
