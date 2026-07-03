@@ -4,6 +4,7 @@
 # prose exactly. It's registered from the Nix store in main.py (register_font).
 text:
   font: "TeX Gyre Termes"
+  alignment: "CENTER"
 
 window:
   position_string: UR
@@ -20,6 +21,8 @@ vmobject:
   default_stroke_width: 4.0
   default_stroke_color: "#222222"
   default_fill_color: "#999999"
+
 mobject:
   default_mobject_color: "#000000"
   default_light_color: "#444444"
+  white: "#FF0000"

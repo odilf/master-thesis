@@ -40,6 +40,6 @@ _tex.get_tex_config = _get_tex_config
 from manimlib import *  # noqa: E402
 
 COLOR_LAGRANGIANS = BLUE_D
-COLOR_PARALLEL = RED_D
+COLOR_PARALLEL = "#84342D"
 COLOR_FORCED = GREEN_D
 COLOR_LIE_GROUPS = TEAL_D

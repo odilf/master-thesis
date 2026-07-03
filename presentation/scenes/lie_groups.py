@@ -8,5 +8,4 @@ class LieGroups(Slide):
         self.lie_groups_section()
 
     def lie_groups_section(self) -> None:
-        """Section 4: Lie groups."""
-        pass
+        self.play(Write(Text("TODO: LIE GROUPS")))

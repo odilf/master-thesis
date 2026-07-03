@@ -8,5 +8,4 @@ class Forced(Slide):
         self.forced_section()
 
     def forced_section(self) -> None:
-        """Section 3: Forced systems."""
-        pass
+        self.play(Write(Text("TODO: FORCED SYSTEMS")))

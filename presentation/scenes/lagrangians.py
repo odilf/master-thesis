@@ -12,8 +12,7 @@ class Lagrangians(InteractiveScene, Slide):
 
     def lagrangians_section(self) -> None:
         self.lagrangian_examples_and_geometry()
-
-    # self.euler_lagrange()
+        self.euler_lagrange()
 
     def lagrangian_examples_and_geometry(self) -> None:
         #  =====
