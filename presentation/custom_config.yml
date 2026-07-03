@@ -10,8 +10,16 @@ window:
 
 camera:
   resolution: (3840, 2160)
-  background_color: "#000000"
+  background_color: "#FFFFFF"
   fps: 60
   background_opacity: 1.0
 file_writer:
   saturation: 1.5
+
+vmobject:
+  default_stroke_width: 4.0
+  default_stroke_color: "#222222"
+  default_fill_color: "#999999"
+mobject:
+  default_mobject_color: "#000000"
+  default_light_color: "#444444"

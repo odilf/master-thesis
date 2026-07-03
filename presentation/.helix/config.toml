@@ -3,7 +3,7 @@ o = [":pipe-to ./manim-send.sh 'uv run manimgl %{file_path_absolute} -se %{curso
 p = "@F@xvf@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret>"
 l = "@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret>"
 k = "@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret>"
-s = "@F#xvf#<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret>"
+s = "@F@xvf@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret>"
 
 
 

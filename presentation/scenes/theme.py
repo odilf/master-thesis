@@ -37,9 +37,9 @@ def _get_tex_config(template: str = "") -> tuple[str, str]:
 _tex.get_tex_config = _get_tex_config
 
 # One accent color per topic, matching the title-slide highlights.
-from manimlib import BLUE, TEAL_C, YELLOW, ORANGE  # noqa: E402
+from manimlib import *  # noqa: E402
 
-COLOR_LAGRANGIANS = BLUE
-COLOR_PARALLEL = YELLOW
-COLOR_FORCED = ORANGE
-COLOR_LIE_GROUPS = TEAL_C
+COLOR_LAGRANGIANS = BLUE_D
+COLOR_PARALLEL = RED_D
+COLOR_FORCED = GREEN_D
+COLOR_LIE_GROUPS = TEAL_D

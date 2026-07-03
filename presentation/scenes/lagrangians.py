@@ -7,9 +7,13 @@ from scenes.theme import COLOR_LAGRANGIANS
 
 
 class Lagrangians(InteractiveScene, Slide):
+    def construct(self):
+        pass
+
     def lagrangians_section(self) -> None:
         self.lagrangian_examples_and_geometry()
-        self.euler_lagrange()
+
+    # self.euler_lagrange()
 
     def lagrangian_examples_and_geometry(self) -> None:
         #  =====
@@ -18,11 +22,11 @@ class Lagrangians(InteractiveScene, Slide):
         _rod_len = 1.0
         pivot = np.array([0.0, 0.6, 0.0])
 
-        pivot_dot = Dot(pivot, radius=0.06, color=GREY_B, stroke_behind=True)
+        pivot_dot = Dot(pivot, radius=0.06, color=GREY_D, stroke_behind=True)
         vertical = DashedLine(
             pivot,
             pivot + _rod_len * DOWN,
-            color=GREY_B,
+            color=GREY_D,
             stroke_width=2,
             dash_length=0.08,
         )
@@ -31,7 +35,7 @@ class Lagrangians(InteractiveScene, Slide):
         rod = Line(
             pivot,
             pivot + _rod_len * np.array([np.sin(_th), -np.cos(_th), 0.0]),
-            color=GREY_B,
+            color=GREY_D,
             stroke_width=3,
         )
         bob = Dot(
@@ -42,9 +46,9 @@ class Lagrangians(InteractiveScene, Slide):
             start_angle=-PI / 2,
             angle=_th,  # ty:ignore[invalid-argument-type]
             arc_center=pivot,
-            color=YELLOW_D,
+            color=GREEN_B,
         )
-        theta_label = Tex(r"\theta", font_size=22, color=YELLOW_D).move_to(
+        theta_label = Tex(r"\theta", font_size=22, color=GREEN_D).move_to(
             pivot
             + 0.52
             * np.array([np.cos(-PI / 2 + _th / 2), np.sin(-PI / 2 + _th / 2), 0.0])
@@ -69,7 +73,7 @@ class Lagrangians(InteractiveScene, Slide):
                     start_angle=-PI / 2,
                     angle=th,  # ty:ignore[invalid-argument-type]
                     arc_center=p,
-                    color=YELLOW_D,
+                    color=GREEN_B,
                 )
             )
 
@@ -99,16 +103,16 @@ class Lagrangians(InteractiveScene, Slide):
         link2_len = 0.7
         tip = elbow + link2_len * np.array([np.cos(q2_abs), np.sin(q2_abs), 0.0])
 
-        base_dot = Dot(origin, radius=0.08, color=GREY_B, stroke_behind=True)
+        base_dot = Dot(origin, radius=0.08, color=GREY_D, stroke_behind=True)
         link1 = Line(origin, elbow, color=COLOR_LAGRANGIANS, stroke_width=5)
-        elbow_dot = Dot(elbow, radius=0.08, color=GREY_B, stroke_behind=True)
+        elbow_dot = Dot(elbow, radius=0.08, color=GREY_D, stroke_behind=True)
         link2 = Line(elbow, tip, color=COLOR_LAGRANGIANS, stroke_width=5)
-        tip_dot = Dot(tip, radius=0.06, color=GREY_B, stroke_behind=True)
+        tip_dot = Dot(tip, radius=0.06, color=GREY_D, stroke_behind=True)
         robotic_arm = VGroup(link1, link2, base_dot, elbow_dot, tip_dot)
 
         field_lines = VGroup(
             *[
-                Vector(1.3 * UP, color=YELLOW_D, stroke_width=2).move_to(
+                Vector(1.3 * UP, color=GREEN_B, stroke_width=2).move_to(
                     np.array([x, 0.0, 0.0])
                 )
                 for x in [-0.55, 0.0, 0.55]
@@ -117,7 +121,7 @@ class Lagrangians(InteractiveScene, Slide):
         trajectory = ParametricCurve(
             lambda t: np.array([t * 1.4 - 0.7, -0.45 + 0.7 * t**2, 0.0]),
             t_range=(0, 1, 0.02),
-            color=WHITE,
+            color=BLACK,
             stroke_width=2,
         )
         electron_dot = Dot(
@@ -127,26 +131,26 @@ class Lagrangians(InteractiveScene, Slide):
 
         bh = Circle(radius=0.35)
         bh.set_fill(BLACK, opacity=1)
-        bh.set_stroke(YELLOW_D, width=2)
+        bh.set_stroke(GREEN_D, width=2)
         ring1 = Arc(
             radius=0.6,
             start_angle=PI / 6,
             angle=4 * PI / 3,
-            color=GREY_B,
+            color=GREY_D,
             stroke_width=2.0,
         )
         ring2 = Arc(
             radius=0.85,
             start_angle=-PI / 8,
             angle=5 * PI / 4,
-            color=GREY_B,
+            color=GREY_D,
             stroke_width=1.5,
         )
         ring3 = Arc(
             radius=1.0,
             start_angle=-PI / 4,
             angle=6 * PI / 5,
-            color=GREY_B,
+            color=GREY_D,
             stroke_width=1.0,
         )
         black_hole = VGroup(ring3, ring2, ring1, bh).scale(0.8)
@@ -193,23 +197,26 @@ class Lagrangians(InteractiveScene, Slide):
             .move_to(TOP - 0.5 * UP, aligned_edge=TOP)
         )
         self.play(LaggedStartMap(ShowCreation, grid, lag_ratio=0.7, run_time=1))
-        self.next_slide()
+
         # states
+        self.next_slide()
         for vis, Q in zip(ex_visuals, state_spaces):
             Q.move_to(vis.get_center() + 1.5 * DOWN, aligned_edge=DOWN)
         self.play(*(Write(state_space) for state_space in state_spaces))
-        self.next_slide()
+
         # lagrangians
+        self.next_slide()
         for Q, L in zip(state_spaces, lagrangians):
             L.move_to(Q.get_center() + 0.8 * DOWN, aligned_edge=DOWN)
         self.play(*(Write(L) for L in lagrangians))
-        self.next_slide()
 
+        self.next_slide()
         L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=68).shift(2 * DOWN)
         self.play(Write(L_def))
 
         #  ================
         # @ Pendulum example
+        self.next_slide()
         other_ex = VGroup(
             ex_visuals[0][0],
             *ex_visuals[1:],
@@ -227,27 +234,27 @@ class Lagrangians(InteractiveScene, Slide):
         state_space = Circle(radius=2, stroke_color=COLOR_LAGRANGIANS).move_to(
             RIGHT * 3
         )
-        state_space_dot = GlowDot(radius=0.5).add_updater(
+        state_space_dot = GlowDot(radius=0.5, color=GREEN_E).add_updater(
             lambda m: m.move_to(
                 state_space.get_center()
                 + state_space.get_radius()
                 * np.array([np.cos(theta.get_value()), np.sin(theta.get_value()), 0])
             )
         )
-        self.next_slide()
 
+        self.next_slide()
         self.play(ShowCreation(state_space))
         self.play(FadeIn(state_space_dot))
-        self.next_slide()
 
         # @ play with angle
+        self.next_slide(loop=True)
         self.play(theta.animate.set_value(PI / 2), rate_func=wiggle, run_time=4)
-        self.next_slide()
 
         # @ omega
+        self.next_slide()
         omega = ValueTracker(1.0)
         omega_arrow = Arrow(
-            start=state_space_dot, end=ORIGIN, color=WHITE, fill_color=WHITE
+            start=state_space_dot, end=ORIGIN, color=BLACK, fill_color=BLACK
         ).add_updater(
             lambda m: m.set_points_by_ends(
                 state_space.get_center()
@@ -265,8 +272,8 @@ class Lagrangians(InteractiveScene, Slide):
             )
         )
         self.play(FadeIn(omega_arrow))
-        self.next_slide()
 
+        self.next_slide()
         self.play(theta.animate.set_value(PI * 0.8), omega.animate.set_value(3.0))
         self.play(
             theta.animate.set_value(-PI / 2), omega.animate.set_value(-2), run_time=2
@@ -274,8 +281,8 @@ class Lagrangians(InteractiveScene, Slide):
         self.play(
             theta.animate.set_value(PI / 4), omega.animate.set_value(1), run_time=2
         )
-        self.next_slide()
 
+        self.next_slide()
         # @ phase space reveal
         self.frame.save_state()
         self.play(
@@ -285,10 +292,10 @@ class Lagrangians(InteractiveScene, Slide):
             FadeOut(pendulum_vis),
             run_time=3,
         )
-        self.next_slide()
 
         # ================
         # @ Cylinder: TQ = S^1xR
+        self.next_slide()
         R = state_space.get_radius()
         cyl_center = state_space.get_center()
         cx, cy = cyl_center[0], cyl_center[1]
@@ -314,9 +321,10 @@ class Lagrangians(InteractiveScene, Slide):
             ShowCreation(cyl_mesh),
             Transform(state_space, state_space.set_color(GREY)),
         )
-        self.next_slide()
 
         # @ Lagrangian flow: energy level curves E = omega^2/2 − cos(theta) = const
+        self.next_slide()
+
         def to_cyl_pt(th, om):
             return np.array(
                 [cx + R * np.cos(th), cy + R * np.sin(th), om * omega_scale]
@@ -387,7 +395,7 @@ class Lagrangians(InteractiveScene, Slide):
             om = v * cyl_height / 2 / omega_scale
             E = 0.5 * om**2 - np.cos(u)
             t = float(np.clip((E - E_min) / (E_max - E_min), 0, 1))
-            return interpolate_color(BLUE_D, RED_D, t)
+            return interpolate_color(BLUE_E, RED_E, t)
 
         colored_cyl = cyl.copy()
         colored_cyl.color_by_uv_function(energy_uv_color)  # ty:ignore[invalid-argument-type] straight up wrong in manim
@@ -484,78 +492,89 @@ class Lagrangians(InteractiveScene, Slide):
         # @ start
         t2c = {
             "L": COLOR_LAGRANGIANS,
-            "\widetilde{L}_d": MAROON_A,
-            "L_d": MAROON_A,
+            r"\widetilde{L}_d": MAROON_D,
+            "L_d": MAROON_D,
         }
+
+        cont_header = Text("Continuous", font_size=54, color=GREY_B)
+        L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=72, t2c=t2c)
+        action_cont = Tex(r"S = \int_0^T L(q(t), \dot{q}(t)) \textrm{d} t", t2c=t2c)
         el_equations = Tex(
             r"\frac{\partial L}{\partial q} - \frac{\textrm{d}}{\textrm{d}t} \frac{\partial L}{\partial \dot{q}} = 0",
             t2c=t2c,
         )
-        self.play(Write(el_equations))
-        self.next_slide()
 
-        # @ split screen
-        divider = Line(3.5 * UP, 3.5 * DOWN, color=GREY_B, stroke_width=1)
-        cont_header = Text("Continuous", font_size=54, color=GREY_B).move_to(
-            3.5 * LEFT + 3.2 * UP
-        )
-        disc_header = Text("Discrete", font_size=54, color=GREY_B).move_to(
-            3.5 * RIGHT + 3.2 * UP
-        )
-
-        self.play(
-            el_equations.animate.move_to(3.5 * LEFT + 0.5 * DOWN),
-            ShowCreation(divider),
-            Write(cont_header),
-            Write(disc_header),
-        )
-        self.next_slide()
-
-        L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=72, t2c=t2c).move_to(
-            3.5 * LEFT + 1.5 * UP
-        )
-        self.play(Write(L_def))
-        self.next_slide()
-
-        Ld_def = Tex(r"L_d : Q \times Q \to \mathbb{R}", font_size=72, t2c=t2c).move_to(
-            3.5 * RIGHT + 1.5 * UP
-        )
-        self.play(Write(Ld_def))
-        self.next_slide()
-
+        disc_header = Text("Discrete", font_size=54, color=GREY_B)
+        Ld_def = Tex(r"L_d : Q \times Q \to \mathbb{R}", font_size=72, t2c=t2c)
+        action_disc = Tex(r"S_d = \sum_0^{N-1} L_d(q_k, q_{k+1})", t2c=t2c)
         del_eq = Tex(
             r"\textrm{D}_2 L_d(q_{k-1}, q_k) + \textrm{D}_1 L_d(q_k, q_{k+1}) = 0",
             font_size=42,
             t2c=t2c,
-        ).move_to(3.6 * RIGHT + 0.4 * DOWN)
-        self.play(Write(del_eq))
+        )
+
+        cont = VGroup(cont_header, L_def, action_cont, el_equations).arrange(
+            DOWN, buff=0.4
+        )
+        disc = VGroup(disc_header, Ld_def, action_disc, del_eq).arrange(DOWN, buff=0.4)
+
+        self.play(Write(action_cont), run_time=1)
+        self.play(Write(el_equations), run_time=1)
+
+        # @ split screen
         self.next_slide()
+        divider = Line(TOP + 0.4 * DOWN, BOTTOM + 2 * UP, color=GREY_B, stroke_width=1)
+
+        self.play(
+            Write(cont_header),
+            Write(L_def),
+            cont.animate.move_to(LEFT_SIDE / 2 + UP),
+            ShowCreation(divider),
+        )
+        disc.move_to(RIGHT_SIDE / 2 + UP)
+
+        self.next_slide()
+        self.play(Write(Ld_def), Write(disc_header))
+
+        self.next_slide()
+        self.play(Write(action_disc))
+
+        self.next_slide()
+        self.play(Write(del_eq))
 
         # @ approx
+        Ld_exact = Tex(
+            r"L^\text{ex.}_d (q_0, q_1) = \int_0^h q_{0, 1} (q_0, q_1)",
+            t2c={ **t2c, r"L^\text{ex.}_d": MAROON_D },
+            # font_size=58,
+        )
         Ld_approx = Tex(
-            r"\widetilde{L}_d = L\left(\tfrac{q_0 + q_1}{2}, \tfrac{q_1 - q_0}{h}\right)",
+            r"\widetilde{L}_d (q_0, q_1) = L\left(\tfrac{q_0 + q_1}{2}, \tfrac{q_1 - q_0}{h}\right)",
             t2c=t2c,
-            font_size=58,
-        ).move_to(3.5 * RIGHT + 2 * DOWN)
-        self.play(Write(Ld_approx))
-        self.next_slide()
+            # font_size=58,
+        )
+        Lds = VGroup(Ld_exact, Ld_approx).arrange(RIGHT, buff=0.8).move_to(BOTTOM + UP)
 
+        self.next_slide()
+        self.play(Write(Ld_exact))
+
+        self.next_slide()
+        self.play(Write(Ld_approx))
+
+        # @ end
+
+        self.next_slide()
         self.play(
             LaggedStartMap(
                 FadeOut,
                 VGroup(
                     el_equations,
                     divider,
-                    cont_header,
-                    disc_header,
-                    L_def,
-                    Ld_def,
-                    del_eq,
-                    Ld_approx,
+                    cont,
+                    disc,
+                    Lds
                 ),
                 shift=RIGHT,
                 run_time=0.5,
             )
         )
-
-        # @ end
