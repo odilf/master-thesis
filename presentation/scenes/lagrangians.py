@@ -1,15 +1,17 @@
 import numpy as np
-import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
 from manim_slides.slide.manimlib import Slide
 from manimlib import *
+
+import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
 from scenes.theme import COLOR_LAGRANGIANS
 
 
-class Lagrangians(Slide, InteractiveScene):
-    def construct(self):
-        self.lagrangians_section()
-
+class Lagrangians(InteractiveScene, Slide):
     def lagrangians_section(self) -> None:
+        self.lagrangian_examples_and_geometry()
+        self.euler_lagrange()
+
+    def lagrangian_examples_and_geometry(self) -> None:
         #  =====
         # @ Start
         theta = ValueTracker(PI / 4)
@@ -232,15 +234,15 @@ class Lagrangians(Slide, InteractiveScene):
                 * np.array([np.cos(theta.get_value()), np.sin(theta.get_value()), 0])
             )
         )
+        self.next_slide()
 
         self.play(ShowCreation(state_space))
         self.play(FadeIn(state_space_dot))
+        self.next_slide()
 
         # @ play with angle
+        self.play(theta.animate.set_value(PI / 2), rate_func=wiggle, run_time=4)
         self.next_slide()
-        self.play(theta.animate.set_value(PI / 2), rate_func=wiggle)
-        # self.play(theta.animate.set_value(-PI / 2), run_time=2)
-        # self.play(theta.animate.set_value(PI / 4))
 
         # @ omega
         omega = ValueTracker(1.0)
@@ -269,13 +271,291 @@ class Lagrangians(Slide, InteractiveScene):
         self.play(
             theta.animate.set_value(-PI / 2), omega.animate.set_value(-2), run_time=2
         )
-        self.play(theta.animate.set_value(PI / 4), omega.animate.set_value(1))
+        self.play(
+            theta.animate.set_value(PI / 4), omega.animate.set_value(1), run_time=2
+        )
+        self.next_slide()
 
         # @ phase space reveal
-        self.play(self.frame.animate.reorient(-3, 65, 0, state_space.get_center(), 11.42), run_time=3)
+        self.frame.save_state()
+        self.play(
+            self.frame.animate.reorient(0, 65, 0, state_space.get_center(), 8),
+            FadeOut(state_space_dot),
+            FadeOut(omega_arrow),
+            FadeOut(pendulum_vis),
+            run_time=3,
+        )
+        self.next_slide()
 
-        
-        
+        # ================
+        # @ Cylinder: TQ = S^1xR
+        R = state_space.get_radius()
+        cyl_center = state_space.get_center()
+        cx, cy = cyl_center[0], cyl_center[1]
+        omega_scale = 0.8  # Manim units per rad/s of omega
+        cyl_height = 4.5  # shows omega up to +-2.8
 
-        # self.play(Fade)
+        cyl = (
+            Cylinder(radius=R, height=cyl_height, resolution=(101, 51))
+            .shift(cyl_center)
+            .set_color(GREY_C)
+            .set_opacity(0.05)
+        )
+        cyl_mesh = SurfaceMesh(
+            cyl,
+            resolution=(24, 9),
+            stroke_color=GREY_B,
+            stroke_width=1,
+            stroke_opacity=0.2,
+        )
+
+        self.play(
+            FadeIn(cyl),
+            ShowCreation(cyl_mesh),
+            Transform(state_space, state_space.set_color(GREY)),
+        )
+        self.next_slide()
+
+        # @ Lagrangian flow: energy level curves E = omega^2/2 − cos(theta) = const
+        def to_cyl_pt(th, om):
+            return np.array(
+                [cx + R * np.cos(th), cy + R * np.sin(th), om * omega_scale]
+            )
+
+        def libration_pts(E, n=200):
+            # closed loop wrapping partway around the cylinder
+            theta_max = float(np.arccos(np.clip(-E, -1.0, 1.0)))
+            ths = np.linspace(-theta_max, theta_max, n)
+            upper = [
+                to_cyl_pt(th, np.sqrt(max(0.0, 2 * (E + np.cos(th))))) for th in ths
+            ]
+            lower = [
+                to_cyl_pt(th, -np.sqrt(max(0.0, 2 * (E + np.cos(th)))))
+                for th in reversed(ths)
+            ]
+            pts = upper + lower
+            return pts + [pts[0]]
+
+        def rotation_pts(E, sign, n=200):
+            # closed loop wrapping all the way around the cylinder
+            ths = np.linspace(-PI, PI, n)
+            pts = [
+                to_cyl_pt(th, sign * np.sqrt(max(0.0, 2 * (E + np.cos(th)))))
+                for th in ths
+            ]
+            return pts + [pts[0]]
+
+        def separatrix_pts(upper, n=200):
+            # E=1: omega = +-2cos(theta/2); (+-pi, 0) coincide on cylinder so curve is closed
+            sign = 1.0 if upper else -1.0
+            ths = np.linspace(-PI, PI, n)
+            return [to_cyl_pt(th, sign * 2.0 * np.cos(th / 2)) for th in ths]
+
+        def make_curve(pts, color, width=6.0):
+            c = VMobject(color=color, stroke_width=width, depth_test=True)
+            c.set_points_smoothly(pts)
+            return c
+
+        flow = VGroup(
+            *[
+                make_curve(libration_pts(E), COLOR_LAGRANGIANS)
+                for E in [-0.8, -0.3, 0.4, 0.85]
+            ],
+            make_curve(separatrix_pts(True), YELLOW_D, width=9),
+            make_curve(separatrix_pts(False), YELLOW_D, width=9),
+            *[
+                make_curve(rotation_pts(E, s), COLOR_LAGRANGIANS)
+                for E in [1.5, 2.5]
+                for s in [1, -1]
+            ],
+        )
+        self.play(
+            ShowCreation(flow, lag_ratio=0.3),
+            self.frame.animate.reorient(120, 80, 0, state_space.get_center(), 9),
+            run_time=10,
+            rate_func=rush_from,
+        )
+
+        # @ color the cylinder by energy level
+        self.next_slide()
+
+        omega_max = cyl_height / (2 * omega_scale)
+        E_min, E_max = -1.0, 0.5 * omega_max**2 + 1.0
+
+        def energy_uv_color(u, v):
+            # u in (0, TAU) = theta on cylinder, v in (-1, 1) → omega via height
+            om = v * cyl_height / 2 / omega_scale
+            E = 0.5 * om**2 - np.cos(u)
+            t = float(np.clip((E - E_min) / (E_max - E_min), 0, 1))
+            return interpolate_color(BLUE_D, RED_D, t)
+
+        colored_cyl = cyl.copy()
+        colored_cyl.color_by_uv_function(energy_uv_color)  # ty:ignore[invalid-argument-type] straight up wrong in manim
+        colored_cyl.set_opacity(0.5)
+
+        self.play(Transform(cyl, colored_cyl), run_time=2)
+
+        # @ symplecticity
+        self.next_slide()
+        self.play(FadeOut(flow, lag_ratio=0.3), run_time=1)
+
+        # Small blobs of initial conditions that deform but preserve area (dθ∧dω).
+        def _rk4(th, om, dt):
+            k1 = (om, -np.sin(th))
+            k2 = (om + 0.5 * dt * k1[1], -np.sin(th + 0.5 * dt * k1[0]))
+            k3 = (om + 0.5 * dt * k2[1], -np.sin(th + 0.5 * dt * k2[0]))
+            k4 = (om + dt * k3[1], -np.sin(th + dt * k3[0]))
+            return (
+                th + dt / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]),
+                om + dt / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]),
+            )
+
+        n_verts = 40
+        patch_r = 0.3
+        sim_dt = 0.03
+        n_steps = 200  # 6 s of pendulum time
+
+        # One librating patch and one rotating patch
+        patch_centers = [(0.0, 0.1), (1.0, 0.05)]
+        patch_cols = [TEAL_D, ORANGE]
+
+        all_frames = []
+        for th0, om0 in patch_centers:
+            verts = [
+                (th0 + patch_r * np.cos(a), om0 + patch_r * np.sin(a))
+                for a in np.linspace(0, TAU, n_verts, endpoint=False)
+            ]
+            frames = [list(verts)]
+            for _ in range(n_steps):
+                verts = [_rk4(th, om, sim_dt) for th, om in verts]
+                frames.append(list(verts))
+            all_frames.append(frames)
+
+        t_sim = ValueTracker(0)
+
+        symp_patches = VGroup(
+            *[
+                VMobject(
+                    color=c,
+                    fill_color=c,
+                    fill_opacity=0.4,
+                    stroke_width=2,
+                    depth_test=True,
+                ).set_points_smoothly(
+                    [to_cyl_pt(*all_frames[i][0][v]) for v in range(n_verts)]
+                    + [to_cyl_pt(*all_frames[i][0][0])]
+                )
+                for i, c in enumerate(patch_cols)
+            ]
+        )
+
+        def make_patch_updater(pi):
+            def upd(m):
+                frame = min(int(t_sim.get_value() / sim_dt), n_steps)  # ty:ignore[invalid-argument-type]
+                pts = [to_cyl_pt(*all_frames[pi][frame][v]) for v in range(n_verts)]
+                m.set_points_as_corners(pts + [pts[0]])
+
+            return upd
+
+        for i, mob in enumerate(symp_patches):
+            mob.add_updater(make_patch_updater(i))
+
+        self.play(FadeIn(symp_patches))
+        self.play(
+            t_sim.animate.set_value(n_steps * sim_dt),
+            self.frame.animate.reorient(87, 76, 0, np.array([3.06, 0.6, -0.15]), 6.70),
+            run_time=6,
+            # rate_func=linear,
+        )
+        for mob in symp_patches:
+            mob.clear_updaters()
+
+        self.next_slide()
+        self.play(
+            FadeOut(cyl),
+            FadeOut(cyl_mesh),
+            FadeOut(state_space),
+            FadeOut(symp_patches),
+            self.frame.animate.restore(),
+        )
+        # @ end
+
+    def euler_lagrange(self):
+        # @ start
+        t2c = {
+            "L": COLOR_LAGRANGIANS,
+            "\widetilde{L}_d": MAROON_A,
+            "L_d": MAROON_A,
+        }
+        el_equations = Tex(
+            r"\frac{\partial L}{\partial q} - \frac{\textrm{d}}{\textrm{d}t} \frac{\partial L}{\partial \dot{q}} = 0",
+            t2c=t2c,
+        )
+        self.play(Write(el_equations))
+        self.next_slide()
+
+        # @ split screen
+        divider = Line(3.5 * UP, 3.5 * DOWN, color=GREY_B, stroke_width=1)
+        cont_header = Text("Continuous", font_size=54, color=GREY_B).move_to(
+            3.5 * LEFT + 3.2 * UP
+        )
+        disc_header = Text("Discrete", font_size=54, color=GREY_B).move_to(
+            3.5 * RIGHT + 3.2 * UP
+        )
+
+        self.play(
+            el_equations.animate.move_to(3.5 * LEFT + 0.5 * DOWN),
+            ShowCreation(divider),
+            Write(cont_header),
+            Write(disc_header),
+        )
+        self.next_slide()
+
+        L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=72, t2c=t2c).move_to(
+            3.5 * LEFT + 1.5 * UP
+        )
+        self.play(Write(L_def))
+        self.next_slide()
+
+        Ld_def = Tex(r"L_d : Q \times Q \to \mathbb{R}", font_size=72, t2c=t2c).move_to(
+            3.5 * RIGHT + 1.5 * UP
+        )
+        self.play(Write(Ld_def))
+        self.next_slide()
+
+        del_eq = Tex(
+            r"\textrm{D}_2 L_d(q_{k-1}, q_k) + \textrm{D}_1 L_d(q_k, q_{k+1}) = 0",
+            font_size=42,
+            t2c=t2c,
+        ).move_to(3.6 * RIGHT + 0.4 * DOWN)
+        self.play(Write(del_eq))
+        self.next_slide()
+
+        # @ approx
+        Ld_approx = Tex(
+            r"\widetilde{L}_d = L\left(\tfrac{q_0 + q_1}{2}, \tfrac{q_1 - q_0}{h}\right)",
+            t2c=t2c,
+            font_size=58,
+        ).move_to(3.5 * RIGHT + 2 * DOWN)
+        self.play(Write(Ld_approx))
+        self.next_slide()
+
+        self.play(
+            LaggedStartMap(
+                FadeOut,
+                VGroup(
+                    el_equations,
+                    divider,
+                    cont_header,
+                    disc_header,
+                    L_def,
+                    Ld_def,
+                    del_eq,
+                    Ld_approx,
+                ),
+                shift=RIGHT,
+                run_time=0.5,
+            )
+        )
+
         # @ end

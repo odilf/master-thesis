@@ -15,8 +15,10 @@ from scenes.theme import (
 
 
 class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
+    samples = 4
+
     def construct(self):
-        # == Title slide
+        # @ Title slide
         title = Text(
             "Parallel variational integrators\non forced systems and Lie groups",
             font_size=54,
@@ -70,7 +72,7 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
         self.play(FadeOut(title_slide))
         self.next_slide()
 
-        # == Outline slide
+        # @ Outline slide
         heading = Text("Today:", font_size=60)
         heading.to_edge(UP, buff=1.0)
 
@@ -107,6 +109,8 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
         outline_slide = VGroup(heading, lines)
         self.next_slide()
 
+        # @ body
+
         self.play(
             lines[0].animate.scale(1.1),
             lines[1].animate.set_opacity(0.3),
@@ -120,8 +124,18 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
         self.next_slide()
              
         self.lagrangians_section()
+
+        self.play(
+            FadeIn(outline_slide, shift=RIGHT),
+            lines[0].animate.set_opacity(0.3).scale(1/1.1),
+            lines[1].animate.set_opacity(1).scale(1.1),
+            lines[2].animate.set_opacity(0.3),
+            lines[3].animate.set_opacity(0.3),
+            run_time=1
+        )
         self.next_slide()
 
+        self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
         self.parallel_section()
         self.next_slide()
 
@@ -129,3 +143,5 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
         self.next_slide()
 
         self.lie_groups_section()
+
+        # @ end
