@@ -450,137 +450,226 @@ class Parallel(InteractiveScene, Slide):
             run_time=0.8,
         )
 
-        # @ convergence: block-tridiagonal Hessian
-        heading = Text("Convergence: block-tridiagonal Hessian", font_size=40).to_edge(
-            UP, buff=0.9
-        )
-        self.play(Write(heading))
+        # @ convergence: H as Hessian of the discrete action
+        t2c_ld = {"L_d": COLOR_LD}
 
-        # A 5x5 grid of cells on the left; only the tridiagonal band is populated.
+        heading = Text("Convergence of Newton iteration", font_size=40).to_edge(
+            UP, buff=1.0
+        )
+
+        action_eq = Tex(
+            r"S(\mathbf{q}) = \sum_k L_d(q_k, q_{k+1})",
+            font_size=40,
+            t2c=t2c_ld,
+        ).next_to(heading, DOWN, buff=1.0)
+
+        h_def = Tex(
+            r"H = \mathrm{D}^2 S = \nabla r",
+            font_size=44,
+        ).next_to(action_eq, DOWN, buff=0.5)
+
+        self.play(
+            LaggedStartMap(Write, VGroup(heading, action_eq, h_def), lag_ratio=0.3)  # ty:ignore[invalid-argument-type]
+        )
+
+        converge_note = Tex(
+            r"H \succ 0 \enspace \Rightarrow \enspace \text{local convergence}",
+            color=COLOR_PARALLEL,
+        ).next_to(h_def, DOWN, buff=1.5)
+
+        self.next_slide()
+        self.play(FadeIn(converge_note, shift=0.2 * UP))
+
+        # @ sparsity from locality => block-tridiagonal
+        self.next_slide()
+        self.play(FadeOut(VGroup(action_eq, h_def, newton, converge_note)))
+
+        locality_eq = Tex(
+            r"r_k \text{ depends only on } q_{k-1}, q_k, q_{k+1}",
+            font_size=36,
+        ).move_to(UP * 1.3)
+        sparsity_eq = Tex(
+            r"\frac{\partial r_k}{\partial q_j} = 0 \quad (|k - j| > 1)",
+            font_size=36,
+        ).next_to(locality_eq, DOWN, buff=0.5)
+        tridiag_label = Tex(
+            r"\Longrightarrow \quad H \text{ is block-tridiagonal}",
+            font_size=36,
+            color=COLOR_PARALLEL,
+        ).next_to(sparsity_eq, DOWN, buff=0.45)
+
+        self.play(Write(locality_eq))
+        self.play(FadeIn(sparsity_eq, shift=0.3 * RIGHT))
+        self.play(FadeIn(tridiag_label, shift=0.3 * RIGHT))
+
+        # @ the block-tridiagonal matrix
+        self.next_slide()
+        self.play(FadeOut(VGroup(locality_eq, sparsity_eq, tridiag_label)))
+
         cell = 0.8
         grid_origin = LEFT * 4.4 + UP * 1.6
 
         def cell_center(r, c):
             return grid_origin + RIGHT * c * cell + DOWN * r * cell
 
-        band = VGroup()
+        squares = {}
+        band_sqs = VGroup()
         for r in range(5):
             for c in range(5):
                 if abs(r - c) <= 1:
                     diag = r == c
-                    color = (
-                        MAROON_B
-                        if diag
-                        else MAROON_A
-                    )
                     sq = (
                         Square(cell)
                         .set_stroke(GREY_D, 1)
-                        .set_fill(color, 0.9 if r == c else 0.6)
+                        .set_fill(MAROON_B if diag else MAROON_A, 0.9 if diag else 0.6)
+                        .move_to(cell_center(r, c))
                     )
-                    sq.move_to(cell_center(r, c))
-                    sq_label = Tex(
-                        rf"\mathcal{{D}}_{r + 1}"
-                        if diag
-                        else rf"\mathcal{{C}}_{r}"
-                        if r > c
-                        else rf"\mathcal{{C}}_{c}^T",
-                    ).move_to(sq)
-                    band.add(VGroup(sq, sq_label))
-        matrix_brackets = Tex(r"H=", font_size=48).next_to(band, LEFT, buff=0.4)
+                    squares[(r, c)] = sq
+                    band_sqs.add(sq)
 
+        matrix_eq = Tex(r"H =", font_size=48).next_to(band_sqs, LEFT, buff=0.4)
         self.play(
-            LaggedStartMap(FadeIn, band, scale=0.9, lag_ratio=0.04),
-            Write(matrix_brackets),
+            LaggedStartMap(FadeIn, band_sqs, scale=0.9, lag_ratio=0.04),
+            Write(matrix_eq),
         )
 
-        # @ each edge contributes a 2x2 block; overlaps add on the diagonal.
-        # Stacked on the empty right half so nothing runs off the frame.
+        # @ label the diagonal and off-diagonal blocks with actual second derivatives
         self.next_slide()
-        assembly = (
-            VGroup(
-                Tex(
-                    r"\mathcal{D}_k = \mathcal{B}_{k-1} + \mathcal{A}_k",
-                    font_size=40,
-                    t2c={r"\mathcal{D}_k": COLOR_PARALLEL},
-                ),
-                Tex(
-                    r"\mathcal{A}_k= \textrm{D}_{11} L_d(q_k, q_{k+1}) ",
-                    font_size=40,
-                    t2c={"L_d": COLOR_LD},
-                ),
-                Tex(
-                    r"\mathcal{B}_k= \textrm{D}_{22} L_d(q_k, q_{k+1}) ",
-                    font_size=40,
-                    t2c={"L_d": COLOR_LD},
-                ),
-                Tex(
-                    r"\mathcal{C}_k = \textrm{D}_{12} L_d(q_k, q_{k+1})",
-                    font_size=40,
-                    t2c={"L_d": COLOR_LD},
-                ),
-            )
-            .arrange(DOWN, buff=0.5, aligned_edge=LEFT)
-            .move_to(RIGHT * 3.0 + UP * 0.6)
-        )
 
-        # Flash the diagonal cell (2,2) where two edge-blocks overlap and add.
-        d_cell = [s for s in band if np.allclose(s.get_center(), cell_center(2, 2))][0]
+        diag_label = Tex(
+            r"(H)_{k,k} = \mathrm{D}_{22} L_d(q_{k-1}, q_k)"
+            r" + \mathrm{D}_{11} L_d(q_k, q_{k+1})",
+            font_size=30,
+            t2c=t2c_ld,
+        ).move_to(RIGHT * 2.2 + UP * 1.1)
+
         self.play(
-            Indicate(d_cell, scale_factor=1.01),
-            FadeIn(assembly, shift=0.2 * UP),
+            Indicate(squares[(2, 2)], scale_factor=1.05, color=BLUE),
+            FadeIn(diag_label, shift=0.2 * UP),
         )
 
         self.next_slide()
-        note = Text(
-            "each node's solve is independent within an iteration",
+
+        od_label = Tex(
+            r"(H)_{k,k+1} = \mathrm{D}_{12} L_d(q_k, q_{k+1})",
+            font_size=30,
+            t2c=t2c_ld,
+        ).next_to(diag_label, DOWN, buff=0.5)
+
+        self.play(
+            Indicate(squares[(2, 3)], scale_factor=1.05, color=BLUE),
+            FadeIn(od_label, shift=0.2 * UP),
+        )
+
+        # @ per-edge 2x2 Hessian
+        transform_sqs = VGroup(
+            squares[(2, 2)],
+            squares[(2, 3)],
+            squares[(3, 2)],
+            squares[(3, 3)],
+        )
+        non_transform_sqs = VGroup(
+            *(sq for sq in squares.values() if sq not in transform_sqs)
+        )
+
+        self.next_slide()
+        self.play()
+
+        es = 1.0  # edge cell size
+        ec = UP * 0.3  # 2x2 block center
+
+        entries = [
+            [r"\mathrm{D}_{11}", r"\mathrm{D}_{12}"],
+            [r"\mathrm{D}_{21}", r"\mathrm{D}_{22}"],
+        ]
+        edge_sqs = VGroup()
+        edge_lbls = VGroup()
+        for ri in range(2):
+            for ci in range(2):
+                sq = (
+                    Square(es)
+                    .set_stroke(GREY_B, 1.5)
+                    .set_fill(MAROON_A, 0.6)
+                    .move_to(ec + RIGHT * (ci - 0.5) * es + DOWN * (ri - 0.5) * es)
+                )
+                lbl = Tex(entries[ri][ci], font_size=36).move_to(sq)
+                edge_sqs.add(sq)
+                edge_lbls.add(lbl)
+
+        edge_block = VGroup(edge_sqs, edge_lbls)
+
+        ld_note = Tex(
+            r"L_d(q_k,\, q_{k+1})",
+            font_size=32,
+            t2c=t2c_ld,
+        ).next_to(edge_block, RIGHT, buff=0.3)
+
+        H_label = Tex(r"H_k =", font_size=42).next_to(edge_block, LEFT, buff=0.5)
+
+        per_edge_note = Text(
+            "per-edge Hessian",
             font_size=26,
             color=COLOR_PARALLEL,
-        ).next_to(assembly, DOWN, buff=0.8)
-        self.play(FadeIn(note, shift=0.2 * UP))
+        ).next_to(edge_block, DOWN, buff=0.5)
 
+        self.play(
+            LaggedStart(
+                FadeOut(
+                    VGroup(matrix_eq, diag_label, od_label, non_transform_sqs),
+                ),
+                Transform(transform_sqs, edge_sqs),
+                Write(H_label),
+                LaggedStartMap(FadeIn, edge_lbls, scale=1.65, lag_ratio=0.1),
+                FadeIn(ld_note),
+                lag_ratio=0.5
+            ),
+            run_time=4,
+        )
+        self.play(FadeIn(per_edge_note, shift=0.2 * UP))
+
+        # Adjacent edges share one node: their Hessians accumulate on the diagonal.
+        self.next_slide()
+        overlap_note = Tex(
+            r"(H)_{k,k} = (H_{k-1})_{22} + (H_k)_{11}",
+            font_size=34,
+        ).set_opacity(0.5).next_to(per_edge_note, DOWN, buff=0.55)
+        self.play(FadeIn(overlap_note, shift=0.2 * UP))
+
+        # @ convergence criteria and closing summary
         self.next_slide()
         self.play(
             FadeOut(
-                VGroup(heading, band, matrix_brackets, assembly, note),
-                shift=RIGHT,
-                run_time=0.6,
+                VGroup(
+                    heading, H_label, edge_sqs, edge_lbls, ld_note, per_edge_note, overlap_note
+                )
             )
         )
-        # @ convergence criteria and closing summary
-        heading = Text("Convergence criteria", font_size=44).to_edge(UP, buff=1.0)
 
-        items = VGroup(
-            Tex(r"H \succ 0 \ \Rightarrow\ \text{local convergence}", font_size=38),
+        heading2 = Text("Convergence criteria", font_size=44, weight="bold").to_edge(UP, buff=1.0)
+
+        criteria = VGroup(
+            Tex(r"H \succ 0 \Rightarrow \text{local convergence}"),
             Tex(
-                r"\text{all per-edge Hessians } \succ 0 \ \Rightarrow\ H \succ 0 \quad (O(Nn^3))",
-                font_size=38,
+                r"\text{all  } H_k \succ 0 \Rightarrow H \succ 0",
             ),
-            Tex(
-                r"\Lambda_i = \mathcal{D}_i - \mathcal{C}_{i-1}^{\top} \Lambda_{i-1}^{-1} \mathcal{C}_{i-1} \succ 0 \ \Leftrightarrow\ H \succ 0",
-                font_size=38,
-            ),
+            Tex(r"\Lambda_i = \mathcal{D}_i - \mathcal{C}_{i-1}^T \Lambda_{i-1}^{-1} \mathcal{C}_{i-1} \succ 0 \ \Leftrightarrow\ H \succ 0")
         )
-        items.arrange(DOWN, aligned_edge=LEFT, buff=0.7).next_to(
-            heading, DOWN, buff=1.0
+        criteria.arrange(DOWN, aligned_edge=LEFT, buff=0.6).next_to(
+            heading2, DOWN, buff=1.0
         )
 
-        bridge = Text(
-            "We ask: what if H is not symmetric, \n or what if Q is not a vector space?",
+        bridge = TexText(
+            r"We ask: what if $H$ is not symmetric \\",
+            r"or what if $Q$ is not a vector space?",
             font_size=58,
             color=GREY_B,
-        ).to_edge(DOWN, buff=0.7)
+        ).to_edge(DOWN, buff=0.5)
 
-        self.play(Write(heading))
+        self.play(Write(heading2))
         self.play(
             LaggedStartMap(
-                FadeIn,
-                items,
-                shift=0.5 * RIGHT,
-                lag_ratio=0.4,
-                rate_func=rush_from,
-                run_time=2.5,
-            )
+                FadeIn, criteria, shift=0.5 * RIGHT, lag_ratio=0.4, run_time=2.0
+            ),
         )
 
         self.next_slide()
@@ -588,4 +677,6 @@ class Parallel(InteractiveScene, Slide):
 
         # @ end
         self.next_slide()
-        self.play(FadeOut(VGroup(heading, items, bridge), shift=RIGHT, run_time=0.6))
+        self.play(
+            FadeOut(VGroup(heading2, criteria, bridge), shift=RIGHT, run_time=0.6)
+        )
