@@ -387,11 +387,13 @@ class Forced(InteractiveScene, Slide):
         )
 
         self.next_slide()
-        self.play(Write(cond3))
+        self.play(FadeIn(cond3, shift=0.4 * RIGHT))
 
         self.next_slide()
         self.play(
-            LaggedStartMap(FadeOut, VGroup(heading, conds), shift=RIGHT, run_time=0.6)
+            LaggedStartMap(
+                FadeOut, VGroup(heading, conds, cond3), shift=RIGHT, run_time=0.6
+            )
         )
 
         # @ demo: parachutist threading a turbulent wind field
@@ -402,52 +404,71 @@ class Forced(InteractiveScene, Slide):
         iters_per_frame = int(data["iterations_per_frame"])
         n_frames = len(paths)
 
+        # Correct because manim has problems with axes not including 0.
+        paths = paths - [20, 0]
+        wind_xy = wind_xy - [20, 0]
+        start = start - [20, 0]
+        end = end - [20, 0]
+
+        x_range = 50
+
         heading = Text("Parachutist in turbulent wind", font_size=34).to_edge(
-            UP, buff=0.6
+            UP, buff=0.3
         )
 
-        # Data is a 50 m drift by 200 m fall. We stretch the horizontal axis
-        # (anisotropic scale) so the modest wind-driven bow reads clearly; the
-        # wind arrows use the same transform, so they stay tangent to the drawn
-        # field. The trajectory sits in a strip on the left, text on the right.
-        SX, SY = 3.6 / 50.0, 6.4 / 200.0
-        anchor = LEFT * 5.2 + DOWN * 3.2  # scene point of data (x=0, y=0)
+        # plot_width = 5.6
+        # plot_height = 6.2
+        # SX, SY = plot_width / x_range, plot_height / start[1]
+        # anchor = LEFT * 5.2 + DOWN * 3.2  # scene point of data (x=0, y=0)
 
-        def d2p(x, y):
-            return anchor + RIGHT * (x * SX) + UP * (y * SY)
+        # def d2p(x, y):
+        #     """???"""
+        #     return anchor + RIGHT * (x * SX) + UP * (y * SY)
 
-        border = Rectangle(
-            width=50 * SX, height=200 * SY, stroke_color=GREY_C, stroke_width=1.5
-        ).move_to((d2p(0, 0) + d2p(50, 200)) / 2)
+        axes = Axes(
+            x_range=(0, 35, 10.0),
+            y_range=(0, 200, 20.0),
+            height=6.0,
+            width=7.0,
+            axis_config={
+                "include_tip": True
+            }
+        )
+        axes.add_coordinate_labels()
+        axes.to_edge(DOWN, buff=0.5)
+        axes.to_edge(LEFT, buff=0.4)
+        self.add(axes)
 
-        WIND_S = 0.5
+        max_wind = np.max(np.linalg.norm(wind_uv, axis=1))
+        WIND_S = 2
         wind = VGroup(
             *(
                 Arrow(
-                    d2p(px, py),
-                    d2p(px + u * WIND_S, py + v * WIND_S),
+                    axes.coords_to_point(px, py),
+                    axes.coords_to_point(px + u * WIND_S / np.sqrt(u**2 + v**2), py + v * WIND_S / np.sqrt(u**2 + v**2)),
                     buff=0,
-                    thickness=1.5,
-                    stroke_color=GREY_C,
-                ).set_opacity(0.55)
+                    thickness=2.0,
+                    fill_color=interpolate_color(BLUE, RED, np.sqrt(u**2 + v**2) / max_wind),
+                ).set_opacity(0.4)
                 for (px, py), (u, v) in zip(wind_xy, wind_uv)
+                if 0 <= px <= 40 and 0 <= py <= 200
             )
         )
 
-        start_dot = Dot(d2p(*start), color=COLOR_FORCED)
-        end_dot = Dot(d2p(*end), color=COLOR_FORCED)
-        start_lbl = Text("jump", font_size=22, color=COLOR_FORCED).next_to(
-            start_dot, RIGHT, buff=0.15
-        )
-        end_lbl = Text("target", font_size=22, color=COLOR_FORCED).next_to(
-            end_dot, RIGHT, buff=0.15
-        )
+        start_dot = Dot(axes.coords_to_point(*start), color=COLOR_FORCED)
+        end_dot = Dot(axes.coords_to_point(*end), color=COLOR_FORCED)
+        start_lbl = Text(
+            "jump", font_size=32, 
+        ).next_to(start_dot, RIGHT * 0.1 + UP * 0.7, buff=0.05)
+        end_lbl = Text(
+            "target", font_size=32
+        ).next_to(end_dot, RIGHT * 2 + DOWN, buff=0.08)
 
         curve = VMobject(stroke_behind=True).set_stroke(COLOR_FORCED, 4)
 
         def polyline_at(m, i: float):
-            pts1 = np.array([d2p(x, y) for x, y in paths[math.floor(i)]])
-            pts2 = np.array([d2p(x, y) for x, y in paths[math.ceil(i)]])
+            pts1 = np.array([axes.coords_to_point(x, y) for x, y in paths[math.floor(i)]])
+            pts2 = np.array([axes.coords_to_point(x, y) for x, y in paths[math.ceil(i)]])
             t = math.ceil(i) - i
             return m.set_points_as_corners(pts1 * t + pts2 * (1 - t))
 
@@ -473,7 +494,7 @@ class Forced(InteractiveScene, Slide):
             ),
         ).arrange(RIGHT, buff=0.2)
         counter[1].add_updater(lambda m: m.set_value(frame_i() * iters_per_frame))
-        counter.move_to(RIGHT * 3.0 + UP * 1.4)
+        counter.move_to(RIGHT_SIDE * 0.6)
 
         res_label = (
             VGroup(
@@ -493,30 +514,29 @@ class Forced(InteractiveScene, Slide):
             res_label, DOWN, buff=0.4, aligned_edge=LEFT
         )
 
-        def res_bar():
-            frac = (np.log10(residuals[frame_i()]) - log1) / (log0 - log1)
-            start_pt = bar_bg.get_start()
-            return Line(
-                start_pt, start_pt + RIGHT * 4.0 * float(np.clip(frac, 0, 1)), color=RED
-            ).set_stroke(width=8)
+        bar = Line(bar_bg.get_start(), bar_bg.get_end(), color=RED, stroke_width=8)
 
-        bar = always_redraw(res_bar)
+        def upd_bar(bar):
+            frac = (np.log10(residuals[frame_i()]) - log1) / (log0 - log1)
+            bar.set_points_by_ends(bar_bg.get_start(), bar_bg.get_start() + RIGHT * 4.0 * float(np.clip(frac, 0, 1)))
+        bar.add_updater(upd_bar)
 
         self.play(
             Write(heading),
-            ShowCreation(border),
-            LaggedStartMap(GrowArrow, wind, lag_ratio=0.02, run_time=1.5),
+            ShowCreation(axes),
+            LaggedStartMap(GrowArrow, wind, lag_ratio=0.02, run_time=2.5),  # ty:ignore[invalid-argument-type]
         )
         self.play(
             ShowCreation(guess),
             FadeIn(VGroup(start_dot, end_dot, start_lbl, end_lbl)),
         )
-        self.add(curve)
-        self.play(FadeIn(VGroup(counter, res_label, bar_bg)), FadeIn(bar))
+        self.play(FadeIn(VGroup(counter, res_label, bar_bg, curve)), FadeIn(bar))
 
         # The looping beat: relax the straight guess to the physical arc.
         self.next_slide(loop=True)
         self.play(frame.animate.set_value(n_frames - 1), run_time=5, rate_func=linear)
+
+        # @ temp end
 
         self.next_slide()
         counter[1].clear_updaters()
@@ -525,7 +545,6 @@ class Forced(InteractiveScene, Slide):
             FadeOut(
                 VGroup(
                     heading,
-                    border,
                     wind,
                     guess,
                     start_dot,

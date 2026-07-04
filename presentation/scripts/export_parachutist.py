@@ -9,7 +9,7 @@ Run once (or whenever the parameters change):
 
     uv run python scripts/export_parachutist.py
 """
-
+import jax.numpy as jnp
 from pathlib import Path
 
 import numpy as np
@@ -17,17 +17,28 @@ from scenarios.forced import Parachutist
 
 # One Jacobi iteration count per exported snapshot frame; the scene multiplies
 # the frame index by this to show a live iteration counter.
-REPETITIONS = 9000
+REPETITIONS = 10000
 SNAPSHOTS = 60
 
 OUT = Path(__file__).resolve().parent.parent / "assets" / "parachutist.npz"
 
 
+
 def main() -> None:
-    # A few seconds of fall (rather than the thesis's very short T=0.2, which is
-    # unphysically fast for 200 m) lets the wind bend the trajectory visibly while
-    # the Jacobi-Newton iteration still converges cleanly.
-    scene = Parachutist(T=4.0, N=100, drag=20.0)
+    drag = 20.6
+    mass = 80
+    g = 9.8
+    terminal_velocity = mass * g / drag
+
+    scene = Parachutist(
+        T=200 / terminal_velocity * 1.2,
+        N=100,
+        startpoint=jnp.array([20, 180]),
+        drag=drag,
+        mass=mass,
+        g=g,
+    )
+    # scene = Parachutist(drag=30.6, startpoint=jnp.array([20, 180]))
 
     paths, residuals = scene.snapshot(repetitions=REPETITIONS, snapshots=SNAPSHOTS)
     paths = np.asarray(paths, dtype=np.float32)  # (frames, N+1, 2)
@@ -35,8 +46,8 @@ def main() -> None:
 
     # Sample the vortex wind field on a grid over the trajectory's box so the
     # slide can draw it as a faint arrow field without touching jax.
-    xs = np.linspace(0.0, 50.0, 5)
-    ys = np.linspace(0.0, 200.0, 11)
+    xs = np.linspace(0.0, 80.0, 31)
+    ys = np.linspace(0.0, 200.0, 21)
     gx, gy = np.meshgrid(xs, ys)
     wind_xy = np.stack([gx.ravel(), gy.ravel()], axis=1).astype(np.float32)
     wind_uv = np.asarray(
