@@ -302,111 +302,57 @@ class Lagrangians(InteractiveScene, Slide):
         cyl_height = 4.5  # shows omega up to +-2.8
 
         cyl = (
-            Cylinder(radius=R, height=cyl_height, resolution=(101, 51))
+            Cylinder(
+                radius=R, height=cyl_height, resolution=(101, 101), shading=(0, 0, 0)
+            )
             .shift(cyl_center)
             .set_color(GREY_C)
             .set_opacity(0.05)
         )
         cyl_mesh = SurfaceMesh(
             cyl,
-            resolution=(24, 9),
-            stroke_color=GREY_B,
+            resolution=(12, 7),
+            stroke_color=GREY_D,
             stroke_width=1,
-            stroke_opacity=0.2,
+            stroke_opacity=0.3,
+            depth_test=False,
         )
 
         self.play(
             FadeIn(cyl),
             ShowCreation(cyl_mesh),
-            Transform(state_space, state_space.set_color(GREY)),
+            Transform(
+                state_space, state_space.copy().set_color(BLACK).set_stroke(width=1)
+            ),
         )
 
         # @ Lagrangian flow: energy level curves E = omega^2/2 − cos(theta) = const
-        self.next_slide()
+        self.next_slide(loop=True)
 
         def to_cyl_pt(th, om):
+            # depth_fix = 1.05
+            depth_fix = 1
             return np.array(
-                [cx + R * np.cos(th), cy + R * np.sin(th), om * omega_scale]
+                [
+                    cx + depth_fix * R * np.cos(th),
+                    cy + depth_fix * R * np.sin(th),
+                    om * omega_scale,
+                ]
             )
-
-        def libration_pts(E, n=200):
-            # closed loop wrapping partway around the cylinder
-            theta_max = float(np.arccos(np.clip(-E, -1.0, 1.0)))
-            ths = np.linspace(-theta_max, theta_max, n)
-            upper = [
-                to_cyl_pt(th, np.sqrt(max(0.0, 2 * (E + np.cos(th))))) for th in ths
-            ]
-            lower = [
-                to_cyl_pt(th, -np.sqrt(max(0.0, 2 * (E + np.cos(th)))))
-                for th in reversed(ths)
-            ]
-            pts = upper + lower
-            return pts + [pts[0]]
-
-        def rotation_pts(E, sign, n=200):
-            # closed loop wrapping all the way around the cylinder
-            ths = np.linspace(-PI, PI, n)
-            pts = [
-                to_cyl_pt(th, sign * np.sqrt(max(0.0, 2 * (E + np.cos(th)))))
-                for th in ths
-            ]
-            return pts + [pts[0]]
-
-        def separatrix_pts(upper, n=200):
-            # E=1: omega = +-2cos(theta/2); (+-pi, 0) coincide on cylinder so curve is closed
-            sign = 1.0 if upper else -1.0
-            ths = np.linspace(-PI, PI, n)
-            return [to_cyl_pt(th, sign * 2.0 * np.cos(th / 2)) for th in ths]
-
-        def make_curve(pts, color, width=6.0):
-            c = VMobject(color=color, stroke_width=width, depth_test=True)
-            c.set_points_smoothly(pts)
-            return c
-
-        flow = VGroup(
-            *[
-                make_curve(libration_pts(E), COLOR_LAGRANGIANS)
-                for E in [-0.8, -0.3, 0.4, 0.85]
-            ],
-            make_curve(separatrix_pts(True), YELLOW_D, width=9),
-            make_curve(separatrix_pts(False), YELLOW_D, width=9),
-            *[
-                make_curve(rotation_pts(E, s), COLOR_LAGRANGIANS)
-                for E in [1.5, 2.5]
-                for s in [1, -1]
-            ],
-        )
-        self.play(
-            ShowCreation(flow, lag_ratio=0.3),
-            self.frame.animate.reorient(120, 80, 0, state_space.get_center(), 9),
-            run_time=10,
-            rate_func=rush_from,
-        )
-
-        # @ color the cylinder by energy level
-        self.next_slide()
 
         omega_max = cyl_height / (2 * omega_scale)
         E_min, E_max = -1.0, 0.5 * omega_max**2 + 1.0
 
-        def energy_uv_color(u, v):
-            # u in (0, TAU) = theta on cylinder, v in (-1, 1) → omega via height
-            om = v * cyl_height / 2 / omega_scale
-            E = 0.5 * om**2 - np.cos(u)
-            t = float(np.clip((E - E_min) / (E_max - E_min), 0, 1))
-            return interpolate_color(BLUE_E, RED_E, t)
+        def energy(theta, omega):
+            om = omega * cyl_height / 2 / omega_scale
+            E = 0.5 * om**2 - np.cos(theta)
+            return float(np.clip((E - E_min) / (E_max - E_min), 0, 1))
 
-        colored_cyl = cyl.copy()
-        colored_cyl.color_by_uv_function(energy_uv_color)  # ty:ignore[invalid-argument-type] straight up wrong in manim
-        colored_cyl.set_opacity(0.5)
+        def energy_color(theta, omega):
+            return interpolate_color(
+                BLUE_E, RED_E, energy(theta, omega), interp_by_hsl=True
+            )
 
-        self.play(Transform(cyl, colored_cyl), run_time=2)
-
-        # @ symplecticity
-        self.next_slide()
-        self.play(FadeOut(flow, lag_ratio=0.3), run_time=1)
-
-        # Small blobs of initial conditions that deform but preserve area (dθ∧dω).
         def _rk4(th, om, dt):
             k1 = (om, -np.sin(th))
             k2 = (om + 0.5 * dt * k1[1], -np.sin(th + 0.5 * dt * k1[0]))
@@ -417,6 +363,70 @@ class Lagrangians(InteractiveScene, Slide):
                 om + dt / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]),
             )
 
+        flow_time = 20
+        dots = Group()
+
+        def make_curve(theta, omega, width=1.0):
+            color = energy_color(theta, omega)
+            pts = [(theta, omega)]
+            sim_dt = 0.1
+            for _ in range(int(flow_time / sim_dt)):
+                pts.append(_rk4(*pts[-1], sim_dt))
+
+            pts = [to_cyl_pt(th, om) for th, om in pts]
+
+            c = (
+                VMobject(
+                    fill_opacity=0,
+                    stroke_color=interpolate_color(color, BLACK, 0.7),
+                    stroke_width=width,
+                    joint_type="no_joint",
+                )
+                .set_points_smoothly(pts)
+                .set_fill(None)
+                .set_stroke(opacity=0.03)
+            )
+            dot = GlowDot(color=color, radius=0.1).add_updater(
+                lambda dot: dot.move_to(c.get_end())
+            )
+            tail = TracingTail(dot, time_traced=3, stroke_color=color, stroke_width=2)
+            self.add(tail, dot)
+            dots.add(dot)
+            return c
+
+        random.seed(69420)
+        rand_starts = (
+            (random.random() * TAU, random.random() * 2 - 1) for _ in range(30)
+        )
+        flow = VGroup(*(make_curve(theta, omega) for theta, omega in rand_starts))
+        self.play(
+            FadeIn(dots, run_time=0.5),
+            ShowCreation(flow, lag_ratio=0, run_time=flow_time),
+            self.frame.animate.set_anim_args(run_time=flow_time).reorient(
+                90, 80, 0, state_space.get_center(), 9
+            ),  # ty:ignore[unresolved-attribute]
+            # rate_func=rush_from,
+        )
+
+        # @ color the cylinder by energy level
+        self.next_slide()
+
+        colored_cyl = cyl.copy()
+        colored_cyl.color_by_uv_function(energy_color)  # ty:ignore[invalid-argument-type] straight up wrong in manim
+        colored_cyl.set_opacity(0.5)
+
+        self.play(
+            FadeOut(dots, lag_ratio=0.03),
+            Transform(cyl, colored_cyl),
+            flow[:10].animate.set_stroke(opacity=1),
+            run_time=2,
+        )
+
+        # @ symplecticity
+        self.next_slide()
+        self.play(FadeOut(flow, lag_ratio=0.3), run_time=1)
+
+        # Small blobs of initial conditions that deform but preserve area (dθ∧dω).
         n_verts = 40
         patch_r = 0.3
         sim_dt = 0.03
@@ -424,7 +434,7 @@ class Lagrangians(InteractiveScene, Slide):
 
         # One librating patch and one rotating patch
         patch_centers = [(0.0, 0.1), (1.0, 0.05)]
-        patch_cols = [TEAL_D, ORANGE]
+        patch_cols = [RED, ORANGE]
 
         all_frames = []
         for th0, om0 in patch_centers:
@@ -447,7 +457,7 @@ class Lagrangians(InteractiveScene, Slide):
                     fill_color=c,
                     fill_opacity=0.4,
                     stroke_width=2,
-                    depth_test=True,
+                    # depth_test=True,
                 ).set_points_smoothly(
                     [to_cyl_pt(*all_frames[i][0][v]) for v in range(n_verts)]
                     + [to_cyl_pt(*all_frames[i][0][0])]
@@ -477,14 +487,16 @@ class Lagrangians(InteractiveScene, Slide):
         for mob in symp_patches:
             mob.clear_updaters()
 
+        # @ clear
+
         self.next_slide()
         self.play(
             FadeOut(cyl),
             FadeOut(cyl_mesh),
             FadeOut(state_space),
             FadeOut(symp_patches),
-            self.frame.animate.restore(),
         )
+        (self.frame.restore(),)
         # @ end
 
     def euler_lagrange(self):
@@ -512,8 +524,10 @@ class Lagrangians(InteractiveScene, Slide):
             t2c=t2c,
         )
 
-        cont = VGroup(cont_header, L_def, action_cont, el_equations).arrange(
-            DOWN, buff=0.4
+        cont = (
+            VGroup(cont_header, L_def, action_cont, el_equations)
+            .arrange(DOWN, buff=0.4)
+            .move_to(UP * 1.5)
         )
         disc = VGroup(disc_header, Ld_def, action_disc, del_eq).arrange(DOWN, buff=0.4)
 
@@ -544,15 +558,17 @@ class Lagrangians(InteractiveScene, Slide):
         # @ approx
         Ld_exact = Tex(
             r"L^\text{ex.}_d (q_0, q_1) = \int_0^h q_{0, 1} (q_0, q_1)",
-            t2c={ **t2c, r"L^\text{ex.}_d": MAROON_D },
-            # font_size=58,
+            t2c={**t2c, r"L^\text{ex.}_d": MAROON_D},
         )
         Ld_approx = Tex(
             r"\widetilde{L}_d (q_0, q_1) = L\left(\tfrac{q_0 + q_1}{2}, \tfrac{q_1 - q_0}{h}\right)",
             t2c=t2c,
-            # font_size=58,
         )
-        Lds = VGroup(Ld_exact, Ld_approx).arrange(RIGHT, buff=0.8).move_to(BOTTOM + UP)
+        Lds = (
+            VGroup(Ld_exact, Ld_approx)
+            .arrange(RIGHT, buff=0.8)
+            .move_to(BOTTOM + 1.8 * UP)
+        )
 
         self.next_slide()
         self.play(Write(Ld_exact))
@@ -560,20 +576,16 @@ class Lagrangians(InteractiveScene, Slide):
         self.next_slide()
         self.play(Write(Ld_approx))
 
-        # @ end
+        # @ cleanup
 
         self.next_slide()
         self.play(
             LaggedStartMap(
                 FadeOut,
-                VGroup(
-                    el_equations,
-                    divider,
-                    cont,
-                    disc,
-                    Lds
-                ),
+                VGroup(el_equations, divider, cont, disc, Lds),
                 shift=RIGHT,
                 run_time=0.5,
             )
         )
+
+        # @ end

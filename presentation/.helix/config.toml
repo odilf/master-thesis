@@ -1,9 +1,14 @@
 [keys.normal."space"."m"]
+# Open
 o = [":pipe-to ./manim-send.sh 'uv run manimgl %{file_path_absolute} -se %{cursor_line}'"]
-p = "@F@xvf@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret>"
+
+# Run "cell" delimited by @
+p = "@<C-s>F@xvf@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret><C-o>"
+s = "@<C-s>F@xvf@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret><C-o>"
+
+# Run just selected
 l = "@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret>"
 k = "@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret>"
-s = "@F@xvf@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret>"
 
 
 
