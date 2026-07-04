@@ -1,11 +1,684 @@
-import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
+import math
+from pathlib import Path
+
+import numpy as np
 from manim_slides.slide.manimlib import Slide
 from manimlib import *
 
+import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
+from scenes.theme import COLOR_LIE_GROUPS
 
-class LieGroups(Slide):
+# L_d keeps the accent it has carried since the Lagrangians section, so the DEL
+# equations read continuously across the whole talk.
+COLOR_LD = MAROON_D
+
+_DEMO_DATA = Path(__file__).resolve().parent.parent / "assets" / "so3_top.npz"
+
+# Distinct face colors so the brick's orientation stays legible as it tumbles.
+_FACE_COLORS = [COLOR_LIE_GROUPS, TEAL_E, BLUE_D, BLUE_E, GREY_BROWN, GREY_B]
+
+
+def make_brick(dims=(2.0, 1.2, 0.5)):
+    """A colored box centered at the origin; each face a different color."""
+    brick = Prism(*dims)
+    for face, col in zip(brick, _FACE_COLORS):
+        face.set_color(col)
+    brick.set_shading(0.2, 0.4, 0.1)
+    return brick
+
+
+def oriented_brick(R, dims=(2.0, 1.2, 0.5)):
+    """A brick transformed by the 3x3 matrix R (about the origin). For a proper
+    rotation this is a rigid tumble; for an off-manifold matrix it shears/scales."""
+    return make_brick(dims).apply_matrix(np.array(R))
+
+
+def _skew(v):
+    """Hat map: R^3 -> so(3)."""
+    return np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+
+
+def _cayley(v):
+    """Cayley retraction of a Lie algebra element v (given as an R^3 vector)."""
+    X = _skew(v)
+    return np.linalg.solve(np.eye(3) - X / 2, np.eye(3) + X / 2)
+
+
+class LieGroups(InteractiveScene, Slide):
     def construct(self):
         self.lie_groups_section()
 
     def lie_groups_section(self) -> None:
-        self.play(Write(Text("TODO: LIE GROUPS")))
+        self.frame.save_state()
+
+        # @ title: answer the "Q is not a vector space" bridge from the forced section
+        title = Text("Lie groups", font_size=72, color=COLOR_LIE_GROUPS, weight="bold")
+        subtitle = TexText(
+            r"the configuration space $Q$ has only group structure. \\Archetypical examples: $\textrm{SO}(3)$, $\textrm{SE}(3)$",
+            font_size=40,
+        ).next_to(title, DOWN, buff=0.5)
+
+        self.play(Write(title))
+        self.play(FadeIn(subtitle, shift=0.2 * UP))
+
+        self.next_slide()
+
+        # @ non-commutativity: rotations have no vector-space "+"
+        heading = Text("Rotations do not commute", font_size=44).to_edge(UP, buff=0.6)
+        heading.fix_in_frame()
+        self.play(FadeOut(VGroup(title, subtitle)), Write(heading))
+
+        # Two identical bricks; each undergoes the two 90-degree rotations in the
+        # opposite order, ending in visibly different orientations.
+        brick_a = make_brick().shift(LEFT * 2.2)
+        brick_b = make_brick().shift(RIGHT * 2.2)
+
+        lbl_a = Tex(r"R_z \, R_x", font_size=40).move_to(LEFT * 3.2 + DOWN * 2.6)
+        lbl_b = Tex(r"R_x \, R_z", font_size=40).move_to(RIGHT * 3.2 + DOWN * 2.6)
+        lbl_a.fix_in_frame()
+        lbl_b.fix_in_frame()
+
+        self.play(
+            self.frame.animate.reorient(-20, 68, 0, ORIGIN, 6),
+            FadeIn(brick_a),
+            FadeIn(brick_b),
+            run_time=1.5,
+        )
+        self.play(Write(lbl_a), Write(lbl_b))
+
+        self.next_slide()
+        # Left brick: first about x, then about z. Right brick: reverse order.
+        self.play(
+            Rotate(brick_a, PI / 2, axis=RIGHT, about_point=brick_a.get_center()),
+            Rotate(brick_b, PI / 2, axis=OUT, about_point=brick_b.get_center()),
+            run_time=1.2,
+        )
+        self.play(
+            Rotate(brick_a, PI / 2, axis=OUT, about_point=brick_a.get_center()),
+            Rotate(brick_b, PI / 2, axis=RIGHT, about_point=brick_b.get_center()),
+            run_time=1.2,
+        )
+
+        self.next_slide()
+        neq = Tex(
+            r"R_z\,R_x \;\neq\; R_x\,R_z",
+            font_size=48,
+            color=COLOR_LIE_GROUPS,
+        ).to_edge(DOWN, buff=0.7)
+        neq.fix_in_frame()
+        self.play(FadeIn(neq, shift=0.2 * UP))
+
+        no_plus = TexText(
+            r"no vector-space ``$+$'' on $Q = SO(3)$!",
+            font_size=34,
+            color=GREY_C,
+        ).next_to(heading, DOWN, buff=0.35)
+        no_plus.fix_in_frame()
+        self.play(FadeIn(no_plus))
+
+        self.next_slide()
+        self.play(
+            FadeOut(Group(brick_a, brick_b, lbl_a, lbl_b, heading, neq, no_plus)),
+            run_time=0.5,
+        )
+        self.frame.restore()
+
+        # @ retraction: you cannot just add the correction
+        heading = Text("The Newton correction lives in the Lie algebra", font_size=40)
+        heading.to_edge(UP, buff=0.6).fix_in_frame()
+        self.play(Write(heading, lag_ratio=0.03), run_time=1)
+
+        # Left: the flat vector-space update (greyed, echoing earlier sections).
+        flat_eq = Tex(
+            r"q \;\leftarrow\; q - H^{-1} r",
+            font_size=40,
+            color=GREY_B,
+        )
+        flat_lbl = Text("vector space", font_size=26, color=GREY_B)
+        flat = VGroup(flat_eq, flat_lbl).arrange(DOWN, buff=0.3)
+        flat.move_to(LEFT_SIDE * 0.7)
+        flat.fix_in_frame()
+
+        # Right: the group update.
+        group_eq = Tex(
+            r"g_k \;\leftarrow\; g_k \cdot \tau(\xi)",
+            font_size=44,
+            t2c={r"\tau": COLOR_LIE_GROUPS, r"\xi": COLOR_LIE_GROUPS},
+        )
+        group_lbl = Text("Lie group", font_size=26, color=COLOR_LIE_GROUPS)
+        group = VGroup(group_eq, group_lbl).arrange(DOWN, buff=0.3)
+        group.move_to(RIGHT_SIDE * 0.7)
+        group.fix_in_frame()
+
+        self.play(LaggedStartMap(Write, VGroup(flat, group), lag_ratio=0.5))
+
+        # @ sphere schematic
+        # A schematic sphere standing in for the curved group, with a tangent
+        # plane (the Lie algebra), a correction vector, and the retraction.
+        self.next_slide()
+        sphere = (
+            Sphere(radius=1.6, resolution=(51, 26)).set_color(GREY_A).set_opacity(1)
+        )
+        mesh = SurfaceMesh(
+            sphere,
+            resolution=(13, 9),
+            stroke_color=GREY_D,
+            stroke_width=1,
+            stroke_opacity=0.4,
+        )
+        sphere_grp = Group(sphere, mesh).shift(DOWN * 0.4)
+
+        # Point g_k on the sphere and the tangent plane there (top of the sphere).
+        base = sphere_grp.get_center() + OUT * 1.6
+        gk_dot = Sphere(radius=0.09).set_color(COLOR_LIE_GROUPS).move_to(base)
+        plane = (
+            Square(side_length=3.0)
+            .set_stroke(COLOR_LIE_GROUPS, 2)
+            .set_fill(COLOR_LIE_GROUPS, 0.08)
+        )
+        plane.move_to(base)  # already in the xy-orientation = tangent at the top pole
+
+        center = sphere_grp.get_center()
+        normal_base = normalize(base - center)
+
+        # The retraction curves the tip of xi back down onto the sphere.
+        land = normalize(base + RIGHT * 1.2 + UP * 0.5 - center) * 1.6 + center
+        normal_land = normalize(land - center)
+        retr_theta = float(
+            np.arccos(np.clip(np.dot(normal_base, normal_land), -1.0, 1.0))
+        )
+
+        # Stroke through `pts` with a filled triangle tip at pts[-1].
+        # `up` orients the tip plane; should be roughly normal to the stroke there.
+        def stroke_arrow(pts, color, up):
+            pts = np.asarray(pts)
+            print(pts.shape)
+            stroke = VMobject().set_points_smoothly(pts[:-1]).set_stroke(color, 6)
+            tan = normalize(pts[-1] - pts[-2])
+            wid = normalize(np.cross(up, tan))
+            tl, tw = 0.15, 0.09
+            tip = (
+                Polygon(
+                    pts[-1],
+                    pts[-1] - tan * tl + wid * tw,
+                    pts[-1] - tan * tl - wid * tw,
+                )
+                .set_fill(color, opacity=1)
+                .set_stroke(width=0)
+            )
+            return VGroup(stroke, tip)
+
+        _xi_end = base + RIGHT * 1.2 + UP * 0.5
+        xi_vec = stroke_arrow(
+            np.linspace(base, _xi_end, 10), COLOR_LIE_GROUPS, up=normal_base
+        )
+        xi_lbl = Tex(r"\xi \in \mathfrak{g}", font_size=32, color=COLOR_LIE_GROUPS)
+        xi_lbl.next_to(xi_vec[0].get_end(), UP + RIGHT, buff=0.1).fix_in_frame()
+
+        retracted = stroke_arrow(
+            np.array(
+                [
+                    center
+                    + 1.6
+                    * (
+                        np.sin((1 - t) * retr_theta) * normal_base
+                        + np.sin(t * retr_theta) * normal_land
+                    )
+                    / np.sin(retr_theta)
+                    for t in np.linspace(0, 1, 30)
+                ]
+            ),
+            MAROON_C,
+            up=normal_land,
+        )
+
+        tau_lbl = Tex(r"\tau(\xi)", font_size=32, color=MAROON_C)
+        tau_lbl.next_to(retracted, RIGHT, buff=0.1).fix_in_frame()
+
+        schematic_note = Text(
+            "(sphere: schematic for the curved group)", font_size=20, color=GREY_B
+        )
+        schematic_note.to_edge(DOWN, buff=0.3).fix_in_frame()
+
+        self.play(
+            self.frame.animate.reorient(-25, 62, 0, sphere_grp.get_center(), 8.5),
+            FadeIn(sphere),
+            ShowCreation(mesh),
+            run_time=1.5,
+        )
+        self.play(FadeIn(plane), FadeIn(gk_dot))
+        self.play(ShowCreation(xi_vec))
+        self.next_slide()
+        self.play(
+            # FadeIn(tau_lbl),
+            FadeIn(schematic_note),
+            self.frame.animate.set_anim_args(run_time=3).reorient(  # ty:ignore[unresolved-attribute]
+                52, 47, 0, (np.float32(0.69), np.float32(0.31), np.float32(1.12)), 2.20
+            ),
+        )
+        self.next_slide()
+        old_xi = xi_vec.copy().set_color(GREY).set_opacity(0.4)
+        self.play(
+            LaggedStart(
+                FadeIn(old_xi),
+                self.frame.animate.set_anim_args(run_time=4).reorient(
+                    47,
+                    66,
+                    0,
+                    (np.float32(0.5), np.float32(0.08), np.float32(1.15)),
+                    2.20,
+                ),
+                Transform(xi_vec, retracted, run_time=4, rate_func=smooth),
+            )
+        )
+
+        # @ retraction choice
+        apply_note = TexText(
+            r"apply the correction \emph{on} the group: $g_k \cdot \tau(\xi)$",
+            font_size=32,
+            color=MAROON_C,
+        ).to_edge(DOWN, buff=0.3)
+
+        # The retraction's defining properties and the two concrete choices.
+        self.next_slide()
+        tau_props = Tex(
+            r"\tau : \mathfrak{g} \to G, \quad \tau(0) = e, \quad T_0\tau = \mathrm{Id}",
+            font_size=42,
+            t2c={r"\tau": COLOR_LIE_GROUPS},
+        )
+        tau_choices = Tex(
+            r"\exp(\xi) \quad\text{or}\quad \mathrm{cay}(\xi) = (I - \xi/2)^{-1}(I + \xi/2)",
+            font_size=40,
+            t2c={r"\xi": COLOR_LIE_GROUPS},
+        )
+        props = VGroup(tau_props, tau_choices).arrange(DOWN, buff=0.35)
+        props.to_edge(DOWN, buff=0.75).fix_in_frame()
+        self.play(
+            LaggedStart(
+                FadeOut(schematic_note),
+                self.frame.animate.reorient(
+                    33,
+                    59,
+                    0,
+                    (np.float32(3.47), np.float32(1.14), np.float32(0.77)),
+                    5.95,
+                ),
+                Write(tau_props),
+                FadeIn(tau_choices, shift=0.2 * UP),
+                lag_ratio=0.2,
+                run_time=5
+            )
+        )
+        self.play()
+
+        self.next_slide()
+        self.play(
+            FadeOut(
+                Group(
+                    heading,
+                    flat,
+                    group,
+                    sphere,
+                    mesh,
+                    plane,
+                    gk_dot,
+                    xi_vec,
+                    old_xi,
+                    xi_lbl,
+                    retracted,
+                    tau_lbl,
+                    tau_props,
+                    tau_choices,
+                )
+            ),
+            run_time=1.0,
+        )
+        self.frame.animate.restore()
+
+        # @ load the SO(3) solver data (baked from EulerTop, see export_so3.py)
+        data = np.load(_DEMO_DATA)
+        paths = data["paths"]  # (frames, N+1, 3, 3)
+        logs = data["logs"]  # (frames, N+1, 3)  so(3) log-chart curves
+        residuals = data["residuals"]  # (frames,)
+        iters_per_frame = int(data["iterations_per_frame"])
+        n_frames = len(paths)
+        N = paths.shape[1] - 1
+        converged = paths[-1]  # DEL solution rotations (for the brick)
+        converged_logs = logs[-1]  # its so(3) log-chart curve
+
+        heading = Text(
+            "A trajectory of rotations is a curve in the algebra", font_size=36
+        )
+        heading.to_edge(UP, buff=0.5).fix_in_frame()
+
+        axes3 = ThreeDAxes(
+            x_range=(0, 2.5, 1),
+            y_range=(0, 1.5, 1),
+            z_range=(-1, 1, 1),
+            width=4.5,
+            height=3.0,
+            depth=2.0,
+            axis_config={"stroke_color": GREY_B, "stroke_width": 2},
+        ).shift(RIGHT * 3.0 + DOWN * 0.3)
+        algebra_lbl = Tex(
+            r"\mathfrak{g} = \mathfrak{so}(3)", font_size=30, color=COLOR_LIE_GROUPS
+        )
+        algebra_lbl.next_to(axes3, UP, buff=0.1).fix_in_frame()
+
+        log_curve = VMobject().set_stroke(COLOR_LIE_GROUPS, 4)
+        log_curve.set_points_smoothly([axes3.c2p(*p) for p in converged_logs])
+
+        brick_home = LEFT * 3.2 + DOWN * 0.3
+        k_tracker = ValueTracker(0)
+
+        def brick_at_k(m):
+            k = int(np.clip(round(k_tracker.get_value()), 0, N))
+            m.become(oriented_brick(converged[k]).move_to(brick_home))
+
+        brick = oriented_brick(converged[0]).move_to(brick_home)
+        brick.add_updater(brick_at_k)
+
+        marker = always_redraw(
+            lambda: (
+                Sphere(radius=0.07)
+                .set_color(MAROON_C)
+                .move_to(
+                    axes3.c2p(
+                        *converged_logs[
+                            int(np.clip(round(k_tracker.get_value()), 0, N))
+                        ]
+                    )
+                )
+            )
+        )
+
+        self.frame.reorient(-18, 70, 0, ORIGIN, 7),
+        self.play(
+            Write(heading),
+            FadeIn(brick),
+            ShowCreation(axes3),
+            FadeIn(algebra_lbl),
+            run_time=1.5,
+        )
+        self.add(marker)
+        self.play(ShowCreation(log_curve), run_time=1.0)
+
+        self.next_slide(loop=True)
+        self.play(k_tracker.animate.set_value(N), run_time=5, rate_func=linear)
+        k_tracker.set_value(0)
+
+        self.next_slide()
+        brick.clear_updaters()
+        self.play(
+            FadeOut(Group(brick, marker, axes3, algebra_lbl, log_curve, heading)),
+            run_time=1.0,
+        )
+        self.frame.animate.restore(),
+
+        # @ convergence: the same solver relaxes the log-chart curve (flat view)
+        heading = Text("Same solver, different manifold", font_size=40).to_edge(
+            UP, buff=0.7
+        )
+
+        axes = (
+            Axes(
+                x_range=(0, 2.5, 1),
+                y_range=(0, 1.6, 1),
+                width=6.0,
+                height=5.0,
+                axis_config={"stroke_color": GREY_B, "stroke_width": 2},
+            )
+            .to_edge(LEFT, buff=1.0)
+            .shift(0.3 * DOWN)
+        )
+        axes_lbl = Tex(
+            r"\mathfrak{so}(3) \text{ log-chart}", font_size=30, color=COLOR_LIE_GROUPS
+        )
+        axes_lbl.next_to(axes, UP, buff=0.2)
+
+        curve = VMobject(stroke_behind=True).set_stroke(COLOR_LIE_GROUPS, 4)
+
+        def polyline_at(m, i: float):
+            pts1 = np.array([axes.c2p(x, y) for x, y in logs[math.floor(i)][:, :2]])
+            pts2 = np.array([axes.c2p(x, y) for x, y in logs[math.ceil(i)][:, :2]])
+            t = math.ceil(i) - i
+            return m.set_points_as_corners(pts1 * t + pts2 * (1 - t))
+
+        # Faint wobble initial guess stays for reference.
+        guess = polyline_at(curve, 0).copy().set_stroke(GREY_B, 2)
+        start_dot = Dot(axes.c2p(*logs[0, 0, :2]), color=COLOR_LIE_GROUPS)
+        end_dot = Dot(axes.c2p(*logs[0, -1, :2]), color=COLOR_LIE_GROUPS)
+
+        frame = ValueTracker(0)
+        curve.add_updater(
+            lambda m: polyline_at(m, float(np.clip(frame.get_value(), 0, n_frames - 1)))
+        )
+
+        log0, log1 = np.log10(residuals[0]), np.log10(residuals[-1])
+
+        def frame_i():
+            return int(np.clip(frame.get_value(), 0, n_frames - 1))
+
+        counter = VGroup(
+            Text("iterations:", font="IosevkaTerm Nerd Font"),
+            Integer(
+                0,
+                text_config={"font": "IosevkaTerm Nerd Font", "alignment": "RIGHT"},
+                min_total_width=5,
+                group_with_commas=False,
+            ),
+        ).arrange(RIGHT, buff=0)
+        counter[0].move_to(LEFT)
+        counter[1].add_updater(lambda m: m.set_value(frame_i() * iters_per_frame))
+        counter.move_to(RIGHT * 3.4 + UP * 1.6)
+
+        res_label = (
+            VGroup(
+                Text("residual:", font="IosevkaTerm Nerd Font"),
+                DecimalNumber(
+                    residuals[0],
+                    num_decimal_places=6,
+                    text_config={"font": "IosevkaTerm Nerd Font"},
+                ),
+            )
+            .arrange(RIGHT)
+            .next_to(counter, DOWN, buff=0.6)
+        )
+        res_label[1].add_updater(lambda m: m.set_value(float(residuals[frame_i()])))
+
+        bar_bg = Line(ORIGIN, RIGHT * 4.5, color=GREY_D, stroke_width=8).next_to(
+            res_label, DOWN, buff=0.4, aligned_edge=LEFT
+        )
+
+        def res_bar():
+            frac = (np.log10(residuals[frame_i()]) - log1) / (log0 - log1)
+            start = bar_bg.get_start()
+            return Line(
+                start, start + RIGHT * 4.5 * float(np.clip(frac, 0, 1)), color=RED
+            ).set_stroke(width=8)
+
+        bar = always_redraw(res_bar)
+
+        self.play(
+            Write(heading),
+            ShowCreation(axes),
+            FadeIn(axes_lbl),
+            ShowCreation(guess),
+            FadeIn(start_dot),
+            FadeIn(end_dot),
+        )
+        self.add(curve)
+        self.play(FadeIn(VGroup(counter, res_label, bar_bg)), FadeIn(bar))
+
+        self.next_slide(loop=True)
+        self.play(frame.animate.set_value(n_frames - 1), run_time=5, rate_func=linear)
+
+        self.next_slide()
+        counter[1].clear_updaters()
+        res_label[1].clear_updaters()
+        self.play(
+            FadeOut(
+                VGroup(
+                    heading,
+                    axes,
+                    axes_lbl,
+                    guess,
+                    start_dot,
+                    end_dot,
+                    counter,
+                    res_label,
+                    bar_bg,
+                )
+            ),
+            FadeOut(curve),
+            FadeOut(bar),
+            run_time=0.8,
+        )
+
+        # @ proof punchline: the retraction-curvature term vanishes at a solution
+        hess = Tex(
+            r"\widetilde{\mathcal{D}}_k = \underbrace{(T_e L)^{*}(\mathrm{D}_{22} L_d + \mathrm{D}_{11} L_d)(T_e L)}"
+            r"_{\text{Hessian of } L_d}",
+            font_size=36,
+            t2c={"L_d": COLOR_LD},
+        )
+        curv = Tex(
+            r"+\underbrace{r_k \cdot \mathrm{D}^2\tau(0)}_{\text{retraction curvature}}",
+            font_size=36,
+            t2c={"r_k": RED_D, r"\tau": COLOR_LIE_GROUPS},
+        )
+        row = VGroup(hess, curv).arrange(RIGHT, buff=0.35, aligned_edge=UP)
+        row.move_to(UP * 0.6)
+
+        self.play(Write(hess), run_time=1)
+        self.next_slide()
+        self.play(Write(curv), run_time=1)
+
+        # At a solution the residual is zero, so the whole curvature term drops.
+        self.next_slide()
+        vanish = Tex(
+            r"r_k(\mathbf{g}^{*}, g_k^{*}) = 0 \quad\text{at a solution}",
+            font_size=38,
+            t2c={"r_k": RED},
+        ).next_to(row, DOWN, buff=1.4)
+        self.play(FadeIn(vanish, shift=0.2 * UP), Indicate(curv, color=RED))
+        self.play(FadeOut(curv, shift=0.3 * RIGHT), run_time=1.0)
+
+        self.next_slide()
+        conclusion = (
+            VGroup(
+                TexText(
+                    r"$\Rightarrow$ fixed points are DEL solutions, local convergence.",
+                    font_size=34,
+                    color=COLOR_LIE_GROUPS,
+                ),
+            )
+            .arrange(DOWN, buff=0.35)
+            .next_to(vanish, DOWN, buff=0.7)
+        )
+        self.play(LaggedStartMap(FadeIn, conclusion, shift=0.2 * UP, lag_ratio=0.3))
+
+        self.next_slide()
+        self.play(FadeOut(VGroup(heading, lhs, hess, vanish, conclusion)))
+
+        # @ closing: the same rigid tumble, with vs without the retraction
+        self.next_slide()
+        heading = Text("Without the retraction, the iterate leaves SO(3)", font_size=34)
+        heading.to_edge(UP, buff=0.6).fix_in_frame()
+
+        # A steady rigid tumble integrated two ways from the same start: the
+        # group update multiplies by the Cayley retraction (stays on SO(3)); the
+        # naive update multiplies by the first-order term I + xi (drifts off).
+        omega = np.array([0.5, 0.8, 1.3])
+        dt = 0.08
+        steps = 60
+        xi = dt * omega
+        step_ret = _cayley(xi)
+        step_naive = np.eye(3) + _skew(xi)
+        traj_ret = [np.eye(3)]
+        traj_naive = [np.eye(3)]
+        for _ in range(steps):
+            traj_ret.append(traj_ret[-1] @ step_ret)
+            traj_naive.append(traj_naive[-1] @ step_naive)
+
+        home_l = LEFT * 3.3 + DOWN * 0.2
+        home_r = RIGHT * 3.3 + DOWN * 0.2
+        t_tracker = ValueTracker(0)
+
+        def tumble_updater(traj, home):
+            def upd(m):
+                k = int(np.clip(round(t_tracker.get_value()), 0, steps))
+                m.become(oriented_brick(traj[k]).move_to(home))
+
+            return upd
+
+        brick_ret = oriented_brick(traj_ret[0]).move_to(home_l)
+        brick_ret.add_updater(tumble_updater(traj_ret, home_l))
+        brick_naive = oriented_brick(traj_naive[0]).move_to(home_r)
+        brick_naive.add_updater(tumble_updater(traj_naive, home_r))
+
+        lbl_l = TexText(
+            r"with retraction: $g_{k+1} = g_k \cdot \tau(\xi)$",
+            font_size=28,
+            color=COLOR_LIE_GROUPS,
+        ).move_to(LEFT * 3.3 + DOWN * 2.6)
+        lbl_l.fix_in_frame()
+        lbl_r = TexText(
+            r"naive: $g_{k+1} = g_k \cdot (I + \xi)$",
+            font_size=28,
+            color=RED,
+        ).move_to(RIGHT * 3.3 + DOWN * 2.6)
+        lbl_r.fix_in_frame()
+
+        def det_readout(traj, color):
+            grp = VGroup(
+                Text("det = ", font="IosevkaTerm Nerd Font", font_size=26, color=color),
+                DecimalNumber(
+                    1.0,
+                    num_decimal_places=2,
+                    font_size=26,
+                    color=color,
+                    text_config={"font": "IosevkaTerm Nerd Font"},
+                ),
+            ).arrange(RIGHT, buff=0.1)
+            grp[1].add_updater(
+                lambda m: m.set_value(
+                    float(
+                        np.linalg.det(
+                            traj[int(np.clip(round(t_tracker.get_value()), 0, steps))]
+                        )
+                    )
+                )
+            )
+            return grp
+
+        det_l = det_readout(traj_ret, GREY_D).move_to(LEFT * 3.3 + DOWN * 2.0)
+        det_l.fix_in_frame()
+        det_r = det_readout(traj_naive, RED).move_to(RIGHT * 3.3 + DOWN * 2.0)
+        det_r.fix_in_frame()
+
+        self.play(
+            self.frame.animate.reorient(-15, 66, 0, ORIGIN, 10),
+            Write(heading),
+            FadeIn(brick_ret),
+            FadeIn(brick_naive),
+            run_time=1.5,
+        )
+        self.play(FadeIn(lbl_l), FadeIn(lbl_r), FadeIn(det_l), FadeIn(det_r))
+
+        self.next_slide(loop=True)
+        self.play(t_tracker.animate.set_value(steps), run_time=5, rate_func=linear)
+        t_tracker.set_value(0)
+
+        self.next_slide()
+        brick_ret.clear_updaters()
+        brick_naive.clear_updaters()
+        det_l[1].clear_updaters()
+        det_r[1].clear_updaters()
+        self.play(
+            FadeOut(Group(heading, brick_ret, brick_naive, lbl_l, lbl_r, det_l, det_r)),
+            self.frame.animate.restore(),
+            run_time=1.0,
+        )
+
+        # @ end
