@@ -325,7 +325,6 @@ class LieGroups(InteractiveScene, Slide):
                 run_time=5,
             )
         )
-        self.play()
 
         # % example
         self.next_slide()

@@ -1,5 +1,4 @@
 import math
-from itertools import pairwise
 from pathlib import Path
 
 import numpy as np
@@ -31,9 +30,6 @@ def _node(
 
 class Forced(InteractiveScene, Slide):
     def construct(self):
-        self.forced_section()
-
-    def forced_section(self) -> None:
         # % continuous: Euler-Lagrange gains a force on the right
         el_unforced = Tex(
             r"\frac{\textrm{d}}{\textrm{d}t}\frac{\partial L}{\partial \dot q} - \frac{\partial L}{\partial q} = \thickspace",
@@ -43,7 +39,7 @@ class Forced(InteractiveScene, Slide):
         )
         el_forced = Tex(
             r"\frac{\textrm{d}}{\textrm{d}t}\frac{\partial L}{\partial \dot q} - \frac{\partial L}{\partial q} = \thickspace",
-            "f(q, \dot q)",
+            r"f(q, \dot q)",
             font_size=52,
             t2c={"L": COLOR_LD, "f(q, \\dot q)": COLOR_FORCED},
         )
@@ -60,7 +56,7 @@ class Forced(InteractiveScene, Slide):
                     el_unforced,
                     el_forced,
                     key_map={
-                        "0": "f(q, \dot q)",
+                        r"0": "f(q, \dot q)",
                     },
                 ),
                 Write(force_cont),
@@ -503,6 +499,7 @@ class Forced(InteractiveScene, Slide):
                     residuals[0],
                     num_decimal_places=4,
                     text_config={"font": "IosevkaTerm Nerd Font"},
+                    show_ellipsis=True,
                 ),
             )
             .arrange(RIGHT)

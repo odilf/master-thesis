@@ -8,14 +8,6 @@ from scenes.theme import COLOR_LAGRANGIANS
 
 class Lagrangians(InteractiveScene, Slide):
     def construct(self):
-        pass
-
-    def lagrangians_section(self) -> None:
-        self.lagrangian_examples_and_geometry()
-        self.euler_lagrange()
-
-    def lagrangian_examples_and_geometry(self) -> None:
-        #  =====
         # % Start
         theta = ValueTracker(PI / 4)
         _rod_len = 1.0
@@ -496,10 +488,9 @@ class Lagrangians(InteractiveScene, Slide):
             FadeOut(state_space),
             FadeOut(symp_patches),
         )
-        (self.frame.restore(),)
-        # % end
+        self.frame.restore()
 
-    def euler_lagrange(self):
+        # == EULER-LAGRANGE
         # % start
         t2c = {
             "L": COLOR_LAGRANGIANS,

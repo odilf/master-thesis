@@ -1,10 +1,10 @@
-import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
+from scenes.lie_groups import LieGroups
 from manim_slides.slide.manimlib import Slide
 from manimlib import *
 
+import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
 from scenes.forced import Forced
 from scenes.lagrangians import Lagrangians
-from scenes.lie_groups import LieGroups
 from scenes.parallel import Parallel
 from scenes.theme import (
     COLOR_FORCED,
@@ -14,7 +14,7 @@ from scenes.theme import (
 )
 
 
-class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
+class Defense(InteractiveScene, Slide):
     samples = 4
 
     def construct(self):
@@ -122,7 +122,7 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
              
         self.next_slide()
-        self.lagrangians_section()
+        Lagrangians.construct(self)  # ty:ignore[invalid-argument-type]
 
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
@@ -135,7 +135,7 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
 
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
-        self.parallel_section()
+        Parallel.construct(self)  # ty:ignore[invalid-argument-type]
 
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
@@ -150,7 +150,7 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
 
-        self.forced_section()
+        Forced.construct(self)  # ty:ignore[invalid-argument-type]
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
             lines[0].animate.set_opacity(0.3),
@@ -163,6 +163,6 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
 
-        self.lie_groups_section()
+        LieGroups.construct(self)  # ty:ignore[invalid-argument-type]
 
         # % end

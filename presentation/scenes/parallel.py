@@ -35,9 +35,6 @@ def _node(
 
 class Parallel(InteractiveScene, Slide):
     def construct(self):
-        self.parallel_section()
-
-    def parallel_section(self) -> None:
         # % the DEL system over the whole trajectory
         t2c = {
             "L_d": COLOR_LD,
@@ -369,9 +366,6 @@ class Parallel(InteractiveScene, Slide):
         end_dot = Dot(axes.c2p(*paths[0, -1]), color=COLOR_PARALLEL)
 
         frame = ValueTracker(0)
-        # curve = always_redraw(
-        #     lambda: polyline_at(curve, int(np.clip(frame.get_value(), 0, n_frames - 1)))
-        # )
         curve.add_updater(
             lambda m: polyline_at(m, float(np.clip(frame.get_value(), 0, n_frames - 1)))
         )
@@ -402,25 +396,24 @@ class Parallel(InteractiveScene, Slide):
                     residuals[0],
                     num_decimal_places=6,
                     text_config={"font": "IosevkaTerm Nerd Font"},
+                    show_ellipsis=True,
                 ),
             )
             .arrange(RIGHT)
-            .next_to(counter, DOWN, buff=0.6)
+            .next_to(counter, DOWN, buff=0.6, aligned_edge=LEFT)
         )
         res_label[1].add_updater(lambda m: m.set_value(float(residuals[frame_i()])))
 
-        bar_bg = Line(ORIGIN, RIGHT * 4.5, color=GREY_D, stroke_width=8).next_to(
+        bar_bg = Line(ORIGIN, RIGHT * 4.0, color=GREY_D, stroke_width=8).next_to(
             res_label, DOWN, buff=0.4, aligned_edge=LEFT
         )
 
-        def res_bar():
-            frac = (np.log10(residuals[frame_i()]) - log1) / (log0 - log1)
-            start = bar_bg.get_start()
-            return Line(
-                start, start + RIGHT * 4.5 * float(np.clip(frac, 0, 1)), color=RED
-            ).set_stroke(width=8)
+        bar = Line(bar_bg.get_start(), bar_bg.get_end(), color=RED, stroke_width=8)
 
-        bar = always_redraw(res_bar)
+        def upd_bar(bar):
+            frac = (np.log10(residuals[frame_i()]) - log1) / (log0 - log1)
+            bar.set_points_by_ends(bar_bg.get_start(), bar_bg.get_start() + RIGHT * 4.0 * float(np.clip(frac, 0, 1)))
+        bar.add_updater(upd_bar)
 
         self.play(
             Write(heading),
@@ -429,10 +422,10 @@ class Parallel(InteractiveScene, Slide):
             FadeIn(start_dot),
             FadeIn(end_dot),
         )
-        self.add(curve)
+        self.play(FadeIn(curve))
         self.play(FadeIn(VGroup(counter, res_label, bar_bg)), FadeIn(bar))
 
-        # The looping beat: play forward, then snap back for the next repeat.
+        # Loop animation
         self.next_slide(loop=True)
         self.play(frame.animate.set_value(n_frames - 1), run_time=5, rate_func=linear)
 
@@ -477,12 +470,11 @@ class Parallel(InteractiveScene, Slide):
             color=COLOR_PARALLEL,
         ).next_to(h_def, DOWN, buff=1.5)
 
-        self.next_slide()
         self.play(FadeIn(converge_note, shift=0.2 * UP))
 
         # % sparsity from locality => block-tridiagonal
         self.next_slide()
-        self.play(FadeOut(VGroup(action_eq, h_def, newton, converge_note)))
+        self.play(FadeOut(VGroup(action_eq, h_def, converge_note)))
 
         locality_eq = Tex(
             r"r_k \text{ depends only on } q_{k-1}, q_k, q_{k+1}",
@@ -573,7 +565,6 @@ class Parallel(InteractiveScene, Slide):
         )
 
         self.next_slide()
-        self.play()
 
         es = 1.0  # edge cell size
         ec = UP * 0.3  # 2x2 block center
@@ -675,8 +666,10 @@ class Parallel(InteractiveScene, Slide):
         self.next_slide()
         self.play(FadeIn(bridge, shift=0.2 * UP))
 
-        # % end
+        # % cleanup
         self.next_slide()
         self.play(
             FadeOut(VGroup(heading2, criteria, bridge), shift=RIGHT, run_time=0.6)
         )
+
+        # % end
