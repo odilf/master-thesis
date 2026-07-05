@@ -18,7 +18,27 @@ _DEMO_DATA = Path(__file__).resolve().parent.parent / "assets" / "so3_top.npz"
 _FACE_COLORS = [COLOR_LIE_GROUPS, TEAL_E, BLUE_D, BLUE_E, GREY_BROWN, GREY_B]
 
 
-def make_brick(dims=(2.0, 1.2, 0.5)):
+def stroke_arrow(pts, color, up, tail_length=0.15, tail_width=0.09):
+    """Stroke through `pts` with a filled triangle tip at pts[-1].
+    `up` orients the tip plane; should be roughly normal to the stroke there."""
+    pts = np.asarray(pts)
+    stroke = VMobject().set_points_smoothly(pts[:-1]).set_stroke(color, 6)
+    tan = normalize(pts[-1] - pts[-2])
+    wid = normalize(np.cross(up, tan))
+    tl, tw = tail_length, tail_width
+    tip = (
+        Polygon(
+            pts[-1],
+            pts[-1] - tan * tl + wid * tw,
+            pts[-1] - tan * tl - wid * tw,
+        )
+        .set_fill(color, opacity=1)
+        .set_stroke(width=0)
+    )
+    return VGroup(stroke, tip)
+
+
+def make_brick(dims=(2.0, 1.2, 0.5)) -> Prism:
     """A colored box centered at the origin; each face a different color."""
     brick = Prism(*dims)
     for face, col in zip(brick, _FACE_COLORS):
@@ -27,7 +47,7 @@ def make_brick(dims=(2.0, 1.2, 0.5)):
     return brick
 
 
-def oriented_brick(R, dims=(2.0, 1.2, 0.5)):
+def oriented_brick(R, dims=(2.0, 1.2, 0.5)) -> Prism:
     """A brick transformed by the 3x3 matrix R (about the origin). For a proper
     rotation this is a rigid tumble; for an off-manifold matrix it shears/scales."""
     return make_brick(dims).apply_matrix(np.array(R))
@@ -45,18 +65,16 @@ def _cayley(v):
 
 
 class LieGroups(InteractiveScene, Slide):
-    def construct(self):
-        self.lie_groups_section()
-
-    def lie_groups_section(self) -> None:
-        self.frame.save_state()
-
+    def construct(self) -> None:
         # % title: answer the "Q is not a vector space" bridge from the forced section
+        self.frame.save_state()
         title = Text("Lie groups", font_size=72, color=COLOR_LIE_GROUPS, weight="bold")
         subtitle = TexText(
             r"the configuration space $Q$ has only group structure. \\Archetypical examples: $\textrm{SO}(3)$, $\textrm{SE}(3)$",
             font_size=40,
-        ).next_to(title, DOWN, buff=0.5)
+        )
+
+        VGroup(title, subtitle).arrange(DOWN, buff=0.5)
 
         self.play(Write(title))
         self.play(FadeIn(subtitle, shift=0.2 * UP))
@@ -64,9 +82,14 @@ class LieGroups(InteractiveScene, Slide):
         self.next_slide()
 
         # % non-commutativity: rotations have no vector-space "+"
-        heading = Text("Rotations do not commute", font_size=44).to_edge(UP, buff=0.6)
-        heading.fix_in_frame()
-        self.play(FadeOut(VGroup(title, subtitle)), Write(heading))
+        heading_rotation_dont_commute = (
+            Text("Rotations do not commute", font_size=44)
+            .to_edge(UP, buff=0.6)
+            .fix_in_frame()
+        )
+        self.play(
+            FadeOut(VGroup(title, subtitle)), Write(heading_rotation_dont_commute)
+        )
 
         # Two identical bricks; each undergoes the two 90-degree rotations in the
         # opposite order, ending in visibly different orientations.
@@ -112,21 +135,34 @@ class LieGroups(InteractiveScene, Slide):
             r"no vector-space ``$+$'' on $Q = SO(3)$!",
             font_size=34,
             color=GREY_C,
-        ).next_to(heading, DOWN, buff=0.35)
+        ).next_to(heading_rotation_dont_commute, DOWN, buff=0.35)
         no_plus.fix_in_frame()
         self.play(FadeIn(no_plus))
 
+        # % non-vecor space correction
         self.next_slide()
         self.play(
-            FadeOut(Group(brick_a, brick_b, lbl_a, lbl_b, heading, neq, no_plus)),
+            FadeOut(
+                Group(
+                    brick_a,
+                    brick_b,
+                    lbl_a,
+                    lbl_b,
+                    heading_rotation_dont_commute,
+                    neq,
+                    no_plus,
+                )
+            ),
             run_time=0.5,
         )
         self.frame.restore()
 
-        # % retraction: you cannot just add the correction
-        heading = Text("The Newton correction lives in the Lie algebra", font_size=40)
-        heading.to_edge(UP, buff=0.6).fix_in_frame()
-        self.play(Write(heading, lag_ratio=0.03), run_time=1)
+        heading_newton_correction = (
+            Text("The Newton correction lives in the Lie algebra", font_size=40)
+            .to_edge(UP, buff=0.6)
+            .fix_in_frame()
+        )
+        self.play(Write(heading_newton_correction, lag_ratio=0.03), run_time=1)
 
         # Left: the flat vector-space update (greyed, echoing earlier sections).
         flat_eq = Tex(
@@ -187,26 +223,6 @@ class LieGroups(InteractiveScene, Slide):
         retr_theta = float(
             np.arccos(np.clip(np.dot(normal_base, normal_land), -1.0, 1.0))
         )
-
-        # Stroke through `pts` with a filled triangle tip at pts[-1].
-        # `up` orients the tip plane; should be roughly normal to the stroke there.
-        def stroke_arrow(pts, color, up):
-            pts = np.asarray(pts)
-            print(pts.shape)
-            stroke = VMobject().set_points_smoothly(pts[:-1]).set_stroke(color, 6)
-            tan = normalize(pts[-1] - pts[-2])
-            wid = normalize(np.cross(up, tan))
-            tl, tw = 0.15, 0.09
-            tip = (
-                Polygon(
-                    pts[-1],
-                    pts[-1] - tan * tl + wid * tw,
-                    pts[-1] - tan * tl - wid * tw,
-                )
-                .set_fill(color, opacity=1)
-                .set_stroke(width=0)
-            )
-            return VGroup(stroke, tip)
 
         _xi_end = base + RIGHT * 1.2 + UP * 0.5
         xi_vec = stroke_arrow(
@@ -311,11 +327,12 @@ class LieGroups(InteractiveScene, Slide):
         )
         self.play()
 
+        # % example
         self.next_slide()
         self.play(
             FadeOut(
                 Group(
-                    heading,
+                    heading_newton_correction,
                     flat,
                     group,
                     sphere,
@@ -335,7 +352,7 @@ class LieGroups(InteractiveScene, Slide):
         )
         self.frame.animate.restore()
 
-        # % load the SO(3) solver data (baked from EulerTop, see export_so3.py)
+        # load the SO(3) solver data (baked from EulerTop, see export_so3.py)
         data = np.load(_DEMO_DATA)
         paths = data["paths"]  # (frames, N+1, 3, 3)
         logs = data["logs"]  # (frames, N+1, 3)  so(3) log-chart curves
@@ -346,10 +363,11 @@ class LieGroups(InteractiveScene, Slide):
         converged = paths[-1]  # DEL solution rotations (for the brick)
         converged_logs = logs[-1]  # its so(3) log-chart curve
 
-        heading = Text(
-            "A trajectory of rotations is a curve in the algebra", font_size=36
+        heading_traj_alg = (
+            Text("A trajectory of rotations is a curve in the algebra", font_size=36)
+            .to_edge(UP, buff=0.5)
+            .fix_in_frame()
         )
-        heading.to_edge(UP, buff=0.5).fix_in_frame()
 
         axes3 = ThreeDAxes(
             x_range=(0, 2.5, 1),
@@ -394,7 +412,7 @@ class LieGroups(InteractiveScene, Slide):
 
         (self.frame.reorient(-18, 70, 0, ORIGIN, 7),)
         self.play(
-            Write(heading),
+            Write(heading_traj_alg),
             FadeIn(brick),
             ShowCreation(axes3),
             FadeIn(algebra_lbl),
@@ -407,16 +425,18 @@ class LieGroups(InteractiveScene, Slide):
         self.play(k_tracker.animate.set_value(N), run_time=5, rate_func=linear)
         k_tracker.set_value(0)
 
+        # % convergence: the same solver relaxes the log-chart curve (flat view)
         self.next_slide()
         brick.clear_updaters()
         self.play(
-            FadeOut(Group(brick, marker, axes3, algebra_lbl, log_curve, heading)),
+            FadeOut(VGroup(axes3, algebra_lbl, log_curve, heading_traj_alg)),
+            FadeOut(marker),
+            FadeOut(brick),
             run_time=1.0,
         )
-        (self.frame.animate.restore(),)
+        self.frame.restore()
 
-        # % convergence: the same solver relaxes the log-chart curve (flat view)
-        heading = Text("Same solver, different manifold", font_size=40).to_edge(
+        heading_example = Text("Same solver, different manifold", font_size=40).to_edge(
             UP, buff=0.7
         )
 
@@ -500,7 +520,7 @@ class LieGroups(InteractiveScene, Slide):
         bar = always_redraw(res_bar)
 
         self.play(
-            Write(heading),
+            Write(heading_example),
             ShowCreation(axes),
             FadeIn(axes_lbl),
             ShowCreation(guess),
@@ -519,7 +539,7 @@ class LieGroups(InteractiveScene, Slide):
         self.play(
             FadeOut(
                 VGroup(
-                    heading,
+                    heading_example,
                     axes,
                     axes_lbl,
                     guess,
@@ -535,12 +555,15 @@ class LieGroups(InteractiveScene, Slide):
             run_time=0.8,
         )
 
-        # % push forward / pull back: left translation relates the algebra and a point
+        # % vectors and pushforward
         self.next_slide()
         self.frame.save_state()
 
-        heading = Text("Left translation links the algebra and a point", font_size=34)
-        heading.to_edge(UP, buff=0.5).fix_in_frame()
+        heading_pullbacks = (
+            Text("Left translation links the algebra and a point", font_size=34)
+            .to_edge(UP, buff=0.5)
+            .fix_in_frame()
+        )
 
         sphere = (
             Sphere(radius=1.6, resolution=(51, 26)).set_color(GREY_A).set_opacity(1)
@@ -555,11 +578,28 @@ class LieGroups(InteractiveScene, Slide):
         schem = Group(sphere, mesh)
         center = schem.get_center()
 
+        def make_billboard[T: VMobject](mob: T) -> T:
+            initial_center = mob.get_center().copy()
+            family_data = [
+                (sub, sub.get_points().copy() - initial_center)
+                for sub in mob.get_family()
+                if sub.has_points()
+            ]
+
+            def updater(m):
+                rot = self.frame.get_orientation().as_matrix()
+                center = m.get_center()
+                for sub, local_pts in family_data:
+                    sub.set_points(local_pts @ rot.T + center)
+
+            mob.add_updater(updater)
+            return mob
+
         # Identity e at the top pole, and a second point g rotated away from it.
         # Each carries a tangent plane: the algebra g = T_e G at e, and T_g G at g.
         e_base = center + OUT * 1.6
         n_e = OUT
-        n_g = normalize(RIGHT * 1.0 + UP * 0.2 + OUT * 0.7)
+        n_g = normalize(RIGHT * 1.6 + UP * 0.2 + OUT * 0.7)
         g_base = center + n_g * 1.6
 
         def tan_plane(base, n, color):
@@ -577,11 +617,11 @@ class LieGroups(InteractiveScene, Slide):
         e_dot = Sphere(radius=0.07).set_color(WHITE).move_to(e_base)
         g_dot = Sphere(radius=0.08).set_color(TEAL_D).move_to(g_base)
 
-        e_lbl = Tex("e", font_size=30).next_to(e_dot, UP, buff=0.05).fix_in_frame()
-        g_lbl = (
-            Tex("g", font_size=30, color=TEAL_D)
-            .next_to(g_dot, RIGHT, buff=0.05)
-            .fix_in_frame()
+        e_lbl = make_billboard(Tex("e", font_size=30)).add_updater(
+            lambda m: m.next_to(e_dot, UP, buff=0.05)
+        )
+        g_lbl = make_billboard(Tex("g", font_size=30, color=TEAL_D)).add_updater(
+            lambda m: m.next_to(g_dot, UP, buff=0.05)
         )
 
         # The same left-invariant vector, seen in the algebra frame at e and
@@ -589,61 +629,18 @@ class LieGroups(InteractiveScene, Slide):
         Mg = z_to_vector(n_g)
         v_local = np.array([0.85, 0.35, 0.0])
         xi_e = stroke_arrow(
-            np.linspace(e_base, e_base + v_local, 8), COLOR_LIE_GROUPS, up=n_e
+            np.linspace(e_base, e_base + v_local, 8),
+            COLOR_LIE_GROUPS,
+            up=n_e,
+            tail_width=0.1,
         )
-        xi_g = stroke_arrow(
-            np.linspace(g_base, g_base + Mg @ v_local, 8), COLOR_LIE_GROUPS, up=n_g
-        )
-        xi_lbl_e = (
+        xi_in_e_lbl = make_billboard(
             Tex(r"\xi \in \mathfrak{g}", font_size=30, color=COLOR_LIE_GROUPS)
-            .next_to(xi_e[0].get_end(), UP + RIGHT, buff=0.05)
-            .fix_in_frame()
-        )
-        xi_lbl_g = (
-            Tex(r"T_e L_g\,\xi", font_size=30, color=COLOR_LIE_GROUPS)
-            .next_to(xi_g[0].get_end(), UP + RIGHT, buff=0.05)
-            .fix_in_frame()
-        )
-
-        # A covector at g; the dual map (T_e L_g)^* pulls it back to the dual g^*.
-        w_local = np.array([0.15, 0.85, 0.0])
-        al_g = stroke_arrow(
-            np.linspace(g_base, g_base + Mg @ w_local, 8), GOLD_D, up=n_g
-        )
-        al_e = stroke_arrow(np.linspace(e_base, e_base + w_local, 8), GOLD_D, up=n_e)
-        al_lbl_g = (
-            Tex(r"\alpha \in T_g^{*}G", font_size=30, color=GOLD_D)
-            .next_to(al_g[0].get_end(), LEFT, buff=0.05)
-            .fix_in_frame()
-        )
-        al_lbl_e = (
-            Tex(r"(T_e L_g)^{*}\alpha \in \mathfrak{g}^{*}", font_size=30, color=GOLD_D)
-            .next_to(al_e[0].get_end(), LEFT, buff=0.05)
-            .fix_in_frame()
-        )
-
-        push_cap = (
-            TexText(
-                r"tangent vectors \emph{push forward}: $\mathfrak{g} \to T_gG$",
-                font_size=30,
-                color=COLOR_LIE_GROUPS,
-            )
-            .to_edge(DOWN, buff=0.4)
-            .fix_in_frame()
-        )
-        pull_cap = (
-            TexText(
-                r"covectors \emph{pull back}: $T_g^{*}G \to \mathfrak{g}^{*}$",
-                font_size=30,
-                color=GOLD_D,
-            )
-            .to_edge(DOWN, buff=0.4)
-            .fix_in_frame()
-        )
+        ).add_updater(lambda m: m.next_to(xi_e[0].get_end(), UP + RIGHT, buff=0.05))
 
         self.play(
             self.frame.animate.reorient(57, 53, 0, center, 6.50),
-            Write(heading),
+            Write(heading_pullbacks),
             FadeIn(sphere),
             ShowCreation(mesh),
             run_time=1.5,
@@ -656,25 +653,126 @@ class LieGroups(InteractiveScene, Slide):
             Write(e_lbl),
             Write(g_lbl),
         )
-        self.play(ShowCreation(xi_e), FadeIn(xi_lbl_e))
+        self.play(ShowCreation(xi_e), FadeIn(xi_in_e_lbl))
 
+        # % temp12390812
         # Pushforward: the algebra vector is carried onto the tangent space at g.
+        xi_g = stroke_arrow(
+            np.linspace(g_base, g_base + Mg @ v_local, 8), COLOR_LIE_GROUPS, up=n_g
+        )
+
+        push_cap = (
+            TexText(
+                r"tangent vectors \emph{push forward}: $\mathfrak{g} \to T_gG$",
+                font_size=30,
+                color=COLOR_LIE_GROUPS,
+            ).to_edge(DOWN, buff=0.4)
+        ).fix_in_frame()
+
+        xi_g_lbl = make_billboard(
+            Tex(r"T_e L_g\,\xi", font_size=30, color=COLOR_LIE_GROUPS)
+        ).add_updater(lambda m: m.next_to(xi_g[0].get_end(), UP + RIGHT, buff=0.05))
+
         self.next_slide()
-        self.play(TransformFromCopy(xi_e, xi_g), FadeIn(xi_lbl_g), FadeIn(push_cap))
+        self.play(TransformFromCopy(xi_e, xi_g), FadeIn(push_cap))
+        self.play(FadeIn(xi_g_lbl))
+
+        # % covectors and pullbacks
+
+        # From 3b1b/videos (Grover's)
+        def get_blackbox_machine(
+            height=0.6, color=BLUE_A, label_tex="f(x)", label_height_ratio=0.33
+        ) -> VMobject:
+            square = Rectangle(height * 2.5, height)
+            in_tri = ArrowTip().set_height(0.5 * height)
+            out_tri = in_tri.copy().rotate(PI)
+            in_tri.move_to(square.get_left())
+            out_tri.move_to(square.get_right())
+            machine = Union(square, in_tri, out_tri)
+            # machine=square
+            machine.set_fill(color, 1)
+            machine.set_stroke(BLACK, 2)
+
+            label = Tex(label_tex)
+            label.set_height(label_height_ratio * height)
+            label.move_to(machine)
+            machine.add(label)
+
+            machine.output_group = VGroup()  # ty:ignore[unresolved-attribute]
+
+            return machine
+
+        mach_co_g = (
+            get_blackbox_machine(
+                label_tex=r"T_g^* G \cong T_g G \to \mathbb{R}",
+                height=0.7,
+                label_height_ratio=0.33,
+                color=RED_A,
+            )
+        ).add_updater(lambda m: m.next_to(xi_g[0].get_start(), DOWN, buff=0.55))
+        mach_co_e = (
+            get_blackbox_machine(
+                label_tex=r"\mathfrak{g} \cong T_e G \to \mathbb{R}",
+                label_height_ratio=0.28,
+                color=BLUE_A,
+            )
+        ).add_updater(
+            lambda m: m.next_to(xi_e[0].get_start(), UP, buff=0.35, aligned_edge=LEFT)
+        )
+
+        self.play(
+            FadeIn(mach_co_g, scale=0.2),
+            FadeOut(push_cap),
+            FadeOut(xi_g_lbl),
+            FadeOut(xi_in_e_lbl),
+            self.frame.animate.reorient(0, 0, 0, np.array([0.67, 0.2, 0.0]), 4.57),
+            run_time=3,
+        )
+        self.play(FadeIn(mach_co_e, scale=0.9))
+
+        pull_push_connection = ArcBetweenPoints(
+            mach_co_e.get_left(), mach_co_g.get_left()
+        ).add_tip(width=0.2, length=0.2)
+        self.play(ShowCreation(pull_push_connection, lag_ratio=0.03))
+        # TODO: How to represent covectors well???
+        # w_local = np.array([0.15, 0.85, 0.0])
+        # al_g = stroke_arrow(
+        #     np.linspace(g_base, g_base + Mg @ w_local, 8), GOLD_D, up=n_g
+        # )
+        # al_e = stroke_arrow(np.linspace(e_base, e_base + w_local, 8), GOLD_D, up=n_e)
+        # al_lbl_g = make_billboard(
+        #     Tex(r"\alpha \in T_g^{*}G", font_size=30, color=GOLD_D).next_to(
+        #         al_g[0].get_end(), LEFT, buff=0.05
+        #     )
+        # )
+        # al_lbl_e = make_billboard(
+        #     Tex(
+        #         r"(T_e L_g)^{*}\alpha \in \mathfrak{g}^{*}", font_size=30, color=GOLD_D
+        #     ).add_updater(lambda m: m.next_to(al_e[0].get_end(), LEFT, buff=0.05))
+        # )
+
+        # pull_cap = (
+        #     TexText(
+        #         r"covectors \emph{pull back}: $T_g^{*}G \to \mathfrak{g}^{*}$",
+        #         font_size=30,
+        #         color=GOLD_D,
+        #     ).to_edge(DOWN, buff=0.4)
+        # ).fix_in_frame()
 
         # A covector living at g.
-        self.next_slide()
-        self.play(ShowCreation(al_g), FadeIn(al_lbl_g), FadeOut(push_cap))
+        # self.next_slide()
+        # self.play(ShowCreation(al_g), FadeIn(al_lbl_g), FadeOut(push_cap))
 
         # Pullback: the dual map carries it back into the algebra's dual.
-        self.next_slide()
-        self.play(TransformFromCopy(al_g, al_e), FadeIn(al_lbl_e), FadeIn(pull_cap))
+        # self.next_slide()
+        # self.play(TransformFromCopy(al_g, al_e), FadeIn(al_lbl_e), FadeIn(pull_cap))
 
+        # % proof punchline: the retraction-curvature term vanishes at a solution
         self.next_slide()
         self.play(
             FadeOut(
                 Group(
-                    heading,
+                    heading_pullbacks,
                     sphere,
                     mesh,
                     plane_e,
@@ -683,22 +781,19 @@ class LieGroups(InteractiveScene, Slide):
                     g_dot,
                     xi_e,
                     xi_g,
-                    al_g,
-                    al_e,
                     e_lbl,
                     g_lbl,
-                    xi_lbl_e,
-                    xi_lbl_g,
-                    al_lbl_g,
-                    al_lbl_e,
-                    pull_cap,
+                    xi_in_e_lbl,
+                    xi_g_lbl,
+                    mach_co_e,
+                    mach_co_g,
+                    pull_push_connection,
                 )
             ),
             self.frame.animate.restore(),
             run_time=1.0,
         )
 
-        # % proof punchline: the retraction-curvature term vanishes at a solution
         hess = Tex(
             r"\widetilde{\mathcal{D}}_k = \underbrace{(T_e L)^{*}(\mathrm{D}_{22} L_d + \mathrm{D}_{11} L_d)(T_e L)}"
             r"_{\text{Hessian of } L_d}",
@@ -746,8 +841,10 @@ class LieGroups(InteractiveScene, Slide):
 
         # % closing: the same rigid tumble, with vs without the retraction
         self.next_slide()
-        heading = Text("Without the retraction, the iterate leaves SO(3)", font_size=34)
-        heading.to_edge(UP, buff=0.6).fix_in_frame()
+        heading_oob = Text(
+            "Without the retraction, the iterate leaves SO(3)", font_size=34
+        )
+        heading_oob.to_edge(UP, buff=0.6).fix_in_frame()
 
         # A steady rigid tumble integrated two ways from the same start: the
         # group update multiplies by the Cayley retraction (stays on SO(3)); the
@@ -764,84 +861,99 @@ class LieGroups(InteractiveScene, Slide):
             traj_ret.append(traj_ret[-1] @ step_ret)
             traj_naive.append(traj_naive[-1] @ step_naive)
 
-        home_l = LEFT * 3.3 + DOWN * 0.2
-        home_r = RIGHT * 3.3 + DOWN * 0.2
+        home_l = LEFT * 2.3 + UP * 0.4
+        home_r = RIGHT * 2.3 + UP * 0.4
         t_tracker = ValueTracker(0)
 
         def tumble_updater(traj, home):
-            def upd(m):
-                k = int(np.clip(round(t_tracker.get_value()), 0, steps))
+            def upd(m: Prism):
+                k = int(np.clip(round(t_tracker.get_value()), 0, steps))  # ty:ignore[invalid-argument-type]
                 m.become(oriented_brick(traj[k]).move_to(home))
 
             return upd
 
-        brick_ret = oriented_brick(traj_ret[0]).move_to(home_l)
-        brick_ret.add_updater(tumble_updater(traj_ret, home_l))
-        brick_naive = oriented_brick(traj_naive[0]).move_to(home_r)
-        brick_naive.add_updater(tumble_updater(traj_naive, home_r))
-
-        lbl_l = TexText(
-            r"with retraction: $g_{k+1} = g_k \cdot \tau(\xi)$",
-            font_size=28,
-            color=COLOR_LIE_GROUPS,
-        ).move_to(LEFT * 3.3 + DOWN * 2.6)
-        lbl_l.fix_in_frame()
-        lbl_r = TexText(
-            r"naive: $g_{k+1} = g_k \cdot (I + \xi)$",
-            font_size=28,
-            color=RED,
-        ).move_to(RIGHT * 3.3 + DOWN * 2.6)
-        lbl_r.fix_in_frame()
-
         def det_readout(traj, color):
-            grp = VGroup(
-                Text("det = ", font="IosevkaTerm Nerd Font", font_size=26, color=color),
-                DecimalNumber(
-                    1.0,
-                    num_decimal_places=2,
-                    font_size=26,
-                    color=color,
-                    text_config={"font": "IosevkaTerm Nerd Font"},
-                ),
-            ).arrange(RIGHT, buff=0.1)
-            grp[1].add_updater(
+            lbl = Text(
+                "det = ", font="IosevkaTerm Nerd Font", font_size=36, color=color
+            )
+            val = DecimalNumber(
+                1.0,
+                num_decimal_places=2,
+                font_size=36,
+                color=color,
+                text_config={"font": "IosevkaTerm Nerd Font"},
+            ).add_updater(
                 lambda m: m.set_value(
                     float(
                         np.linalg.det(
-                            traj[int(np.clip(round(t_tracker.get_value()), 0, steps))]
+                            traj[int(np.clip(round(t_tracker.get_value()), 0, steps))]  # ty:ignore[invalid-argument-type]
                         )
                     )
                 )
             )
-            return grp
+            return VGroup(lbl, val).arrange(RIGHT, buff=0.1)
 
-        det_l = det_readout(traj_ret, GREY_D).move_to(LEFT * 3.3 + DOWN * 2.0)
-        det_l.fix_in_frame()
-        det_r = det_readout(traj_naive, RED).move_to(RIGHT * 3.3 + DOWN * 2.0)
-        det_r.fix_in_frame()
+        brick_ret = (
+            Group(
+                oriented_brick(traj_ret[0]).add_updater(
+                    tumble_updater(traj_ret, home_l)
+                ),
+                VGroup(
+                    TexText(
+                        r"with retraction: $g_{k+1} = g_k \cdot \tau(\xi)$",
+                        font_size=28,
+                        color=COLOR_LIE_GROUPS,
+                    ),
+                    det_readout(traj_ret, GREY_D),
+                )
+                .arrange(DOWN, buff=0.4)
+                .fix_in_frame(),
+            )
+            .arrange(DOWN, buff=4.0)
+            .move_to(home_l)
+        )
+        brick_naive = (
+            Group(
+                oriented_brick(traj_naive[0]).add_updater(
+                    tumble_updater(traj_naive, home_r)
+                ),
+                VGroup(
+                    TexText(
+                        r"naive: $g_{k+1} = g_k \cdot (I + \xi)$",
+                        font_size=28,
+                        color=COLOR_LIE_GROUPS,
+                    ),
+                    det_readout(traj_naive, RED),
+                )
+                .arrange(DOWN, buff=0.4)
+                .fix_in_frame(),
+            )
+            .arrange(DOWN, buff=4.0)
+            .move_to(home_r)
+        )
 
         self.play(
-            self.frame.animate.reorient(-15, 66, 0, ORIGIN, 10),
-            Write(heading),
+            self.frame.animate.reorient(0, 45, 0, ORIGIN, 6),
+            Write(heading_oob),
             FadeIn(brick_ret),
             FadeIn(brick_naive),
             run_time=1.5,
         )
-        self.play(FadeIn(lbl_l), FadeIn(lbl_r), FadeIn(det_l), FadeIn(det_r))
 
         self.next_slide(loop=True)
         self.play(t_tracker.animate.set_value(steps), run_time=5, rate_func=linear)
-        t_tracker.set_value(0)
+
+        # % cleanup
 
         self.next_slide()
         brick_ret.clear_updaters()
         brick_naive.clear_updaters()
-        det_l[1].clear_updaters()
-        det_r[1].clear_updaters()
         self.play(
-            FadeOut(Group(heading, brick_ret, brick_naive, lbl_l, lbl_r, det_l, det_r)),
-            self.frame.animate.restore(),
+            FadeOut(
+                Group(heading_oob, brick_ret, brick_naive)
+            ),
             run_time=1.0,
         )
+        self.frame.restore()
 
         # % end
