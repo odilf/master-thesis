@@ -306,7 +306,7 @@ class LieGroups(InteractiveScene, Slide):
                 Write(tau_props),
                 FadeIn(tau_choices, shift=0.2 * UP),
                 lag_ratio=0.2,
-                run_time=5
+                run_time=5,
             )
         )
         self.play()
@@ -392,7 +392,7 @@ class LieGroups(InteractiveScene, Slide):
             )
         )
 
-        self.frame.reorient(-18, 70, 0, ORIGIN, 7),
+        (self.frame.reorient(-18, 70, 0, ORIGIN, 7),)
         self.play(
             Write(heading),
             FadeIn(brick),
@@ -413,7 +413,7 @@ class LieGroups(InteractiveScene, Slide):
             FadeOut(Group(brick, marker, axes3, algebra_lbl, log_curve, heading)),
             run_time=1.0,
         )
-        self.frame.animate.restore(),
+        (self.frame.animate.restore(),)
 
         # @ convergence: the same solver relaxes the log-chart curve (flat view)
         heading = Text("Same solver, different manifold", font_size=40).to_edge(
@@ -535,6 +535,169 @@ class LieGroups(InteractiveScene, Slide):
             run_time=0.8,
         )
 
+        # @ push forward / pull back: left translation relates the algebra and a point
+        self.next_slide()
+        self.frame.save_state()
+
+        heading = Text("Left translation links the algebra and a point", font_size=34)
+        heading.to_edge(UP, buff=0.5).fix_in_frame()
+
+        sphere = (
+            Sphere(radius=1.6, resolution=(51, 26)).set_color(GREY_A).set_opacity(1)
+        )
+        mesh = SurfaceMesh(
+            sphere,
+            resolution=(13, 9),
+            stroke_color=GREY_D,
+            stroke_width=1,
+            stroke_opacity=0.4,
+        )
+        schem = Group(sphere, mesh)
+        center = schem.get_center()
+
+        # Identity e at the top pole, and a second point g rotated away from it.
+        # Each carries a tangent plane: the algebra g = T_e G at e, and T_g G at g.
+        e_base = center + OUT * 1.6
+        n_e = OUT
+        n_g = normalize(RIGHT * 1.0 + UP * 0.2 + OUT * 0.7)
+        g_base = center + n_g * 1.6
+
+        def tan_plane(base, n, color):
+            # z_to_vector rotates the default z-normal plane to face along n.
+            return (
+                Square(side_length=1.8)
+                .set_stroke(color, 2)
+                .set_fill(color, 0.06)
+                .apply_matrix(z_to_vector(n))
+                .move_to(base)
+            )
+
+        plane_e = tan_plane(e_base, n_e, COLOR_LIE_GROUPS)
+        plane_g = tan_plane(g_base, n_g, TEAL_D)
+        e_dot = Sphere(radius=0.07).set_color(WHITE).move_to(e_base)
+        g_dot = Sphere(radius=0.08).set_color(TEAL_D).move_to(g_base)
+
+        e_lbl = Tex("e", font_size=30).next_to(e_dot, UP, buff=0.05).fix_in_frame()
+        g_lbl = (
+            Tex("g", font_size=30, color=TEAL_D)
+            .next_to(g_dot, RIGHT, buff=0.05)
+            .fix_in_frame()
+        )
+
+        # The same left-invariant vector, seen in the algebra frame at e and
+        # carried to the tangent frame at g by T_e L_g (tangent of translation).
+        Mg = z_to_vector(n_g)
+        v_local = np.array([0.85, 0.35, 0.0])
+        xi_e = stroke_arrow(
+            np.linspace(e_base, e_base + v_local, 8), COLOR_LIE_GROUPS, up=n_e
+        )
+        xi_g = stroke_arrow(
+            np.linspace(g_base, g_base + Mg @ v_local, 8), COLOR_LIE_GROUPS, up=n_g
+        )
+        xi_lbl_e = (
+            Tex(r"\xi \in \mathfrak{g}", font_size=30, color=COLOR_LIE_GROUPS)
+            .next_to(xi_e[0].get_end(), UP + RIGHT, buff=0.05)
+            .fix_in_frame()
+        )
+        xi_lbl_g = (
+            Tex(r"T_e L_g\,\xi", font_size=30, color=COLOR_LIE_GROUPS)
+            .next_to(xi_g[0].get_end(), UP + RIGHT, buff=0.05)
+            .fix_in_frame()
+        )
+
+        # A covector at g; the dual map (T_e L_g)^* pulls it back to the dual g^*.
+        w_local = np.array([0.15, 0.85, 0.0])
+        al_g = stroke_arrow(
+            np.linspace(g_base, g_base + Mg @ w_local, 8), GOLD_D, up=n_g
+        )
+        al_e = stroke_arrow(np.linspace(e_base, e_base + w_local, 8), GOLD_D, up=n_e)
+        al_lbl_g = (
+            Tex(r"\alpha \in T_g^{*}G", font_size=30, color=GOLD_D)
+            .next_to(al_g[0].get_end(), LEFT, buff=0.05)
+            .fix_in_frame()
+        )
+        al_lbl_e = (
+            Tex(r"(T_e L_g)^{*}\alpha \in \mathfrak{g}^{*}", font_size=30, color=GOLD_D)
+            .next_to(al_e[0].get_end(), LEFT, buff=0.05)
+            .fix_in_frame()
+        )
+
+        push_cap = (
+            TexText(
+                r"tangent vectors \emph{push forward}: $\mathfrak{g} \to T_gG$",
+                font_size=30,
+                color=COLOR_LIE_GROUPS,
+            )
+            .to_edge(DOWN, buff=0.4)
+            .fix_in_frame()
+        )
+        pull_cap = (
+            TexText(
+                r"covectors \emph{pull back}: $T_g^{*}G \to \mathfrak{g}^{*}$",
+                font_size=30,
+                color=GOLD_D,
+            )
+            .to_edge(DOWN, buff=0.4)
+            .fix_in_frame()
+        )
+
+        self.play(
+            self.frame.animate.reorient(57, 53, 0, center, 6.50),
+            Write(heading),
+            FadeIn(sphere),
+            ShowCreation(mesh),
+            run_time=1.5,
+        )
+        self.play(
+            FadeIn(plane_e),
+            FadeIn(plane_g),
+            FadeIn(e_dot),
+            FadeIn(g_dot),
+            Write(e_lbl),
+            Write(g_lbl),
+        )
+        self.play(ShowCreation(xi_e), FadeIn(xi_lbl_e))
+
+        # Pushforward: the algebra vector is carried onto the tangent space at g.
+        self.next_slide()
+        self.play(TransformFromCopy(xi_e, xi_g), FadeIn(xi_lbl_g), FadeIn(push_cap))
+
+        # A covector living at g.
+        self.next_slide()
+        self.play(ShowCreation(al_g), FadeIn(al_lbl_g), FadeOut(push_cap))
+
+        # Pullback: the dual map carries it back into the algebra's dual.
+        self.next_slide()
+        self.play(TransformFromCopy(al_g, al_e), FadeIn(al_lbl_e), FadeIn(pull_cap))
+
+        self.next_slide()
+        self.play(
+            FadeOut(
+                Group(
+                    heading,
+                    sphere,
+                    mesh,
+                    plane_e,
+                    plane_g,
+                    e_dot,
+                    g_dot,
+                    xi_e,
+                    xi_g,
+                    al_g,
+                    al_e,
+                    e_lbl,
+                    g_lbl,
+                    xi_lbl_e,
+                    xi_lbl_g,
+                    al_lbl_g,
+                    al_lbl_e,
+                    pull_cap,
+                )
+            ),
+            self.frame.animate.restore(),
+            run_time=1.0,
+        )
+
         # @ proof punchline: the retraction-curvature term vanishes at a solution
         hess = Tex(
             r"\widetilde{\mathcal{D}}_k = \underbrace{(T_e L)^{*}(\mathrm{D}_{22} L_d + \mathrm{D}_{11} L_d)(T_e L)}"
@@ -579,7 +742,7 @@ class LieGroups(InteractiveScene, Slide):
         self.play(LaggedStartMap(FadeIn, conclusion, shift=0.2 * UP, lag_ratio=0.3))
 
         self.next_slide()
-        self.play(FadeOut(VGroup(heading, lhs, hess, vanish, conclusion)))
+        self.play(FadeOut(VGroup(hess, vanish, conclusion)))
 
         # @ closing: the same rigid tumble, with vs without the retraction
         self.next_slide()
