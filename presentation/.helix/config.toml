@@ -3,15 +3,15 @@
 o = [":pipe-to ./manim-send.sh 'uv run manimgl %{file_path_absolute} -se %{cursor_line}'"]
 
 # Run "slide"
-p = "@<C-s>?next_slide<ret>vn<A-minus>x<esc><space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret><C-o>"
+# p = "@<C-s>?next_slide<ret>vn<A-minus>x<esc><space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret><C-o>"
 
 # Run "cell" up to "here"
-# p = "@<C-s>F@x<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret><C-o>"
-s = "@<C-s>F@x<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret><C-o>"
+p = "@<C-s>F%x<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret><C-o>"
+s = "@<C-s>F%x<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret><C-o>"
 
-# Run "cell" delimited by @
-q = "@<C-s>F@xvf@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret><C-o>"
-a = "@<C-s>F@xvf@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret><C-o>"
+# Run "cell" delimited by %
+q = "@<C-s>F%xvf%<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret><C-o>"
+a = "@<C-s>F%xvf%<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret><C-o>"
 
 
 # Run just selected

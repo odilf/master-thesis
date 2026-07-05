@@ -34,7 +34,7 @@ class Forced(InteractiveScene, Slide):
         self.forced_section()
 
     def forced_section(self) -> None:
-        # @ continuous: Euler-Lagrange gains a force on the right
+        # % continuous: Euler-Lagrange gains a force on the right
         el_unforced = Tex(
             r"\frac{\textrm{d}}{\textrm{d}t}\frac{\partial L}{\partial \dot q} - \frac{\partial L}{\partial q} = \thickspace",
             "0",
@@ -92,7 +92,7 @@ class Forced(InteractiveScene, Slide):
             )
         )
 
-        # @ the forced discrete equation (FDEL)
+        # % the forced discrete equation (FDEL)
         t2c = {"L_d": COLOR_LD, "f_d^+": COLOR_FORCED, "f_d^-": COLOR_FORCED}
         del_eq = Tex(
             r"\textrm{D}_2 L_d(q_{k-1}, q_k)",
@@ -127,7 +127,7 @@ class Forced(InteractiveScene, Slide):
             run_time=1,
         )
 
-        # @ one continuous force splits into a left/right edge pair
+        # % one continuous force splits into a left/right edge pair
         self.next_slide()
         y = -1.4
         xs = {"q_{k-1}": -4.0, "q_k": 0.0, "q_{k+1}": 4.0}
@@ -183,7 +183,7 @@ class Forced(InteractiveScene, Slide):
             )
         )
 
-        # @ algorithmically, a one-line change to the residual
+        # % algorithmically, a one-line change to the residual
         heading = Text("Algorithm: one-line change", font_size=44).to_edge(UP, buff=1.0)
         res_eq = Tex(
             r"r_k = \textrm{D}_2 L_d + \textrm{D}_1 L_d"
@@ -216,7 +216,7 @@ class Forced(InteractiveScene, Slide):
             )
         )
 
-        # @ the catch: the forced Hessian is no longer symmetric
+        # % the catch: the forced Hessian is no longer symmetric
         heading = TexText(
             "The catch: a non-symmetric ``Hessian''", font_size=40
         ).to_edge(UP, buff=0.9)
@@ -284,7 +284,7 @@ class Forced(InteractiveScene, Slide):
             FadeIn(sym_note),
         )
 
-        # @ forcing breaks the mirror symmetry of the off-diagonal blocks
+        # % forcing breaks the mirror symmetry of the off-diagonal blocks
         self.next_slide()
         new_upper = VGroup()
         for block in upper_cells:
@@ -336,7 +336,7 @@ class Forced(InteractiveScene, Slide):
             )
         )
 
-        # @ two partial convergence results, and an open case
+        # % two partial convergence results, and an open case
         heading = Text("When does it still converge?", font_size=42).to_edge(
             UP, buff=1.0
         )
@@ -396,7 +396,7 @@ class Forced(InteractiveScene, Slide):
             )
         )
 
-        # @ demo: parachutist threading a turbulent wind field
+        # % demo: parachutist threading a turbulent wind field
         data = np.load(_DEMO_DATA)
         paths, residuals = data["paths"], data["residuals"]
         wind_xy, wind_uv = data["wind_xy"], data["wind_uv"]
@@ -536,7 +536,7 @@ class Forced(InteractiveScene, Slide):
         self.next_slide(loop=True)
         self.play(frame.animate.set_value(n_frames - 1), run_time=5, rate_func=linear)
 
-        # @ temp end
+        # % temp end
 
         self.next_slide()
         counter[1].clear_updaters()
@@ -561,4 +561,4 @@ class Forced(InteractiveScene, Slide):
             run_time=0.8,
         )
 
-        # @ end
+        # % end

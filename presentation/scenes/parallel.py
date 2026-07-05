@@ -38,7 +38,7 @@ class Parallel(InteractiveScene, Slide):
         self.parallel_section()
 
     def parallel_section(self) -> None:
-        # @ the DEL system over the whole trajectory
+        # % the DEL system over the whole trajectory
         t2c = {
             "L_d": COLOR_LD,
             "q_k": COLOR_PARALLEL,
@@ -53,7 +53,7 @@ class Parallel(InteractiveScene, Slide):
 
         self.play(Write(del_eq))
 
-        # @ the discrete path as a row of nodes
+        # % the discrete path as a row of nodes
         self.next_slide()
         y = -0.6
         xs = {
@@ -96,7 +96,7 @@ class Parallel(InteractiveScene, Slide):
             run_time=2,
         )
 
-        # @ locality: q_k's equation only touches its two neighbours
+        # % locality: q_k's equation only touches its two neighbours
         self.next_slide()
         focus = nodes["q_2"]
         neighbors = VGroup(nodes["q_1"], nodes["q_3"])
@@ -147,7 +147,7 @@ class Parallel(InteractiveScene, Slide):
             Transform(focus[0], focus[0].restore()),
         )
 
-        # @ jacobi-iteration
+        # % jacobi-iteration
         top = nodes
         top_group = VGroup(*top.values(), pathline)  # ty:ignore[invalid-argument-type]
         y_top, y_bot = 1.3, -1.6
@@ -196,7 +196,7 @@ class Parallel(InteractiveScene, Slide):
             ShowCreation(locks),
         )
 
-        # @ one node from its two neighbours + its old self
+        # % one node from its two neighbours + its old self
         self.next_slide()
 
         def fan(target_key, src_keys, **stroke):
@@ -224,7 +224,7 @@ class Parallel(InteractiveScene, Slide):
             FadeIn(bot["q_2"], scale=0.7),
         )
 
-        # @ ...all interior nodes at once (the Jacobi iteration = parallelism)
+        # % ...all interior nodes at once (the Jacobi iteration = parallelism)
         self.next_slide()
         remaining = {
             "q_1": ["q_0", "q_1", "q_2"],
@@ -268,7 +268,7 @@ class Parallel(InteractiveScene, Slide):
         ).to_edge(DOWN, buff=0.6)
         self.play(ShowCreation(bot_pathline), FadeIn(takeaway, shift=0.2 * UP))
 
-        # @ clear jacobi
+        # % clear jacobi
         self.next_slide()
         self.play(
             FadeOut(
@@ -289,7 +289,7 @@ class Parallel(InteractiveScene, Slide):
         )
         self.remove(del_eq)
 
-        # @ local Newton step
+        # % local Newton step
         t2c = {"L_d": COLOR_LD, r"\overline q": COLOR_PARALLEL, "r_k": COLOR_PARALLEL}
 
         heading = Text("Each local update: one Newton step", font_size=40).to_edge(
@@ -334,7 +334,7 @@ class Parallel(InteractiveScene, Slide):
             )
         )
 
-        # @ real solver output: straight guess relaxes to the physical arc
+        # % real solver output: straight guess relaxes to the physical arc
         data = np.load(_DEMO_DATA)
         paths, residuals = data["paths"], data["residuals"]
         n_frames = len(paths)
@@ -450,7 +450,7 @@ class Parallel(InteractiveScene, Slide):
             run_time=0.8,
         )
 
-        # @ convergence: H as Hessian of the discrete action
+        # % convergence: H as Hessian of the discrete action
         t2c_ld = {"L_d": COLOR_LD}
 
         heading = Text("Convergence of Newton iteration", font_size=40).to_edge(
@@ -480,7 +480,7 @@ class Parallel(InteractiveScene, Slide):
         self.next_slide()
         self.play(FadeIn(converge_note, shift=0.2 * UP))
 
-        # @ sparsity from locality => block-tridiagonal
+        # % sparsity from locality => block-tridiagonal
         self.next_slide()
         self.play(FadeOut(VGroup(action_eq, h_def, newton, converge_note)))
 
@@ -502,7 +502,7 @@ class Parallel(InteractiveScene, Slide):
         self.play(FadeIn(sparsity_eq, shift=0.3 * RIGHT))
         self.play(FadeIn(tridiag_label, shift=0.3 * RIGHT))
 
-        # @ the block-tridiagonal matrix
+        # % the block-tridiagonal matrix
         self.next_slide()
         self.play(FadeOut(VGroup(locality_eq, sparsity_eq, tridiag_label)))
 
@@ -533,7 +533,7 @@ class Parallel(InteractiveScene, Slide):
             Write(matrix_eq),
         )
 
-        # @ label the diagonal and off-diagonal blocks with actual second derivatives
+        # % label the diagonal and off-diagonal blocks with actual second derivatives
         self.next_slide()
 
         diag_label = Tex(
@@ -561,7 +561,7 @@ class Parallel(InteractiveScene, Slide):
             FadeIn(od_label, shift=0.2 * UP),
         )
 
-        # @ per-edge 2x2 Hessian
+        # % per-edge 2x2 Hessian
         transform_sqs = VGroup(
             squares[(2, 2)],
             squares[(2, 3)],
@@ -635,7 +635,7 @@ class Parallel(InteractiveScene, Slide):
         ).set_opacity(0.5).next_to(per_edge_note, DOWN, buff=0.55)
         self.play(FadeIn(overlap_note, shift=0.2 * UP))
 
-        # @ convergence criteria and closing summary
+        # % convergence criteria and closing summary
         self.next_slide()
         self.play(
             FadeOut(
@@ -675,7 +675,7 @@ class Parallel(InteractiveScene, Slide):
         self.next_slide()
         self.play(FadeIn(bridge, shift=0.2 * UP))
 
-        # @ end
+        # % end
         self.next_slide()
         self.play(
             FadeOut(VGroup(heading2, criteria, bridge), shift=RIGHT, run_time=0.6)

@@ -18,7 +18,7 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
     samples = 4
 
     def construct(self):
-        # @ Title slide
+        # % Title slide
         title = Text(
             "Parallel variational integrators\non forced systems and Lie groups",
             font_size=54,
@@ -69,7 +69,7 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
 
         title_slide = VGroup(title, author, advisors, footer)
 
-        # @ Outline slide
+        # % Outline slide
         self.next_slide()
         self.play(FadeOut(title_slide))
         heading = Text("Today:", font_size=60)
@@ -107,7 +107,7 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
 
         outline_slide = VGroup(heading, lines)
 
-        # @ body
+        # % body
         self.next_slide()
 
         self.play(
@@ -165,4 +165,4 @@ class Defense(Lagrangians, Parallel, Forced, LieGroups, Slide):
 
         self.lie_groups_section()
 
-        # @ end
+        # % end

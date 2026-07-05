@@ -16,7 +16,7 @@ class Lagrangians(InteractiveScene, Slide):
 
     def lagrangian_examples_and_geometry(self) -> None:
         #  =====
-        # @ Start
+        # % Start
         theta = ValueTracker(PI / 4)
         _rod_len = 1.0
         pivot = np.array([0.0, 0.6, 0.0])
@@ -214,7 +214,7 @@ class Lagrangians(InteractiveScene, Slide):
         self.play(Write(L_def))
 
         #  ================
-        # @ Pendulum example
+        # % Pendulum example
         self.next_slide()
         other_ex = VGroup(
             ex_visuals[0][0],
@@ -245,11 +245,11 @@ class Lagrangians(InteractiveScene, Slide):
         self.play(ShowCreation(state_space))
         self.play(FadeIn(state_space_dot))
 
-        # @ play with angle
+        # % play with angle
         self.next_slide(loop=True)
         self.play(theta.animate.set_value(PI / 2), rate_func=wiggle, run_time=4)
 
-        # @ omega
+        # % omega
         self.next_slide()
         omega = ValueTracker(1.0)
         omega_arrow = Arrow(
@@ -282,7 +282,7 @@ class Lagrangians(InteractiveScene, Slide):
         )
 
         self.next_slide()
-        # @ phase space reveal
+        # % phase space reveal
         self.frame.save_state()
         self.play(
             self.frame.animate.reorient(0, 65, 0, state_space.get_center(), 8),
@@ -293,7 +293,7 @@ class Lagrangians(InteractiveScene, Slide):
         )
 
         # ================
-        # @ Cylinder: TQ = S^1xR
+        # % Cylinder: TQ = S^1xR
         self.next_slide()
         R = state_space.get_radius()
         cyl_center = state_space.get_center()
@@ -326,7 +326,7 @@ class Lagrangians(InteractiveScene, Slide):
             ),
         )
 
-        # @ Lagrangian flow: energy level curves E = omega^2/2 − cos(theta) = const
+        # % Lagrangian flow: energy level curves E = omega^2/2 − cos(theta) = const
         self.next_slide(loop=True)
 
         def to_cyl_pt(th, om):
@@ -408,7 +408,7 @@ class Lagrangians(InteractiveScene, Slide):
             # rate_func=rush_from,
         )
 
-        # @ color the cylinder by energy level
+        # % color the cylinder by energy level
         self.next_slide()
 
         colored_cyl = cyl.copy()
@@ -422,7 +422,7 @@ class Lagrangians(InteractiveScene, Slide):
             run_time=2,
         )
 
-        # @ symplecticity
+        # % symplecticity
         self.next_slide()
         self.play(FadeOut(flow, lag_ratio=0.3), run_time=1)
 
@@ -487,7 +487,7 @@ class Lagrangians(InteractiveScene, Slide):
         for mob in symp_patches:
             mob.clear_updaters()
 
-        # @ clear
+        # % clear
 
         self.next_slide()
         self.play(
@@ -497,10 +497,10 @@ class Lagrangians(InteractiveScene, Slide):
             FadeOut(symp_patches),
         )
         (self.frame.restore(),)
-        # @ end
+        # % end
 
     def euler_lagrange(self):
-        # @ start
+        # % start
         t2c = {
             "L": COLOR_LAGRANGIANS,
             r"\widetilde{L}_d": MAROON_D,
@@ -534,7 +534,7 @@ class Lagrangians(InteractiveScene, Slide):
         self.play(Write(action_cont), run_time=1)
         self.play(Write(el_equations), run_time=1)
 
-        # @ split screen
+        # % split screen
         self.next_slide()
         divider = Line(TOP + 0.4 * DOWN, BOTTOM + 2 * UP, color=GREY_B, stroke_width=1)
 
@@ -555,7 +555,7 @@ class Lagrangians(InteractiveScene, Slide):
         self.next_slide()
         self.play(Write(del_eq))
 
-        # @ approx
+        # % approx
         Ld_exact = Tex(
             r"L^\text{ex.}_d (q_0, q_1) = \int_0^h q_{0, 1} (q_0, q_1)",
             t2c={**t2c, r"L^\text{ex.}_d": MAROON_D},
@@ -576,7 +576,7 @@ class Lagrangians(InteractiveScene, Slide):
         self.next_slide()
         self.play(Write(Ld_approx))
 
-        # @ cleanup
+        # % cleanup
 
         self.next_slide()
         self.play(
@@ -588,4 +588,4 @@ class Lagrangians(InteractiveScene, Slide):
             )
         )
 
-        # @ end
+        # % end

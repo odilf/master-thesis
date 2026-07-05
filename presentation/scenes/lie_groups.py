@@ -51,7 +51,7 @@ class LieGroups(InteractiveScene, Slide):
     def lie_groups_section(self) -> None:
         self.frame.save_state()
 
-        # @ title: answer the "Q is not a vector space" bridge from the forced section
+        # % title: answer the "Q is not a vector space" bridge from the forced section
         title = Text("Lie groups", font_size=72, color=COLOR_LIE_GROUPS, weight="bold")
         subtitle = TexText(
             r"the configuration space $Q$ has only group structure. \\Archetypical examples: $\textrm{SO}(3)$, $\textrm{SE}(3)$",
@@ -63,7 +63,7 @@ class LieGroups(InteractiveScene, Slide):
 
         self.next_slide()
 
-        # @ non-commutativity: rotations have no vector-space "+"
+        # % non-commutativity: rotations have no vector-space "+"
         heading = Text("Rotations do not commute", font_size=44).to_edge(UP, buff=0.6)
         heading.fix_in_frame()
         self.play(FadeOut(VGroup(title, subtitle)), Write(heading))
@@ -123,7 +123,7 @@ class LieGroups(InteractiveScene, Slide):
         )
         self.frame.restore()
 
-        # @ retraction: you cannot just add the correction
+        # % retraction: you cannot just add the correction
         heading = Text("The Newton correction lives in the Lie algebra", font_size=40)
         heading.to_edge(UP, buff=0.6).fix_in_frame()
         self.play(Write(heading, lag_ratio=0.03), run_time=1)
@@ -152,7 +152,7 @@ class LieGroups(InteractiveScene, Slide):
 
         self.play(LaggedStartMap(Write, VGroup(flat, group), lag_ratio=0.5))
 
-        # @ sphere schematic
+        # % sphere schematic
         # A schematic sphere standing in for the curved group, with a tangent
         # plane (the Lie algebra), a correction vector, and the retraction.
         self.next_slide()
@@ -272,7 +272,7 @@ class LieGroups(InteractiveScene, Slide):
             )
         )
 
-        # @ retraction choice
+        # % retraction choice
         apply_note = TexText(
             r"apply the correction \emph{on} the group: $g_k \cdot \tau(\xi)$",
             font_size=32,
@@ -335,7 +335,7 @@ class LieGroups(InteractiveScene, Slide):
         )
         self.frame.animate.restore()
 
-        # @ load the SO(3) solver data (baked from EulerTop, see export_so3.py)
+        # % load the SO(3) solver data (baked from EulerTop, see export_so3.py)
         data = np.load(_DEMO_DATA)
         paths = data["paths"]  # (frames, N+1, 3, 3)
         logs = data["logs"]  # (frames, N+1, 3)  so(3) log-chart curves
@@ -415,7 +415,7 @@ class LieGroups(InteractiveScene, Slide):
         )
         (self.frame.animate.restore(),)
 
-        # @ convergence: the same solver relaxes the log-chart curve (flat view)
+        # % convergence: the same solver relaxes the log-chart curve (flat view)
         heading = Text("Same solver, different manifold", font_size=40).to_edge(
             UP, buff=0.7
         )
@@ -535,7 +535,7 @@ class LieGroups(InteractiveScene, Slide):
             run_time=0.8,
         )
 
-        # @ push forward / pull back: left translation relates the algebra and a point
+        # % push forward / pull back: left translation relates the algebra and a point
         self.next_slide()
         self.frame.save_state()
 
@@ -698,7 +698,7 @@ class LieGroups(InteractiveScene, Slide):
             run_time=1.0,
         )
 
-        # @ proof punchline: the retraction-curvature term vanishes at a solution
+        # % proof punchline: the retraction-curvature term vanishes at a solution
         hess = Tex(
             r"\widetilde{\mathcal{D}}_k = \underbrace{(T_e L)^{*}(\mathrm{D}_{22} L_d + \mathrm{D}_{11} L_d)(T_e L)}"
             r"_{\text{Hessian of } L_d}",
@@ -744,7 +744,7 @@ class LieGroups(InteractiveScene, Slide):
         self.next_slide()
         self.play(FadeOut(VGroup(hess, vanish, conclusion)))
 
-        # @ closing: the same rigid tumble, with vs without the retraction
+        # % closing: the same rigid tumble, with vs without the retraction
         self.next_slide()
         heading = Text("Without the retraction, the iterate leaves SO(3)", font_size=34)
         heading.to_edge(UP, buff=0.6).fix_in_frame()
@@ -844,4 +844,4 @@ class LieGroups(InteractiveScene, Slide):
             run_time=1.0,
         )
 
-        # @ end
+        # % end
