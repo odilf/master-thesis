@@ -866,14 +866,20 @@ class LieGroups(InteractiveScene, Slide):
             # splay proportional to the residual: full when warm, 0 at the solution.
             return THETA_MAX * residual_val(gk_dir(s)) / r0_gk
 
-        def _arrow_to(dir_end, color):
+        def _arrow_to(dir_end, color, lift=1.0):
+            # `lift` pushes the arrow radially off the sphere; the two corrections
+            # get different lifts so they sit at distinct depths and don't z-fight
+            # each other (or the sphere) when the splay closes near the solution.
             n = gk_dir(s_tracker.get_value())
             n_end = normalize(np.cos(L) * n + np.sin(L) * dir_end)
-            return stroke_arrow(slerp_pts(n, n_end), color, up=n_end, tail_width=0.09)
+            pts = center_r + lift * (slerp_pts(n, n_end) - center_r)
+            return stroke_arrow(pts, color, up=n_end, tail_width=0.09)
 
         def build_true():
             # exact correction (keeps the curvature term): aims along the geodesic.
-            return _arrow_to(tangent_toward(s_tracker.get_value()), COLOR_LIE_GROUPS)
+            return _arrow_to(
+                tangent_toward(s_tracker.get_value()), COLOR_LIE_GROUPS, lift=1.02
+            )
 
         def build_newton():
             # Newton correction (drops the curvature term): splayed off by theta_gap.
@@ -882,7 +888,9 @@ class LieGroups(InteractiveScene, Slide):
             u = tangent_toward(s)
             th = theta_gap(s)
             return _arrow_to(
-                np.cos(th) * u + np.sin(th) * normalize(np.cross(n, u)), RED_D
+                np.cos(th) * u + np.sin(th) * normalize(np.cross(n, u)),
+                RED_D,
+                lift=1.01,
             )
 
         def build_gap():
