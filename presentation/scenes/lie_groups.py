@@ -18,7 +18,7 @@ _DEMO_DATA = Path(__file__).resolve().parent.parent / "assets" / "so3_top.npz"
 _FACE_COLORS = [COLOR_LIE_GROUPS, TEAL_E, BLUE_D, BLUE_E, GREY_BROWN, GREY_B]
 
 
-def stroke_arrow(pts, color, up, tail_length=0.15, tail_width=0.09):
+def stroke_arrow(pts, color, up, tail_length=0.15, tail_width=0.09) -> VGroup:
     """Stroke through `pts` with a filled triangle tip at pts[-1].
     `up` orients the tip plane; should be roughly normal to the stroke there."""
     pts = np.asarray(pts)
@@ -118,7 +118,7 @@ class LieGroups(InteractiveScene, Slide):
 
         self.next_slide()
         neq = Tex(
-            r"R_z\,R_x \;\neq\; R_x\,R_z",
+            r"R_z R_x \neq R_x R_z",
             font_size=48,
             color=COLOR_LIE_GROUPS,
         ).to_edge(DOWN, buff=0.7)
@@ -160,7 +160,7 @@ class LieGroups(InteractiveScene, Slide):
 
         # Left: the flat vector-space update (greyed, echoing earlier sections).
         flat_eq = Tex(
-            r"q \;\leftarrow\; q - H^{-1} r",
+            r"q \leftarrow q - H^{-1} r",
             font_size=40,
             color=GREY_B,
         )
@@ -171,7 +171,7 @@ class LieGroups(InteractiveScene, Slide):
 
         # Right: the group update.
         group_eq = Tex(
-            r"g_k \;\leftarrow\; g_k \cdot \tau(\xi)",
+            r"g_k \leftarrow g_k \cdot \tau(\xi)",
             font_size=44,
             t2c={r"\tau": COLOR_LIE_GROUPS, r"\xi": COLOR_LIE_GROUPS},
         )
@@ -357,8 +357,16 @@ class LieGroups(InteractiveScene, Slide):
             def updater(m):
                 rot = self.frame.get_orientation().as_matrix()
                 center = m.get_center()
+                # Counter the perspective + zoom magnification so the label keeps a
+                # constant apparent size (same as a fix_in_frame overlay), instead of
+                # ballooning and blurring when the camera is close or zoomed in.
+                # rot[:, 2] is the world direction from the scene toward the camera.
+                focal = self.frame.get_focal_distance()
+                cam_loc = self.frame.get_center() + focal * rot[:, 2]
+                depth = np.dot(cam_loc - center, rot[:, 2])
+                scale = (depth / focal) * (self.frame.get_height() / FRAME_HEIGHT)
                 for sub, local_pts in family_data:
-                    sub.set_points(local_pts @ rot.T + center)
+                    sub.set_points((local_pts * scale) @ rot.T + center)
 
             mob.add_updater(updater)
             return mob
@@ -440,7 +448,7 @@ class LieGroups(InteractiveScene, Slide):
         ).fix_in_frame()
 
         xi_g_lbl = make_billboard(
-            Tex(r"T_e L_g\,\xi", font_size=30, color=COLOR_LIE_GROUPS)
+            Tex(r"T_e L_g \xi", font_size=30, color=COLOR_LIE_GROUPS)
         ).add_updater(lambda m: m.next_to(xi_g[0].get_end(), UP + RIGHT, buff=0.05))
 
         self.next_slide(
@@ -520,7 +528,7 @@ class LieGroups(InteractiveScene, Slide):
             Brace(bob_mach, DOWN, extend_offset=0), Tex("T_g^* G")
         ).arrange(DOWN)
         bob = VGroup(bob_mach, bob_lbl).arrange(DOWN)
-        bob.move_to(RIGHT * 0.3 + 0.5*DOWN, aligned_edge=LEFT)
+        bob.move_to(RIGHT * 0.3 + 0.5 * DOWN, aligned_edge=LEFT)
 
         self.play(
             ShowCreation(bob_mach, lag_ratio=0.01), FadeIn(bob_lbl, shift=UP * 0.1)
@@ -543,7 +551,7 @@ class LieGroups(InteractiveScene, Slide):
             Brace(push_mach, DOWN, extend_offset=0), Tex(r"\mathfrak{g} \to T_g G")
         ).arrange(DOWN)
         VGroup(push_mach, push_lbl).arrange(DOWN).move_to(
-            LEFT * 0.3 + 0.5*DOWN, aligned_edge=RIGHT
+            LEFT * 0.3 + 0.5 * DOWN, aligned_edge=RIGHT
         )
         wire = Line(
             push_mach.get_right(), bob_mach.get_left(), color=GREY_D, stroke_width=5
@@ -557,7 +565,9 @@ class LieGroups(InteractiveScene, Slide):
 
         # % pullback: the two machines are one machine on the algebra
         self.next_slide()
-        combo = SurroundingRectangle(VGroup(push_mach, push_lbl, bob), color=GOLD_D, buff=0.35)
+        combo = SurroundingRectangle(
+            VGroup(push_mach, push_lbl, bob), color=GOLD_D, buff=0.35
+        )
         combo_lbl = Tex(
             r"(T_e L_g)^* f : \mathfrak{g}^*",
             font_size=34,
@@ -569,211 +579,467 @@ class LieGroups(InteractiveScene, Slide):
             FadeIn(combo_lbl, shift=0.2 * DOWN),
         )
 
-        machine_diagram = Group(
-            bob,
-            push_mach,
-            token,
-            wire,
-            combo,
-            combo_lbl,
-            push_lbl
-        )
+        machine_diagram = Group(bob, push_mach, token, wire, combo, combo_lbl, push_lbl)
 
-        # % Lie group derivation: how the Newton step changes on a Lie group.
-        # Split screen: the linearization (following the paper's "Linearization"
-        # paragraph) evolves on the left, fixed in frame; a compact sphere schematic
-        # on the right shows what each object is doing.
-        self.next_slide()
-        self.play(
-            FadeOut(Group(heading_pullbacks, scheme, mesh, machine_diagram)),
-            run_time=0.8,
-        )
-
-        # % proof punchline: the retraction-curvature term vanishes at a solution
+        # % Lie group derivation: Newton's method for the residual, done in the algebra.
+        # Split screen: math on the left (fixed in frame). On the right, the group G is a
+        # sphere colored by the residual magnitude |r_k|; we look for where it is zero,
+        # and to compute the correction we flatten a neighbourhood into the Lie algebra,
+        # solve the linear system there, and retract the answer back onto G.
         self.next_slide()
         self.play(
             FadeOut(
-                Group(
-                    heading_pullbacks,
-                    sphere,
-                    mesh,
-                    plane_e,
-                    plane_g,
-                    e_dot,
-                    g_dot,
-                    xi_e,
-                    xi_g,
-                    e_lbl,
-                    g_lbl,
-                    xi_in_e_lbl,
-                    xi_g_lbl,
-                    mach_co_e,
-                    mach_co_g,
-                    pull_push_connection,
-                )
+                Group(heading_pullbacks, scheme, mesh, machine_diagram), lag_ratio=0.01
             ),
-            self.frame.animate.restore(),
-            run_time=1.0,
+            run_time=0.8,
         )
 
-        hess = Tex(
-            r"\widetilde{\mathcal{D}}_k = \underbrace{(T_e L)^{*}(\mathrm{D}_{22} L_d + \mathrm{D}_{11} L_d)(T_e L)}"
-            r"_{\text{Hessian of } L_d}",
+        heading_deriv = (
+            Text("Newton for the residual, computed in the Lie algebra", font_size=32)
+            .to_edge(UP, buff=0.5)
+            .fix_in_frame()
+        )
+        divider = Line(
+            TOP + DOWN, BOTTOM + 0.3 * UP, color=GREY_D, stroke_width=2
+        ).fix_in_frame()
+
+        # right: the group G as a sphere, colored by the residual magnitude |r_k|
+        # (blue = zero, red = large). Camera and placements are hand-tuned like the
+        # rest of the scene -- expect to retune these numbers.
+        center_r = RIGHT * 2.8 + DOWN * 0.3
+        radius = 1.15
+
+        # g_k: the current iterate (warm, large residual). n_star: the DEL solution
+        # direction where the residual vanishes (cool spot).
+        n_gk = normalize(RIGHT * 1.0 - UP * 0.35 + OUT * 0.9)
+        n_star = normalize(RIGHT * 0.2 + UP * 0.85 + OUT * 0.9)
+        n_star_almost = normalize(RIGHT * 0.3 + UP * 0.55 + OUT * 0.9)
+        spread = 1.5  # radians over which the residual ramps from 0 to its max
+
+        def _sph_dir(u, v):
+            return np.array([np.cos(u) * np.sin(v), np.sin(u) * np.sin(v), -np.cos(v)])
+
+        def residual_val(d):
+            ang = np.arccos(np.clip(np.dot(normalize(d), n_star), -1.0, 1.0))
+            return float(np.clip(ang / spread, 0.0, 1.0))
+
+        def residual_color(val):
+            return interpolate_color(BLUE_E, RED_D, val, interp_by_hsl=True)
+
+        sphere_d = Sphere(radius=radius, resolution=(101, 51)).move_to(center_r)
+        sphere_d.color_by_uv_function(
+            lambda u, v: residual_color(residual_val(_sph_dir(u, v)))
+        )
+        sphere_d.set_opacity(0.95)
+        mesh_d = SurfaceMesh(
+            sphere_d,
+            resolution=(13, 9),
+            stroke_color=GREY_D,
+            stroke_width=1,
+            stroke_opacity=0.2,
+        )
+
+        gk_pt = center_r + n_gk * radius
+        star_pt = center_r + n_star * radius
+        gk_dot_d = Sphere(radius=0.05).set_color(WHITE).move_to(gk_pt)
+        gk_lbl_d = make_billboard(Tex("g_k", font_size=46, color=WHITE)).add_updater(
+            lambda m: m.next_to(gk_dot_d, UP, buff=0.06)
+        )
+        star_dot = Sphere(radius=0.05).set_color(GREEN_B).move_to(star_pt)
+
+        # Tangent frame at g_k, and the residual as a covector living there.
+        t1 = normalize(np.cross(n_gk, OUT))
+        t2 = normalize(np.cross(n_gk, t1))
+        cov = stroke_arrow(
+            np.linspace(gk_pt, gk_pt + t1 * 0.5, 8), RED, up=n_gk, tail_width=0.1
+        )
+        cov_lbl = make_billboard(Tex("r_k", font_size=46, color=RED)).add_updater(
+            lambda m: m.next_to(cov, RIGHT, buff=0.05)
+        )
+
+        def slerp_pts(na, nb, n_pts=24):
+            na, nb = normalize(na), normalize(nb)
+            ang = np.arccos(np.clip(np.dot(na, nb), -1.0, 1.0))
+            if ang < 1e-6:
+                return np.array([center_r + radius * na])
+            return np.array(
+                [
+                    center_r
+                    + radius
+                    * (np.sin((1 - t) * ang) * na + np.sin(t * ang) * nb)
+                    / np.sin(ang)
+                    for t in np.linspace(0, 1, n_pts)
+                ]
+            )
+
+        self.play(
+            self.frame.animate.reorient(
+                130,
+                50,
+                0,
+                (np.float32(2.33), np.float32(-2.43), np.float32(-1.14)),
+                5.64,
+            ),
+            Write(heading_deriv),
+            ShowCreation(divider),
+            run_time=1.2,
+        )
+        self.play(
+            FadeIn(sphere_d),
+            ShowCreation(mesh_d),
+            FadeIn(gk_dot_d),
+            FadeIn(gk_lbl_d),
+            run_time=1.2,
+        )
+
+        # LX = -3.3  # left-column x anchor (screen space)
+        LX = (LEFT_SIDE / 2)[0]
+
+        # % step 1: the residual measures how far g_k is from solving the DEL equation.
+        eq1 = Tex(
+            r"\text{solve}\quad r_k(\mathbf{g}, g_k) = 0",
+            font_size=34,
+            t2c={"r_k": RED},
+        )
+        eq1.move_to(np.array([LX, 1.2, 0])).fix_in_frame()
+        cap1 = TexText(
+            r"residual $r_k$: how much the DEL equation is violated",
+            font_size=24,
+            color=GREY_B,
+        )
+        cap1.next_to(eq1, DOWN, buff=0.3).fix_in_frame()
+
+        self.play(Write(eq1), ShowCreation(cov), FadeIn(cov_lbl))
+        self.play(FadeIn(cap1))
+        self.next_slide()
+        # There is a nearby point where the residual vanishes: the solution.
+        star_lbl = make_billboard(
+            Tex(r"r_k = 0", font_size=44, color=GREEN_B)
+        ).add_updater(lambda m: m.next_to(star_dot, UP, buff=0.06))
+        self.play(FadeIn(star_dot), FadeIn(star_lbl))
+
+        # % step 2: Newton -- assume the residual varies linearly and aim for its zero.
+        self.next_slide()
+        eq2 = Tex(
+            r"r_k(g_k \tau(\delta\xi)) \approx r_k + \widetilde{\mathcal{D}}_k \delta\xi = 0",
+            font_size=40,
+            t2c={"r_k": RED, r"\tau": COLOR_LIE_GROUPS, r"\delta\xi": COLOR_LIE_GROUPS},
+        )
+        eq2.move_to(np.array([LX, 1.2, 0])).fix_in_frame()
+        cap2 = TexText(
+            r"assume $r_k$ continues linearly (Newton)",
+            font_size=24,
+            color=GREY_B,
+        )
+        cap2.next_to(eq2, DOWN, buff=0.3).fix_in_frame()
+
+        self.play(TransformMatchingTex(eq1, eq2), FadeOut(cap1))
+        self.play(FadeIn(cap2), Indicate(star_dot, color=GREEN_B, scale_factor=1.6))
+
+        # % step 3: linearize = extend the local look of the residual outward, then
+        # read the correction off the surface.
+        self.next_slide()
+        eq3 = Tex(
+            r"\widetilde{\mathcal{D}}_k \delta\xi = -\widetilde r_k \qquad \text{in } \mathfrak{g}",
             font_size=36,
+            t2c={r"\delta\xi": COLOR_LIE_GROUPS},
+        )
+        eq3.move_to(np.array([LX, 1.2, 0])).fix_in_frame()
+        eq3D = Tex(
+            r"\widetilde{\mathcal{D}}_k = (T_eL_{g_k})^{*}\left(\mathrm{D}_{22}L_d + \mathrm{D}_{11}L_d\right)(T_eL_{g_k})",
+            font_size=32,
             t2c={"L_d": COLOR_LD},
         )
-        curv = Tex(
-            r"+\underbrace{r_k \cdot \mathrm{D}^2\tau(0)}_{\text{retraction curvature}}",
-            font_size=36,
-            t2c={"r_k": RED_D, r"\tau": COLOR_LIE_GROUPS},
+        eq3D.next_to(eq3, DOWN, buff=0.35).fix_in_frame()
+        cap3 = Tex(
+            r"\overline{g}_k = g_k \tau(\delta \xi)",
+            font_size=42,
+            color=GREY_B,
+            t2c={r"\tau": COLOR_LIE_GROUPS},
         )
-        row = VGroup(hess, curv).arrange(RIGHT, buff=0.35, aligned_edge=UP)
-        row.move_to(UP * 0.6)
+        cap3.next_to(eq3D, DOWN, buff=0.6).fix_in_frame()
 
-        self.play(Write(hess), run_time=1)
-        self.next_slide()
-        self.play(Write(curv), run_time=1)
+        # Linear (Newton) model of the residual around g_k, in tangent coords (a, b).
+        r0 = residual_val(n_gk)
+        eps = 1e-3
 
-        # At a solution the residual is zero, so the whole curvature term drops.
-        self.next_slide()
-        vanish = Tex(
-            r"r_k(\mathbf{g}^{*}, g_k^{*}) = 0 \quad\text{at a solution}",
-            font_size=38,
-            t2c={"r_k": RED},
-        ).next_to(row, DOWN, buff=1.4)
-        self.play(FadeIn(vanish, shift=0.2 * UP), Indicate(curv, color=RED))
-        self.play(FadeOut(curv, shift=0.3 * RIGHT), run_time=1.0)
+        def _rv(a, b):
+            return residual_val(normalize(n_gk + a * t1 + b * t2))
 
-        self.next_slide()
-        conclusion = (
-            VGroup(
-                TexText(
-                    r"$\Rightarrow$ fixed points are DEL solutions, local convergence.",
-                    font_size=34,
-                    color=COLOR_LIE_GROUPS,
-                ),
+        grad = np.array(
+            [
+                (_rv(eps, 0) - _rv(-eps, 0)) / (2 * eps),
+                (_rv(0, eps) - _rv(0, -eps)) / (2 * eps),
+            ]
+        )
+
+        # A colored cap around g_k. Small = "what the residual looks like locally";
+        # grown outward with the *linear* model = "assume it continues linearly".
+        def disk_of_radius(rmax, res=(10, 48)):
+            def disk_uv(r, phi):
+                return center_r + radius * 1.005 * normalize(
+                    n_gk + r * np.cos(phi) * t1 + r * np.sin(phi) * t2
+                )
+
+            d = ParametricSurface(
+                disk_uv, u_range=(1e-3, rmax), v_range=(0, TAU), resolution=res
             )
-            .arrange(DOWN, buff=0.35)
-            .next_to(vanish, DOWN, buff=0.7)
-        )
-        self.play(LaggedStartMap(FadeIn, conclusion, shift=0.2 * UP, lag_ratio=0.3))
-
-        self.next_slide()
-        self.play(FadeOut(VGroup(hess, vanish, conclusion)))
-
-        # % closing: the same rigid tumble, with vs without the retraction
-        self.next_slide()
-        heading_oob = Text(
-            "Without the retraction, the iterate leaves SO(3)", font_size=34
-        )
-        heading_oob.to_edge(UP, buff=0.6).fix_in_frame()
-
-        # A steady rigid tumble integrated two ways from the same start: the
-        # group update multiplies by the Cayley retraction (stays on SO(3)); the
-        # naive update multiplies by the first-order term I + xi (drifts off).
-        omega = np.array([0.5, 0.8, 1.3])
-        dt = 0.08
-        steps = 60
-        xi = dt * omega
-        step_ret = _cayley(xi)
-        step_naive = np.eye(3) + _skew(xi)
-        traj_ret = [np.eye(3)]
-        traj_naive = [np.eye(3)]
-        for _ in range(steps):
-            traj_ret.append(traj_ret[-1] @ step_ret)
-            traj_naive.append(traj_naive[-1] @ step_naive)
-
-        home_l = LEFT * 2.3 + UP * 0.4
-        home_r = RIGHT * 2.3 + UP * 0.4
-        t_tracker = ValueTracker(0)
-
-        def tumble_updater(traj, home):
-            def upd(m: Prism):
-                k = int(np.clip(round(t_tracker.get_value()), 0, steps))  # ty:ignore[invalid-argument-type]
-                m.become(oriented_brick(traj[k]).move_to(home))
-
-            return upd
-
-        def det_readout(traj, color):
-            lbl = Text(
-                "det = ", font="IosevkaTerm Nerd Font", font_size=36, color=color
-            )
-            val = DecimalNumber(
-                1.0,
-                num_decimal_places=2,
-                font_size=36,
-                color=color,
-                text_config={"font": "IosevkaTerm Nerd Font"},
-            ).add_updater(
-                lambda m: m.set_value(
+            d.color_by_uv_function(
+                lambda r, phi: residual_color(
                     float(
-                        np.linalg.det(
-                            traj[int(np.clip(round(t_tracker.get_value()), 0, steps))]  # ty:ignore[invalid-argument-type]
+                        np.clip(
+                            r0 + grad @ np.array([r * np.cos(phi), r * np.sin(phi)]),
+                            0,
+                            1,
                         )
                     )
                 )
             )
-            return VGroup(lbl, val).arrange(RIGHT, buff=0.1)
+            d.set_shading(0, 0, 0)
+            return d
 
-        brick_ret = (
-            Group(
-                oriented_brick(traj_ret[0]).add_updater(
-                    tumble_updater(traj_ret, home_l)
-                ),
-                VGroup(
-                    TexText(
-                        r"with retraction: $g_{k+1} = g_k \cdot \tau(\xi)$",
-                        font_size=28,
-                        color=COLOR_LIE_GROUPS,
-                    ),
-                    det_readout(traj_ret, GREY_D),
-                )
-                .arrange(DOWN, buff=0.4)
-                .fix_in_frame(),
-            )
-            .arrange(DOWN, buff=4.0)
-            .move_to(home_l)
+        disk = disk_of_radius(0.2)
+        disk_big = disk_of_radius(1.7)
+
+        # The correction, drawn on the surface: a geodesic from g_k to the zero.
+        dxi_geo = stroke_arrow(
+            slerp_pts(n_gk, n_star_almost), COLOR_LIE_GROUPS, up=n_star, tail_width=0.09
         )
-        brick_naive = (
-            Group(
-                oriented_brick(traj_naive[0]).add_updater(
-                    tumble_updater(traj_naive, home_r)
-                ),
-                VGroup(
-                    TexText(
-                        r"naive: $g_{k+1} = g_k \cdot (I + \xi)$",
-                        font_size=28,
-                        color=COLOR_LIE_GROUPS,
-                    ),
-                    det_readout(traj_naive, RED),
-                )
-                .arrange(DOWN, buff=0.4)
-                .fix_in_frame(),
-            )
-            .arrange(DOWN, buff=4.0)
-            .move_to(home_r)
-        )
+        dxi_geo_lbl = make_billboard(
+            Tex(r"\delta\xi", font_size=46, color=COLOR_LIE_GROUPS)
+        ).add_updater(lambda m: m.next_to(dxi_geo, DOWN, buff=0.05))
 
         self.play(
-            self.frame.animate.reorient(0, 45, 0, ORIGIN, 6),
-            Write(heading_oob),
-            FadeIn(brick_ret),
-            FadeIn(brick_naive),
-            run_time=1.5,
+            FadeOut(VGroup(cap2, gk_lbl_d, cov_lbl, cov)),
+            TransformMatchingTex(eq2, eq3),
+        )
+        self.play(Write(eq3D), Write(cap3))
+        # Strip the sphere's color down to a small cap around g_k (the local residual),
+        # then extend that local look outward under the linear model.
+        self.play(sphere_d.animate.set_color(GREY_B), FadeIn(disk))
+        self.play(Transform(disk, disk_big), run_time=2.0)
+        self.play(ShowCreation(dxi_geo), FadeIn(dxi_geo_lbl))
+
+        # % step 4a: the dropped curvature term is proportional to r_k.
+        # The true Lie-algebra Hessian diagonal is D_k (the pulled-back Hessian of
+        # L_d, what the Newton step uses) plus a retraction-curvature term r_k * D^2 tau.
+        # That extra term is *weighted by the residual*, so it vanishes at the solution.
+        # We show it as the gap between two corrections -- one that drops the term
+        # (Newton) and one that keeps it (exact) -- and slide g_k in until the gap closes.
+        self.next_slide()
+
+        # Bring the residual field back (step 3 greyed it) so the warm->cool change
+        # under the sliding g_k reads; drop the linear cap and the single correction.
+        self.play(
+            FadeOut(disk),
+            FadeOut(dxi_geo),
+            FadeOut(dxi_geo_lbl),
+        )
+        self.play(
+            sphere_d.animate.color_by_uv_function(
+                lambda u, v: residual_color(residual_val(_sph_dir(u, v)))
+            ),
         )
 
-        self.next_slide(loop=True)
-        self.play(t_tracker.animate.set_value(steps), run_time=5, rate_func=linear)
+        L = 0.55  # arc length of each correction arrow (radians)
+        THETA_MAX = 0.6  # max angular splay between the two corrections (radians)
+        r0_gk = residual_val(n_gk)  # residual at the starting iterate (for normalizing)
+        s_tracker = ValueTracker(0.0)  # 0 = start, 1 = at the solution n_star
 
-        # % cleanup
+        def gk_dir(s):
+            # unit direction of g_k, slerped from n_gk toward the solution n_star
+            ang = np.arccos(np.clip(np.dot(n_gk, n_star), -1.0, 1.0))
+            if ang < 1e-6:
+                return n_gk
+            return (np.sin((1 - s) * ang) * n_gk + np.sin(s * ang) * n_star) / np.sin(
+                ang
+            )
+
+        def tangent_toward(s):
+            # in-plane unit tangent of the travel great circle at g_k, pointing along
+            # the direction of motion (stays defined at s=1, unlike n_star - n).
+            n = gk_dir(s)
+            d = gk_dir(s + 1e-3) - n
+            return normalize(d - np.dot(d, n) * n)
+
+        def theta_gap(s):
+            # splay proportional to the residual: full when warm, 0 at the solution.
+            return THETA_MAX * residual_val(gk_dir(s)) / r0_gk
+
+        def _arrow_to(dir_end, color):
+            n = gk_dir(s_tracker.get_value())
+            n_end = normalize(np.cos(L) * n + np.sin(L) * dir_end)
+            return stroke_arrow(slerp_pts(n, n_end), color, up=n_end, tail_width=0.09)
+
+        def build_true():
+            # exact correction (keeps the curvature term): aims along the geodesic.
+            return _arrow_to(tangent_toward(s_tracker.get_value()), COLOR_LIE_GROUPS)
+
+        def build_newton():
+            # Newton correction (drops the curvature term): splayed off by theta_gap.
+            s = s_tracker.get_value()
+            n = gk_dir(s)
+            u = tangent_toward(s)
+            th = theta_gap(s)
+            return _arrow_to(
+                np.cos(th) * u + np.sin(th) * normalize(np.cross(n, u)), RED_D
+            )
+
+        def build_gap():
+            # short arc bridging the two arrowheads; fades out with the residual.
+            s = s_tracker.get_value()
+            n = gk_dir(s)
+            u = tangent_toward(s)
+            th = theta_gap(s)
+            n_t = normalize(np.cos(L) * n + np.sin(L) * u)
+            u_rot = np.cos(th) * u + np.sin(th) * normalize(np.cross(n, u))
+            n_n = normalize(np.cos(L) * n + np.sin(L) * u_rot)
+            pts = slerp_pts(n_n, n_t, n_pts=12)
+            if len(pts) < 2:
+                pts = np.array([center_r + radius * n_t] * 2) + np.array(
+                    [0.0, 0.0, 1e-3]
+                )
+            arc = VMobject().set_points_smoothly(pts)
+            arc.set_stroke(
+                YELLOW, 5, opacity=float(np.clip(residual_val(n) / r0_gk, 0, 1))
+            )
+            return arc
+
+        true_arrow = build_true()
+        newton_arrow = build_newton()
+        gap = build_gap()
+
+        newton_lbl = make_billboard(
+            Tex(r"\text{Newton: drop } r_k\mathrm{D}^2\tau", font_size=32, color=RED_D)
+        ).add_updater(
+            lambda m: m.next_to(newton_arrow[0].get_points()[-1], LEFT, buff=0.05)
+        )
+        true_lbl = make_billboard(
+            Tex(r"\text{exact}", font_size=40, color=COLOR_LIE_GROUPS)
+        ).add_updater(
+            lambda m: m.next_to(true_arrow[0].get_points()[-1], RIGHT, buff=0.05)
+        )
+        gap_lbl = make_billboard(Tex(r"\propto r_k", font_size=44, color=YELLOW))
+
+        def _gap_lbl_upd(m):
+            m.next_to(gap, UP, buff=0.05)
+            m.set_opacity(
+                float(
+                    np.clip(residual_val(gk_dir(s_tracker.get_value())) / r0_gk, 0, 1)
+                )
+            )
+
+        gap_lbl.add_updater(_gap_lbl_upd)
+
+        curv_eq = Tex(
+            r"\partial_{\delta \xi} r_k = \widetilde{\mathcal D}_k + r_k \mathrm{D}^2\tau",
+            font_size=34,
+            t2c={"r_k": RED, r"\widetilde{\mathcal D}_k": COLOR_LIE_GROUPS},
+        )
+        curv_eq.next_to(cap3, DOWN, buff=0.8).fix_in_frame()
+        curv_cap = TexText(
+            r"dropped term $\propto r_k \Rightarrow$ vanishes at the solution",
+            font_size=24,
+            color=GREY_B,
+        )
+        curv_cap.next_to(curv_eq, DOWN, buff=0.3).fix_in_frame()
+
+        # Intro at s = 0 (warm g_k, visible gap), then attach updaters for the slide.
+        self.play(
+            ShowCreation(newton_arrow),
+            ShowCreation(true_arrow),
+        )
+        self.play(
+            FadeIn(newton_lbl),
+            FadeIn(true_lbl),
+        )
+        self.play(ShowCreation(gap), Write(curv_eq))
+        self.play(FadeIn(curv_cap))
+
+        # % step 4b
+        true_arrow.add_updater(lambda m: m.become(build_true()))
+        newton_arrow.add_updater(lambda m: m.become(build_newton()))
+        gap.add_updater(lambda m: m.become(build_gap()))
+        gk_dot_d.add_updater(
+            lambda m: m.move_to(center_r + radius * gk_dir(s_tracker.get_value()))
+        )
 
         self.next_slide()
-        brick_ret.clear_updaters()
-        brick_naive.clear_updaters()
         self.play(
-            FadeOut(Group(heading_oob, brick_ret, brick_naive)),
+            s_tracker.animate.set_value(1.0),
+            self.frame.animate.reorient(
+                162,
+                61,
+                0,
+                (np.float32(3.45), np.float32(-2.47), np.float32(-0.69)),
+                4.87,
+            ),
+            run_time=5,
+            rate_func=smooth,
+        )
+        self.play(Indicate(curv_eq, color=YELLOW))
+
+        # % step 5: consequence, and the reduction to the vector-space case.
+        self.next_slide()
+        conclusion = VGroup(
+            TexText(
+                r"$\Rightarrow$ fixed points are DEL solutions; local convergence.",
+                font_size=28,
+                color=COLOR_LIE_GROUPS,
+            ),
+            TexText(
+                r"$G = \mathbb{R}^n \Rightarrow T_eL = \mathrm{Id}$: recovers the vector-space step.",
+                font_size=24,
+                color=GREY_B,
+            ),
+        ).arrange(DOWN, buff=0.3, aligned_edge=LEFT)
+        conclusion.move_to(np.array([LX, -2.2, 0])).fix_in_frame()
+        self.play(
+            FadeOut(VGroup(curv_eq, curv_cap)),
+            LaggedStartMap(FadeIn, conclusion, shift=0.2 * UP, lag_ratio=0.3),
+        )
+
+        # % cleanup newton step
+        self.next_slide()
+        for m in (
+            gk_lbl_d,
+            star_lbl,
+            gk_dot_d,
+            true_arrow,
+            newton_arrow,
+            gap,
+            newton_lbl,
+            true_lbl,
+            gap_lbl,
+        ):
+            m.clear_updaters()
+        self.play(
+            FadeOut(
+                Group(
+                    heading_deriv,
+                    divider,
+                    sphere_d,
+                    mesh_d,
+                    gk_dot_d,
+                    # gk_lbl_d,
+                    star_dot,
+                    star_lbl,
+                    true_arrow,
+                    newton_arrow,
+                    gap,
+                    newton_lbl,
+                    true_lbl,
+                    # gap_lbl,
+                    # curv_eq,
+                    # curv_cap,
+                    conclusion,
+                    eq3,
+                    eq3D,
+                    cap3,
+                ),
+                lag_ratio=0.005,
+            ),
             run_time=1.0,
         )
-        self.frame.restore()
 
         # % end
