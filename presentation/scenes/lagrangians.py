@@ -592,7 +592,7 @@ class Lagrangians(InteractiveScene, Slide):
         self.play(Write(Ld_exact))
 
         self.next_slide()
-        self.play(Indicate(Ld_exact["q_{0, 1}"], color=BLUE_E))
+        self.play(Indicate(Ld_exact["q_{0, 1}"]))
 
         self.next_slide()
         self.play(Write(Ld_approx))

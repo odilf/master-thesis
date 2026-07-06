@@ -26,3 +26,6 @@ mobject:
   default_mobject_color: "#000000"
   default_light_color: "#444444"
   white: "#FF0000"
+
+colors:
+  yellow_c: "#E07A10"

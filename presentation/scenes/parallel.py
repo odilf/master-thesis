@@ -7,7 +7,7 @@ from manim_slides.slide.manimlib import Slide
 from manimlib import *
 
 import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
-from scenes.theme import COLOR_PARALLEL
+from scenes.theme import COLOR_PARALLEL, COLOR_LIE_GROUPS, COLOR_FORCED
 
 # The DEL discrete Lagrangian keeps the same accent it had in the Lagrangians
 # section, so the equation reads continuously across the hand-off.
@@ -42,13 +42,22 @@ class Parallel(InteractiveScene, Slide):
             "q_{k-1}": GREY_C,
             "q_{k+1}": GREY_C,
         }
-        del_eq = Tex(
+        del_eq_original = Tex(
             r"\textrm{D}_2 L_d(q_{k-1}, q_k) + \textrm{D}_1 L_d(q_k, q_{k+1}) = 0",
+            # "0",
             font_size=44,
             t2c=t2c,
+            isolate=["0"],
+        ).to_edge(UP, buff=0.9)
+        del_eq = Tex(
+            r"\textrm{D}_2 L_d(q_{k-1}, q_k) + \textrm{D}_1 L_d(q_k, q_{k+1}) = r_k",
+            # "r_k",
+            font_size=44,
+            t2c=t2c,
+            isolate=["r_k"],
         ).to_edge(UP, buff=0.9)
 
-        self.play(Write(del_eq))
+        self.play(Write(del_eq_original))
 
         # % the discrete path as a row of nodes
         self.next_slide()
@@ -93,6 +102,11 @@ class Parallel(InteractiveScene, Slide):
             run_time=2,
         )
 
+        # % del -> residual
+
+        self.next_slide()
+        self.play(TransformMatchingTex(del_eq_original, del_eq, key_map={"0": "r_k"}))
+
         # % locality: q_k's equation only touches its two neighbours
         self.next_slide()
         focus = nodes["q_2"]
@@ -116,16 +130,13 @@ class Parallel(InteractiveScene, Slide):
             focus[0]
             .animate.set_stroke(COLOR_PARALLEL, 4)
             .set_fill(COLOR_PARALLEL, 0.25),
-            # Indicate(del_eq, color=COLOR_PARALLEL, scale_factor=1.01),
         )
         self.play(
-            Indicate(neighbors, scale_factor=1.05, color=BLUE),
-            Indicate(
-                VGroup(del_eq["q_{k-1}"], del_eq["q_{k+1}"]),
-                scale_factor=1.02,
-                color=BLUE,
+            *(
+                Indicate(n, scale_factor=1.05)
+                for n in [*neighbors, del_eq["q_{k-1}"], del_eq["q_{k+1}"]]
             ),
-            run_time=3,
+            run_time=2,
         )
         self.play(ShowCreation(couple))
 
@@ -138,11 +149,7 @@ class Parallel(InteractiveScene, Slide):
 
         # Stash what the sweep beat reuses; clear the transient couplings.
         self.next_slide()
-        self.play(
-            FadeOut(couple),
-            FadeOut(local),
-            Transform(focus[0], focus[0].restore()),
-        )
+        self.play(FadeOut(couple), FadeOut(local), focus[0].animate.restore())
 
         # % jacobi-iteration
         top = nodes
@@ -412,7 +419,11 @@ class Parallel(InteractiveScene, Slide):
 
         def upd_bar(bar):
             frac = (np.log10(residuals[frame_i()]) - log1) / (log0 - log1)
-            bar.set_points_by_ends(bar_bg.get_start(), bar_bg.get_start() + RIGHT * 4.0 * float(np.clip(frac, 0, 1)))
+            bar.set_points_by_ends(
+                bar_bg.get_start(),
+                bar_bg.get_start() + RIGHT * 4.0 * float(np.clip(frac, 0, 1)),
+            )
+
         bar.add_updater(upd_bar)
 
         self.play(
@@ -450,25 +461,26 @@ class Parallel(InteractiveScene, Slide):
             UP, buff=1.0
         )
 
+        h_def = Tex(
+            r"H = \mathrm{D}^2 S = \nabla R",
+            font_size=44,
+        ).next_to(heading, DOWN, buff=1.0)
+
         action_eq = Tex(
             r"S(\mathbf{q}) = \sum_k L_d(q_k, q_{k+1})",
             font_size=40,
             t2c=t2c_ld,
-        ).next_to(heading, DOWN, buff=1.0)
-
-        h_def = Tex(
-            r"H = \mathrm{D}^2 S = \nabla r",
-            font_size=44,
-        ).next_to(action_eq, DOWN, buff=0.5)
+        ).next_to(h_def, DOWN, buff=0.5)
 
         self.play(
-            LaggedStartMap(Write, VGroup(heading, action_eq, h_def), lag_ratio=0.3)  # ty:ignore[invalid-argument-type]
+            LaggedStartMap(Write, VGroup(heading, h_def, action_eq), lag_ratio=0.3)
         )
 
+        self.next_slide()
         converge_note = Tex(
             r"H \succ 0 \enspace \Rightarrow \enspace \text{local convergence}",
             color=COLOR_PARALLEL,
-        ).next_to(h_def, DOWN, buff=1.5)
+        ).next_to(action_eq, DOWN, buff=1.5)
 
         self.play(FadeIn(converge_note, shift=0.2 * UP))
 
@@ -536,7 +548,7 @@ class Parallel(InteractiveScene, Slide):
         ).move_to(RIGHT * 2.2 + UP * 1.1)
 
         self.play(
-            Indicate(squares[(2, 2)], scale_factor=1.05, color=BLUE),
+            Indicate(squares[(2, 2)], scale_factor=1.05),
             FadeIn(diag_label, shift=0.2 * UP),
         )
 
@@ -549,7 +561,7 @@ class Parallel(InteractiveScene, Slide):
         ).next_to(diag_label, DOWN, buff=0.5)
 
         self.play(
-            Indicate(squares[(2, 3)], scale_factor=1.05, color=BLUE),
+            Indicate(squares[(2, 3)], scale_factor=1.05),
             FadeIn(od_label, shift=0.2 * UP),
         )
 
@@ -612,7 +624,7 @@ class Parallel(InteractiveScene, Slide):
                 Write(H_label),
                 LaggedStartMap(FadeIn, edge_lbls, scale=1.65, lag_ratio=0.1),
                 FadeIn(ld_note),
-                lag_ratio=0.5
+                lag_ratio=0.5,
             ),
             run_time=4,
         )
@@ -620,10 +632,14 @@ class Parallel(InteractiveScene, Slide):
 
         # Adjacent edges share one node: their Hessians accumulate on the diagonal.
         self.next_slide()
-        overlap_note = Tex(
-            r"(H)_{k,k} = (H_{k-1})_{22} + (H_k)_{11}",
-            font_size=34,
-        ).set_opacity(0.5).next_to(per_edge_note, DOWN, buff=0.55)
+        overlap_note = (
+            Tex(
+                r"(H)_{k,k} = (H_{k-1})_{22} + (H_k)_{11}",
+                font_size=34,
+            )
+            .set_opacity(0.5)
+            .next_to(per_edge_note, DOWN, buff=0.55)
+        )
         self.play(FadeIn(overlap_note, shift=0.2 * UP))
 
         # % convergence criteria and closing summary
@@ -631,22 +647,34 @@ class Parallel(InteractiveScene, Slide):
         self.play(
             FadeOut(
                 VGroup(
-                    heading, H_label, edge_sqs, edge_lbls, ld_note, per_edge_note, overlap_note
+                    heading,
+                    H_label,
+                    edge_sqs,
+                    edge_lbls,
+                    ld_note,
+                    per_edge_note,
+                    overlap_note,
+                    transform_sqs,
                 )
             )
         )
 
-        heading2 = Text("Convergence criteria", font_size=44, weight="bold").to_edge(UP, buff=1.0)
-
-        criteria = VGroup(
-            Tex(r"H \succ 0 \Rightarrow \text{local convergence}"),
-            Tex(
-                r"\text{all  } H_k \succ 0 \Rightarrow H \succ 0",
-            ),
-            Tex(r"\Lambda_i = \mathcal{D}_i - \mathcal{C}_{i-1}^T \Lambda_{i-1}^{-1} \mathcal{C}_{i-1} \succ 0 \ \Leftrightarrow\ H \succ 0")
+        heading2 = Text("Convergence criteria", font_size=44, weight="bold").to_edge(
+            UP, buff=1.0
         )
-        criteria.arrange(DOWN, aligned_edge=LEFT, buff=0.6).next_to(
-            heading2, DOWN, buff=1.0
+
+        criteria = (
+            VGroup(
+                Tex(r"H \succ 0 \Rightarrow \text{local convergence}"),
+                Tex(
+                    r"\text{all  } H_k \succ 0 \Rightarrow H \succ 0",
+                ),
+                Tex(
+                    r"\Lambda_i = \mathcal{D}_i - \mathcal{C}_{i-1}^T \Lambda_{i-1}^{-1} \mathcal{C}_{i-1} \succ 0 \ \Leftrightarrow\ H \succ 0"
+                ),
+            )
+            .arrange(DOWN, aligned_edge=LEFT, buff=0.7)
+            .next_to(heading2, DOWN, buff=1.0)
         )
 
         bridge = TexText(
@@ -654,14 +682,13 @@ class Parallel(InteractiveScene, Slide):
             r"or what if $Q$ is not a vector space?",
             font_size=58,
             color=GREY_B,
+            t2c={"not symmetric": COLOR_FORCED, "not a vector space": COLOR_LIE_GROUPS},
         ).to_edge(DOWN, buff=0.5)
 
         self.play(Write(heading2))
-        self.play(
-            LaggedStartMap(
-                FadeIn, criteria, shift=0.5 * RIGHT, lag_ratio=0.4, run_time=2.0
-            ),
-        )
+        for criterion in criteria:
+            self.next_slide()
+            self.play(FadeIn(criterion, shift=0.5 * RIGHT, run_time=1.0))
 
         self.next_slide()
         self.play(FadeIn(bridge, shift=0.2 * UP))
