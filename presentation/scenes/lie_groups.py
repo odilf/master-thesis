@@ -315,10 +315,12 @@ class LieGroups(InteractiveScene, Slide):
         )
 
         # % vectors and pushforward
-        self.next_slide(notes="""
-            - An algebra is called an algebra because the group structure gives you the Lie bracket. But that's *not* the point!
-            - The point of Lie groups is that we can relate vectors in the identity and at a point caninically.
-        """)
+        self.next_slide(
+            notes="""
+                - An algebra is called an algebra because the group structure gives you the Lie bracket. But that's *not* the point!
+                - The point of Lie groups is that we can relate vectors in the identity and at a point caninically.
+            """
+        )
         self.play(
             FadeOut(
                 Group(
@@ -419,7 +421,7 @@ class LieGroups(InteractiveScene, Slide):
                     e_lbl,
                     g_lbl,
                 ),
-                lag_ratio=0.05
+                lag_ratio=0.05,
             )
         )
         self.play(ShowCreation(xi_e), FadeIn(xi_in_e_lbl))
@@ -441,25 +443,54 @@ class LieGroups(InteractiveScene, Slide):
             Tex(r"T_e L_g\,\xi", font_size=30, color=COLOR_LIE_GROUPS)
         ).add_updater(lambda m: m.next_to(xi_g[0].get_end(), UP + RIGHT, buff=0.05))
 
-        self.next_slide(notes="""
+        self.next_slide(
+            notes="""
     
-        """)
+        """
+        )
         self.play(TransformFromCopy(xi_e, xi_g), FadeIn(push_cap))
         self.play(FadeIn(xi_g_lbl))
 
         # % covectors and pullbacks
 
+        scheme = Group(
+            push_cap,
+            xi_e,
+            xi_in_e_lbl,
+            xi_g,
+            xi_g_lbl,
+            sphere,
+            plane_e,
+            plane_g,
+            e_dot,
+            g_dot,
+            e_lbl,
+            g_lbl,
+        )
+        self.next_slide()
+        self.play(
+            scheme.animate.set_opacity(0.04),
+            mesh.animate.set_stroke(opacity=0.01),
+            self.frame.animate.reorient(0, 0, 0, center, 6.5),
+            run_time=2,
+        )
+
         # From 3b1b/videos (Grover's)
         def get_blackbox_machine(
-            height=0.6, color=BLUE_A, label_tex="f(x)", label_height_ratio=0.33
+            height=1.0,
+            color=BLUE_A,
+            label_tex="f(x)",
+            label_height_ratio=0.33,
+            input="",
+            output="",
+            inout_height_ratio=0.25,
         ) -> VMobject:
-            square = Rectangle(height * 2.5, height)
-            in_tri = ArrowTip().set_height(0.5 * height)
+            square = Rectangle(height * 0.8, height)
+            in_tri = ArrowTip(length=0.7 * height, width=0.6 * height)
             out_tri = in_tri.copy().rotate(PI)
-            in_tri.move_to(square.get_left())
-            out_tri.move_to(square.get_right())
+            in_tri.move_to(square.get_left() + 0.0 * UP)
+            out_tri.move_to(square.get_right() + 0.0 * UP)
             machine = Union(square, in_tri, out_tri)
-            # machine=square
             machine.set_fill(color, 1)
             machine.set_stroke(BLACK, 2)
 
@@ -472,273 +503,89 @@ class LieGroups(InteractiveScene, Slide):
 
             return machine
 
-        mach_co_g = (
-            get_blackbox_machine(
-                label_tex=r"T_g^* G \cong T_g G \to \mathbb{R}",
-                height=0.7,
-                label_height_ratio=0.33,
-                color=RED_A,
-            )
-        ).add_updater(lambda m: m.next_to(xi_g[0].get_start(), DOWN, buff=0.55))
-        mach_co_e = (
-            get_blackbox_machine(
-                label_tex=r"\mathfrak{g} \cong T_e G \to \mathbb{R}",
-                label_height_ratio=0.28,
-                color=BLUE_A,
-            )
-        ).add_updater(
-            lambda m: m.next_to(xi_e[0].get_start(), UP, buff=0.35, aligned_edge=LEFT)
+        # A function that eats vectors at g becomes a function on the algebra by
+        # slotting the pushforward in front of it as an adapter. Machines chained
+        # in series make that "pre-compose with the pushforward" literal.
+
+        # Bob's machine: naturally defined on tangent vectors at g (a covector /
+        # momentum that lives at the point g).
+        bob_mach = get_blackbox_machine(
+            label_tex="f",
+            label_height_ratio=0.45,
+            color=RED_A,
+            input=r"T_g G",
+            output=r"\mathbb{R}",
         )
+        bob_lbl = VGroup(
+            Brace(bob_mach, DOWN, extend_offset=0), Tex("T_g^* G")
+        ).arrange(DOWN)
+        bob = VGroup(bob_mach, bob_lbl).arrange(DOWN)
+        bob.move_to(RIGHT * 0.3 + 0.5*DOWN, aligned_edge=LEFT)
 
         self.play(
-            FadeIn(mach_co_g, scale=0.2),
-            FadeOut(push_cap),
-            FadeOut(xi_g_lbl),
-            FadeOut(xi_in_e_lbl),
-            self.frame.animate.reorient(0, 0, 0, np.array([0.67, 0.2, 0.0]), 4.57),
-            run_time=3,
-        )
-        self.play(FadeIn(mach_co_e, scale=0.9))
-
-        pull_push_connection = ArcBetweenPoints(
-            mach_co_e.get_left(), mach_co_g.get_left()
-        ).add_tip(width=0.2, length=0.2)
-        self.play(ShowCreation(pull_push_connection, lag_ratio=0.03))
-        # TODO: How to represent covectors well???
-        # w_local = np.array([0.15, 0.85, 0.0])
-        # al_g = stroke_arrow(
-        #     np.linspace(g_base, g_base + Mg @ w_local, 8), GOLD_D, up=n_g
-        # )
-        # al_e = stroke_arrow(np.linspace(e_base, e_base + w_local, 8), GOLD_D, up=n_e)
-        # al_lbl_g = make_billboard(
-        #     Tex(r"\alpha \in T_g^{*}G", font_size=30, color=GOLD_D).next_to(
-        #         al_g[0].get_end(), LEFT, buff=0.05
-        #     )
-        # )
-        # al_lbl_e = make_billboard(
-        #     Tex(
-        #         r"(T_e L_g)^{*}\alpha \in \mathfrak{g}^{*}", font_size=30, color=GOLD_D
-        #     ).add_updater(lambda m: m.next_to(al_e[0].get_end(), LEFT, buff=0.05))
-        # )
-
-        # pull_cap = (
-        #     TexText(
-        #         r"covectors \emph{pull back}: $T_g^{*}G \to \mathfrak{g}^{*}$",
-        #         font_size=30,
-        #         color=GOLD_D,
-        #     ).to_edge(DOWN, buff=0.4)
-        # ).fix_in_frame()
-
-        # A covector living at g.
-        # self.next_slide()
-        # self.play(ShowCreation(al_g), FadeIn(al_lbl_g), FadeOut(push_cap))
-
-        # Pullback: the dual map carries it back into the algebra's dual.
-        # self.next_slide()
-        # self.play(TransformFromCopy(al_g, al_e), FadeIn(al_lbl_e), FadeIn(pull_cap))
-
-        # % example
-
-        # load the SO(3) solver data (baked from EulerTop, see export_so3.py)
-        data = np.load(_DEMO_DATA)
-        paths = data["paths"]  # (frames, N+1, 3, 3)
-        logs = data["logs"]  # (frames, N+1, 3)  so(3) log-chart curves
-        residuals = data["residuals"]  # (frames,)
-        iters_per_frame = int(data["iterations_per_frame"])
-        n_frames = len(paths)
-        N = paths.shape[1] - 1
-        converged = paths[-1]  # DEL solution rotations (for the brick)
-        converged_logs = logs[-1]  # its so(3) log-chart curve
-
-        heading_traj_alg = (
-            Text("A trajectory of rotations is a curve in the algebra", font_size=36)
-            .to_edge(UP, buff=0.5)
-            .fix_in_frame()
+            ShowCreation(bob_mach, lag_ratio=0.01), FadeIn(bob_lbl, shift=UP * 0.1)
         )
 
-        axes3 = ThreeDAxes(
-            x_range=(0, 2.5, 1),
-            y_range=(0, 1.5, 1),
-            z_range=(-1, 1, 1),
-            width=4.5,
-            height=3.0,
-            depth=2.0,
-            axis_config={"stroke_color": GREY_B, "stroke_width": 2},
-        ).shift(RIGHT * 3.0 + DOWN * 0.3)
-        algebra_lbl = Tex(
-            r"\mathfrak{g} = \mathfrak{so}(3)", font_size=30, color=COLOR_LIE_GROUPS
-        )
-        algebra_lbl.next_to(axes3, UP, buff=0.1).fix_in_frame()
-
-        log_curve = VMobject().set_stroke(COLOR_LIE_GROUPS, 4)
-        log_curve.set_points_smoothly([axes3.c2p(*p) for p in converged_logs])
-
-        brick_home = LEFT * 3.2 + DOWN * 0.3
-        k_tracker = ValueTracker(0)
-
-        def brick_at_k(m):
-            k = int(np.clip(round(k_tracker.get_value()), 0, N))  # ty:ignore[invalid-argument-type]
-            m.become(oriented_brick(converged[k]).move_to(brick_home))
-
-        brick = oriented_brick(converged[0]).move_to(brick_home)
-        brick.add_updater(brick_at_k)
-
-        marker = always_redraw(
-            lambda: (
-                Sphere(radius=0.07)
-                .set_color(MAROON_C)
-                .move_to(
-                    axes3.c2p(
-                        *converged_logs[
-                            int(np.clip(round(k_tracker.get_value()), 0, N))  # ty:ignore[invalid-argument-type]
-                        ]
-                    )
-                )
-            )
-        )
-
-        self.frame.reorient(-18, 70, 0, ORIGIN, 7)
-        self.play(
-            Write(heading_traj_alg),
-            FadeIn(brick),
-            ShowCreation(axes3),
-            FadeIn(algebra_lbl),
-            run_time=1.5,
-        )
-        self.add(marker)
-        self.play(ShowCreation(log_curve), run_time=1.0)
-
-        self.next_slide(loop=True)
-        self.play(k_tracker.animate.set_value(N), run_time=5, rate_func=linear)
-        k_tracker.set_value(0)
-
-        # % convergence: the same solver relaxes the log-chart curve (flat view)
+        # % type mismatch: an algebra vector does not fit Bob's input
         self.next_slide()
-        brick.clear_updaters()
-        self.play(
-            FadeOut(VGroup(axes3, algebra_lbl, log_curve, heading_traj_alg)),
-            FadeOut(marker),
-            FadeOut(brick),
-            run_time=1.0,
-        )
-        self.frame.restore()
+        token = Tex(r"\xi \in \mathfrak{g}", font_size=48, color=COLOR_LIE_GROUPS)
+        token.next_to(bob, LEFT, buff=2.6)
+        self.play(FadeIn(token, shift=RIGHT * 0.1))
 
-        heading_example = Text("Same solver, different manifold", font_size=40).to_edge(
-            UP, buff=0.7
-        )
-
-        axes = (
-            Axes(
-                x_range=(0, 2.5, 1),
-                y_range=(0, 1.6, 1),
-                width=6.0,
-                height=5.0,
-                axis_config={"stroke_color": GREY_B, "stroke_width": 2},
-            )
-            .to_edge(LEFT, buff=1.0)
-            .shift(0.3 * DOWN)
-        )
-        axes_lbl = Tex(
-            r"\mathfrak{so}(3) \text{ log-chart}", font_size=30, color=COLOR_LIE_GROUPS
-        )
-        axes_lbl.next_to(axes, UP, buff=0.2)
-
-        curve = VMobject(stroke_behind=True).set_stroke(COLOR_LIE_GROUPS, 4)
-
-        def polyline_at(m, i: float):
-            pts1 = np.array([axes.c2p(x, y) for x, y in logs[math.floor(i)][:, :2]])
-            pts2 = np.array([axes.c2p(x, y) for x, y in logs[math.ceil(i)][:, :2]])
-            t = math.ceil(i) - i
-            return m.set_points_as_corners(pts1 * t + pts2 * (1 - t))
-
-        # Faint wobble initial guess stays for reference.
-        guess = polyline_at(curve, 0).copy().set_stroke(GREY_B, 2)
-        start_dot = Dot(axes.c2p(*logs[0, 0, :2]), color=COLOR_LIE_GROUPS)
-        end_dot = Dot(axes.c2p(*logs[0, -1, :2]), color=COLOR_LIE_GROUPS)
-
-        frame = ValueTracker(0)
-        curve.add_updater(
-            lambda m: polyline_at(m, float(np.clip(frame.get_value(), 0, n_frames - 1)))
-        )
-
-        log0, log1 = np.log10(residuals[0]), np.log10(residuals[-1])
-
-        def frame_i():
-            return int(np.clip(frame.get_value(), 0, n_frames - 1))
-
-        counter = VGroup(
-            Text("iterations:", font="IosevkaTerm Nerd Font"),
-            Integer(
-                0,
-                text_config={"font": "IosevkaTerm Nerd Font", "alignment": "RIGHT"},
-                min_total_width=5,
-                group_with_commas=False,
-            ),
-        ).arrange(RIGHT, buff=0)
-        counter[0].move_to(LEFT)
-        counter[1].add_updater(lambda m: m.set_value(frame_i() * iters_per_frame))
-        counter.move_to(RIGHT * 3.4 + UP * 1.6)
-
-        res_label = (
-            VGroup(
-                Text("residual:", font="IosevkaTerm Nerd Font"),
-                DecimalNumber(
-                    residuals[0],
-                    num_decimal_places=6,
-                    text_config={"font": "IosevkaTerm Nerd Font"},
-                ),
-            )
-            .arrange(RIGHT)
-            .next_to(counter, DOWN, buff=0.6)
-        )
-        res_label[1].add_updater(lambda m: m.set_value(float(residuals[frame_i()])))
-
-        bar_bg = Line(ORIGIN, RIGHT * 4.5, color=GREY_D, stroke_width=8).next_to(
-            res_label, DOWN, buff=0.4, aligned_edge=LEFT
-        )
-
-        def res_bar():
-            frac = (np.log10(residuals[frame_i()]) - log1) / (log0 - log1)
-            start = bar_bg.get_start()
-            return Line(
-                start, start + RIGHT * 4.5 * float(np.clip(frac, 0, 1)), color=RED
-            ).set_stroke(width=8)
-
-        bar = always_redraw(res_bar)
-
-        self.play(
-            Write(heading_example),
-            ShowCreation(axes),
-            FadeIn(axes_lbl),
-            ShowCreation(guess),
-            FadeIn(start_dot),
-            FadeIn(end_dot),
-        )
-        self.add(curve)
-        self.play(FadeIn(VGroup(counter, res_label, bar_bg)), FadeIn(bar))
-
-        self.next_slide(loop=True)
-        self.play(frame.animate.set_value(n_frames - 1), run_time=5, rate_func=linear)
-
+        # % adapter: slot the pushforward in front so g flows through to T_g G
         self.next_slide()
-        counter[1].clear_updaters()
-        res_label[1].clear_updaters()
+        push_mach = get_blackbox_machine(
+            label_tex=r"T_eL_g",
+            label_height_ratio=0.3,
+            color=COLOR_LIE_GROUPS,
+        )
+        push_lbl = VGroup(
+            Brace(push_mach, DOWN, extend_offset=0), Tex(r"\mathfrak{g} \to T_g G")
+        ).arrange(DOWN)
+        VGroup(push_mach, push_lbl).arrange(DOWN).move_to(
+            LEFT * 0.3 + 0.5*DOWN, aligned_edge=RIGHT
+        )
+        wire = Line(
+            push_mach.get_right(), bob_mach.get_left(), color=GREY_D, stroke_width=5
+        )
         self.play(
-            FadeOut(
-                VGroup(
-                    heading_example,
-                    axes,
-                    axes_lbl,
-                    guess,
-                    start_dot,
-                    end_dot,
-                    counter,
-                    res_label,
-                    bar_bg,
-                )
-            ),
-            FadeOut(curve),
-            FadeOut(bar),
+            ShowCreation(push_mach, lag_ratio=0.01),
+            FadeIn(push_lbl, shift=UP * 0.1),
+            token.animate.next_to(push_mach, LEFT, buff=0.7),
+            ShowCreation(wire),
+        )
+
+        # % pullback: the two machines are one machine on the algebra
+        self.next_slide()
+        combo = SurroundingRectangle(VGroup(push_mach, push_lbl, bob), color=GOLD_D, buff=0.35)
+        combo_lbl = Tex(
+            r"(T_e L_g)^* f : \mathfrak{g}^*",
+            font_size=34,
+            color=GOLD_D,
+        ).next_to(combo, DOWN, buff=0.3)
+
+        self.play(
+            ShowCreation(combo),
+            FadeIn(combo_lbl, shift=0.2 * DOWN),
+        )
+
+        machine_diagram = Group(
+            bob,
+            push_mach,
+            token,
+            wire,
+            combo,
+            combo_lbl,
+            push_lbl
+        )
+
+        # % Lie group derivation: how the Newton step changes on a Lie group.
+        # Split screen: the linearization (following the paper's "Linearization"
+        # paragraph) evolves on the left, fixed in frame; a compact sphere schematic
+        # on the right shows what each object is doing.
+        self.next_slide()
+        self.play(
+            FadeOut(Group(heading_pullbacks, scheme, mesh, machine_diagram)),
             run_time=0.8,
         )
 
