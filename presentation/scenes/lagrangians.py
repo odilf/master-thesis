@@ -1,6 +1,7 @@
 import numpy as np
 from manim_slides.slide.manimlib import Slide
 from manimlib import *
+from collections.abc import Callable
 
 import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
 from scenes.theme import COLOR_LAGRANGIANS
@@ -187,7 +188,7 @@ class Lagrangians(InteractiveScene, Slide):
             .arrange(RIGHT, buff=1.5)
             .move_to(TOP - 0.5 * UP, aligned_edge=TOP)
         )
-        self.play(LaggedStartMap(ShowCreation, grid, lag_ratio=0.7, run_time=1))
+        self.play(ShowCreation(grid, lag_ratio=0.03, run_time=3))
 
         # states
         self.next_slide()
@@ -205,7 +206,6 @@ class Lagrangians(InteractiveScene, Slide):
         L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=68).shift(2 * DOWN)
         self.play(Write(L_def))
 
-        #  ================
         # % Pendulum example
         self.next_slide()
         other_ex = VGroup(
@@ -239,7 +239,11 @@ class Lagrangians(InteractiveScene, Slide):
 
         # % play with angle
         self.next_slide(loop=True)
-        self.play(theta.animate.set_value(PI / 2), rate_func=wiggle, run_time=4)
+        self.play(
+            theta.animate.set_value(PI / 3),
+            rate_func=lambda t: wiggle(t, 4),
+            run_time=2,
+        )
 
         # % omega
         self.next_slide()
@@ -275,16 +279,17 @@ class Lagrangians(InteractiveScene, Slide):
 
         self.next_slide()
         # % phase space reveal
+        angle_arc.suspend_updating()
         self.frame.save_state()
         self.play(
             self.frame.animate.reorient(0, 65, 0, state_space.get_center(), 8),
             FadeOut(state_space_dot),
             FadeOut(omega_arrow),
             FadeOut(pendulum_vis),
+            FadeOut(pendulum_vis),
             run_time=3,
         )
 
-        # ================
         # % Cylinder: TQ = S^1xR
         self.next_slide()
         R = state_space.get_radius()
@@ -339,11 +344,20 @@ class Lagrangians(InteractiveScene, Slide):
             om = omega * cyl_height / 2 / omega_scale
             E = 0.5 * om**2 - np.cos(theta)
             return float(np.clip((E - E_min) / (E_max - E_min), 0, 1))
+        
+        def angular_momentum(_theta, omega):
+            return omega
+            # om = omega * cyl_height / 2 / omega_scale
+            # print(omega, om, cyl_height, omega_scale)
+            # return om
 
-        def energy_color(theta, omega):
-            return interpolate_color(
-                BLUE_E, RED_E, energy(theta, omega), interp_by_hsl=True
+        def consv_color(momentum_map: Callable[[float, float], float]) -> Callable[[float, float], Color]:
+            return lambda theta, omega: interpolate_color(
+                BLUE_E, RED_E, momentum_map(theta, omega), interp_by_hsl=True
             )
+
+        energy_color = consv_color(energy)
+        momentum_color = consv_color(angular_momentum)
 
         def _rk4(th, om, dt):
             k1 = (om, -np.sin(th))
@@ -357,6 +371,7 @@ class Lagrangians(InteractiveScene, Slide):
 
         flow_time = 20
         dots = Group()
+        tails = VGroup()
 
         def make_curve(theta, omega, width=1.0):
             color = energy_color(theta, omega)
@@ -378,12 +393,15 @@ class Lagrangians(InteractiveScene, Slide):
                 .set_fill(None)
                 .set_stroke(opacity=0.03)
             )
-            dot = GlowDot(color=color, radius=0.1).add_updater(
-                lambda dot: dot.move_to(c.get_end())
+            dot = (
+                GlowDot(color=color, radius=0.05)
+                .move_to(pts[0])
+                .add_updater(lambda dot: dot.move_to(c.get_end()), call=False)
             )
             tail = TracingTail(dot, time_traced=3, stroke_color=color, stroke_width=2)
-            self.add(tail, dot)
+            tail.traced_points.clear()
             dots.add(dot)
+            tails.add(tail)
             return c
 
         random.seed(69420)
@@ -391,13 +409,19 @@ class Lagrangians(InteractiveScene, Slide):
             (random.random() * TAU, random.random() * 2 - 1) for _ in range(30)
         )
         flow = VGroup(*(make_curve(theta, omega) for theta, omega in rand_starts))
+        self.add(tails)
+        flow_time = 15
         self.play(
-            FadeIn(dots, run_time=0.5),
-            ShowCreation(flow, lag_ratio=0, run_time=flow_time),
-            self.frame.animate.set_anim_args(run_time=flow_time).reorient(
-                90, 80, 0, state_space.get_center(), 9
-            ),  # ty:ignore[unresolved-attribute]
-            # rate_func=rush_from,
+            FadeIn(dots, run_time=3),
+            ShowCreation(
+                flow,
+                lag_ratio=0.01,
+                run_time=flow_time,
+                rate_func=lambda t: smooth(t, 3),
+            ),
+            self.frame.animate(run_time=flow_time).reorient(
+                97, 72, 0, state_space.get_center(), 9
+            ),
         )
 
         # % color the cylinder by energy level
@@ -523,6 +547,8 @@ class Lagrangians(InteractiveScene, Slide):
         disc = VGroup(disc_header, Ld_def, action_disc, del_eq).arrange(DOWN, buff=0.4)
 
         self.play(Write(action_cont), run_time=1)
+
+        self.next_slide()
         self.play(Write(el_equations), run_time=1)
 
         # % split screen
@@ -550,6 +576,7 @@ class Lagrangians(InteractiveScene, Slide):
         Ld_exact = Tex(
             r"L^\text{ex.}_d (q_0, q_1) = \int_0^h q_{0, 1} (q_0, q_1)",
             t2c={**t2c, r"L^\text{ex.}_d": MAROON_D},
+            isolate=[r"q_{0, 1}"]
         )
         Ld_approx = Tex(
             r"\widetilde{L}_d (q_0, q_1) = L\left(\tfrac{q_0 + q_1}{2}, \tfrac{q_1 - q_0}{h}\right)",
@@ -563,6 +590,9 @@ class Lagrangians(InteractiveScene, Slide):
 
         self.next_slide()
         self.play(Write(Ld_exact))
+
+        self.next_slide()
+        self.play(Indicate(Ld_exact["q_{0, 1}"], color=BLUE_E))
 
         self.next_slide()
         self.play(Write(Ld_approx))
