@@ -9,6 +9,9 @@ o = [":pipe-to ./manim-send.sh 'uv run manimgl %{file_path_absolute} -se %{curso
 p = "@<C-s>F%x<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret><C-o>"
 s = "@<C-s>F%x<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret><C-o>"
 
+#  Run from "top"
+t = "@<C-s>f%v?^    def<ret><A-minus>x<A-;>j<A-;>k<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret><C-o>"
+
 # Run "cell" delimited by %
 q = "@<C-s>F%xvf%<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret><C-o>"
 a = "@<C-s>F%xvf%<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret><C-o>"

@@ -34,6 +34,7 @@ dev = [
 [tool.uv.sources]
 manimgl = { path = "../../manim", editable = true }
 pdel-mechanics = { path = "../../pdel-mechanics", editable = true }
+manim-slides = { path = "../../manim-slides", editable = true }
 
 [tool.ruff.lint]
 ignore = [

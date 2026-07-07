@@ -23,6 +23,7 @@ class SlideScene(InteractiveScene, Slide):
         starting_mobjects = self.get_mobjects()
         for slide in slides:
             state = self.get_state()
+            self.frame.save_state()
             slide(self)
 
             new_mobjects = [m for m in self.get_mobjects() if m not in starting_mobjects]
@@ -32,6 +33,7 @@ class SlideScene(InteractiveScene, Slide):
 
             num_plays, time = self.num_plays, self.time
             self.restore_state(state)
+            self.frame.restore()
             self.num_plays, self.time = num_plays, time
 
     def show(self, *mobjects, run_time: float = 0.4, notes: str = "") -> None:
