@@ -1,15 +1,19 @@
 import numpy as np
-from manim_slides.slide.manimlib import Slide
 from manimlib import *
 from collections.abc import Callable
 
-import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
+import scenes.theme  # noqa: F401 -- side-effect: registers fonts and LaTeX preamble
+from scenes.base import SlideScene
 from scenes.theme import COLOR_LAGRANGIANS
 
 
-class Lagrangians(InteractiveScene, Slide):
-    def construct(self):
-        # % Start
+class Lagrangians(SlideScene):
+    def pendulum_phase_space(self):
+        """Four Lagrangian systems, then a deep dive on the pendulum: L : TQ -> R,
+        its S^1 x R phase cylinder, energy level curves as the Lagrangian flow,
+        and symplecticity as the area-preserving flow of blobs of states."""
+        # % examples grid
+        self.next_slide()
         theta = ValueTracker(PI / 4)
         _rod_len = 1.0
         pivot = np.array([0.0, 0.6, 0.0])
@@ -190,18 +194,19 @@ class Lagrangians(InteractiveScene, Slide):
         )
         self.play(ShowCreation(grid, lag_ratio=0.03, run_time=3))
 
-        # states
+        # % state spaces
         self.next_slide()
         for vis, Q in zip(ex_visuals, state_spaces):
             Q.move_to(vis.get_center() + 1.5 * DOWN, aligned_edge=DOWN)
         self.play(*(Write(state_space) for state_space in state_spaces))
 
-        # lagrangians
+        # % Lagrangians
         self.next_slide()
         for Q, L in zip(state_spaces, lagrangians):
             L.move_to(Q.get_center() + 0.8 * DOWN, aligned_edge=DOWN)
         self.play(*(Write(L) for L in lagrangians))
 
+        # % Lagrangian as a map TQ -> R
         self.next_slide()
         L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=68).shift(2 * DOWN)
         self.play(Write(L_def))
@@ -233,6 +238,7 @@ class Lagrangians(InteractiveScene, Slide):
             )
         )
 
+        # % state-space circle
         self.next_slide()
         self.play(ShowCreation(state_space))
         self.play(FadeIn(state_space_dot))
@@ -268,6 +274,7 @@ class Lagrangians(InteractiveScene, Slide):
         )
         self.play(FadeIn(omega_arrow))
 
+        # % sweep angle and angular velocity
         self.next_slide()
         self.play(theta.animate.set_value(PI * 0.8), omega.animate.set_value(3.0))
         self.play(
@@ -277,8 +284,8 @@ class Lagrangians(InteractiveScene, Slide):
             theta.animate.set_value(PI / 4), omega.animate.set_value(1), run_time=2
         )
 
-        self.next_slide()
         # % phase space reveal
+        self.next_slide()
         angle_arc.suspend_updating()
         self.frame.save_state()
         self.play(
@@ -344,14 +351,16 @@ class Lagrangians(InteractiveScene, Slide):
             om = omega * cyl_height / 2 / omega_scale
             E = 0.5 * om**2 - np.cos(theta)
             return float(np.clip((E - E_min) / (E_max - E_min), 0, 1))
-        
+
         def angular_momentum(_theta, omega):
             return omega
             # om = omega * cyl_height / 2 / omega_scale
             # print(omega, om, cyl_height, omega_scale)
             # return om
 
-        def consv_color(momentum_map: Callable[[float, float], float]) -> Callable[[float, float], Color]:
+        def consv_color(
+            momentum_map: Callable[[float, float], float],
+        ) -> Callable[[float, float], Color]:
             return lambda theta, omega: interpolate_color(
                 BLUE_E, RED_E, momentum_map(theta, omega), interp_by_hsl=True
             )
@@ -503,19 +512,15 @@ class Lagrangians(InteractiveScene, Slide):
         for mob in symp_patches:
             mob.clear_updaters()
 
-        # % clear
-
-        self.next_slide()
-        self.play(
-            FadeOut(cyl),
-            FadeOut(cyl_mesh),
-            FadeOut(state_space),
-            FadeOut(symp_patches),
-        )
+        # Return the camera home; play_slides fades the leftover 3D mobjects.
         self.frame.restore()
 
-        # == EULER-LAGRANGE
-        # % start
+    def euler_lagrange(self):
+        """From continuous to discrete: the action integral and Euler-Lagrange
+        equations, split-screen against the discrete action sum and DEL
+        equations, then the exact vs approximate discrete Lagrangian."""
+        # % continuous action
+        self.next_slide()
         t2c = {
             "L": COLOR_LAGRANGIANS,
             r"\widetilde{L}_d": MAROON_D,
@@ -548,6 +553,7 @@ class Lagrangians(InteractiveScene, Slide):
 
         self.play(Write(action_cont), run_time=1)
 
+        # % Euler-Lagrange equations
         self.next_slide()
         self.play(Write(el_equations), run_time=1)
 
@@ -563,12 +569,15 @@ class Lagrangians(InteractiveScene, Slide):
         )
         disc.move_to(RIGHT_SIDE / 2 + UP)
 
+        # % discrete Lagrangian
         self.next_slide()
         self.play(Write(Ld_def), Write(disc_header))
 
+        # % discrete action
         self.next_slide()
         self.play(Write(action_disc))
 
+        # % discrete Euler-Lagrange
         self.next_slide()
         self.play(Write(del_eq))
 
@@ -576,7 +585,7 @@ class Lagrangians(InteractiveScene, Slide):
         Ld_exact = Tex(
             r"L^\text{ex.}_d (q_0, q_1) = \int_0^h q_{0, 1} (q_0, q_1)",
             t2c={**t2c, r"L^\text{ex.}_d": MAROON_D},
-            isolate=[r"q_{0, 1}"]
+            isolate=[r"q_{0, 1}"],
         )
         Ld_approx = Tex(
             r"\widetilde{L}_d (q_0, q_1) = L\left(\tfrac{q_0 + q_1}{2}, \tfrac{q_1 - q_0}{h}\right)",
@@ -588,25 +597,22 @@ class Lagrangians(InteractiveScene, Slide):
             .move_to(BOTTOM + 1.8 * UP)
         )
 
+        # % exact discrete Lagrangian
         self.next_slide()
         self.play(Write(Ld_exact))
 
+        # % highlight the unknown path
         self.next_slide()
         self.play(Indicate(Ld_exact["q_{0, 1}"]))
 
+        # % approximate discrete Lagrangian
         self.next_slide()
         self.play(Write(Ld_approx))
 
-        # % cleanup
+    slides = [
+        pendulum_phase_space,
+        euler_lagrange,
+    ]
 
-        self.next_slide()
-        self.play(
-            LaggedStartMap(
-                FadeOut,
-                VGroup(el_equations, divider, cont, disc, Lds),
-                shift=RIGHT,
-                run_time=0.5,
-            )
-        )
-
-        # % end
+    def construct(self):
+        self.play_slides(self.slides)

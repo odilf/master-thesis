@@ -3,10 +3,10 @@ from itertools import pairwise
 from pathlib import Path
 
 import numpy as np
-from manim_slides.slide.manimlib import Slide
 from manimlib import *
 
-import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
+import scenes.theme  # noqa: F401 -- side-effect: registers fonts and LaTeX preamble
+from scenes.base import SlideScene
 from scenes.theme import COLOR_PARALLEL, COLOR_LIE_GROUPS, COLOR_FORCED
 
 # The DEL discrete Lagrangian keeps the same accent it had in the Lagrangians
@@ -33,9 +33,13 @@ def _node(
     return VGroup(circle, Tex(label, font_size=fs).move_to(center))
 
 
-class Parallel(InteractiveScene, Slide):
-    def construct(self):
+class Parallel(SlideScene):
+    def jacobi_sweep(self):
+        """The DEL equation over the whole trajectory becomes a residual per
+        node; each node couples only to its two neighbours, so one Jacobi sweep
+        updates every interior node at once. Parallel over time."""
         # % the DEL system over the whole trajectory
+        self.next_slide()
         t2c = {
             "L_d": COLOR_LD,
             "q_k": COLOR_PARALLEL,
@@ -103,7 +107,6 @@ class Parallel(InteractiveScene, Slide):
         )
 
         # % del -> residual
-
         self.next_slide()
         self.play(TransformMatchingTex(del_eq_original, del_eq, key_map={"0": "r_k"}))
 
@@ -147,7 +150,7 @@ class Parallel(InteractiveScene, Slide):
         ).next_to(del_eq, DOWN, buff=0.15)
         self.play(FadeIn(local, shift=0.2 * UP))
 
-        # Stash what the sweep beat reuses; clear the transient couplings.
+        # % clear the transient coupling highlight
         self.next_slide()
         self.play(FadeOut(couple), FadeOut(local), focus[0].animate.restore())
 
@@ -272,28 +275,11 @@ class Parallel(InteractiveScene, Slide):
         ).to_edge(DOWN, buff=0.6)
         self.play(ShowCreation(bot_pathline), FadeIn(takeaway, shift=0.2 * UP))
 
-        # % clear jacobi
-        self.next_slide()
-        self.play(
-            FadeOut(
-                VGroup(
-                    top_group,
-                    current_lbl,
-                    updated_lbl,
-                    *bot.values(),
-                    bot_pathline,
-                    locks,
-                    fan2,
-                    faint_fans,
-                    takeaway,
-                ),
-            ),
-            del_eq.animate.set_opacity(0.0),
-            run_time=0.8,
-        )
-        self.remove(del_eq)
-
+    def local_newton_step(self):
+        """Each local update is a single Newton step on that node's residual,
+        built from its local Jacobian (the per-node second derivatives of L_d)."""
         # % local Newton step
+        self.next_slide()
         t2c = {"L_d": COLOR_LD, r"\overline q": COLOR_PARALLEL, "r_k": COLOR_PARALLEL}
 
         heading = Text("Each local update: one Newton step", font_size=40).to_edge(
@@ -321,24 +307,20 @@ class Parallel(InteractiveScene, Slide):
 
         self.play(Write(heading))
 
+        # % residual as a function of the node
         self.next_slide()
         self.play(Write(residual))
 
+        # % Newton update and its Jacobian
         self.next_slide()
         self.play(Write(newton))
         self.play(FadeIn(jac, shift=0.2 * UP))
 
+    def free_fall_demo(self):
+        """The real solver: a straight-line initial guess relaxes to the
+        physical free-fall arc as the residual drops over the iterations."""
+        # % free-fall solver output
         self.next_slide()
-        self.play(
-            LaggedStartMap(
-                FadeOut,
-                VGroup(heading, residual, newton, jac),
-                shift=RIGHT,
-                run_time=0.6,
-            )
-        )
-
-        # % real solver output: straight guess relaxes to the physical arc
         data = np.load(_DEMO_DATA)
         paths, residuals = data["paths"], data["residuals"]
         n_frames = len(paths)
@@ -436,25 +418,22 @@ class Parallel(InteractiveScene, Slide):
         self.play(FadeIn(curve))
         self.play(FadeIn(VGroup(counter, res_label, bar_bg)), FadeIn(bar))
 
-        # Loop animation
+        # % relax the guess to the physical arc
         self.next_slide(loop=True)
         self.play(frame.animate.set_value(n_frames - 1), run_time=5, rate_func=linear)
 
-        self.next_slide()
+        # Stop the live counters and tracers so the auto-cleanup fade is clean.
         counter[1].clear_updaters()
         res_label[1].clear_updaters()
-        self.play(
-            FadeOut(
-                VGroup(
-                    heading, axes, guess, start_dot, end_dot, counter, res_label, bar_bg
-                )
-            ),
-            FadeOut(curve),
-            FadeOut(bar),
-            run_time=0.8,
-        )
+        curve.clear_updaters()
+        bar.clear_updaters()
 
+    def convergence_criteria(self):
+        """H is the Hessian of the discrete action; H > 0 gives local
+        convergence. Locality makes it block-tridiagonal, assembled from per-edge
+        Hessians, giving the convergence criteria and the bridge to what's next."""
         # % convergence: H as Hessian of the discrete action
+        self.next_slide()
         t2c_ld = {"L_d": COLOR_LD}
 
         heading = Text("Convergence of Newton iteration", font_size=40).to_edge(
@@ -476,6 +455,7 @@ class Parallel(InteractiveScene, Slide):
             LaggedStartMap(Write, VGroup(heading, h_def, action_eq), lag_ratio=0.3)
         )
 
+        # % positive definite gives local convergence
         self.next_slide()
         converge_note = Tex(
             r"H \succ 0 \enspace \Rightarrow \enspace \text{local convergence}",
@@ -552,6 +532,7 @@ class Parallel(InteractiveScene, Slide):
             FadeIn(diag_label, shift=0.2 * UP),
         )
 
+        # % off-diagonal block
         self.next_slide()
 
         od_label = Tex(
@@ -576,6 +557,7 @@ class Parallel(InteractiveScene, Slide):
             *(sq for sq in squares.values() if sq not in transform_sqs)
         )
 
+        # % morph the four shared blocks into a per-edge Hessian
         self.next_slide()
 
         es = 1.0  # edge cell size
@@ -630,7 +612,7 @@ class Parallel(InteractiveScene, Slide):
         )
         self.play(FadeIn(per_edge_note, shift=0.2 * UP))
 
-        # Adjacent edges share one node: their Hessians accumulate on the diagonal.
+        # % adjacent edges share a node, so their Hessians add on the diagonal
         self.next_slide()
         overlap_note = (
             Tex(
@@ -687,16 +669,20 @@ class Parallel(InteractiveScene, Slide):
 
         self.play(Write(heading2))
         for criterion in criteria:
+            # % reveal each convergence criterion
             self.next_slide()
             self.play(FadeIn(criterion, shift=0.5 * RIGHT, run_time=1.0))
 
+        # % bridge to the extensions
         self.next_slide()
         self.play(FadeIn(bridge, shift=0.2 * UP))
 
-        # % cleanup
-        self.next_slide()
-        self.play(
-            FadeOut(VGroup(heading2, criteria, bridge), shift=RIGHT, run_time=0.6)
-        )
+    slides = [
+        jacobi_sweep,
+        local_newton_step,
+        free_fall_demo,
+        convergence_criteria,
+    ]
 
-        # % end
+    def construct(self):
+        self.play_slides(self.slides)

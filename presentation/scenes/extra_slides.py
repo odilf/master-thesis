@@ -12,10 +12,10 @@ slide is shown with a single instant crossfade via the `show` helper.
 
 import numpy as np
 
-from manim_slides.slide.manimlib import Slide
 from manimlib import *
 
 import scenes.theme  # noqa: F401 -- side-effect: registers fonts and LaTeX preamble
+from scenes.base import SlideScene
 from scenes.theme import (
     COLOR_FORCED,
     COLOR_LAGRANGIANS,
@@ -57,21 +57,12 @@ def _node_row(n=6, radius=0.12, buff=0.7):
     return VGroup(edges, dots), dots
 
 
-class ExtraSlides(InteractiveScene, Slide):
+class ExtraSlides(SlideScene):
     samples = 4
 
-    def construct(self):
-        def show(*mobjects, run_time=0.4):
-            # Static slide: clear whatever is on screen and pop the new content
-            # in with one short crossfade (one play == one recorded slide).
-            self.next_slide()
-            new = Group(*mobjects)
-            old = Group(*self.get_mobjects())
-            anims: list[Animation] = [FadeIn(new, run_time=run_time, shift=RIGHT*0.1)]
-            if len(old) > 0:
-                anims.insert(0, FadeOut(old, run_time=run_time, shift=RIGHT*0.1))
-            self.play(*anims)
-
+    def symplecticity_energy(self):
+        """What symplecticity buys: a variational integrator keeps bounded energy
+        error where a non-symplectic method (RK4) drifts secularly."""
         # % 1. energy: what does symplecticity buy you
         h1 = _heading("What does symplecticity buy you?", COLOR_LAGRANGIANS)
 
@@ -120,11 +111,14 @@ class ExtraSlides(InteractiveScene, Slide):
         ).set_color(GREY_C)
         caption1.to_edge(DOWN, buff=0.5)
 
-        show(
+        self.show(
             h1, axes, e0, e0_label, variational, rk4,
             x_label, y_label, legend, caption1,
         )
 
+    def forced_convergence_proven_open(self):
+        """Forced convergence: two proven local criteria and the open global
+        test (proven only for the scalar n=1, N=3 case, seems to hold widely)."""
         # % 3. convergence: proven vs open (forced systems)
         h3 = _heading("Forced convergence: proven vs. open", COLOR_FORCED)
 
@@ -185,8 +179,12 @@ class ExtraSlides(InteractiveScene, Slide):
         ).set_color(GREY_C)
         note3.to_edge(DOWN, buff=0.4)
 
-        show(h3, panels, note3)
+        self.show(h3, panels, note3)
 
+    def direct_solve_vs_jacobi(self):
+        """Why not solve R(q) = 0 directly? A direct block-tridiagonal solve is a
+        serial forward/back sweep; block Jacobi decouples it into parallel local
+        updates whose serial cost is set by the number of sweeps, not by N."""
         # % 4. why not a direct solve: global Newton (serial) vs block Jacobi (parallel)
         h4 = _heading("Why not just solve it directly?", COLOR_PARALLEL)
 
@@ -281,8 +279,12 @@ class ExtraSlides(InteractiveScene, Slide):
         ).set_color(GREY_C)
         takeaway4.to_edge(DOWN, buff=0.4)
 
-        show(h4, intro4, cols4, divider4, takeaway4)
+        self.show(h4, intro4, cols4, divider4, takeaway4)
 
+    def bvp_vs_ivp(self):
+        """Same discrete Euler-Lagrange equations, two boundary problems: fixed
+        endpoints (BVP) make the whole-trajectory parallel sweep possible; seeding
+        q0, q1 (IVP) marches serially."""
         # % 5. boundary conditions: BVP vs IVP
         h5 = _heading("Boundary conditions: BVP vs. IVP", COLOR_PARALLEL)
 
@@ -333,8 +335,12 @@ class ExtraSlides(InteractiveScene, Slide):
         ).set_color(GREY_C)
         note5.to_edge(DOWN, buff=0.5)
 
-        show(h5, cols5, note5)
+        self.show(h5, cols5, note5)
 
+    def retraction_choice(self):
+        """Retraction choice on Lie groups: exp vs Cayley. The choice changes the
+        Hessian blocks by a congruence but not their definiteness, so convergence
+        is retraction-independent; it is a cost vs accuracy tradeoff."""
         # % 6. retraction choice on Lie groups
         h6 = _heading("Retraction choice on Lie groups", COLOR_LIE_GROUPS)
 
@@ -389,7 +395,20 @@ class ExtraSlides(InteractiveScene, Slide):
         ).arrange(DOWN, buff=0.2)
         key6.to_edge(DOWN, buff=0.45)
 
-        show(h6, cols6, key6)
+        self.show(h6, cols6, key6)
 
-        # % end
+    slides = [
+        symplecticity_energy,
+        forced_convergence_proven_open,
+        direct_solve_vs_jacobi,
+        bvp_vs_ivp,
+        retraction_choice,
+    ]
+
+    def construct(self):
+        # A static deck: each slide crossfades to the next via `show`, so there is
+        # no per-slide cleanup and no `play_slides` here.
+        for slide in self.slides:
+            slide(self)
+        # % close the deck
         self.next_slide()

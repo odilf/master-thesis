@@ -1,13 +1,15 @@
-from manim_slides.slide.manimlib import Slide
 from manimlib import *
 
 import scenes.theme  # noqa: F401 -- side-effect: registers fonts and LaTeX preamble
+from scenes.base import SlideScene
 
 
-class FutureWork(InteractiveScene, Slide):
-    def construct(self):
-        # % future work: a short closing list drawn from the three themes in the
-        # conclusions (convergence theory, further extensions, algorithm refinements)
+class FutureWork(SlideScene):
+    def future_work(self):
+        """Closing list of open directions, from the conclusions: convergence
+        theory, further extensions, further spaces and kinds of Lagrangians."""
+        # % future work
+        self.next_slide()
         heading = Text("Future work", font_size=60)
         heading.to_edge(UP, buff=1.0)
 
@@ -42,10 +44,7 @@ class FutureWork(InteractiveScene, Slide):
             ),
         )
 
-        # % cleanup
-        
-        self.next_slide()
-        self.play(FadeOut(Group(self.get_mobjects()), lag_ratio=0.001))
-        self.remove_all_except()
+    slides = [future_work]
 
-        # % end
+    def construct(self):
+        self.play_slides(self.slides)

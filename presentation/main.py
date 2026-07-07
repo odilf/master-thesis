@@ -1,12 +1,12 @@
-from scenes.lie_groups import LieGroups
-from manim_slides.slide.manimlib import Slide
 from manimlib import *
 
-import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
+import scenes.theme  # noqa: F401 -- side-effect: registers fonts and LaTeX preamble
+from scenes.base import SlideScene
 from scenes.forced import Forced
 from scenes.future_work import FutureWork
 from scenes.extra_slides import ExtraSlides
 from scenes.lagrangians import Lagrangians
+from scenes.lie_groups import LieGroups
 from scenes.parallel import Parallel
 from scenes.theme import (
     COLOR_FORCED,
@@ -16,10 +16,15 @@ from scenes.theme import (
 )
 
 
-class Defense(InteractiveScene, Slide):
+class Defense(SlideScene):
     samples = 4
 
     def construct(self):
+        # The body threads each section's `slides` through `play_slides`, keeping
+        # the outline as connective tissue: it is faded out before a section and
+        # back in after, with the next topic highlighted. `play_slides` only fades
+        # what a section adds, so the persistent outline is left untouched.
+
         # % Title slide
         title = Text(
             "Parallel variational integrators\non forced systems and Lie groups",
@@ -78,10 +83,7 @@ class Defense(InteractiveScene, Slide):
         heading.to_edge(UP, buff=1.0)
 
         items = [
-            (
-                "Lagrangians & geometry",
-                COLOR_LAGRANGIANS,
-            ),
+            ("Lagrangians & geometry", COLOR_LAGRANGIANS),
             ("Parallel algorithm", COLOR_PARALLEL),
             ("Forced systems", COLOR_FORCED),
             ("Lie groups", COLOR_LIE_GROUPS),
@@ -109,79 +111,71 @@ class Defense(InteractiveScene, Slide):
 
         outline_slide = VGroup(heading, lines)
 
-        # % body
+        # % highlight the first topic
         self.next_slide()
-
         self.play(
             lines[0].animate.scale(1.1),
             lines[1].animate.set_opacity(0.3),
             lines[2].animate.set_opacity(0.3),
             lines[3].animate.set_opacity(0.3),
-            run_time=0.5
+            run_time=0.5,
         )
-        
+
+        # % Lagrangians & geometry
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
-             
-        self.next_slide()
-        Lagrangians.construct(self)  # ty:ignore[invalid-argument-type]
-
+        self.play_slides(Lagrangians.slides)
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
-            lines[0].animate.set_opacity(0.3).scale(1/1.1),
+            lines[0].animate.set_opacity(0.3).scale(1 / 1.1),
             lines[1].animate.set_opacity(1).scale(1.1),
             lines[2].animate.set_opacity(0.3),
             lines[3].animate.set_opacity(0.3),
-            run_time=1
+            run_time=1,
         )
 
+        # % Parallel algorithm
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
-        Parallel.construct(self)  # ty:ignore[invalid-argument-type]
-
+        self.play_slides(Parallel.slides)
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
             lines[0].animate.set_opacity(0.3),
-            lines[1].animate.set_opacity(0.3).scale(1/1.1),
+            lines[1].animate.set_opacity(0.3).scale(1 / 1.1),
             lines[2].animate.set_opacity(1).scale(1.1),
             lines[3].animate.set_opacity(0.3),
-            run_time=1
+            run_time=1,
         )
 
-
+        # % Forced systems
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
-
-        Forced.construct(self)  # ty:ignore[invalid-argument-type]
+        self.play_slides(Forced.slides)
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
             lines[0].animate.set_opacity(0.3),
             lines[1].animate.set_opacity(0.3),
-            lines[2].animate.set_opacity(0.3).scale(1/1.1),
+            lines[2].animate.set_opacity(0.3).scale(1 / 1.1),
             lines[3].animate.set_opacity(1),
-            run_time=1
+            run_time=1,
         )
 
+        # % Lie groups
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
+        self.play_slides(LieGroups.slides)
 
-        LieGroups.construct(self)  # ty:ignore[invalid-argument-type]
+        # % future work
+        self.play_slides(FutureWork.slides)
 
+        # % ending: thanks and questions
         self.next_slide()
-        FutureWork.construct(self)  # ty:ignore[invalid-argument-type]
-
-        # % ending slide
-         
         thanks = Text("Thank you for listening!", font_size=62)
         qs = Text("Questions?", weight="bold", font_size=72)
-
         VGroup(thanks, qs).arrange(DOWN, buff=0.5)
-
         self.play(FadeIn(thanks, scale=0.8))
         self.play(FadeIn(qs, scale=0.8))
 
-        # % extra slides
-        self.next_slide()
-        ExtraSlides.construct(self)  # ty:ignore[invalid-argument-type]
-
-        # % end
+        # % extra slides (backup deck; each crossfades via `show`)
+        for slide in ExtraSlides.slides:
+            slide(self)

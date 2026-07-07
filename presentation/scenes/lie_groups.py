@@ -2,10 +2,10 @@ import math
 from pathlib import Path
 
 import numpy as np
-from manim_slides.slide.manimlib import Slide
 from manimlib import *
 
-import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
+import scenes.theme  # noqa: F401 -- side-effect: registers fonts and LaTeX preamble
+from scenes.base import SlideScene
 from scenes.theme import COLOR_LIE_GROUPS, COLOR_PARALLEL
 
 # L_d keeps the accent it has carried since the Lagrangians section, so the DEL
@@ -64,9 +64,13 @@ def _cayley(v):
     return np.linalg.solve(np.eye(3) - X / 2, np.eye(3) + X / 2)
 
 
-class LieGroups(InteractiveScene, Slide):
-    def construct(self) -> None:
-        # % title: answer the "Q is not a vector space" bridge from the forced section
+class LieGroups(SlideScene):
+    def rotations_dont_commute(self):
+        """Rotations do not commute, so Q = SO(3) has no vector-space '+': two
+        bricks take the same two 90-degree turns in opposite orders and end in
+        different orientations."""
+        # % title: bridge from "Q is not a vector space"
+        self.next_slide()
         self.frame.save_state()
         subtitle = TexText(
             r"Configuration spaces $G$ with only group structure. \\Archetypical examples: $\textrm{SO}(3)$, $\textrm{SE}(3)$",
@@ -75,9 +79,8 @@ class LieGroups(InteractiveScene, Slide):
 
         self.play(FadeIn(subtitle, shift=0.2 * UP))
 
-        self.next_slide()
-
         # % non-commutativity: rotations have no vector-space "+"
+        self.next_slide()
         heading_rotation_dont_commute = (
             Text("Rotations do not commute", font_size=44)
             .to_edge(UP, buff=0.6)
@@ -103,6 +106,7 @@ class LieGroups(InteractiveScene, Slide):
         )
         self.play(Write(lbl_a), Write(lbl_b))
 
+        # % apply the two rotations in each order
         self.next_slide()
         # Left brick: first about x, then about z. Right brick: reverse order.
         self.play(
@@ -116,6 +120,7 @@ class LieGroups(InteractiveScene, Slide):
             run_time=1.2,
         )
 
+        # % the two orders disagree
         self.next_slide()
         neq = Tex(
             r"R_z R_x \neq R_x R_z",
@@ -133,24 +138,16 @@ class LieGroups(InteractiveScene, Slide):
         no_plus.fix_in_frame()
         self.play(FadeIn(no_plus))
 
-        # % non-vecor space correction
-        self.next_slide()
-        self.play(
-            FadeOut(
-                Group(
-                    brick_a,
-                    brick_b,
-                    lbl_a,
-                    lbl_b,
-                    heading_rotation_dont_commute,
-                    neq,
-                    no_plus,
-                )
-            ),
-            run_time=0.5,
-        )
+        # Camera home; play_slides fades the bricks and labels.
         self.frame.restore()
 
+    def correction_in_the_algebra(self):
+        """The Newton correction lives in the Lie algebra: g <- g . tau(xi). A
+        sphere schematizes the curved group with its tangent algebra and the
+        retraction; left translation carries vectors forward and pulls covectors
+        back, so a function on T_g G becomes one on the algebra."""
+        # % the Newton correction lives in the Lie algebra
+        self.next_slide()
         heading_newton_correction = (
             Text("The Newton correction lives in the Lie algebra", font_size=40)
             .to_edge(UP, buff=0.6)
@@ -258,6 +255,7 @@ class LieGroups(InteractiveScene, Slide):
         )
         self.play(FadeIn(plane), FadeIn(gk_dot))
         self.play(ShowCreation(xi_vec))
+        # % zoom in on the tangent plane
         self.next_slide()
         self.play(
             # FadeIn(tau_lbl),
@@ -266,6 +264,7 @@ class LieGroups(InteractiveScene, Slide):
                 52, 47, 0, (np.float32(0.69), np.float32(0.31), np.float32(1.12)), 2.20
             ),
         )
+        # % retract xi back down onto the sphere
         self.next_slide()
         old_xi = xi_vec.copy().set_color(GREY).set_opacity(0.4)
         self.play(
@@ -346,31 +345,6 @@ class LieGroups(InteractiveScene, Slide):
             .fix_in_frame()
         )
 
-        def make_billboard[T: VMobject](mob: T) -> T:
-            initial_center = mob.get_center().copy()
-            family_data = [
-                (sub, sub.get_points().copy() - initial_center)
-                for sub in mob.get_family()
-                if sub.has_points()
-            ]
-
-            def updater(m):
-                rot = self.frame.get_orientation().as_matrix()
-                center = m.get_center()
-                # Counter the perspective + zoom magnification so the label keeps a
-                # constant apparent size (same as a fix_in_frame overlay), instead of
-                # ballooning and blurring when the camera is close or zoomed in.
-                # rot[:, 2] is the world direction from the scene toward the camera.
-                focal = self.frame.get_focal_distance()
-                cam_loc = self.frame.get_center() + focal * rot[:, 2]
-                depth = np.dot(cam_loc - center, rot[:, 2])
-                scale = (depth / focal) * (self.frame.get_height() / FRAME_HEIGHT)
-                for sub, local_pts in family_data:
-                    sub.set_points((local_pts * scale) @ rot.T + center)
-
-            mob.add_updater(updater)
-            return mob
-
         # Identity e at the top pole, and a second point g rotated away from it.
         # Each carries a tangent plane: the algebra g = T_e G at e, and T_g G at g.
         e_base = center + OUT * 1.6
@@ -393,10 +367,10 @@ class LieGroups(InteractiveScene, Slide):
         e_dot = Sphere(radius=0.07).set_color(WHITE).move_to(e_base)
         g_dot = Sphere(radius=0.08).set_color(TEAL_D).move_to(g_base)
 
-        e_lbl = make_billboard(Tex("e", font_size=24)).add_updater(
+        e_lbl = self.make_billboard(Tex("e", font_size=24)).add_updater(
             lambda m: m.next_to(e_dot, UP, buff=0.05)
         )
-        g_lbl = make_billboard(Tex("g", font_size=24, color=TEAL_D)).add_updater(
+        g_lbl = self.make_billboard(Tex("g", font_size=24, color=TEAL_D)).add_updater(
             lambda m: m.next_to(g_dot, UP, buff=0.05)
         )
 
@@ -410,7 +384,7 @@ class LieGroups(InteractiveScene, Slide):
             up=n_e,
             tail_width=0.14,
         )
-        xi_in_e_lbl = make_billboard(
+        xi_in_e_lbl = self.make_billboard(
             Tex(r"\xi \in \mathfrak{g}", font_size=30, color=COLOR_LIE_GROUPS)
         ).add_updater(lambda m: m.next_to(xi_e[0].get_end(), UP + RIGHT, buff=0.05))
 
@@ -447,10 +421,11 @@ class LieGroups(InteractiveScene, Slide):
             ).to_edge(DOWN, buff=0.4)
         ).fix_in_frame()
 
-        xi_g_lbl = make_billboard(
+        xi_g_lbl = self.make_billboard(
             Tex(r"T_e L_g \xi", font_size=30, color=COLOR_LIE_GROUPS)
         ).add_updater(lambda m: m.next_to(xi_g[0].get_end(), UP + RIGHT, buff=0.05))
 
+        # % push the algebra vector forward to T_g G
         self.next_slide(
             notes="""
     
@@ -475,6 +450,7 @@ class LieGroups(InteractiveScene, Slide):
             e_lbl,
             g_lbl,
         )
+        # % fade the scheme to introduce covectors
         self.next_slide()
         self.play(
             scheme.animate.set_opacity(0.04),
@@ -581,19 +557,17 @@ class LieGroups(InteractiveScene, Slide):
 
         machine_diagram = Group(bob, push_mach, token, wire, combo, combo_lbl, push_lbl)
 
-        # % Lie group derivation: Newton's method for the residual, done in the algebra.
+    def newton_in_the_algebra(self):
+        """Newton for the residual, computed in the Lie algebra. The group G is a
+        sphere colored by |r_k|; flatten a neighbourhood into the algebra, solve
+        the linear system there, retract back onto G. The dropped curvature term
+        is weighted by r_k, so it vanishes at a solution."""
+        # % Newton for the residual, computed in the Lie algebra
         # Split screen: math on the left (fixed in frame). On the right, the group G is a
         # sphere colored by the residual magnitude |r_k|; we look for where it is zero,
         # and to compute the correction we flatten a neighbourhood into the Lie algebra,
         # solve the linear system there, and retract the answer back onto G.
         self.next_slide()
-        self.play(
-            FadeOut(
-                Group(heading_pullbacks, scheme, mesh, machine_diagram), lag_ratio=0.01
-            ),
-            run_time=0.8,
-        )
-
         heading_deriv = (
             Text("Newton for the residual, computed in the Lie algebra", font_size=32)
             .to_edge(UP, buff=0.5)
@@ -642,7 +616,7 @@ class LieGroups(InteractiveScene, Slide):
         gk_pt = center_r + n_gk * radius
         star_pt = center_r + n_star * radius
         gk_dot_d = Sphere(radius=0.05).set_color(WHITE).move_to(gk_pt)
-        gk_lbl_d = make_billboard(Tex("g_k", font_size=46, color=WHITE)).add_updater(
+        gk_lbl_d = self.make_billboard(Tex("g_k", font_size=46, color=WHITE)).add_updater(
             lambda m: m.next_to(gk_dot_d, UP, buff=0.06)
         )
         star_dot = Sphere(radius=0.05).set_color(GREEN_B).move_to(star_pt)
@@ -653,7 +627,7 @@ class LieGroups(InteractiveScene, Slide):
         cov = stroke_arrow(
             np.linspace(gk_pt, gk_pt + t1 * 0.5, 8), RED, up=n_gk, tail_width=0.1
         )
-        cov_lbl = make_billboard(Tex("r_k", font_size=46, color=RED)).add_updater(
+        cov_lbl = self.make_billboard(Tex("r_k", font_size=46, color=RED)).add_updater(
             lambda m: m.next_to(cov, RIGHT, buff=0.05)
         )
 
@@ -711,9 +685,10 @@ class LieGroups(InteractiveScene, Slide):
 
         self.play(Write(eq1), ShowCreation(cov), FadeIn(cov_lbl))
         self.play(FadeIn(cap1))
+        # % mark the nearby solution where the residual vanishes
         self.next_slide()
         # There is a nearby point where the residual vanishes: the solution.
-        star_lbl = make_billboard(
+        star_lbl = self.make_billboard(
             Tex(r"r_k = 0", font_size=44, color=GREEN_B)
         ).add_updater(lambda m: m.next_to(star_dot, UP, buff=0.06))
         self.play(FadeIn(star_dot), FadeIn(star_lbl))
@@ -805,7 +780,7 @@ class LieGroups(InteractiveScene, Slide):
         dxi_geo = stroke_arrow(
             slerp_pts(n_gk, n_star_almost), COLOR_LIE_GROUPS, up=n_star, tail_width=0.09
         )
-        dxi_geo_lbl = make_billboard(
+        dxi_geo_lbl = self.make_billboard(
             Tex(r"\delta\xi", font_size=46, color=COLOR_LIE_GROUPS)
         ).add_updater(lambda m: m.next_to(dxi_geo, DOWN, buff=0.05))
 
@@ -917,17 +892,17 @@ class LieGroups(InteractiveScene, Slide):
         newton_arrow = build_newton()
         gap = build_gap()
 
-        newton_lbl = make_billboard(
+        newton_lbl = self.make_billboard(
             Tex(r"\text{Newton: drop } r_k\mathrm{D}^2\tau", font_size=32, color=RED_D)
         ).add_updater(
             lambda m: m.next_to(newton_arrow[0].get_points()[-1], LEFT, buff=0.05)
         )
-        true_lbl = make_billboard(
+        true_lbl = self.make_billboard(
             Tex(r"\text{exact}", font_size=40, color=COLOR_LIE_GROUPS)
         ).add_updater(
             lambda m: m.next_to(true_arrow[0].get_points()[-1], RIGHT, buff=0.05)
         )
-        gap_lbl = make_billboard(Tex(r"\propto r_k", font_size=44, color=YELLOW))
+        gap_lbl = self.make_billboard(Tex(r"\propto r_k", font_size=44, color=YELLOW))
 
         def _gap_lbl_upd(m):
             m.next_to(gap, UP, buff=0.05)
@@ -972,6 +947,7 @@ class LieGroups(InteractiveScene, Slide):
             lambda m: m.move_to(center_r + radius * gk_dir(s_tracker.get_value()))
         )
 
+        # % slide g_k to the solution; the gap closes
         self.next_slide()
         self.play(
             s_tracker.animate.set_value(1.0),
@@ -1007,8 +983,7 @@ class LieGroups(InteractiveScene, Slide):
             LaggedStartMap(FadeIn, conclusion, shift=0.2 * UP, lag_ratio=0.3),
         )
 
-        # % cleanup newton step
-        self.next_slide()
+        # Stop the billboard and arrow updaters so the auto-cleanup fade is clean.
         for m in (
             gk_lbl_d,
             star_lbl,
@@ -1021,40 +996,16 @@ class LieGroups(InteractiveScene, Slide):
             gap_lbl,
         ):
             m.clear_updaters()
-        self.play(
-            FadeOut(
-                Group(
-                    heading_deriv,
-                    divider,
-                    sphere_d,
-                    mesh_d,
-                    gk_dot_d,
-                    # gk_lbl_d,
-                    star_dot,
-                    star_lbl,
-                    true_arrow,
-                    newton_arrow,
-                    gap,
-                    newton_lbl,
-                    true_lbl,
-                    # gap_lbl,
-                    # curv_eq,
-                    # curv_cap,
-                    conclusion,
-                    eq3,
-                    eq3D,
-                    cap3,
-                ),
-                lag_ratio=0.005,
-            ),
-            run_time=1.0,
-        )
 
-        # % convergence: one r_k-weighted term, three times
+    def vanishing_terms(self):
+        """The same r_k-weighted term appears in three separate derivative
+        computations and vanishes at a solution, so all three land on D_k. A
+        cautionary tale: the identity tempting a shortcut holds only at xi = 0."""
         self.frame.restore()
         # The same "main term + (something) * r_k" split shows up in three separate
         # derivative computations in the convergence proof; the r_k-weighted piece
         # vanishes at a DEL solution, so all three land on the same block D_k.
+        # % the same term vanishes three times
         self.next_slide()
         heading_three = Text(
             "The same term vanishes three times", font_size=34
@@ -1111,7 +1062,7 @@ class LieGroups(InteractiveScene, Slide):
             )
         )
 
-        # highlight the three r_k-weighted terms together
+        # % highlight the three r_k-weighted terms together
         self.next_slide()
         self.play(*[Indicate(c) for c in corrs])
 
@@ -1256,25 +1207,11 @@ class LieGroups(InteractiveScene, Slide):
             FadeIn(resolve),
         )
 
-        # % cleanup convergence
-        self.next_slide()
-        self.play(
-            LaggedStartMap(
-                FadeOut,
-                Group(
-                    heading,
-                    general,
-                    general_cap,
-                    resolve,
-                    hess_dk,
-                    resid_dk,
-                ),
-                shift=RIGHT * 0.1,
-                lag_ratio=0.05,
-            ),
-            run_time=0.8,
-        )
-
+    def capstone(self):
+        """One loose idea, made precise. The vector-space update and the Lie
+        group update are the same procedure; a vector space is uniform for free,
+        a Lie group earns the same uniformity by left-translating into the
+        algebra. The open third column, spaces with no group, tees up future work."""
         # % capstone: one loose idea, made precise
         # A reflective closer. The vector-space update and the Lie-group update are
         # the same loose idea -- nudge where you are toward the solution -- made
@@ -1377,6 +1314,7 @@ class LieGroups(InteractiveScene, Slide):
         vs_cap.next_to(vec_update, DOWN, buff=0.6)
         self.play(FadeIn(vs_cap, shift=UP * 0.1))
 
+        # % where the Lie group gets its uniformity
         self.next_slide()
         lg_cap = VGroup(
             TexText("group symmetry", font_size=32, color=GREY_B),
@@ -1416,9 +1354,15 @@ class LieGroups(InteractiveScene, Slide):
             run_time=2
         )
 
-        # % cleanup insight
+    slides = [
+        rotations_dont_commute,
+        correction_in_the_algebra,
+        newton_in_the_algebra,
+        vanishing_terms,
+        capstone,
+    ]
 
-        self.play(FadeOut(Group(self.get_mobjects())))
-        self.remove_all_except()
+    def construct(self):
+        self.play_slides(self.slides)
 
         # % end

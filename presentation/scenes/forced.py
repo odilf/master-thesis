@@ -2,10 +2,10 @@ import math
 from pathlib import Path
 
 import numpy as np
-from manim_slides.slide.manimlib import Slide
 from manimlib import *
 
-import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
+import scenes.theme  # noqa: F401 -- side-effect: registers fonts and LaTeX preamble
+from scenes.base import SlideScene
 from scenes.theme import COLOR_FORCED
 
 # The discrete Lagrangian keeps the maroon accent it had in the Lagrangians and
@@ -28,9 +28,12 @@ def _node(
     return VGroup(circle, Tex(label, font_size=fs).move_to(center))
 
 
-class Forced(InteractiveScene, Slide):
-    def construct(self):
-        # % continuous: Euler-Lagrange gains a force on the right
+class Forced(SlideScene):
+    def forced_euler_lagrange(self):
+        """Euler-Lagrange gains a force on the right (Lagrange-d'Alembert), and
+        the discrete DEL equations gain discrete forces f_d^+ and f_d^-."""
+        # % continuous: force on the right
+        self.next_slide()
         el_unforced = Tex(
             r"\frac{\textrm{d}}{\textrm{d}t}\frac{\partial L}{\partial \dot q} - \frac{\partial L}{\partial q} = \thickspace",
             "0",
@@ -49,6 +52,7 @@ class Forced(InteractiveScene, Slide):
         ).next_to(el_forced, DOWN, buff=0.5)
         self.play(Write(el_unforced))
 
+        # % add the force term and its type
         self.next_slide()
         self.play(
             LaggedStart(
@@ -126,6 +130,7 @@ class Forced(InteractiveScene, Slide):
         self.play(cont.animate.arrange(DOWN, buff=0.8).move_to(TOP/2), ShowCreation(divider))
         self.play(Write(del_eq.move_to(fdel_eq)), run_time=1)
 
+        # % morph the DEL equation into its forced version
         self.next_slide()
         self.play(
             TransformMatchingTex(
@@ -140,19 +145,11 @@ class Forced(InteractiveScene, Slide):
             run_time=1,
         )
 
-        # % algorithmically, a one-line change to the residual
+    def algorithm_one_line(self):
+        """Algorithmically the force is a one-line change to the residual; with
+        f_d = 0 it recovers the unforced case and the same Jacobi-Newton sweep."""
+        # % algorithm: one-line change to the residual
         self.next_slide()
-        self.play(
-            LaggedStartMap(
-                FadeOut,
-                VGroup(
-                    fdel_eq, divider, cont, disc
-                ),
-                shift=RIGHT,
-                run_time=1,
-            )
-        )
-
         heading_algorithm = Text("Algorithm: one-line change", font_size=44).to_edge(UP, buff=1.0)
         res_eq = Tex(
             r"r_k = \textrm{D}_2 L_d + \textrm{D}_1 L_d"
@@ -172,20 +169,21 @@ class Forced(InteractiveScene, Slide):
         ).next_to(recover, DOWN, buff=0.5)
 
         self.play(LaggedStartMap(Write, VGroup(heading_algorithm, res_eq), lag_ratio=0.6))
+
+        # % recover the unforced case
         self.next_slide()
         self.play(FadeIn(recover, shift=0.2 * UP), FadeIn(same, shift=0.2 * UP))
 
-        # % the catch: the forced Hessian is no longer symmetric
+    def nonsymmetric_hessian(self):
+        """The catch: forcing breaks the mirror symmetry of the off-diagonal
+        blocks, so the discrete 'Hessian' is no longer symmetric."""
+        # % the catch: a non-symmetric Hessian
         self.next_slide()
-        self.play(
-            LaggedStartMap(
-                FadeOut,
-                VGroup(heading_algorithm, res_eq, recover, same),
-                shift=RIGHT,
-                run_time=1,
-            )
-        )
-
+        t2c = {
+            "L_d": COLOR_LD,
+            "f_d^+": COLOR_FORCED,
+            "f_d^-": COLOR_FORCED,
+        }
         heading_hessian = TexText(
             "The catch: a non-symmetric ``Hessian''", font_size=40
         ).to_edge(UP, buff=0.9)
@@ -300,22 +298,15 @@ class Forced(InteractiveScene, Slide):
             run_time=2,
         )
 
+        # % point at the two discrete force terms
         self.next_slide()
         self.play(Indicate(forced_note["f_d^-"]), Indicate(forced_note["f_d^+"]))
 
-        # % two partial convergence results, and an open case
+    def convergence_conditions(self):
+        """Two partial convergence results, edge dominance and weak enough
+        forcing, plus the spectral test; the general case stays open."""
+        # % when does it still converge?
         self.next_slide()
-        self.play(
-            FadeOut(
-                VGroup(
-                    heading_hessian, band, brackets, sym_note, forced_note, new_upper, new_lower
-                ),
-                shift=RIGHT,
-                run_time=1,
-                lag_ratio=0.001
-            )
-        )
-
         heading_convergence = Text("When does it still converge?", font_size=42).to_edge(
             UP, buff=1.0
         )
@@ -365,17 +356,15 @@ class Forced(InteractiveScene, Slide):
             )
         )
 
+        # % spectral condition on the Jacobi-iteration matrix
         self.next_slide()
         self.play(FadeIn(cond3, shift=0.4 * RIGHT))
 
-        # % demo: parachutist threading a turbulent wind field
+    def parachutist_demo(self):
+        """Demo: a parachutist threading a turbulent wind field converges from
+        the straight-line guess to the physical path."""
+        # % parachutist in turbulent wind
         self.next_slide()
-        self.play(
-            LaggedStartMap(
-                FadeOut, VGroup(heading_convergence, conds, cond3), shift=RIGHT, run_time=0.6
-            )
-        )
-
         data = np.load(_DEMO_DATA)
         paths, residuals = data["paths"], data["residuals"]
         wind_xy, wind_uv = data["wind_xy"], data["wind_uv"]
@@ -501,34 +490,23 @@ class Forced(InteractiveScene, Slide):
         )
         self.play(FadeIn(VGroup(counter, res_label, bar_bg, curve)), FadeIn(bar))
 
+        # % relax the straight guess to the physical path
         self.next_slide(loop=True)
         self.play(frame.animate.set_value(n_frames - 1), run_time=5, rate_func=linear)
 
-        # % temp end
-
-        self.next_slide()
+        # Stop the live counters and tracers so the auto-cleanup fade is clean.
         counter[1].clear_updaters()
         res_label[1].clear_updaters()
-        self.play(
-            FadeOut(
-                VGroup(
-                    heading_example,
-                    wind,
-                    guess,
-                    start_dot,
-                    end_dot,
-                    start_lbl,
-                    end_lbl,
-                    counter,
-                    res_label,
-                    bar_bg,
-                    axes,
-                )
-            ),
-            FadeOut(curve),
-            FadeOut(bar),
-            run_time=0.8,
-            lag_ratio=0.001
-        )
+        curve.clear_updaters()
+        bar.clear_updaters()
 
-        # % end
+    slides = [
+        forced_euler_lagrange,
+        algorithm_one_line,
+        nonsymmetric_hessian,
+        convergence_conditions,
+        parachutist_demo,
+    ]
+
+    def construct(self):
+        self.play_slides(self.slides)
