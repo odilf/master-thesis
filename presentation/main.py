@@ -4,6 +4,7 @@ from manimlib import *
 
 import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
 from scenes.forced import Forced
+from scenes.future_work import FutureWork
 from scenes.lagrangians import Lagrangians
 from scenes.parallel import Parallel
 from scenes.theme import (
@@ -164,5 +165,18 @@ class Defense(InteractiveScene, Slide):
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
 
         LieGroups.construct(self)  # ty:ignore[invalid-argument-type]
+
+        self.next_slide()
+        FutureWork.construct(self)  # ty:ignore[invalid-argument-type]
+
+        # % ending slide
+         
+        thanks = Text("Thank you for listening!", font_size=62)
+        qs = Text("Questions?", weight="bold", font_size=72)
+
+        VGroup(thanks, qs).arrange(DOWN, buff=0.5)
+
+        self.play(FadeIn(thanks, scale=0.8))
+        self.play(FadeIn(qs, scale=0.8))
 
         # % end

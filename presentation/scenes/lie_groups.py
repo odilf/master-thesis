@@ -1416,4 +1416,9 @@ class LieGroups(InteractiveScene, Slide):
             run_time=2
         )
 
+        # % cleanup insight
+
+        self.play(FadeOut(Group(self.get_mobjects())))
+        self.remove_all_except()
+
         # % end
