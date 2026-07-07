@@ -1124,22 +1124,144 @@ class LieGroups(InteractiveScene, Slide):
 
         # % cautionary tale
         self.next_slide()
+        # Carry the two "matched at the origin" statements from the previous
+        # slide into a banner -- the Hessian of the lifted action (col2) and the
+        # derivative of the residual (col3) -- so they fly up as the grid
+        # dissolves. Both read "= D_k" here; the whole point below is that this
+        # equality is only true at the solution.
+        hess_eq = Tex(
+            r"\partial^2_{\xi_k}\Sigma(0) = " + DK,
+            font_size=34,
+            t2c={DK: COLOR_LIE_GROUPS},
+        ).move_to(LEFT * 3.4 + UP * 2.5)
+        resid_eq = Tex(
+            r"\partial_{\xi_k}\widetilde{r}_k(0) = " + DK,
+            font_size=34,
+            t2c={DK: COLOR_LIE_GROUPS},
+        ).move_to(RIGHT * 3.4 + UP * 2.5)
+        match_lbl = TexText(
+            r"matched at $\xi = 0$", font_size=24, color=GREEN_B
+        ).move_to(UP * 1.75)
+
         self.play(
-            FadeOut(
-                VGroup(*heading_three, *cols, *r_zero),
-                lag_ratio=0.005,
-            ),
-            run_time=0.8,
+            TransformFromCopy(head2[1], hess_eq),
+            TransformFromCopy(head3[1], resid_eq),
+            FadeIn(match_lbl, shift=UP),
+            FadeOut(Group(heading_three, cols, r_zero), lag_ratio=0.005),
+            run_time=1.2,
         )
 
-        residual_deriv_sigma = Tex(r"\partial_{\xi_k} \Sigma(0) = \widetilde{r}_k")
+        heading = Text("A tempting shortcut", font_size=30).to_edge(UP, buff=0.35)
+
+        # The first-derivative identity from before: the premise one is tempted
+        # to differentiate.
+        known = Tex(
+            r"\partial_{\xi_k}\Sigma(0) = \widetilde{r}_k", font_size=44
+        ).move_to(UP * 0.9)
+        self.play(Write(heading), FadeIn(known, shift=0.2 * UP))
+
+        # % tempting shortcut: just differentiate the identity once more
+        self.next_slide()
+        naive = Tex(
+            r"\partial^2_{\xi_k}\Sigma(0) = \partial_{\xi_k}\widetilde{r}_k",
+            font_size=44,
+        ).move_to(DOWN * 0.4)
+        arrow = Arrow(known.get_bottom(), naive.get_top(), buff=0.15, color=GREY_B)
+        arrow_lbl = Tex(r"\partial_{\xi_k}\,?", font_size=30, color=GREY_B).next_to(
+            arrow, RIGHT, buff=0.15
+        )
+        self.play(GrowArrow(arrow), FadeIn(arrow_lbl), FadeIn(naive))
+
+        # % the catch: the identity holds only at the single point xi = 0
+        self.next_slide()
+        cross = Cross(naive)
+        warn = TexText(
+            r"but $\partial_{\xi_k}\Sigma(0)=\widetilde{r}_k$ holds \emph{only} at $\xi=0$",
+            font_size=28,
+            color=RED,
+        ).move_to(DOWN * 1.5)
+        self.play(ShowCreation(cross), FadeIn(warn))
+
+        # % the right route: differentiate the general (all-xi) gradient
+        self.next_slide()
+        self.play(FadeOut(VGroup(known, arrow, arrow_lbl, naive, cross, warn)))
+        general = Tex(
+            r"\partial_{\xi_k}\Sigma(\xi) = \Phi_k(\xi_k)^{*}\,\widetilde{r}_k\big(g_k\tau(\xi_k)\big)",
+            font_size=40,
+            t2c={r"\Phi_k": COLOR_LIE_GROUPS, r"\tau": COLOR_LIE_GROUPS},
+        ).move_to(UP * 0.6)
+        general_cap = TexText(
+            r"valid for \emph{all} $\xi$, not just $\xi=0$",
+            font_size=26,
+            color=GREY_B,
+        ).next_to(general, DOWN, buff=0.3)
+        self.play(Write(general), FadeIn(general_cap))
+
+        # % differentiating it legitimately exposes the hidden r_k-weighted term
+        self.next_slide()
+        corr_dk = {**corr_t2c, DK: COLOR_LIE_GROUPS}
+        hess_full = Tex(
+            r"\partial^2_{\xi_k}\Sigma(0) = " + DK + r" + r_k\,\mathrm{D}^2\tau",
+            font_size=36,
+            t2c=corr_dk,
+        ).move_to(DOWN * 1.2)
+        resid_full = Tex(
+            r"\partial_{\xi_k}\widetilde{r}_k(0) = "
+            + DK
+            + r" + r_k\,\partial_{\xi_k}(T_eL_{g_k})",
+            font_size=36,
+            t2c=corr_dk,
+        ).move_to(DOWN * 2.2)
+        diff_cap = TexText(
+            r"different $r_k$-weighted terms $\Rightarrow$ they differ in general",
+            font_size=24,
+            color=GREY_B,
+        ).move_to(DOWN * 3.1)
+        self.play(
+            Transform(hess_eq, hess_full),
+            Transform(resid_eq, resid_full),
+            FadeOut(match_lbl),
+        )
+        self.play(FadeIn(diff_cap))
+
+        # % but both r_k-weighted terms vanish at a solution -> the match returns
+        self.next_slide()
+        hess_dk = Tex(
+            r"\partial^2_{\xi_k}\Sigma(0) = " + DK,
+            font_size=36,
+            t2c={DK: COLOR_LIE_GROUPS},
+        ).move_to(DOWN * 1.2)
+        resid_dk = Tex(
+            r"\partial_{\xi_k}\widetilde{r}_k(0) = " + DK,
+            font_size=36,
+            t2c={DK: COLOR_LIE_GROUPS},
+        ).move_to(DOWN * 2.2)
+        resolve = TexText(
+            r"at a solution $r_k = 0$: both collapse to $\widetilde{\mathcal{D}}_k$",
+            font_size=28,
+            color=GREEN_B,
+        ).to_edge(DOWN, buff=0.5)
+        # hess_eq / resid_eq hold the full (with-r_k) forms after the Transform
+        # above; flag the dropped terms, then collapse both back to just D_k.
+        self.play(Indicate(hess_eq), Indicate(resid_eq))
+        self.play(
+            TransformMatchingTex(hess_eq, hess_dk),
+            TransformMatchingTex(resid_eq, resid_dk),
+            FadeOut(diff_cap),
+            FadeIn(resolve),
+        )
 
         # % cleanup convergence
         self.next_slide()
         self.play(
             FadeOut(
-                VGroup(
-                    # TODO: Put the things here
+                Group(
+                    heading,
+                    hess_eq,
+                    resid_eq,
+                    general,
+                    general_cap,
+                    resolve,
                 ),
                 lag_ratio=0.01,
             ),
