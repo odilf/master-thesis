@@ -1050,4 +1050,100 @@ class LieGroups(InteractiveScene, Slide):
             run_time=1.0,
         )
 
+        # % convergence: one r_k-weighted term, three times
+        self.frame.restore()
+        # The same "main term + (something) * r_k" split shows up in three separate
+        # derivative computations in the convergence proof; the r_k-weighted piece
+        # vanishes at a DEL solution, so all three land on the same block D_k.
+        self.next_slide()
+        heading_three = (
+            Text("The same term vanishes three times", font_size=34)
+            .to_edge(UP, buff=0.5)
+        )
+
+        # Colors shared across the columns: residual red, the block D_k and the
+        # left-translation frames teal, the discrete Lagrangian maroon.
+        DK = r"\widetilde{\mathcal{D}}_k"
+        head_t2c = {DK: COLOR_LIE_GROUPS, "r_k": RED}
+        corr_t2c = {"r_k": RED, r"\mathrm{D}^2\tau": YELLOW, "T_e L": COLOR_LIE_GROUPS}
+
+        def make_col(title, head_tex, corr_tex, cap):
+            title_m = Text(title, font_size=22, color=GREY_A)
+            head = Tex(head_tex, font_size=28, t2c=head_t2c)
+            corr = Tex(corr_tex, font_size=26, t2c=corr_t2c)
+            eq = VGroup(head, corr).arrange(LEFT, aligned_edge=RIGHT, buff=0.18)
+            corr.shift(RIGHT * 0.35)  # indent the continued line under the RHS
+            cap_m = TexText(cap, font_size=20, color=GREY_B)
+            col = VGroup(title_m, *eq, cap_m).arrange(DOWN, buff=0.3)
+            return col, VGroup(title_m, head, cap_m), corr
+
+        col1, head1, corr1 = make_col(
+            "Newton linearization",
+            r"\partial_{\delta\xi} \widetilde{r}_k\bigr|_{0} = " + DK,
+            r"+\left(\partial_t (T_eL_{g_k\tau})^{*}\right) r_k",
+            r"(II): moving frame",
+        )
+        col2, head2, corr2 = make_col(
+            "Lifted-action Hessian",
+            r"\left.\partial^2_{\xi_k} \Sigma\right|_{0} = " + DK,
+            r"+r_k \mathrm{D}^2\tau(0)",
+            r"retraction curvature",
+        )
+        col3, head3, corr3 = make_col(
+            "Convergence Jacobian",
+            r"\left.\partial_{\xi_k} \widetilde{r}_k\right|_{0} = " + DK,
+            r"+r_k(\mathbf{g}^*,g_k^*) \partial_{\xi_k}(T_eL_{g_k})",
+            r"variation of pullback",
+        )
+
+        cols = VGroup(*col1, *col2, *col3)
+        cols.arrange_in_grid(n_rows=4, n_cols=3, h_buff=0.6, aligned_edge=UP, fill_rows_first=False)
+        cols.set_width(FRAME_WIDTH - 1.0)
+        cols.move_to(DOWN * 0.3)
+
+        heads = VGroup(head1, head2, head3)
+        corrs = VGroup(corr1, corr2, corr3)
+
+        self.play(LaggedStartMap(FadeIn, VGroup(heading_three, *cols), lag_ratio=0.05, run_time=1.5))
+
+        # highlight the three r_k-weighted terms together
+        self.next_slide()
+        self.play(*[Indicate(c) for c in corrs])
+
+        # % delete retraction curvature terms
+        # at a solution the residual is zero, so every correction term drops.
+        self.next_slide()
+        r_zero = TexText(
+            r"at $\mathbf{g}^*$, $r_k(\mathbf{g}^*, g_k^*) = 0$",
+            font_size=32,
+            color=GREEN_B,
+        )
+        r_zero.to_edge(DOWN, buff=0.5).fix_in_frame()
+        self.play(FadeIn(r_zero, shift=0.2 * UP))
+        self.play(corrs.animate.set_opacity(0.5))
+
+        # % cautionary tale
+        self.next_slide()
+        self.play(
+            FadeOut(
+                VGroup(*heading_three, *cols, *r_zero),
+                lag_ratio=0.005,
+            ),
+            run_time=0.8,
+        )
+
+        residual_deriv_sigma = Tex(r"\partial_{\xi_k} \Sigma(0) = \widetilde{r}_k")
+
+        # % cleanup convergence
+        self.next_slide()
+        self.play(
+            FadeOut(
+                VGroup(
+                    # TODO: Put the things here
+                ),
+                lag_ratio=0.01,
+            ),
+            run_time=0.8,
+        )
+
         # % end
