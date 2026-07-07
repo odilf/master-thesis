@@ -6,7 +6,7 @@ from manim_slides.slide.manimlib import Slide
 from manimlib import *
 
 import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
-from scenes.theme import COLOR_LIE_GROUPS
+from scenes.theme import COLOR_LIE_GROUPS, COLOR_PARALLEL
 
 # L_d keeps the accent it has carried since the Lagrangians section, so the DEL
 # equations read continuously across the whole talk.
@@ -1056,10 +1056,9 @@ class LieGroups(InteractiveScene, Slide):
         # derivative computations in the convergence proof; the r_k-weighted piece
         # vanishes at a DEL solution, so all three land on the same block D_k.
         self.next_slide()
-        heading_three = (
-            Text("The same term vanishes three times", font_size=34)
-            .to_edge(UP, buff=0.5)
-        )
+        heading_three = Text(
+            "The same term vanishes three times", font_size=34
+        ).to_edge(UP, buff=0.5)
 
         # Colors shared across the columns: residual red, the block D_k and the
         # left-translation frames teal, the discrete Lagrangian maroon.
@@ -1097,14 +1096,20 @@ class LieGroups(InteractiveScene, Slide):
         )
 
         cols = VGroup(*col1, *col2, *col3)
-        cols.arrange_in_grid(n_rows=4, n_cols=3, h_buff=0.6, aligned_edge=UP, fill_rows_first=False)
+        cols.arrange_in_grid(
+            n_rows=4, n_cols=3, h_buff=0.6, aligned_edge=UP, fill_rows_first=False
+        )
         cols.set_width(FRAME_WIDTH - 1.0)
         cols.move_to(DOWN * 0.3)
 
         heads = VGroup(head1, head2, head3)
         corrs = VGroup(corr1, corr2, corr3)
 
-        self.play(LaggedStartMap(FadeIn, VGroup(heading_three, *cols), lag_ratio=0.05, run_time=1.5))
+        self.play(
+            LaggedStartMap(
+                FadeIn, VGroup(heading_three, *cols), lag_ratio=0.05, run_time=1.5
+            )
+        )
 
         # highlight the three r_k-weighted terms together
         self.next_slide()
@@ -1130,7 +1135,7 @@ class LieGroups(InteractiveScene, Slide):
         # dissolves. Both read "= D_k" here; the whole point below is that this
         # equality is only true at the solution.
         hess_eq = Tex(
-            r"\partial^2_{\xi_k}\Sigma(0) = " + DK,
+            r"\partial^2_{\xi_k} \Sigma(0) = " + DK,
             font_size=34,
             t2c={DK: COLOR_LIE_GROUPS},
         ).move_to(LEFT * 3.4 + UP * 2.5)
@@ -1227,12 +1232,12 @@ class LieGroups(InteractiveScene, Slide):
         # % but both r_k-weighted terms vanish at a solution -> the match returns
         self.next_slide()
         hess_dk = Tex(
-            r"\partial^2_{\xi_k}\Sigma(0) = " + DK,
+            r"\partial^2_{\xi_k} \Sigma(0) = " + DK,
             font_size=36,
             t2c={DK: COLOR_LIE_GROUPS},
         ).move_to(DOWN * 1.2)
         resid_dk = Tex(
-            r"\partial_{\xi_k}\widetilde{r}_k(0) = " + DK,
+            r"\partial_{\xi_k} \widetilde{r}_k(0) = " + DK,
             font_size=36,
             t2c={DK: COLOR_LIE_GROUPS},
         ).move_to(DOWN * 2.2)
@@ -1254,18 +1259,161 @@ class LieGroups(InteractiveScene, Slide):
         # % cleanup convergence
         self.next_slide()
         self.play(
-            FadeOut(
+            LaggedStartMap(
+                FadeOut,
                 Group(
                     heading,
-                    hess_eq,
-                    resid_eq,
                     general,
                     general_cap,
                     resolve,
+                    hess_dk,
+                    resid_dk,
                 ),
-                lag_ratio=0.01,
+                shift=RIGHT * 0.1,
+                lag_ratio=0.05,
             ),
             run_time=0.8,
+        )
+
+        # % capstone: one loose idea, made precise
+        # A reflective closer. The vector-space update and the Lie-group update are
+        # the same loose idea -- nudge where you are toward the solution -- made
+        # precise. A vector space is uniform for free (point, tangent, cotangent are
+        # one space); a Lie group earns the same uniformity by left-translating
+        # everything into the algebra. The open third column tees up future work.
+        self.next_slide(
+            notes="""
+                - The personal beat: 'that makes sense' vs 'of course it's this way'.
+                - Defensible version of the claim: the algorithm is invariant (residual,
+                  linearize, solve in a flat space, retract back). Only the retraction tau
+                  and the trivialization T_eL change between cases, and both are the
+                  identity for a vector space. Not 'the group is just notation' -- it is the
+                  same procedure, with the group symmetry supplying the uniformity the
+                  vector space has for free.
+                - conclusions.tex: the algorithm depends on locality (block-tridiagonal
+                  Jacobian), not on Q being a vector space; the extensions decouple it.
+            """
+        )
+        group_update = Tex(
+            r"\bar g_k = g_k \cdot \tau(\delta\xi_k)",
+            font_size=48,
+            t2c={r"\tau": COLOR_LIE_GROUPS, r"\delta\xi_k": COLOR_LIE_GROUPS},
+        ).move_to(UP * 0.8)
+        self.play(FadeIn(group_update, shift=0.2 * UP))
+
+        # % capstone: the retraction collapses -- the vector-space update falls out
+        self.next_slide()
+        vec_update = Tex(
+            r"\bar q_k = q_k + \delta q_k",
+            font_size=48,
+            t2c={r"\delta q_k": COLOR_PARALLEL},
+        ).move_to(DOWN * 0.8)
+        collapse_arrow = Arrow(
+            group_update.get_bottom(), vec_update.get_top(), buff=0.2, color=GREY_B
+        )
+        collapse_lbl = Tex(
+            r"\tau = \mathrm{Id} \\ \cdot = +", font_size=30, color=GREY_B
+        ).next_to(collapse_arrow, RIGHT, buff=0.15)
+        self.play(
+            GrowArrow(collapse_arrow),
+            FadeIn(collapse_lbl),
+            TransformMatchingTex(group_update.copy(), vec_update),
+        )
+
+        # % capstone: two makings-precise of one idea, side by side
+        self.next_slide()
+        X_VS, X_LG = -2.2, 2.2
+        EQ_Y = 0.2
+        self.play(
+            FadeOut(VGroup(collapse_arrow, collapse_lbl)),
+            vec_update.animate.scale(0.9).move_to(np.array([X_VS, EQ_Y, 0])),
+            group_update.animate.scale(0.9).move_to(np.array([X_LG, EQ_Y, 0])),
+        )
+        vs_label = Text("vector space", font_size=26, color=COLOR_PARALLEL).next_to(
+            vec_update, UP, buff=0.4
+        )
+        lg_label = Text("Lie group", font_size=26, color=COLOR_LIE_GROUPS).next_to(
+            group_update, UP, buff=0.4
+        )
+        self.play(FadeIn(vs_label, shift=0.1 * UP), FadeIn(lg_label, shift=0.1 * UP))
+
+        # % capstone: both descend from one loose, human idea
+        self.next_slide()
+        loose = Text(
+            '"nudge where you are, toward the solution"', font_size=34
+        ).move_to(UP * 2.7)
+        line_l = (
+            Line()
+            .set_stroke(GREY_B, 1.5)
+            .add_updater(
+                lambda m: m.set_points_by_ends(
+                    loose.get_bottom() + DOWN*0.15, vs_label.get_top() + UP * 0.15
+                )
+            )
+        )
+        line_r = (
+            Line()
+            .set_stroke(GREY_B, 1.5)
+            .add_updater(
+                lambda m: m.set_points_by_ends(
+                    loose.get_bottom() + DOWN*0.15, lg_label.get_top() + UP * 0.15
+                )
+            )
+        )
+        self.play(Write(loose))
+        self.play(
+            ShowCreation(line_l, suspend_mobject_updating=True),
+            ShowCreation(line_r, suspend_mobject_updating=True),
+        )
+
+        # % capstone: where each gets its uniformity
+        self.next_slide()
+        vs_cap = VGroup(
+            TexText(
+                r"point $\cong$ tangent $\cong$ cotangent", font_size=32, color=GREY_B
+            ),
+            TexText(r"structurally identical", font_size=22, color=GREY_B),
+        ).arrange(DOWN, buff=0.12)
+        vs_cap.next_to(vec_update, DOWN, buff=0.6)
+        self.play(FadeIn(vs_cap, shift=UP * 0.1))
+
+        self.next_slide()
+        lg_cap = VGroup(
+            TexText("group symmetry", font_size=32, color=GREY_B),
+            TexText("everything to the algebra", font_size=22, color=GREY_B),
+        ).arrange(DOWN, buff=0.12)
+        lg_cap.next_to(group_update, DOWN, buff=0.6)
+        self.play(FadeIn(lg_cap, shift=UP * 0.1))
+
+        # % capstone: and when the space has no group of its own? (future work)
+        self.next_slide()
+        vs_col = VGroup(vs_label, vec_update, vs_cap)
+        lg_col = VGroup(lg_label, group_update, lg_cap)
+        q_mark = Tex("?", font_size=72, color=GREY_A).move_to(
+            np.array([X_LG + 2.2, EQ_Y, 0])
+        )
+        # optional future-work hint; the '?' alone reads fine if you drop this
+        line_q = (
+            Line()
+            .set_stroke(GREY_B, 1.5)
+            .add_updater(
+                lambda m: m.set_points_by_ends(
+                    loose.get_bottom() + DOWN*0.15, q_mark.get_top() + UP * 0.15
+                )
+            )
+        )
+        q_hint = VGroup(
+            TexText("even less structure?", font_size=32, color=GREY_B),
+            TexText("homogeneous spaces, groupoids", font_size=20, color=GREY_B),
+        ).arrange(DOWN, buff=0.12)
+        q_hint.next_to(q_mark, DOWN, buff=0.6)
+        q = VGroup(q_mark, q_hint).move_to(2*RIGHT_SIDE/3 + 0.2*DOWN)
+        self.play(
+            vs_col.animate.move_to(2 * LEFT_SIDE / 3 + 0.2*DOWN),
+            lg_col.animate.move_to(ORIGIN + DOWN),
+            FadeIn(q, shift=0.6 * LEFT),
+            ShowCreation(line_q, suspend_mobject_updating=True),
+            run_time=2
         )
 
         # % end
