@@ -5,6 +5,7 @@ from manimlib import *
 import scenes.theme  # noqa: F401 — side-effect: registers fonts and LaTeX preamble
 from scenes.forced import Forced
 from scenes.future_work import FutureWork
+from scenes.extra_slides import ExtraSlides
 from scenes.lagrangians import Lagrangians
 from scenes.parallel import Parallel
 from scenes.theme import (
@@ -178,5 +179,9 @@ class Defense(InteractiveScene, Slide):
 
         self.play(FadeIn(thanks, scale=0.8))
         self.play(FadeIn(qs, scale=0.8))
+
+        # % extra slides
+        self.next_slide()
+        ExtraSlides.construct(self)  # ty:ignore[invalid-argument-type]
 
         # % end
