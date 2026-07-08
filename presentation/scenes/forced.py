@@ -29,11 +29,16 @@ def _node(
 
 
 class Forced(SlideScene):
+    def construct(self):
+        pass
+
     def forced_euler_lagrange(self):
         """Euler-Lagrange gains a force on the right (Lagrange-d'Alembert), and
         the discrete DEL equations gain discrete forces f_d^+ and f_d^-."""
         # % continuous: force on the right
-        self.next_slide()
+        self.next_slide(
+            notes="Forced Lagrangian systems are an alternative formulation for non-closed systems. Here, instead of the Euler-Lagrange equations [...]"
+        )
         el_unforced = Tex(
             r"\frac{\textrm{d}}{\textrm{d}t}\frac{\partial L}{\partial \dot q} - \frac{\partial L}{\partial q} = \thickspace",
             "0",
@@ -53,7 +58,9 @@ class Forced(SlideScene):
         self.play(Write(el_unforced))
 
         # % add the force term and its type
-        self.next_slide()
+        self.next_slide(
+            notes="We have an extra force on the right as a fibre preserving function. This is the Lagrange-d'Alembert principle and allows us to model non-conservative forces, often used for damping."
+        )
         self.play(
             LaggedStart(
                 TransformMatchingStrings(
@@ -83,7 +90,9 @@ class Forced(SlideScene):
         self.play(FadeIn(drag, shift=0.2 * UP))
 
         # % discrete analogs
-        self.next_slide()
+        self.next_slide(
+            notes="Just as before, we can take discretize this formulation, which leaves us with similar equations, [...]"
+        )
         self.play(
             LaggedStartMap(
                 FadeOut,
@@ -95,9 +104,9 @@ class Forced(SlideScene):
 
         t2c = {
             "L_d": COLOR_LD,
-             "f_d^+": COLOR_FORCED,
-             "f_d^-": COLOR_FORCED,
-         }
+            "f_d^+": COLOR_FORCED,
+            "f_d^-": COLOR_FORCED,
+        }
         del_eq = Tex(
             r"\textrm{D}_2 L_d(q_{k-1}, q_k)",
             r"+ \textrm{D}_1",
@@ -124,14 +133,21 @@ class Forced(SlideScene):
         ).next_to(el_forced, DOWN, buff=0.5)
 
         cont = VGroup(el_forced, force_cont)
-        disc = VGroup(fdel_eq, force_disc).arrange(DOWN, buff=0.8).move_to(BOTTOM/2)
-        divider = Line(LEFT_SIDE + 0.4 * RIGHT, RIGHT_SIDE + 0.4 * LEFT, color=GREY_B, stroke_width=1)
-        
-        self.play(cont.animate.arrange(DOWN, buff=0.8).move_to(TOP/2), ShowCreation(divider))
+        disc = VGroup(fdel_eq, force_disc).arrange(DOWN, buff=0.8).move_to(BOTTOM / 2)
+        divider = Line(
+            LEFT_SIDE + 0.4 * RIGHT,
+            RIGHT_SIDE + 0.4 * LEFT,
+            color=GREY_B,
+            stroke_width=1,
+        )
+
+        self.play(
+            cont.animate.arrange(DOWN, buff=0.8).move_to(TOP / 2), ShowCreation(divider)
+        )
         self.play(Write(del_eq.move_to(fdel_eq)), run_time=1)
 
         # % morph the DEL equation into its forced version
-        self.next_slide()
+        self.next_slide(notes="[...] except now we have a force. Or rather, [...]")
         self.play(
             TransformMatchingTex(
                 del_eq,
@@ -145,40 +161,58 @@ class Forced(SlideScene):
             run_time=1,
         )
 
+        # % highlight pair
+        self.next_slide(
+            notes="[...] a pair of forces, to model the continuous force properly."
+        )
+        self.play(
+            *(FlashUnder(f) for f in [fdel_eq["f_d^+"], fdel_eq["f_d^-"]]),
+            rate_func=lambda t: smooth(t, 2),
+            run_time=2,
+        )
+
+        # % end
+
     def algorithm_one_line(self):
         """Algorithmically the force is a one-line change to the residual; with
         f_d = 0 it recovers the unforced case and the same Jacobi-Newton sweep."""
         # % algorithm: one-line change to the residual
-        self.next_slide()
-        heading_algorithm = Text("Algorithm: one-line change", font_size=44).to_edge(UP, buff=1.0)
+        self.next_slide(
+            notes="To adapt the algorithm, we just add the forces to the residual. That's it. Well, we have to check convergence, but I'm sure that will be very easy too!"
+        )
+        heading_algorithm = Text("Algorithm: one-line change", font_size=44).to_edge(
+            UP, buff=1.0
+        )
         res_eq = Tex(
             r"r_k = \textrm{D}_2 L_d + \textrm{D}_1 L_d"
             r" + f_d^+ + f_d^-",
             font_size=46,
             t2c={"L_d": COLOR_LD, "f_d^+": COLOR_FORCED, "f_d^-": COLOR_FORCED},
         )
-        recover = Tex(
-            r"f_d^\pm = 0 \ \Rightarrow\ \text{the unforced case}",
-            font_size=36,
-        ).next_to(res_eq, DOWN, buff=0.9)
-        recover.set_color_by_tex(r"f_d^\pm", COLOR_FORCED)
         same = Text(
             "same parallel Jacobi-Newton iteration",
             font_size=28,
             color=GREY_B,
-        ).next_to(recover, DOWN, buff=0.5)
+        ).next_to(res_eq, DOWN)
 
-        self.play(LaggedStartMap(Write, VGroup(heading_algorithm, res_eq), lag_ratio=0.6))
+        self.play(
+            LaggedStart(
+                Write(heading_algorithm),
+                Write(res_eq),
+                FadeIn(same, shift=0.2 * UP),
+                lag_ratio=0.6,
+            )
+        )
 
-        # % recover the unforced case
-        self.next_slide()
-        self.play(FadeIn(recover, shift=0.2 * UP), FadeIn(same, shift=0.2 * UP))
+        # % end
 
     def nonsymmetric_hessian(self):
         """The catch: forcing breaks the mirror symmetry of the off-diagonal
         blocks, so the discrete 'Hessian' is no longer symmetric."""
         # % the catch: a non-symmetric Hessian
-        self.next_slide()
+        self.next_slide(
+            notes="<sigh> You see, the forced formulation is no longer a critical point formulation, so there is not really a proper Hessian. We can try to adapt the unforced Hessian, [...]"
+        )
         t2c = {
             "L_d": COLOR_LD,
             "f_d^+": COLOR_FORCED,
@@ -227,7 +261,7 @@ class Forced(SlideScene):
                 else:
                     upper_cells.add(block)
 
-        hess_key_map={
+        hess_key_map = {
             r"unforced:": "forced:",
             r"\textrm{D}_{12} L_d": r"\textrm{D}_{12} L_d",
             r"\textrm{D}_{21} L_d": r"\textrm{D}_{21} L_d",
@@ -260,7 +294,7 @@ class Forced(SlideScene):
         )
 
         # % forcing breaks the mirror symmetry of the off-diagonal blocks
-        self.next_slide()
+        self.next_slide(notes="[...] but it is no longer symmetric, because of [...]")
         new_upper = VGroup()
         for block in upper_cells:
             sq, _ = block
@@ -280,7 +314,7 @@ class Forced(SlideScene):
             r"non-symmetric!",
             font_size=36,
             t2c=t2c,
-            isolate=hess_key_map.values()
+            isolate=hess_key_map.values(),
         ).move_to(sym_note)
 
         self.play(
@@ -299,25 +333,39 @@ class Forced(SlideScene):
         )
 
         # % point at the two discrete force terms
-        self.next_slide()
+        self.next_slide(
+            notes="[...] the force being a pair. So we can't state positive definiteness directly. And honestly it's hard to adapt the convergence condition."
+        )
         self.play(Indicate(forced_note["f_d^-"]), Indicate(forced_note["f_d^+"]))
+
+        # % end
 
     def convergence_conditions(self):
         """Two partial convergence results, edge dominance and weak enough
         forcing, plus the spectral test; the general case stays open."""
         # % when does it still converge?
-        self.next_slide()
-        heading_convergence = Text("When does it still converge?", font_size=42).to_edge(
-            UP, buff=1.0
+        self.next_slide(
+            notes="I did find this condition that is analogous to the local Hessians being positive definite, but (I guess it is indeed a good analog) it is very very conservative."
         )
+        heading_convergence = Text(
+            "When does it still converge?", font_size=42
+        ).to_edge(UP, buff=1.0)
         cond1 = VGroup(
             Text("edge dominance", font_size=28, color=COLOR_FORCED),
             Tex(
-                r"\lambda_{\min}(\mathrm{Sym}\,\mathcal{D}_k)"
+                r"\lambda_{\min}(\mathrm{Sym}(\mathcal{D}_k))"
                 r" > \|\mathcal{C}_k^+\| + \|\mathcal{C}_{k-1}^-\|",
                 font_size=38,
             ),
         ).arrange(DOWN, buff=0.25, aligned_edge=LEFT)
+        cond1_open = (
+            Tex(
+                r"\lambda_{\min}(\mathrm{Sym} (H^f)) > \|\mathrm{Skew} (H^f)\| \quad (?)",
+                font_size=38,
+            )
+            .set_color(MAROON_D)
+            .set_opacity(0.9)
+        )
         cond2 = VGroup(
             Text("weak enough forcing", font_size=28, color=COLOR_FORCED),
             Tex(
@@ -328,9 +376,10 @@ class Forced(SlideScene):
         ).arrange(DOWN, buff=0.25, aligned_edge=LEFT)
         conds = (
             VGroup(cond1, cond2)
-            .arrange(DOWN, buff=0.9, aligned_edge=LEFT)
+            .arrange(DOWN, buff=1.4, aligned_edge=LEFT)
             .move_to(LEFT_SIDE / 2 + DOWN / 2)
         )
+        cond1_open.next_to(cond1, DOWN, buff=0.2, aligned_edge=LEFT)
 
         cond3 = (
             VGroup(
@@ -349,16 +398,28 @@ class Forced(SlideScene):
             .move_to(RIGHT_SIDE / 2)
         )
 
-        self.play(Write(heading_convergence))
-        self.play(
-            LaggedStartMap(
-                FadeIn, conds, shift=0.4 * RIGHT, lag_ratio=0.4, run_time=2.0
-            )
-        )
+        self.play(Write(heading_convergence), run_time=1)
+        self.play(FadeIn(cond1, shift=0.4 * RIGHT))
 
-        # % spectral condition on the Jacobi-iteration matrix
-        self.next_slide()
+        # % condition 1bis
+        self.next_slide(
+            note="There's a global analog that seems to hold, but I couldn't quite figure out how to tackle it. This is pretty high priority as future work."
+        )
+        self.play(Write(cond1_open), run_time=1)
+
+        # % condition 2
+        self.next_slide(
+            note="A more interesting condition is this bound on the size of forces you can add to a convergent system and keep it convergent. First we show it exists, and then we give the bound; but it is also kind of a conservative bound. Realistically, if you want to verify numerically convergence of a particular system in front of you, [...]"
+        )
+        self.play(FadeIn(cond2, shift=0.4 * RIGHT))
+
+        # % condition 3
+        self.next_slide(
+            notes="[...] your best bet might just be to compute this Jacobi-iteration matrix, that is the fundamental tool behind most of these convergence results."
+        )
         self.play(FadeIn(cond3, shift=0.4 * RIGHT))
+
+        # % end
 
     def parachutist_demo(self):
         """Demo: a parachutist threading a turbulent wind field converges from
@@ -387,9 +448,7 @@ class Forced(SlideScene):
             y_range=(0, 200, 20.0),
             height=6.0,
             width=7.0,
-            axis_config={
-                "include_tip": True
-            }
+            axis_config={"include_tip": True},
         )
         axes.add_coordinate_labels()
         axes.to_edge(DOWN, buff=0.5)
@@ -402,10 +461,15 @@ class Forced(SlideScene):
             *(
                 Arrow(
                     axes.coords_to_point(px, py),
-                    axes.coords_to_point(px + u * WIND_S / np.sqrt(u**2 + v**2), py + v * WIND_S / np.sqrt(u**2 + v**2)),
+                    axes.coords_to_point(
+                        px + u * WIND_S / np.sqrt(u**2 + v**2),
+                        py + v * WIND_S / np.sqrt(u**2 + v**2),
+                    ),
                     buff=0,
                     thickness=2.0,
-                    fill_color=interpolate_color(BLUE, RED, np.sqrt(u**2 + v**2) / max_wind),
+                    fill_color=interpolate_color(
+                        BLUE, RED, np.sqrt(u**2 + v**2) / max_wind
+                    ),
                 ).set_opacity(0.4)
                 for (px, py), (u, v) in zip(wind_xy, wind_uv)
                 if 0 <= px <= 40 and 0 <= py <= 200
@@ -415,17 +479,22 @@ class Forced(SlideScene):
         start_dot = Dot(axes.coords_to_point(*start), color=COLOR_FORCED)
         end_dot = Dot(axes.coords_to_point(*end), color=COLOR_FORCED)
         start_lbl = Text(
-            "jump", font_size=32, 
+            "jump",
+            font_size=32,
         ).next_to(start_dot, RIGHT * 0.1 + UP * 0.7, buff=0.05)
-        end_lbl = Text(
-            "target", font_size=32
-        ).next_to(end_dot, RIGHT * 2 + DOWN, buff=0.08)
+        end_lbl = Text("target", font_size=32).next_to(
+            end_dot, RIGHT * 2 + DOWN, buff=0.08
+        )
 
         curve = VMobject(stroke_behind=True).set_stroke(COLOR_FORCED, 4)
 
         def polyline_at(m, i: float):
-            pts1 = np.array([axes.coords_to_point(x, y) for x, y in paths[math.floor(i)]])
-            pts2 = np.array([axes.coords_to_point(x, y) for x, y in paths[math.ceil(i)]])
+            pts1 = np.array(
+                [axes.coords_to_point(x, y) for x, y in paths[math.floor(i)]]
+            )
+            pts2 = np.array(
+                [axes.coords_to_point(x, y) for x, y in paths[math.ceil(i)]]
+            )
             t = math.ceil(i) - i
             return m.set_points_as_corners(pts1 * t + pts2 * (1 - t))
 
@@ -476,7 +545,11 @@ class Forced(SlideScene):
 
         def upd_bar(bar):
             frac = (np.log10(residuals[frame_i()]) - log1) / (log0 - log1)
-            bar.set_points_by_ends(bar_bg.get_start(), bar_bg.get_start() + RIGHT * 4.0 * float(np.clip(frac, 0, 1)))
+            bar.set_points_by_ends(
+                bar_bg.get_start(),
+                bar_bg.get_start() + RIGHT * 4.0 * float(np.clip(frac, 0, 1)),
+            )
+
         bar.add_updater(upd_bar)
 
         self.play(
@@ -500,13 +573,13 @@ class Forced(SlideScene):
         curve.clear_updaters()
         bar.clear_updaters()
 
+        # % end
+
     slides = [
         forced_euler_lagrange,
         algorithm_one_line,
         nonsymmetric_hessian,
         convergence_conditions,
+        # TODO: Maybe skip parachutist demo?
         parachutist_demo,
     ]
-
-    def construct(self):
-        self.play_slides(self.slides)
