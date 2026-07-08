@@ -39,7 +39,7 @@ class Parallel(SlideScene):
         node; each node couples only to its two neighbours, so one Jacobi sweep
         updates every interior node at once. Parallel over time."""
         # % the DEL system over the whole trajectory
-        self.next_slide()
+        self.next_slide(notes="Let's take the discrete Euler-Lagrange equations.")
         t2c = {
             "L_d": COLOR_LD,
             "q_k": COLOR_PARALLEL,
@@ -48,7 +48,6 @@ class Parallel(SlideScene):
         }
         del_eq_original = Tex(
             r"\textrm{D}_2 L_d(q_{k-1}, q_k) + \textrm{D}_1 L_d(q_k, q_{k+1}) = 0",
-            # "0",
             font_size=44,
             t2c=t2c,
             isolate=["0"],
@@ -64,7 +63,9 @@ class Parallel(SlideScene):
         self.play(Write(del_eq_original))
 
         # % the discrete path as a row of nodes
-        self.next_slide()
+        self.next_slide(
+            notes="We're interested in BVP, meaning the start and endpoints are fixed. The idea of the method is to start off with some guess, which probably doesn't satisfy the equations. Therefore, [...]"
+        )
         y = -0.6
         xs = {
             "q_0": -5.2,
@@ -107,54 +108,47 @@ class Parallel(SlideScene):
         )
 
         # % del -> residual
-        self.next_slide()
+        self.next_slide(
+            notes="[...] let's call whatever this value is, $r_k$, for the _residual_ at node $k$. Notice, that the residual for each node depends [...]"
+        )
         self.play(TransformMatchingTex(del_eq_original, del_eq, key_map={"0": "r_k"}))
 
         # % locality: q_k's equation only touches its two neighbours
-        self.next_slide()
+        self.next_slide(notes="[...] only on itself and its two neighbours")
         focus = nodes["q_2"]
         neighbors = VGroup(nodes["q_1"], nodes["q_3"])
         couple = VGroup(
             Line(
-                nodes["q_1"].get_center() + r * RIGHT,
                 focus.get_center() + r * LEFT,
-                color=COLOR_PARALLEL,
+                nodes["q_1"].get_center() + r * RIGHT,
+                color=YELLOW,
                 stroke_width=5,
             ),
             Line(
-                nodes["q_3"].get_center() + r * LEFT,
                 focus.get_center() + r * RIGHT,
-                color=COLOR_PARALLEL,
+                nodes["q_3"].get_center() + r * LEFT,
+                color=YELLOW,
                 stroke_width=5,
             ),
         )
         focus[0].save_state()
         self.play(
-            focus[0]
-            .animate.set_stroke(COLOR_PARALLEL, 4)
-            .set_fill(COLOR_PARALLEL, 0.25),
+            focus[0].animate.set_stroke(YELLOW, 4).set_fill(YELLOW, 0.25),
         )
         self.play(
             *(
-                Indicate(n, scale_factor=1.05)
-                for n in [*neighbors, del_eq["q_{k-1}"], del_eq["q_{k+1}"]]
+                Indicate(n, scale_factor=1)
+                for n in [del_eq["q_{k-1}"], del_eq["q_{k+1}"]]
             ),
-            run_time=2,
+            *(ShowCreation(c, rate_func=there_and_back) for c in couple),
+            run_time=3,
         )
-        self.play(ShowCreation(couple))
-
-        local = Text(
-            "nearest-neighbour coupling only",
-            font_size=28,
-            color=COLOR_PARALLEL,
-        ).next_to(del_eq, DOWN, buff=0.15)
-        self.play(FadeIn(local, shift=0.2 * UP))
-
-        # % clear the transient coupling highlight
-        self.next_slide()
-        self.play(FadeOut(couple), FadeOut(local), focus[0].animate.restore())
+        self.play(FadeOut(couple), focus[0].animate.restore())
 
         # % jacobi-iteration
+        self.next_slide(
+            notes="So, the idea is that we're going to make a new guess, with the endpoints fixed, [...]"
+        )
         top = nodes
         top_group = VGroup(*top.values(), pathline)  # ty:ignore[invalid-argument-type]
         y_top, y_bot = 1.3, -1.6
@@ -204,7 +198,9 @@ class Parallel(SlideScene):
         )
 
         # % one node from its two neighbours + its old self
-        self.next_slide()
+        self.next_slide(
+            notes="[...] and where we are going to find what value of a node will make its own resiudal $0$."
+        )
 
         def fan(target_key, src_keys, **stroke):
             return VGroup(
@@ -232,7 +228,9 @@ class Parallel(SlideScene):
         )
 
         # % ...all interior nodes at once (the Jacobi iteration = parallelism)
-        self.next_slide()
+        self.next_slide(
+            notes="For every node at the same time. This gives us parallelism over time. Since the neighbors we're probably not getting to $0$ instantly, but we will if we repeat it. This is a Jacobi iteration."
+        )
         remaining = {
             "q_1": ["q_0", "q_1", "q_2"],
             "q_3": ["q_2", "q_3", "dots"],
@@ -275,11 +273,15 @@ class Parallel(SlideScene):
         ).to_edge(DOWN, buff=0.6)
         self.play(ShowCreation(bot_pathline), FadeIn(takeaway, shift=0.2 * UP))
 
+        # % end
+
     def local_newton_step(self):
         """Each local update is a single Newton step on that node's residual,
         built from its local Jacobian (the per-node second derivatives of L_d)."""
         # % local Newton step
-        self.next_slide()
+        self.next_slide(
+            notes="Now, to compute this solution we actually do a Newton-Raphson step."
+        )
         t2c = {"L_d": COLOR_LD, r"\overline q": COLOR_PARALLEL, "r_k": COLOR_PARALLEL}
 
         heading = Text("Each local update: one Newton step", font_size=40).to_edge(
@@ -308,19 +310,25 @@ class Parallel(SlideScene):
         self.play(Write(heading))
 
         # % residual as a function of the node
-        self.next_slide()
-        self.play(Write(residual))
+        self.next_slide(notes="We take the residual [...]")
+        self.play(Write(residual, run_time=1))
 
         # % Newton update and its Jacobian
-        self.next_slide()
+        self.next_slide(
+            notes="[...] and find where its linear approximation would be $0$. We repeat Jacobi-Newton, Jacobi-Newton, until we get to a result. The overall method is called, unsurprisingly, Jacobi-Newton (iteration)"
+        )
         self.play(Write(newton))
         self.play(FadeIn(jac, shift=0.2 * UP))
+
+        # % end
 
     def free_fall_demo(self):
         """The real solver: a straight-line initial guess relaxes to the
         physical free-fall arc as the residual drops over the iterations."""
         # % free-fall solver output
-        self.next_slide()
+        self.next_slide(
+            notes="Let's quickly see this in action, with a simple free fall example. We have our boundary conditions, and we start with a straight line guess."
+        )
         data = np.load(_DEMO_DATA)
         paths, residuals = data["paths"], data["residuals"]
         n_frames = len(paths)
@@ -419,7 +427,10 @@ class Parallel(SlideScene):
         self.play(FadeIn(VGroup(counter, res_label, bar_bg)), FadeIn(bar))
 
         # % relax the guess to the physical arc
-        self.next_slide(loop=True)
+        self.next_slide(
+            loop=True,
+            notes="If we let the iteration run, we see that it quickly converges to a parabola, as expected. Fun fact, this is the actualy implementation I wrote running.",
+        )
         self.play(frame.animate.set_value(n_frames - 1), run_time=5, rate_func=linear)
 
         # Stop the live counters and tracers so the auto-cleanup fade is clean.
@@ -428,12 +439,16 @@ class Parallel(SlideScene):
         curve.clear_updaters()
         bar.clear_updaters()
 
+        # % end
+
     def convergence_criteria(self):
         """H is the Hessian of the discrete action; H > 0 gives local
         convergence. Locality makes it block-tridiagonal, assembled from per-edge
         Hessians, giving the convergence criteria and the bridge to what's next."""
         # % convergence: H as Hessian of the discrete action
-        self.next_slide()
+        self.next_slide(
+            notes="Of course, it's very important to see when these algorithms converge. In our case, the central piece is"
+        )
         t2c_ld = {"L_d": COLOR_LD}
 
         heading = Text("Convergence of Newton iteration", font_size=40).to_edge(
@@ -451,9 +466,11 @@ class Parallel(SlideScene):
             t2c=t2c_ld,
         ).next_to(h_def, DOWN, buff=0.5)
 
-        self.play(
-            LaggedStartMap(Write, VGroup(heading, h_def, action_eq), lag_ratio=0.3)
-        )
+        self.play(Write(heading))
+
+        # % reveal hessian
+        self.next_slide(notes="the Hessian of the action.")
+        self.play(LaggedStartMap(Write, VGroup(h_def, action_eq), lag_ratio=0.3))
 
         # % positive definite gives local convergence
         self.next_slide()
@@ -662,7 +679,7 @@ class Parallel(SlideScene):
         bridge = TexText(
             r"We ask: what if $H$ is not symmetric \\",
             r"or what if $Q$ is not a vector space?",
-            font_size=58,
+            ont_size=58,
             color=GREY_B,
             t2c={"not symmetric": COLOR_FORCED, "not a vector space": COLOR_LIE_GROUPS},
         ).to_edge(DOWN, buff=0.5)
@@ -677,6 +694,8 @@ class Parallel(SlideScene):
         self.next_slide()
         self.play(FadeIn(bridge, shift=0.2 * UP))
 
+        # % end
+
     slides = [
         jacobi_sweep,
         local_newton_step,
@@ -685,4 +704,4 @@ class Parallel(SlideScene):
     ]
 
     def construct(self):
-        self.play_slides(self.slides)
+        pass
