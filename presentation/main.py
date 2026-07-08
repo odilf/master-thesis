@@ -141,7 +141,7 @@ class Defense(SlideScene):
         self.play_slides(Parallel.slides)
 
         # % Forced systems
-        self.next_slide()
+        self.next_slide(notes="Let's take a look at forced systems.")
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
             lines[0].animate.set_opacity(0.3),

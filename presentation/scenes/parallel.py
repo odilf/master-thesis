@@ -34,6 +34,9 @@ def _node(
 
 
 class Parallel(SlideScene):
+    def construct(self):
+        pass
+
     def jacobi_sweep(self):
         """The DEL equation over the whole trajectory becomes a residual per
         node; each node couples only to its two neighbours, so one Jacobi sweep
@@ -469,11 +472,13 @@ class Parallel(SlideScene):
         self.play(Write(heading))
 
         # % reveal hessian
-        self.next_slide(notes="the Hessian of the action.")
+        self.next_slide(notes="the Hessian of the (discrete) action.")
         self.play(LaggedStartMap(Write, VGroup(h_def, action_eq), lag_ratio=0.3))
 
         # % positive definite gives local convergence
-        self.next_slide()
+        self.next_slide(
+            notes="Namely, if this Hessian is positive-definite, there is local convergence for the method. There is a problem in that checking this has an N^3 runtime with respect to the length (or resolution) of the path. But luckily, we can get around that by exploint the particular structure this Hessian has."
+        )
         converge_note = Tex(
             r"H \succ 0 \enspace \Rightarrow \enspace \text{local convergence}",
             color=COLOR_PARALLEL,
@@ -482,8 +487,10 @@ class Parallel(SlideScene):
         self.play(FadeIn(converge_note, shift=0.2 * UP))
 
         # % sparsity from locality => block-tridiagonal
-        self.next_slide()
-        self.play(FadeOut(VGroup(action_eq, h_def, converge_note)))
+        self.next_slide(
+            notes="Namely, the locality of the DEL equations make H block-tridiagonal."
+        )
+        self.play(FadeOut(VGroup(action_eq, h_def, converge_note)), run_time=0.8)
 
         locality_eq = Tex(
             r"r_k \text{ depends only on } q_{k-1}, q_k, q_{k+1}",
@@ -499,13 +506,21 @@ class Parallel(SlideScene):
             color=COLOR_PARALLEL,
         ).next_to(sparsity_eq, DOWN, buff=0.45)
 
-        self.play(Write(locality_eq))
-        self.play(FadeIn(sparsity_eq, shift=0.3 * RIGHT))
-        self.play(FadeIn(tridiag_label, shift=0.3 * RIGHT))
+        self.play(
+            LaggedStart(
+                Write(locality_eq),
+                FadeIn(sparsity_eq, shift=0.3 * RIGHT),
+                FadeIn(tridiag_label, shift=0.3 * RIGHT),
+                run_time=2,
+                lag_ratio=0.8,
+            )
+        )
 
         # % the block-tridiagonal matrix
-        self.next_slide()
-        self.play(FadeOut(VGroup(locality_eq, sparsity_eq, tridiag_label)))
+        self.next_slide(notes="And not only that, but each block corresponds [...]")
+        self.play(
+            FadeOut(VGroup(locality_eq, sparsity_eq, tridiag_label)), run_time=0.5
+        )
 
         cell = 0.8
         grid_origin = LEFT * 4.4 + UP * 1.6
@@ -532,10 +547,13 @@ class Parallel(SlideScene):
         self.play(
             LaggedStartMap(FadeIn, band_sqs, scale=0.9, lag_ratio=0.04),
             Write(matrix_eq),
+            run_time=2,
         )
 
         # % label the diagonal and off-diagonal blocks with actual second derivatives
-        self.next_slide()
+        self.next_slide(
+            notes="[..] to each second derivative of the Lagrangian at a node. The diagonal blocks are literally the Newton-correction terms, [...]"
+        )
 
         diag_label = Tex(
             r"(H)_{k,k} = \mathrm{D}_{22} L_d(q_{k-1}, q_k)"
@@ -550,7 +568,9 @@ class Parallel(SlideScene):
         )
 
         # % off-diagonal block
-        self.next_slide()
+        self.next_slide(
+            notes="[...] and the off-diagonals are the remaining cross derivatives."
+        )
 
         od_label = Tex(
             r"(H)_{k,k+1} = \mathrm{D}_{12} L_d(q_k, q_{k+1})",
@@ -564,6 +584,9 @@ class Parallel(SlideScene):
         )
 
         # % per-edge 2x2 Hessian
+        self.next_slide(
+            notes="In fact, we can think of the 'global' hessian as composed by a sum of 'local' hessians, just evaluated at different points."
+        )
         transform_sqs = VGroup(
             squares[(2, 2)],
             squares[(2, 3)],
@@ -574,9 +597,6 @@ class Parallel(SlideScene):
             *(sq for sq in squares.values() if sq not in transform_sqs)
         )
 
-        # % morph the four shared blocks into a per-edge Hessian
-        self.next_slide()
-
         es = 1.0  # edge cell size
         ec = UP * 0.3  # 2x2 block center
 
@@ -584,8 +604,8 @@ class Parallel(SlideScene):
             [r"\mathrm{D}_{11}", r"\mathrm{D}_{12}"],
             [r"\mathrm{D}_{21}", r"\mathrm{D}_{22}"],
         ]
-        edge_sqs = VGroup()
-        edge_lbls = VGroup()
+        local_edge_sqs = VGroup()
+        local_edge_lbls = VGroup()
         for ri in range(2):
             for ci in range(2):
                 sq = (
@@ -595,63 +615,61 @@ class Parallel(SlideScene):
                     .move_to(ec + RIGHT * (ci - 0.5) * es + DOWN * (ri - 0.5) * es)
                 )
                 lbl = Tex(entries[ri][ci], font_size=36).move_to(sq)
-                edge_sqs.add(sq)
-                edge_lbls.add(lbl)
+                local_edge_sqs.add(sq)
+                local_edge_lbls.add(lbl)
 
-        edge_block = VGroup(edge_sqs, edge_lbls)
+        local_hessian = VGroup(local_edge_sqs, local_edge_lbls)
 
         ld_note = Tex(
             r"L_d(q_k,\, q_{k+1})",
             font_size=32,
             t2c=t2c_ld,
-        ).next_to(edge_block, RIGHT, buff=0.3)
+        ).next_to(local_edge_sqs, RIGHT, buff=0.3)
 
-        H_label = Tex(r"H_k =", font_size=42).next_to(edge_block, LEFT, buff=0.5)
+        H_label = Tex(r"H_k =", font_size=42).next_to(local_edge_sqs, LEFT, buff=0.5)
 
-        per_edge_note = Text(
-            "per-edge Hessian",
-            font_size=26,
-            color=COLOR_PARALLEL,
-        ).next_to(edge_block, DOWN, buff=0.5)
-
+        lbls_delay_antialising_fix = 0.5
+        ldaf = lbls_delay_antialising_fix
         self.play(
             LaggedStart(
                 FadeOut(
                     VGroup(matrix_eq, diag_label, od_label, non_transform_sqs),
                 ),
-                Transform(transform_sqs, edge_sqs),
+                Transform(transform_sqs, local_edge_sqs),
                 Write(H_label),
-                LaggedStartMap(FadeIn, edge_lbls, scale=1.65, lag_ratio=0.1),
                 FadeIn(ld_note),
                 lag_ratio=0.5,
             ),
+            LaggedStartMap(
+                FadeIn,
+                local_edge_lbls,
+                rate_func=lambda t: smooth(np.max([(t - ldaf) / (1 - ldaf), 0])),
+                lag_ratio=0.02,
+                scale=0.8,
+            ),
             run_time=4,
         )
-        self.play(FadeIn(per_edge_note, shift=0.2 * UP))
 
-        # % adjacent edges share a node, so their Hessians add on the diagonal
-        self.next_slide()
         overlap_note = (
             Tex(
                 r"(H)_{k,k} = (H_{k-1})_{22} + (H_k)_{11}",
                 font_size=34,
             )
             .set_opacity(0.5)
-            .next_to(per_edge_note, DOWN, buff=0.55)
+            .next_to(local_edge_sqs, DOWN, buff=0.55)
         )
         self.play(FadeIn(overlap_note, shift=0.2 * UP))
 
         # % convergence criteria and closing summary
-        self.next_slide()
+        self.next_slide(notes="And now we can state the convergence criteria better. Namely")
         self.play(
             FadeOut(
                 VGroup(
                     heading,
                     H_label,
-                    edge_sqs,
-                    edge_lbls,
+                    local_edge_sqs,
+                    local_edge_lbls,
                     ld_note,
-                    per_edge_note,
                     overlap_note,
                     transform_sqs,
                 )
@@ -665,8 +683,8 @@ class Parallel(SlideScene):
         criteria = (
             VGroup(
                 Tex(r"H \succ 0 \Rightarrow \text{local convergence}"),
-                Tex(
-                    r"\text{all  } H_k \succ 0 \Rightarrow H \succ 0",
+                TexText(
+                    r"all  $H_k \succ 0 \Rightarrow H \succ 0$",
                 ),
                 Tex(
                     r"\Lambda_i = \mathcal{D}_i - \mathcal{C}_{i-1}^T \Lambda_{i-1}^{-1} \mathcal{C}_{i-1} \succ 0 \ \Leftrightarrow\ H \succ 0"
@@ -676,22 +694,30 @@ class Parallel(SlideScene):
             .next_to(heading2, DOWN, buff=1.0)
         )
 
+        self.play(Write(heading2))
+
+        # % convergence global hessian pd
+        self.next_slide(notes="We have local convergence if the global Hessian is p.d.")
+        self.play(FadeIn(criteria[0], shift=0.5 * RIGHT, run_time=1.0))
+
+        # % convergence local hessian pd
+        self.next_slide(notes="And the global Hessian is p.d. if all local Hessians are too. This condition is quick to check (linear), but very conservative.")
+        self.play(FadeIn(criteria[1], shift=0.5 * RIGHT, run_time=1.0))
+
+        # % convergence quick iterative
+        self.next_slide(notes="So, finally, if and only if these recursively defined matrices are positive definite, the Hessian is p.d. and the method converges. This is a pretty full description of the parallel algorithm.")
+        self.play(FadeIn(criteria[2], shift=0.5 * RIGHT, run_time=1.0))
+
+        # % bridge to the extensions
+        self.next_slide(notes="The contribution of the thesis is in extending this algorithm to forced systems that are not symmetric, and to non-vector space configuration spaces.")
+
         bridge = TexText(
             r"We ask: what if $H$ is not symmetric \\",
             r"or what if $Q$ is not a vector space?",
-            ont_size=58,
+            font_size=58,
             color=GREY_B,
             t2c={"not symmetric": COLOR_FORCED, "not a vector space": COLOR_LIE_GROUPS},
         ).to_edge(DOWN, buff=0.5)
-
-        self.play(Write(heading2))
-        for criterion in criteria:
-            # % reveal each convergence criterion
-            self.next_slide()
-            self.play(FadeIn(criterion, shift=0.5 * RIGHT, run_time=1.0))
-
-        # % bridge to the extensions
-        self.next_slide()
         self.play(FadeIn(bridge, shift=0.2 * UP))
 
         # % end
@@ -702,6 +728,3 @@ class Parallel(SlideScene):
         free_fall_demo,
         convergence_criteria,
     ]
-
-    def construct(self):
-        pass
