@@ -24,17 +24,24 @@ for _style in ("regular", "bold", "italic", "bolditalic"):
 
 # Make every Tex/TexText render through newtx (newtxtext + newtxmath), matching
 # the thesis. There's no config knob for a global preamble, so append it to the
-# preamble returned by manim's tex config — one patch covers all LaTeX rendering.
-_base_get_tex_config = _tex.get_tex_config
+# preamble returned by manim's tex config -- one patch covers all LaTeX rendering.
+#
+# ignore_manimlib_modules_on_reload in default_config.yml means reload() re-runs
+# this file but never resets manimlib.utils.tex_file_writing, so _tex.get_tex_config
+# is already our patched wrapper on the second run. Wrapping it again makes it call
+# itself through the module-global _base_get_tex_config -> RecursionError. Guard so
+# the patch only ever applies once, using _tex itself (which survives reload) as the
+# marker.
+if not getattr(_tex, "_newtx_patched", False):
+    _base_get_tex_config = _tex.get_tex_config
 
+    @lru_cache
+    def _get_tex_config(template: str = "") -> tuple[str, str]:
+        compiler, preamble = _base_get_tex_config(template)
+        return compiler, preamble + "\n\\usepackage{newtx}"
 
-@lru_cache
-def _get_tex_config(template: str = "") -> tuple[str, str]:
-    compiler, preamble = _base_get_tex_config(template)
-    return compiler, preamble + "\n\\usepackage{newtx}"
-
-
-_tex.get_tex_config = _get_tex_config
+    _tex.get_tex_config = _get_tex_config
+    _tex._newtx_patched = True
 
 # One accent color per topic, matching the title-slide highlights.
 from manimlib import *  # noqa: E402
