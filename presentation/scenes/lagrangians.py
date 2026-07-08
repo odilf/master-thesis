@@ -8,12 +8,19 @@ from scenes.theme import COLOR_LAGRANGIANS
 
 
 class Lagrangians(SlideScene):
+    def construct(self):
+        pass
+
     def pendulum_phase_space(self):
         """Four Lagrangian systems, then a deep dive on the pendulum: L : TQ -> R,
         its S^1 x R phase cylinder, energy level curves as the Lagrangian flow,
         and symplecticity as the area-preserving flow of blobs of states."""
         # % examples grid
-        self.next_slide()
+        self.next_slide(
+            notes="""
+            -Many physical systems, eveything from pendulums, to robotic arms, to electrons to black holes, can be modeled with [a configuration space]
+            """
+        )
         theta = ValueTracker(PI / 4)
         _rod_len = 1.0
         pivot = np.array([0.0, 0.6, 0.0])
@@ -155,76 +162,95 @@ class Lagrangians(SlideScene):
             (
                 "Pendulum",
                 pendulum,
-                R"Q = S^1",
-                R"L = \tfrac{1}{2}ml^2\dot\theta^2 - mgl(1-\cos\theta)",
+                r"Q = S^1",
+                r"L =& \tfrac{1}{2}ml^2\dot\theta^2 - mgl(1-\cos\theta)",
             ),
             (
                 "Robotic arm",
                 robotic_arm,
-                R"Q = (S^1)^n",
-                R"L = \tfrac{1}{2}\dot{q}^T M(q)\,\dot{q} - V(q)",
+                r"Q = (S^1)^n",
+                r"L =& \tfrac{1}{2}\dot{q}^T M(q) \dot{q} - V(q)",
             ),
             (
                 "Electron",
                 electron,
-                R"Q = \mathbb{R}^3",
-                R"L = \tfrac{1}{2}m|\dot{x}|^2 + e\dot{x}\cdot A - e\phi",
+                r"Q = \mathbb{R}^3",
+                r"L =& \tfrac{1}{2}m|\dot{x}|^2 + e\dot{x}\cdot A - e\phi",
             ),
             (
                 "Black hole/GM",
                 black_hole,
-                R"Q = \mathrm{Met}(\mathcal{M})",
-                R"S = \int \tfrac{R}{16\pi G}\sqrt{-g}\,d^4x",
+                r"Q = \mathrm{Met}(\mathcal{M})",
+                r"S = \int \tfrac{R}{16\pi G}\sqrt{-g}\,d^4x",
             ),
         ]
-        ex_visuals, state_spaces, lagrangians = zip(
-            *(
-                (
+
+        cols = (
+            VGroup(
+                VGroup(
                     VGroup([Text(name, font_size=30), vis]).arrange(DOWN),
-                    Tex(Q, font_size=28),
-                    Tex(L, font_size=18),
+                    Tex(Q, font_size=36),
+                    Tex(L, font_size=28),
                 )
                 for name, vis, Q, L in examples
             )
-        )
-        grid = (
-            VGroup(*ex_visuals)
-            .arrange(RIGHT, buff=1.5)
+            .arrange(RIGHT, buff=0.6)
             .move_to(TOP - 0.5 * UP, aligned_edge=TOP)
         )
-        self.play(ShowCreation(grid, lag_ratio=0.03, run_time=3))
+
+        visuals, state_spaces, lagrangians = (VGroup(ms) for ms in zip(*(cols)))
+
+        self.play(
+            LaggedStart(
+                *(ShowCreation(v[1], lag_ratio=0.01) for v in visuals),
+                lag_ratio=0.2,
+                run_time=3,
+            ),
+            LaggedStart(*(Write(v[0]) for v in visuals), lag_ratio=0.2, run_time=3),
+        )
+
+        # I'm confused why the state spaces don't work togeher, but whatever.
+        for Q in state_spaces:
+            Q.align_to(visuals.get_bottom() + DOWN * 0.4, direction=UP)
+        lagrangians.align_to(state_spaces.get_bottom() + DOWN * 0.3, direction=UP)
 
         # % state spaces
-        self.next_slide()
-        for vis, Q in zip(ex_visuals, state_spaces):
-            Q.move_to(vis.get_center() + 1.5 * DOWN, aligned_edge=DOWN)
-        self.play(*(Write(state_space) for state_space in state_spaces))
+        self.next_slide(
+            notes="a configuration space (a smooth manifold that represents the possible states of the system), and [a Lagrangian]"
+        )
+        self.play(LaggedStartMap(Write, VGroup(state_spaces)))
 
         # % Lagrangians
-        self.next_slide()
-        for Q, L in zip(state_spaces, lagrangians):
-            L.move_to(Q.get_center() + 0.8 * DOWN, aligned_edge=DOWN)
-        self.play(*(Write(L) for L in lagrangians))
+        self.next_slide(notes="[and] a Lagrangian, that encodes how the states evolve.")
+        self.play(LaggedStartMap(Write, VGroup(lagrangians), lag_ratio=0.2))
 
         # % Lagrangian as a map TQ -> R
-        self.next_slide()
+        self.next_slide(
+            notes="where the Lagrangian is a function from TQ (the tangent bundle, the phase space), to a real number."
+        )
         L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=68).shift(2 * DOWN)
         self.play(Write(L_def))
 
         # % Pendulum example
-        self.next_slide()
+        self.next_slide(notes="Let's look to the pendulum as an example.")
         other_ex = VGroup(
-            ex_visuals[0][0],
-            *ex_visuals[1:],
+            visuals[0][0],
+            *visuals[1:],
             *state_spaces[1:],
             *lagrangians[1:],
             L_def,
         )
         self.play(LaggedStartMap(FadeOut, other_ex), run_time=1)
-        pendulum_vis = VGroup(ex_visuals[0][1], state_spaces[0], lagrangians[0])
-        self.play(pendulum_vis.animate.center().scale(2).shift(3.5 * LEFT))
-        for m in [rod, bob, angle_arc, theta_label]:
-            m.resume_updating()
+        self.remove(other_ex)
+
+        pendulum_vis = VGroup(visuals[0][1], state_spaces[0], lagrangians[0])
+        if pendulum_vis.saved_state is not None:
+            pendulum_vis.restore()
+
+        pendulum_vis.save_state()
+        self.play(
+            pendulum_vis.animate.center().scale(2).shift(3.5 * LEFT),
+        )
 
         # state space
         state_space = Circle(radius=2, stroke_color=COLOR_LAGRANGIANS).move_to(
@@ -239,12 +265,12 @@ class Lagrangians(SlideScene):
         )
 
         # % state-space circle
-        self.next_slide()
+        self.next_slide(notes="The configuration space is $S^1$, the circle")
         self.play(ShowCreation(state_space))
         self.play(FadeIn(state_space_dot))
 
         # % play with angle
-        self.next_slide(loop=True)
+        self.next_slide(notes="where the position along the circle indicates the angle")
         self.play(
             theta.animate.set_value(PI / 3),
             rate_func=lambda t: wiggle(t, 4),
@@ -252,7 +278,9 @@ class Lagrangians(SlideScene):
         )
 
         # % omega
-        self.next_slide()
+        self.next_slide(
+            notes="The largangian acts also on the tangent, which here is the angular velocity"
+        )
         omega = ValueTracker(1.0)
         omega_arrow = Arrow(
             start=state_space_dot, end=ORIGIN, color=BLACK, fill_color=BLACK
@@ -275,7 +303,9 @@ class Lagrangians(SlideScene):
         self.play(FadeIn(omega_arrow))
 
         # % sweep angle and angular velocity
-        self.next_slide()
+        self.next_slide(
+            notes=r"So at every point we have an extra $\mathbb{R}^1$ degree of freedom."
+        )
         self.play(theta.animate.set_value(PI * 0.8), omega.animate.set_value(3.0))
         self.play(
             theta.animate.set_value(-PI / 2), omega.animate.set_value(-2), run_time=2
@@ -285,20 +315,25 @@ class Lagrangians(SlideScene):
         )
 
         # % phase space reveal
-        self.next_slide()
+        self.next_slide(notes="That is, the dynamics are determined on the phase space")
         angle_arc.suspend_updating()
         self.frame.save_state()
+        pendulum_gizmo = Group(
+            state_space_dot,
+            omega_arrow,
+            pendulum_vis,
+            pendulum_vis,
+        )
         self.play(
             self.frame.animate.reorient(0, 65, 0, state_space.get_center(), 8),
-            FadeOut(state_space_dot),
-            FadeOut(omega_arrow),
-            FadeOut(pendulum_vis),
-            FadeOut(pendulum_vis),
+            FadeOut(pendulum_gizmo),
             run_time=3,
         )
 
         # % Cylinder: TQ = S^1xR
-        self.next_slide()
+        self.next_slide(
+            notes="which for a pendulum can be represented as a cylinder. (the height corresponds with velocity)"
+        )
         R = state_space.get_radius()
         cyl_center = state_space.get_center()
         cx, cy = cyl_center[0], cyl_center[1]
@@ -331,7 +366,9 @@ class Lagrangians(SlideScene):
         )
 
         # % Lagrangian flow: energy level curves E = omega^2/2 − cos(theta) = const
-        self.next_slide(loop=True)
+        self.next_slide(
+            notes="On the phase space, the Lagrangian defines a _flow_, how every point in TQ moves over time. The dynamics of the system are completely determined by this flow. And this flow has important geometric properties."
+        )
 
         def to_cyl_pt(th, om):
             # depth_fix = 1.05
@@ -432,13 +469,16 @@ class Lagrangians(SlideScene):
                 97, 72, 0, state_space.get_center(), 9
             ),
         )
+        self.remove(tails)
 
         # % color the cylinder by energy level
-        self.next_slide()
+        self.next_slide(
+            notes="For instance, if we color the phase space by energy, it turns out that all Lagrangian trajectories are level-curves. That is, enegy is conserved. This is an instance of the well-known Noether's theorem, which relates each symmetry to a conservation law (in our case, energy comes from time-symmetry)."
+        )
 
         colored_cyl = cyl.copy()
-        colored_cyl.color_by_uv_function(energy_color)  # ty:ignore[invalid-argument-type] straight up wrong in manim
-        colored_cyl.set_opacity(0.5)
+        colored_cyl.color_by_uv_function(energy_color)
+        colored_cyl.set_opacity(1.0)
 
         self.play(
             FadeOut(dots, lag_ratio=0.03),
@@ -448,7 +488,9 @@ class Lagrangians(SlideScene):
         )
 
         # % symplecticity
-        self.next_slide()
+        self.next_slide(
+            notes="Another property is that small areas get conserved along the flow. This is symplecticity, since there is a certain symplectic form that the Lagrangian flow conserves. Symplecity gives you that trajectories in phase space never collapse, and is a stronger version of Louiville's theorem, which says essentially that volume in phase-space is conserved."
+        )
         self.play(FadeOut(flow, lag_ratio=0.3), run_time=1)
 
         # Small blobs of initial conditions that deform but preserve area (dθ∧dω).
@@ -482,7 +524,6 @@ class Lagrangians(SlideScene):
                     fill_color=c,
                     fill_opacity=0.4,
                     stroke_width=2,
-                    # depth_test=True,
                 ).set_points_smoothly(
                     [to_cyl_pt(*all_frames[i][0][v]) for v in range(n_verts)]
                     + [to_cyl_pt(*all_frames[i][0][0])]
@@ -507,20 +548,20 @@ class Lagrangians(SlideScene):
             t_sim.animate.set_value(n_steps * sim_dt),
             self.frame.animate.reorient(87, 76, 0, np.array([3.06, 0.6, -0.15]), 6.70),
             run_time=6,
-            # rate_func=linear,
         )
         for mob in symp_patches:
             mob.clear_updaters()
 
-        # Return the camera home; play_slides fades the leftover 3D mobjects.
-        self.frame.restore()
+        # % end
 
     def euler_lagrange(self):
         """From continuous to discrete: the action integral and Euler-Lagrange
         equations, split-screen against the discrete action sum and DEL
         equations, then the exact vs approximate discrete Lagrangian."""
         # % continuous action
-        self.next_slide()
+        self.next_slide(
+            notes="The Lagrangian flow is defined by Hamilton's theorem, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian), known as Hamilton's principle. Following this variational principle [...]"
+        )
         t2c = {
             "L": COLOR_LAGRANGIANS,
             r"\widetilde{L}_d": MAROON_D,
@@ -530,7 +571,7 @@ class Lagrangians(SlideScene):
         cont_header = Text("Continuous", font_size=54, color=GREY_B)
         L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=72, t2c=t2c)
         action_cont = Tex(r"S = \int_0^T L(q(t), \dot{q}(t)) \textrm{d} t", t2c=t2c)
-        el_equations = Tex(
+        el_eq = Tex(
             r"\frac{\partial L}{\partial q} - \frac{\textrm{d}}{\textrm{d}t} \frac{\partial L}{\partial \dot{q}} = 0",
             t2c=t2c,
         )
@@ -540,79 +581,113 @@ class Lagrangians(SlideScene):
         action_disc = Tex(r"S_d = \sum_0^{N-1} L_d(q_k, q_{k+1})", t2c=t2c)
         del_eq = Tex(
             r"\textrm{D}_2 L_d(q_{k-1}, q_k) + \textrm{D}_1 L_d(q_k, q_{k+1}) = 0",
-            font_size=42,
+            font_size=38,
             t2c=t2c,
         )
 
-        cont = (
-            VGroup(cont_header, L_def, action_cont, el_equations)
-            .arrange(DOWN, buff=0.4)
-            .move_to(UP * 1.5)
-        )
-        disc = VGroup(disc_header, Ld_def, action_disc, del_eq).arrange(DOWN, buff=0.4)
+        sneak = VGroup(action_cont, el_eq).arrange(DOWN, buff=0.3)
 
         self.play(Write(action_cont), run_time=1)
 
         # % Euler-Lagrange equations
-        self.next_slide()
-        self.play(Write(el_equations), run_time=1)
+        self.next_slide(
+            notes="[...], we can derive the well-known Euler-Lagrange equations, that real trajectories must satisfy. These are very important, as they define the equations of motion for a system, your $f=ma$. But often we want to solve these systems numerically, and we are only approximating a physical system and we 'forget' about the geometry. Long-running simulations, for instance, might see energy that keeps decreasing spontaneously. So we can do better."
+        )
+        self.play(Write(el_eq), run_time=1)
 
         # % split screen
-        self.next_slide()
-        divider = Line(TOP + 0.4 * DOWN, BOTTOM + 2 * UP, color=GREY_B, stroke_width=1)
+        self.next_slide(
+            notes="See, this is the continuous formulation, but we can also formulate Lagrangians mechanics"
+        )
+        divider = Line(
+            TOP + 0.4 * DOWN, BOTTOM + 2.3 * UP, color=GREY_B, stroke_width=1
+        )
+
+        # diagram = VGroup(
+        #     VGroup(cont_header.move_to(LEFT_SIDE/2), disc_header.move_to(RIGHT_SIDE/2)),
+        #     VGroup(L_def.move_to(LEFT_SIDE/2), Ld_def.move_to(RIGHT_SIDE/2)),
+        #     VGroup(action_cont.move_to(LEFT_SIDE/2), action_disc.move_to(RIGHT_SIDE/2)),
+        #     VGroup(el_eq.move_to(LEFT_SIDE/2), del_eq.move_to(RIGHT_SIDE/2)),
+        # )#.move_to(TOP + 0.8*DOWN, aligned_edge=TOP)
+        # grid = VGroup(
+        #     cont_header, disc_header,
+        #     L_def, Ld_def,
+        #     action_cont, action_disc,
+        #     el_eq, del_eq,
+        # ).arrange_in_grid(n_cols=2).move_to(TOP + 0.5*DOWN, aligned_edge=TOP)
+        # self.add(grid)
+        #
+        BUFF = 0.3
+        headers = VGroup(
+            cont_header.move_to(LEFT_SIDE / 2), disc_header.move_to(RIGHT_SIDE / 2)
+        )
+        headers.move_to(TOP + 0.5 * DOWN, aligned_edge=TOP)
+        defs = VGroup(L_def.move_to(LEFT_SIDE / 2), Ld_def.move_to(RIGHT_SIDE / 2))
+        defs.align_to(headers.get_bottom() + DOWN * BUFF * 3, direction=UP)
+        actions = VGroup(
+            action_cont.move_to(LEFT_SIDE / 2), action_disc.move_to(RIGHT_SIDE / 2)
+        )
+        actions.align_to(defs.get_bottom() + DOWN * BUFF, direction=UP)
+        eqs = VGroup(el_eq.move_to(LEFT_SIDE / 2), del_eq.move_to(RIGHT_SIDE / 2))
+        eqs.align_to(actions.get_bottom() + DOWN * BUFF, direction=UP)
+
+        # self.add(headers, defs, actions, eqs)
 
         self.play(
             Write(cont_header),
             Write(L_def),
-            cont.animate.move_to(LEFT_SIDE / 2 + UP),
+            # cont.animate.move_to(LEFT_SIDE / 2 + UP),
             ShowCreation(divider),
         )
-        disc.move_to(RIGHT_SIDE / 2 + UP)
 
         # % discrete Lagrangian
-        self.next_slide()
+        self.next_slide(
+            notes="[...] formulate Lagrangians mechanics discretly, with a discrete Largangian (where we think instead of a point and a vector, two nearby points)."
+        )
         self.play(Write(Ld_def), Write(disc_header))
 
         # % discrete action
-        self.next_slide()
+        self.next_slide(notes="The action becomes a sum.")
         self.play(Write(action_disc))
 
         # % discrete Euler-Lagrange
-        self.next_slide()
+        self.next_slide(
+            notes="And its critial points give rise to the _discrete_ Euler-Lagrange equations. But notice that the discrete Euler-Lagrange equations can be solved numerically, a path is just a finite list of points. So what's the catch? Because, there is no free lunch."
+        )
         self.play(Write(del_eq))
 
-        # % approx
+        # % exact discrete Lagrangian
         Ld_exact = Tex(
             r"L^\text{ex.}_d (q_0, q_1) = \int_0^h q_{0, 1} (q_0, q_1)",
             t2c={**t2c, r"L^\text{ex.}_d": MAROON_D},
             isolate=[r"q_{0, 1}"],
-        )
+        ).move_to(LEFT_SIDE / 2 + BOTTOM + UP * BUFF)
         Ld_approx = Tex(
             r"\widetilde{L}_d (q_0, q_1) = L\left(\tfrac{q_0 + q_1}{2}, \tfrac{q_1 - q_0}{h}\right)",
             t2c=t2c,
-        )
-        Lds = (
-            VGroup(Ld_exact, Ld_approx)
-            .arrange(RIGHT, buff=0.8)
-            .move_to(BOTTOM + 1.8 * UP)
-        )
+        ).move_to(RIGHT_SIDE / 2 + BOTTOM + UP * BUFF)
+        Lds = VGroup(Ld_exact, Ld_approx)
+        Lds.shift(UP * Lds.get_height() / 2)
 
-        # % exact discrete Lagrangian
-        self.next_slide()
-        self.play(Write(Ld_exact))
+        self.next_slide(
+            notes="Indeed, the problem is that an exact discrete Lagrangian [...]"
+        )
+        self.play(Write(Ld_exact, run_time=1))
 
         # % highlight the unknown path
-        self.next_slide()
+        self.next_slide(
+            notes="[...] needs this $q_{0, 1}$ path which is defined as the solution between $q_0$ and $q_1$, which is just as hard to calculate. But, here's the clever trick."
+        )
         self.play(Indicate(Ld_exact["q_{0, 1}"]))
 
         # % approximate discrete Lagrangian
-        self.next_slide()
-        self.play(Write(Ld_approx))
+        self.next_slide(
+            notes="We can just approximate the exact discrete Lagrangian, with some quadrature rule. And yes, it is still an approximation, but this approximation _is also_ a Lagrangian system, with all the exact geometric properties that we care about. This is the whole idea of variational integration. We discretize the principle instead of the equations of motion."
+        )
+        self.play(Write(Ld_approx, run_time=1))
+        # % end
 
     slides = [
         pendulum_phase_space,
         euler_lagrange,
     ]
-
-    def construct(self):
-        self.play_slides(self.slides)

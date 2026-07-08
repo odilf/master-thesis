@@ -111,7 +111,7 @@ class Defense(SlideScene):
 
         outline_slide = VGroup(heading, lines)
 
-        # % highlight the first topic
+        # % Lagrangians & geometry
         self.next_slide()
         self.play(
             lines[0].animate.scale(1.1),
@@ -121,10 +121,12 @@ class Defense(SlideScene):
             run_time=0.5,
         )
 
-        # % Lagrangians & geometry
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
         self.play_slides(Lagrangians.slides)
+
+        # % Parallel algorithm
+        self.next_slide(notes="But how do we actually compute these solutions. Let's briefly talk about the parallel algorithm to do so, which is what my work is based on.")
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
             lines[0].animate.set_opacity(0.3).scale(1 / 1.1),
@@ -134,10 +136,12 @@ class Defense(SlideScene):
             run_time=1,
         )
 
-        # % Parallel algorithm
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
         self.play_slides(Parallel.slides)
+
+        # % Forced systems
+        self.next_slide()
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
             lines[0].animate.set_opacity(0.3),
@@ -147,20 +151,21 @@ class Defense(SlideScene):
             run_time=1,
         )
 
-        # % Forced systems
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
         self.play_slides(Forced.slides)
+
+        # % Lie groups
+        self.next_slide()
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
             lines[0].animate.set_opacity(0.3),
             lines[1].animate.set_opacity(0.3),
             lines[2].animate.set_opacity(0.3).scale(1 / 1.1),
-            lines[3].animate.set_opacity(1),
+            lines[3].animate.set_opacity(1).scale(1.1),
             run_time=1,
         )
 
-        # % Lie groups
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
         self.play_slides(LieGroups.slides)
