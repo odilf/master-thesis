@@ -17,7 +17,7 @@ class Lagrangians(SlideScene):
         and symplecticity as the area-preserving flow of blobs of states."""
         # % examples grid
         self.next_slide(
-            notes="Many physical systems, eveything from pendulums, to robotic arms, to electrons to black holes, can be modeled with [...]"
+            notes="Many physical systems, everything from pendulums, to robotic arms, to electrons to black holes, can be modeled with [...]"
         )
         theta = ValueTracker(PI / 4)
         _rod_len = 1.0

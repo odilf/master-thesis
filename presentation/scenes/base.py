@@ -29,6 +29,29 @@ PEEK_WORDS = 6
 # of rendering: no window opens and animations are skipped. See that script.
 COLLECTING_NOTES = os.environ.get("COLLECT_NOTES") == "1"
 
+# The progress bar needs the total slide count, and each slide wants to "peek"
+# at the notes of the slide that follows it -- both are things a single render
+# pass cannot know on its own. `scripts/collect_notes.py` runs the deck ahead of
+# time in collection mode and dumps this file (an ordered list of every slide and
+# its notes); the `just render` recipe regenerates it before every render.
+SLIDE_DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "slides-data.json")
+
+# How many words of the next slide's notes to preview in the presenter view.
+PEEK_AHEAD_WORDS = 16
+
+
+def load_slide_data() -> dict:
+    """The ordered slide/notes list dumped by scripts/collect_notes.py, or an
+    empty stub when it has not been generated yet (the bar and peek then simply
+    do nothing rather than break the render)."""
+    try:
+        import json
+
+        with open(SLIDE_DATA_PATH) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {"slide_count": 0, "slides": []}
+
 # Notes accumulated during a collection run, grouped by section in call order.
 # Each entry is {"name": str, "notes": [{"text", "file", "line"}, ...]}.
 note_sections: list[dict] = []
@@ -48,9 +71,11 @@ def _caller_location() -> tuple[str, int]:
 
 
 def _record_note(text: str) -> None:
+    # Record every slide, even the silent click-throughs with no notes: the slide
+    # data file is a faithful, ordered list of every next_slide call so that its
+    # indices line up with the counter the real render keeps. The Markdown export
+    # still drops the empty ones (see to_paragraphs in collect_notes.py).
     text = (text or "").strip()
-    if not text:
-        return
     if not note_sections:
         note_sections.append({"name": "Introduction", "notes": []})
     path, line = _caller_location()
@@ -66,6 +91,96 @@ def _tail_words(text: str) -> str:
 class SlideScene(InteractiveScene, Slide):
     # The last non-empty note we saw, so a continuation can echo its tail.
     _prev_note = ""
+
+    # A subtle progress bar, built lazily on the first `next_slide`. Its fill
+    # width is driven by an updater reading `_slide_index`, so it re-derives
+    # itself every frame and survives `play_slides`' state save/restore for free.
+    _progress_fill = None
+
+    # 0-based index of the current slide, and the pre-computed slide data (total
+    # count and the ordered notes used for forward peeking). Both are filled from
+    # the file scripts/collect_notes.py writes; see load_slide_data.
+    _slide_index = 0
+    _slide_data = None
+
+    # Mobjects the just-finished logical slide added, awaiting fade-out at the next
+    # logical-slide boundary. None between boundaries so internal next_slide pauses
+    # within a slide don't fade anything.
+    _pending_fade = None
+    # Scene baseline every logical slide starts from, restored after a fade.
+    _logical_baseline = None
+
+    def fade_prev_logical_slide(self) -> None:
+        """Fade out the mobjects the previous logical slide added, then rewind to
+        the baseline every slide starts from. A no-op unless `play_slides` has
+        stashed something to fade, so plain `next_slide`/`show` decks are untouched.
+        Called at the first `next_slide` of each new logical slide, which is why the
+        previous slide's final frame is held for a click instead of fading at once."""
+        if not self._pending_fade:
+            return
+        pending, self._pending_fade = self._pending_fade, None
+        self.play(*(FadeOut(m, shift=0.1 * DOWN) for m in pending))
+        # restore_state rewinds num_plays/time; keep them monotonic by hand so the
+        # next slide doesn't reuse partial-movie-file indices (see play_slides).
+        num_plays, time = self.num_plays, self.time
+        self.restore_state(self._logical_baseline)
+        self.frame.restore()
+        self.num_plays, self.time = num_plays, time
+
+    def _get_slide_data(self) -> dict:
+        if self._slide_data is None:
+            self._slide_data = load_slide_data()
+        return self._slide_data
+
+    def _ensure_progress_bar(self) -> None:
+        if self._progress_fill is not None:
+            return
+
+        left = LEFT_SIDE  # left frame edge, in screen coordinates
+        height = 0.1
+        POSITION = BOTTOM + height*UP/2
+
+        track = Rectangle(width=FRAME_WIDTH, height=height)
+        track.set_fill(GREY, opacity=0.12)
+        track.set_stroke(width=0)
+        track.move_to(POSITION)
+
+        fill = Rectangle(width=FRAME_WIDTH, height=height)
+        fill.set_fill(LIGHT_PINK, opacity=0.6)
+        fill.set_stroke(width=0)
+
+        # Fall back to counting our own indices when the data file is missing, so
+        # the bar still advances (it just cannot know how close to the end it is).
+        total = self._get_slide_data().get("slide_count", 0)
+
+        def update_fill(mob):
+            denom = max(total, self._slide_index, 1)
+            frac = min(self._slide_index / denom, 1.0)
+            mob.set_width(max(FRAME_WIDTH * frac, 1e-4), stretch=True)
+            mob.set_height(height, stretch=True)
+            mob.move_to(POSITION + RIGHT*(left[0] + mob.get_width() / 2))
+
+        fill.add_updater(update_fill)
+
+        bar = Group(track, fill)
+        bar.fix_in_frame()
+        self.add(bar)
+        self._progress_fill = fill
+
+    def _peek_ahead(self) -> str:
+        """The notes of the next slide that actually says something, trimmed to a
+        preview. `_slide_index` is the 0-based index of the slide we are entering,
+        so the following non-empty note is the one to preview."""
+        slides = self._get_slide_data().get("slides", [])
+        for entry in slides[self._slide_index + 1:]:
+            text = MARKER.sub("", entry.get("text", "")).strip()
+            if text:
+                words = text.split()
+                preview = " ".join(words[:PEEK_AHEAD_WORDS])
+                if len(words) > PEEK_AHEAD_WORDS:
+                    preview += "..."
+                return preview
+        return ""
 
     def next_slide(self, *args, **kwargs) -> None:
         # `note` is a typo that appears in one call; accept it too so the note is
@@ -85,7 +200,20 @@ class SlideScene(InteractiveScene, Slide):
         if raw.strip():
             self._prev_note = raw
 
+        # Preview what comes next so the presenter can look forward while talking.
+        peek = self._peek_ahead()
+        if peek:
+            notes = f"{notes}\n\n_next:_ {peek}".lstrip()
+
+        self._slide_index += 1
+        self._ensure_progress_bar()
+        # The click-wait happens right here, at the super() call: everything
+        # animated before it belongs to the segment that just played (no click),
+        # everything after belongs to the segment that plays once the presenter
+        # clicks. So the previous logical slide's fade must come after this call,
+        # not before, or it plays immediately instead of waiting for the click.
         super().next_slide(*args, notes=notes, **kwargs)
+        self.fade_prev_logical_slide()
 
     def play(self, *args, **kwargs) -> None:
         if COLLECTING_NOTES:
@@ -98,13 +226,10 @@ class SlideScene(InteractiveScene, Slide):
         super().wait(*args, **kwargs)
 
     def play_slides(self, slides: list, section: str | None = None) -> None:
-        """Play each logical slide, then fade out everything it introduced.
-
-        Only mobjects the slide added (and hasn't already removed) are faded, so
-        we never re-fade objects that are already gone. `restore_state` rewinds
-        `num_plays`/`time`, which would make the next slide reuse this slide's
-        partial-movie-file indices and clobber its frames, so we keep that render
-        bookkeeping monotonic by hand.
+        """Play each logical slide; its content is faded out at the next slide's
+        first `next_slide` click (or after the last slide), so each slide's final
+        frame is held for a click instead of fading the instant it finishes. The
+        fade and baseline rewind live in `fade_prev_logical_slide`.
         """
         if COLLECTING_NOTES:
             note_sections.append({"name": section or "Section", "notes": []})
@@ -117,22 +242,22 @@ class SlideScene(InteractiveScene, Slide):
                     print(f"  [collect_notes] skipped {slide.__name__}: {e!r}")
             return
 
+        # One baseline for every logical slide: the fade at each boundary rewinds to
+        # it. The frame is saved once (ManimGL's frame.save_state is a single slot,
+        # not a stack) since every slide starts from the same orientation.
         starting_mobjects = self.get_mobjects()
+        self._logical_baseline = self.get_state()
+        self.frame.save_state()
+        self._pending_fade = None
         for slide in slides:
-            state = self.get_state()
-            self.frame.save_state()
             slide(self)
-
-            new_mobjects = [
+            # Stash this slide's additions; the next slide's first next_slide fades
+            # them (see fade_prev_logical_slide). Set only after the body returns so
+            # the slide's own internal next_slide pauses never fade mid-slide.
+            self._pending_fade = [
                 m for m in self.get_mobjects() if m not in starting_mobjects
             ]
-            if new_mobjects:
-                self.play(*(FadeOut(m, shift=0.1 * DOWN) for m in new_mobjects))
 
-            num_plays, time = self.num_plays, self.time
-            self.restore_state(state)
-            self.frame.restore()
-            self.num_plays, self.time = num_plays, time
 
     def show(self, *mobjects, run_time: float = 0.4, notes: str = "") -> None:
         """A single static slide: clear whatever is on screen and pop the new

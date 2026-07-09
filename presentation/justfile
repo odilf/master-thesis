@@ -1,0 +1,20 @@
+scene := "Defense"
+
+# Regenerate presenter notes and the slide-data file the render relies on.
+notes:
+    uv run python scripts/collect_notes.py
+
+# Refresh the slide data (via `notes`), then render the slides.
+render scene=scene: notes
+    uv run manim-slides render --GL --fps 60 --uhd main.py {{scene}}
+
+render-quick scene=scene: notes
+    uv run manim-slides render --GL --fps 30 --medium_quality main.py {{scene}}
+
+# Play the already-rendered slides.
+present scene=scene:
+    uv run manim-slides present -S 0 --show-info-window --info-window-screen 1 {{scene}}
+
+# Present but on the other screens, just in case.
+present-other scene=scene:
+    uv run manim-slides present {{scene}}

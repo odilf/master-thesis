@@ -5,12 +5,20 @@ We run the real `Defense.construct` with note-collection mode enabled (see
 `scenes.base`): `SlideScene` records notes instead of rendering, `play` and
 `wait` become no-ops and no window opens, so this is fast and headless.
 
+Besides the Markdown, we also dump `slides-data.json`: an ordered list of every
+slide and its notes plus the total count. The render reads it (see
+`scenes.base.load_slide_data`) to size the progress bar and to let each slide
+"peek" at the notes of the slide that follows it. Because we record every slide
+here -- including the silent click-throughs with empty notes -- the indices in
+this file line up with the slide counter the real render keeps.
+
 Usage (from tfm/presentation/):
 
-    uv run python scripts/collect_notes.py            # writes defense-notes.md
-    uv run python scripts/collect_notes.py out.md     # custom output path
+    uv run python scripts/collect_notes.py            # writes defense-notes.md + slides-data.json
+    uv run python scripts/collect_notes.py out.md     # custom Markdown output path
 """
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -95,6 +103,23 @@ def build_markdown() -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+def build_slide_data() -> dict:
+    """The flat, ordered slide list the render consumes: one entry per next_slide
+    call, in call order, so `slides[i]` is the i-th slide of the deck."""
+    slides = []
+    for section in note_sections:
+        for note in section["notes"]:
+            slides.append(
+                {
+                    "section": section["name"],
+                    "text": note["text"],
+                    "file": note["file"],
+                    "line": note["line"],
+                }
+            )
+    return {"slide_count": len(slides), "slides": slides}
+
+
 def main() -> None:
     scene = Defense(window=None, skip_animations=True)
     scene.setup()
@@ -102,7 +127,14 @@ def main() -> None:
 
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "defense-notes.md"
     out.write_text(build_markdown())
-    print(f"Wrote {out} ({len(note_sections)} sections).")
+
+    data = build_slide_data()
+    (ROOT / "slides" / "slides-data.json").write_text(json.dumps(data, indent=2) + "\n")
+
+    print(
+        f"Wrote {out} ({len(note_sections)} sections) "
+        f"and slides-data.json ({data['slide_count']} slides)."
+    )
 
 
 if __name__ == "__main__":

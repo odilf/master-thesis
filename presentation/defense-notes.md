@@ -9,7 +9,7 @@
 
 ## Lagrangians & geometry
 
-[1] Many physical systems, eveything from pendulums, to robotic arms, to electrons to black holes, can be modeled with <[2]> a configuration space (a smooth manifold that represents the possible states of the system), and <[3]> a Lagrangian, that encodes how the states evolve.
+[1] Many physical systems, everything from pendulums, to robotic arms, to electrons to black holes, can be modeled with <[2]> a configuration space (a smooth manifold that represents the possible states of the system), and <[3]> a Lagrangian, that encodes how the states evolve.
 
 [4] Where the Lagrangian is a function from TQ (the tangent bundle, the phase space), to a real number.
 
