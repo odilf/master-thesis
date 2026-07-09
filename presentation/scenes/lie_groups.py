@@ -34,7 +34,49 @@ def stroke_arrow(pts, color, up, tail_length=0.15, tail_width=0.09) -> VGroup:
         .set_fill(color, opacity=1)
         .set_stroke(width=0)
     )
-    return VGroup(stroke, tip)
+    arrow = VGroup(stroke, tip)
+    # Stashed so CreateStrokeArrow can rebuild the tip mid-creation.
+    arrow.stroke_arrow_data = dict(pts=pts, up=up, tail_length=tl, tail_width=tw)
+    return arrow
+
+
+class CreateStrokeArrow(Animation):
+    """ShowCreation for a `stroke_arrow`. Plain ShowCreation draws the tip
+    (a 3-vertex triangle) practically instantly next to the slow-drawing
+    stroke, so it just pops in. Here the tip instead fades in and slides
+    along to sit at the growing end of the stroke, settling into place only
+    once the stroke finishes."""
+
+    def __init__(self, arrow: VGroup, fade_frac: float = 0.35, **kwargs):
+        self.stroke, self.tip = arrow
+        data = arrow.stroke_arrow_data
+        self.up = data["up"]
+        self.tail_length = data["tail_length"]
+        self.tail_width = data["tail_width"]
+        self.fade_frac = fade_frac
+        # Hidden reference curve over *all* points (including the tip's
+        # apex), queried for position/tangent only -- never added to the
+        # scene -- so the tracked point lands exactly on pts[-1] at alpha=1.
+        self.path = VMobject().set_points_smoothly(data["pts"])
+        super().__init__(arrow, **kwargs)
+
+    def interpolate_mobject(self, alpha: float) -> None:
+        alpha = self.rate_func(self.time_spanned_alpha(alpha))
+        self.stroke.pointwise_become_partial(self.starting_mobject[0], 0, alpha)
+
+        if alpha < 1e-6:
+            self.tip.set_opacity(0)
+            return
+
+        back = self.path.quick_point_from_proportion(max(alpha - 1e-3, 0))
+        pos = self.path.quick_point_from_proportion(alpha)
+        tan = normalize(pos - back)
+        wid = normalize(np.cross(self.up, tan))
+        tl, tw = self.tail_length, self.tail_width
+        self.tip.set_points_as_corners(
+            [pos, pos - tan * tl + wid * tw, pos - tan * tl - wid * tw, pos]
+        )
+        self.tip.set_opacity(min(alpha / self.fade_frac, 1.0))
 
 
 def make_brick(dims=(2.0, 1.2, 0.5)) -> Prism:
@@ -234,7 +276,9 @@ class LieGroups(SlideScene):
 
         _xi_end = base + RIGHT * 1.2 + UP * 0.5
         xi_vec = stroke_arrow(
-            np.linspace(base, _xi_end, 10), COLOR_LIE_GROUPS, up=normal_base
+            np.linspace(base, _xi_end, 10),
+            COLOR_LIE_GROUPS,
+            up=normal_base,
         )
         xi_lbl = Tex(r"\xi \in \mathfrak{g}", font_size=32, color=COLOR_LIE_GROUPS)
         xi_lbl.next_to(xi_vec[0].get_end(), UP + RIGHT, buff=0.1).fix_in_frame()
@@ -275,15 +319,23 @@ class LieGroups(SlideScene):
             FadeIn(gk_dot),
             FadeIn(schematic_note),
         )
-        self.play(ShowCreation(xi_vec))
+        # self.play(CreateStrokeArrow(xi_vec))
         # % zoom in on the tangent plane
         self.next_slide(
             notes="Now, zooming in, the retraction associates an algebra element (that is, a tangent vector at the identity), [...]"
         )
         self.play(
-            self.frame.animate(run_time=3).reorient(
-                52, 47, 0, (np.float32(0.69), np.float32(0.31), np.float32(1.12)), 2.20
-            ),
+            LaggedStart(
+                self.frame.animate(run_time=3).reorient(
+                    52,
+                    47,
+                    0,
+                    (np.float32(0.69), np.float32(0.31), np.float32(1.12)),
+                    2.20,
+                ),
+                CreateStrokeArrow(xi_vec),
+                lag_ratio=0.2
+            )
         )
         # % retract xi back down onto the sphere
         self.next_slide(
@@ -432,8 +484,7 @@ class LieGroups(SlideScene):
         self.next_slide(
             notes="[...] compute corrections and directions in the algebra. If I want to 'apply' them at I point, I can push them forward [...]"
         )
-        # TODO: The tip gets created too quickly. I'd love to modify ShowCreation to fade in the tip and make it follow the path. Maybe I should make a new animation for that tho...
-        self.play(ShowCreation(xi_e, lag_ratio=0.3), FadeIn(xi_in_e_lbl))
+        self.play(CreateStrokeArrow(xi_e), FadeIn(xi_in_e_lbl))
 
         # % pushforward: the algebra vector is carried onto the tangent space at g.
         self.next_slide(
@@ -841,7 +892,7 @@ class LieGroups(SlideScene):
         # then extend that local look outward under the linear model.
         self.play(sphere_d.animate.set_color(GREY_B), FadeIn(disk))
         self.play(Transform(disk, disk_big), run_time=2.0)
-        self.play(ShowCreation(dxi_geo), FadeIn(dxi_geo_lbl))
+        self.play(CreateStrokeArrow(dxi_geo), FadeIn(dxi_geo_lbl))
 
         # % step 4, pullbacks
         # TODO: show the sphere rotating g to the identity to show that computations are done there.
