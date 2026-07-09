@@ -22,4 +22,5 @@ l = "@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste()'<ret>"
 k = "@<space>y:pipe-to ./manim-send.sh 'checkpoint_paste(skip=True)'<ret>"
 
 
-
+[editor.soft-wrap]
+enable = true

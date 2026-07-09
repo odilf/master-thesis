@@ -123,7 +123,7 @@ class Defense(SlideScene):
 
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
-        self.play_slides(Lagrangians.slides)
+        self.play_slides(Lagrangians.slides, section="Lagrangians & geometry")
 
         # % Parallel algorithm
         self.next_slide(
@@ -140,7 +140,7 @@ class Defense(SlideScene):
 
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
-        self.play_slides(Parallel.slides)
+        self.play_slides(Parallel.slides, section="Parallel algorithm")
 
         # % Forced systems
         self.next_slide(notes="Let's take a look at forced systems.")
@@ -155,7 +155,7 @@ class Defense(SlideScene):
 
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
-        self.play_slides(Forced.slides)
+        self.play_slides(Forced.slides, section="Forced systems")
 
         # % Lie groups
         self.next_slide(
@@ -172,10 +172,10 @@ class Defense(SlideScene):
 
         self.next_slide()
         self.play(FadeOut(outline_slide, shift=LEFT_SIDE))
-        self.play_slides(LieGroups.slides)
+        self.play_slides(LieGroups.slides, section="Lie groups")
 
         # % future work
-        self.play_slides(FutureWork.slides)
+        self.play_slides(FutureWork.slides, section="Future work")
 
         # % ending: thanks and questions
         self.next_slide()

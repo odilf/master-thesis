@@ -552,7 +552,7 @@ class Parallel(SlideScene):
 
         # % label the diagonal and off-diagonal blocks with actual second derivatives
         self.next_slide(
-            notes="[..] to each second derivative of the Lagrangian at a node. The diagonal blocks are literally the Newton-correction terms, [...]"
+            notes="[...] to each second derivative of the Lagrangian at a node. The diagonal blocks are literally the Newton-correction terms, [...]"
         )
 
         diag_label = Tex(

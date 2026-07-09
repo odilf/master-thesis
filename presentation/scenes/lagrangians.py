@@ -17,9 +17,7 @@ class Lagrangians(SlideScene):
         and symplecticity as the area-preserving flow of blobs of states."""
         # % examples grid
         self.next_slide(
-            notes="""
-            -Many physical systems, eveything from pendulums, to robotic arms, to electrons to black holes, can be modeled with [a configuration space]
-            """
+            notes="Many physical systems, eveything from pendulums, to robotic arms, to electrons to black holes, can be modeled with [...]"
         )
         theta = ValueTracker(PI / 4)
         _rod_len = 1.0
@@ -216,17 +214,17 @@ class Lagrangians(SlideScene):
 
         # % state spaces
         self.next_slide(
-            notes="a configuration space (a smooth manifold that represents the possible states of the system), and [a Lagrangian]"
+            notes="[...] a configuration space (a smooth manifold that represents the possible states of the system), and [...]"
         )
         self.play(LaggedStartMap(Write, VGroup(state_spaces)))
 
         # % Lagrangians
-        self.next_slide(notes="[and] a Lagrangian, that encodes how the states evolve.")
+        self.next_slide(notes="[...] a Lagrangian, that encodes how the states evolve.")
         self.play(LaggedStartMap(Write, VGroup(lagrangians), lag_ratio=0.2))
 
         # % Lagrangian as a map TQ -> R
         self.next_slide(
-            notes="where the Lagrangian is a function from TQ (the tangent bundle, the phase space), to a real number."
+            notes="Where the Lagrangian is a function from TQ (the tangent bundle, the phase space), to a real number."
         )
         L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=68).shift(2 * DOWN)
         self.play(Write(L_def))
@@ -265,12 +263,12 @@ class Lagrangians(SlideScene):
         )
 
         # % state-space circle
-        self.next_slide(notes="The configuration space is $S^1$, the circle")
+        self.next_slide(notes="The configuration space is $S^1$, the circle, [...]")
         self.play(ShowCreation(state_space))
         self.play(FadeIn(state_space_dot))
 
         # % play with angle
-        self.next_slide(notes="where the position along the circle indicates the angle")
+        self.next_slide(notes="[...] where the position along the circle indicates the angle")
         self.play(
             theta.animate.set_value(PI / 3),
             rate_func=lambda t: wiggle(t, 4),
@@ -315,7 +313,7 @@ class Lagrangians(SlideScene):
         )
 
         # % phase space reveal
-        self.next_slide(notes="That is, the dynamics are determined on the phase space")
+        self.next_slide(notes="That is, the dynamics are determined on the phase space [...]")
         angle_arc.suspend_updating()
         self.frame.save_state()
         pendulum_gizmo = Group(
@@ -332,7 +330,7 @@ class Lagrangians(SlideScene):
 
         # % Cylinder: TQ = S^1xR
         self.next_slide(
-            notes="which for a pendulum can be represented as a cylinder. (the height corresponds with velocity)"
+            notes="[...] which for a pendulum can be represented as a cylinder. (the height corresponds with velocity)"
         )
         R = state_space.get_radius()
         cyl_center = state_space.get_center()
@@ -597,26 +595,12 @@ class Lagrangians(SlideScene):
 
         # % split screen
         self.next_slide(
-            notes="See, this is the continuous formulation, but we can also formulate Lagrangians mechanics"
+            notes="See, this is the continuous formulation, but we can also formulate Lagrangians mechanics [...]"
         )
         divider = Line(
             TOP + 0.4 * DOWN, BOTTOM + 2.3 * UP, color=GREY_B, stroke_width=1
         )
 
-        # diagram = VGroup(
-        #     VGroup(cont_header.move_to(LEFT_SIDE/2), disc_header.move_to(RIGHT_SIDE/2)),
-        #     VGroup(L_def.move_to(LEFT_SIDE/2), Ld_def.move_to(RIGHT_SIDE/2)),
-        #     VGroup(action_cont.move_to(LEFT_SIDE/2), action_disc.move_to(RIGHT_SIDE/2)),
-        #     VGroup(el_eq.move_to(LEFT_SIDE/2), del_eq.move_to(RIGHT_SIDE/2)),
-        # )#.move_to(TOP + 0.8*DOWN, aligned_edge=TOP)
-        # grid = VGroup(
-        #     cont_header, disc_header,
-        #     L_def, Ld_def,
-        #     action_cont, action_disc,
-        #     el_eq, del_eq,
-        # ).arrange_in_grid(n_cols=2).move_to(TOP + 0.5*DOWN, aligned_edge=TOP)
-        # self.add(grid)
-        #
         BUFF = 0.3
         headers = VGroup(
             cont_header.move_to(LEFT_SIDE / 2), disc_header.move_to(RIGHT_SIDE / 2)

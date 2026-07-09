@@ -403,13 +403,13 @@ class Forced(SlideScene):
 
         # % condition 1bis
         self.next_slide(
-            note="There's a global analog that seems to hold, but I couldn't quite figure out how to tackle it. This is pretty high priority as future work."
+            notes="There's a global analog that seems to hold, but I couldn't quite figure out how to tackle it. This is pretty high priority as future work."
         )
         self.play(Write(cond1_open), run_time=1)
 
         # % condition 2
         self.next_slide(
-            note="A more interesting condition is this bound on the size of forces you can add to a convergent system and keep it convergent. First we show it exists, and then we give the bound; but it is also kind of a conservative bound. Realistically, if you want to verify numerically convergence of a particular system in front of you, [...]"
+            notes="A more interesting condition is this bound on the size of forces you can add to a convergent system and keep it convergent. First we show it exists, and then we give the bound; but it is also kind of a conservative bound. Realistically, if you want to verify numerically convergence of a particular system in front of you, [...]"
         )
         self.play(FadeIn(cond2, shift=0.4 * RIGHT))
 
