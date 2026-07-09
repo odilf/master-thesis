@@ -59,9 +59,7 @@ def main() -> None:
 
     # so(3) log-chart: map every rotation of every snapshot path to its
     # axis-angle vector in R^3. Shape (frames, N+1, 3).
-    logs = np.asarray(
-        jax.vmap(jax.vmap(log))(paths), dtype=np.float32
-    )
+    logs = np.asarray(jax.vmap(jax.vmap(log))(paths), dtype=np.float32)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     np.savez(

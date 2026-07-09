@@ -126,7 +126,9 @@ class Defense(SlideScene):
         self.play_slides(Lagrangians.slides)
 
         # % Parallel algorithm
-        self.next_slide(notes="But how do we actually compute these solutions. Let's briefly talk about the parallel algorithm to do so, which is what my work is based on.")
+        self.next_slide(
+            notes="But how do we actually compute these solutions. Let's briefly talk about the parallel algorithm to do so, which is what my work is based on."
+        )
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
             lines[0].animate.set_opacity(0.3).scale(1 / 1.1),
@@ -156,7 +158,9 @@ class Defense(SlideScene):
         self.play_slides(Forced.slides)
 
         # % Lie groups
-        self.next_slide()
+        self.next_slide(
+            notes="Finally, let's talk about Lie groups, which is my favorite part."
+        )
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
             lines[0].animate.set_opacity(0.3),

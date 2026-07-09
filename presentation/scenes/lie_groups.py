@@ -1,4 +1,3 @@
-import math
 from pathlib import Path
 
 import numpy as np
@@ -65,12 +64,17 @@ def _cayley(v):
 
 
 class LieGroups(SlideScene):
+    def construct(self):
+        pass
+
     def rotations_dont_commute(self):
         """Rotations do not commute, so Q = SO(3) has no vector-space '+': two
         bricks take the same two 90-degree turns in opposite orders and end in
         different orientations."""
         # % title: bridge from "Q is not a vector space"
-        self.next_slide()
+        self.next_slide(
+            notes="See, Lie groups are smooth manifolds where we only assume a group strucutre. The classic example is $SO(3)$, the group of 3D rotations."
+        )
         self.frame.save_state()
         subtitle = TexText(
             r"Configuration spaces $G$ with only group structure. \\Archetypical examples: $\textrm{SO}(3)$, $\textrm{SE}(3)$",
@@ -80,13 +84,21 @@ class LieGroups(SlideScene):
         self.play(FadeIn(subtitle, shift=0.2 * UP))
 
         # % non-commutativity: rotations have no vector-space "+"
-        self.next_slide()
+        self.next_slide(
+            notes="To drive home the point, rotations don't commute. So if we turn [...]"
+        )
         heading_rotation_dont_commute = (
             Text("Rotations do not commute", font_size=44)
             .to_edge(UP, buff=0.6)
             .fix_in_frame()
         )
-        self.play(FadeOut(subtitle), Write(heading_rotation_dont_commute))
+        self.play(
+            LaggedStart(
+                FadeOut(subtitle, run_time=0.8),
+                Write(heading_rotation_dont_commute, run_time=1),
+                lag_ratio=0.5,
+            )
+        )
 
         # Two identical bricks; each undergoes the two 90-degree rotations in the
         # opposite order, ending in visibly different orientations.
@@ -107,7 +119,9 @@ class LieGroups(SlideScene):
         self.play(Write(lbl_a), Write(lbl_b))
 
         # % apply the two rotations in each order
-        self.next_slide()
+        self.next_slide(
+            notes="[...] this a-way and that-away instead of the opposite, we get different results."
+        )
         # Left brick: first about x, then about z. Right brick: reverse order.
         self.play(
             Rotate(brick_a, PI / 2, axis=RIGHT, about_point=brick_a.get_center()),
@@ -121,7 +135,7 @@ class LieGroups(SlideScene):
         )
 
         # % the two orders disagree
-        self.next_slide()
+        self.next_slide(notes="This alone discards vector space structure.")
         neq = Tex(
             r"R_z R_x \neq R_x R_z",
             font_size=48,
@@ -138,8 +152,7 @@ class LieGroups(SlideScene):
         no_plus.fix_in_frame()
         self.play(FadeIn(no_plus))
 
-        # Camera home; play_slides fades the bricks and labels.
-        self.frame.restore()
+        # % end
 
     def correction_in_the_algebra(self):
         """The Newton correction lives in the Lie algebra: g <- g . tau(xi). A
@@ -147,7 +160,9 @@ class LieGroups(SlideScene):
         retraction; left translation carries vectors forward and pulls covectors
         back, so a function on T_g G becomes one on the algebra."""
         # % the Newton correction lives in the Lie algebra
-        self.next_slide()
+        self.next_slide(
+            notes="This means we need to change the Newton-Raphson step. We are no longer able to just 'add' tangent vectors. Instead, we compute the correction in the algebra and apply it via a retraction."
+        )
         heading_newton_correction = (
             Text("The Newton correction lives in the Lie algebra", font_size=40)
             .to_edge(UP, buff=0.6)
@@ -155,7 +170,7 @@ class LieGroups(SlideScene):
         )
         self.play(Write(heading_newton_correction, lag_ratio=0.03), run_time=1)
 
-        # Left: the flat vector-space update (greyed, echoing earlier sections).
+        # Left: the vector-space update.
         flat_eq = Tex(
             r"q \leftarrow q - H^{-1} r",
             font_size=40,
@@ -182,7 +197,9 @@ class LieGroups(SlideScene):
         # % sphere schematic
         # A schematic sphere standing in for the curved group, with a tangent
         # plane (the Lie algebra), a correction vector, and the retraction.
-        self.next_slide()
+        self.next_slide(
+            notes="Let's see what this means. The algebra is the tangent space of a Lie group at the identity (the sphere is not technically a Lie group, but it serves as a stand in for curved surfaces and a translation action)"
+        )
         sphere = (
             Sphere(radius=1.6, resolution=(51, 26)).set_color(GREY_A).set_opacity(1)
         )
@@ -253,19 +270,25 @@ class LieGroups(SlideScene):
             ShowCreation(mesh),
             run_time=1.5,
         )
-        self.play(FadeIn(plane), FadeIn(gk_dot))
+        self.play(
+            FadeIn(plane),
+            FadeIn(gk_dot),
+            FadeIn(schematic_note),
+        )
         self.play(ShowCreation(xi_vec))
         # % zoom in on the tangent plane
-        self.next_slide()
+        self.next_slide(
+            notes="Now, zooming in, the retraction associates an algebra element (that is, a tangent vector at the identity), [...]"
+        )
         self.play(
-            # FadeIn(tau_lbl),
-            FadeIn(schematic_note),
             self.frame.animate(run_time=3).reorient(
                 52, 47, 0, (np.float32(0.69), np.float32(0.31), np.float32(1.12)), 2.20
             ),
         )
         # % retract xi back down onto the sphere
-        self.next_slide()
+        self.next_slide(
+            notes="[...] to a group element whose group action somehow corresponds to the 'movement' of the tangent vector."
+        )
         old_xi = xi_vec.copy().set_color(GREY).set_opacity(0.4)
         self.play(
             LaggedStart(
@@ -283,7 +306,9 @@ class LieGroups(SlideScene):
 
         # % retraction choice
         # The retraction's defining properties and the two concrete choices.
-        self.next_slide()
+        self.next_slide(
+            notes="There is no one true retraction, we just need it to have the correct signature, to associate 0 vectors with, well, not doing anything (so, the identity); and for it to be linear around the origin. The general example is the exponential map, but for matrix Lie groups (such as SO(3) and SE(3)), we often use the Cayley map."
+        )
         tau_props = Tex(
             r"\tau : \mathfrak{g} \to G, \quad \tau(0) = e, \quad T_0\tau = \mathrm{Id}",
             font_size=42,
@@ -315,10 +340,7 @@ class LieGroups(SlideScene):
 
         # % vectors and pushforward
         self.next_slide(
-            notes="""
-                - An algebra is called an algebra because the group structure gives you the Lie bracket. But that's *not* the point!
-                - The point of Lie groups is that we can relate vectors in the identity and at a point caninically.
-            """
+            notes="The most important aspect of Lie group for our purposes is that the group structure gives us a way to talk about any tangent space using the algebra. This idea is called trivialization. Namely, I often [...]"
         )
         self.play(
             FadeOut(
@@ -337,7 +359,6 @@ class LieGroups(SlideScene):
             ),
             run_time=1.0,
         )
-        self.frame.animate.restore()
 
         heading_pullbacks = (
             Text("Left translation links the algebra and a point", font_size=34)
@@ -406,9 +427,18 @@ class LieGroups(SlideScene):
                 lag_ratio=0.05,
             )
         )
-        self.play(ShowCreation(xi_e), FadeIn(xi_in_e_lbl))
+
+        # % vector in the algebra
+        self.next_slide(
+            notes="[...] compute corrections and directions in the algebra. If I want to 'apply' them at I point, I can push them forward [...]"
+        )
+        # TODO: The tip gets created too quickly. I'd love to modify ShowCreation to fade in the tip and make it follow the path. Maybe I should make a new animation for that tho...
+        self.play(ShowCreation(xi_e, lag_ratio=0.3), FadeIn(xi_in_e_lbl))
 
         # % pushforward: the algebra vector is carried onto the tangent space at g.
+        self.next_slide(
+            notes="[...] with the differential of the left translation operator. This does exactly what you think it should do."
+        )
         xi_g = stroke_arrow(
             np.linspace(g_base, g_base + Mg @ v_local, 8), COLOR_LIE_GROUPS, up=n_g
         )
@@ -425,17 +455,13 @@ class LieGroups(SlideScene):
             Tex(r"T_e L_g \xi", font_size=30, color=COLOR_LIE_GROUPS)
         ).add_updater(lambda m: m.next_to(xi_g[0].get_end(), UP + RIGHT, buff=0.05))
 
-        # % push the algebra vector forward to T_g G
-        self.next_slide(
-            notes="""
-    
-        """
-        )
         self.play(TransformFromCopy(xi_e, xi_g), FadeIn(push_cap))
         self.play(FadeIn(xi_g_lbl))
 
         # % covectors and pullbacks
-
+        self.next_slide(
+            notes="Conversely (or contravariantly) if I have a _covector_ at a point $g$ (which we can think of as a linear form on $g$) "
+        )
         scheme = Group(
             push_cap,
             xi_e,
@@ -450,10 +476,9 @@ class LieGroups(SlideScene):
             e_lbl,
             g_lbl,
         )
-        # % fade the scheme to introduce covectors
-        self.next_slide()
+
         self.play(
-            scheme.animate.set_opacity(0.04),
+            *(m.animate.set_opacity(0.04) for m in scheme),
             mesh.animate.set_stroke(opacity=0.01),
             self.frame.animate.reorient(0, 0, 0, center, 6.5),
             run_time=2,
@@ -511,13 +536,13 @@ class LieGroups(SlideScene):
         )
 
         # % type mismatch: an algebra vector does not fit Bob's input
-        self.next_slide()
+        self.next_slide(notes="[...] I can apply it to a vector in the identity [...]")
         token = Tex(r"\xi \in \mathfrak{g}", font_size=48, color=COLOR_LIE_GROUPS)
         token.next_to(bob, LEFT, buff=2.6)
         self.play(FadeIn(token, shift=RIGHT * 0.1))
 
         # % adapter: slot the pushforward in front so g flows through to T_g G
-        self.next_slide()
+        self.next_slide(notes="[...] if I just push it forward beforehand.")
         push_mach = get_blackbox_machine(
             label_tex=r"T_eL_g",
             label_height_ratio=0.3,
@@ -540,7 +565,9 @@ class LieGroups(SlideScene):
         )
 
         # % pullback: the two machines are one machine on the algebra
-        self.next_slide()
+        self.next_slide(
+            notes="The aggregate 'machine' is now a covector at the identity. A coalgebra element."
+        )
         combo = SurroundingRectangle(
             VGroup(push_mach, push_lbl, bob), color=GOLD_D, buff=0.35
         )
@@ -555,7 +582,20 @@ class LieGroups(SlideScene):
             FadeIn(combo_lbl, shift=0.2 * DOWN),
         )
 
-        machine_diagram = Group(bob, push_mach, token, wire, combo, combo_lbl, push_lbl)
+        # % pullback name reveal
+        self.next_slide(
+            notes="We pushforward tangent vectors, and pullback cotangent vectors."
+        )
+        pull_cap = (
+            TexText(
+                r"cotangent vectors \emph{pull back}: $T_g^* G \to \mathfrak{g}^*$",
+                font_size=30,
+                color=COLOR_LIE_GROUPS,
+            ).to_edge(DOWN, buff=0.4)
+        ).fix_in_frame()
+        self.play(FadeIn(pull_cap))
+
+        # % end
 
     def newton_in_the_algebra(self):
         """Newton for the residual, computed in the Lie algebra. The group G is a
@@ -567,7 +607,9 @@ class LieGroups(SlideScene):
         # sphere colored by the residual magnitude |r_k|; we look for where it is zero,
         # and to compute the correction we flatten a neighbourhood into the Lie algebra,
         # solve the linear system there, and retract the answer back onto G.
-        self.next_slide()
+        self.next_slide(
+            notes="So let's see how the Newton correction is computed in the algebra. I've colored here the residual."
+        )
         heading_deriv = (
             Text("Newton for the residual, computed in the Lie algebra", font_size=32)
             .to_edge(UP, buff=0.5)
@@ -616,9 +658,9 @@ class LieGroups(SlideScene):
         gk_pt = center_r + n_gk * radius
         star_pt = center_r + n_star * radius
         gk_dot_d = Sphere(radius=0.05).set_color(WHITE).move_to(gk_pt)
-        gk_lbl_d = self.make_billboard(Tex("g_k", font_size=46, color=WHITE)).add_updater(
-            lambda m: m.next_to(gk_dot_d, UP, buff=0.06)
-        )
+        gk_lbl_d = self.make_billboard(
+            Tex("g_k", font_size=46, color=WHITE)
+        ).add_updater(lambda m: m.next_to(gk_dot_d, UP, buff=0.06))
         star_dot = Sphere(radius=0.05).set_color(GREEN_B).move_to(star_pt)
 
         # Tangent frame at g_k, and the residual as a covector living there.
@@ -663,6 +705,8 @@ class LieGroups(SlideScene):
             ShowCreation(mesh_d),
             FadeIn(gk_dot_d),
             FadeIn(gk_lbl_d),
+            ShowCreation(cov),
+            FadeIn(cov_lbl),
             run_time=1.2,
         )
 
@@ -670,21 +714,17 @@ class LieGroups(SlideScene):
         LX = (LEFT_SIDE / 2)[0]
 
         # % step 1: the residual measures how far g_k is from solving the DEL equation.
+        self.next_slide(notes="This is what we want to solve.")
         eq1 = Tex(
             r"\text{solve}\quad r_k(\mathbf{g}, g_k) = 0",
             font_size=34,
             t2c={"r_k": RED},
         )
         eq1.move_to(np.array([LX, 1.2, 0])).fix_in_frame()
-        cap1 = TexText(
-            r"residual $r_k$: how much the DEL equation is violated",
-            font_size=24,
-            color=GREY_B,
-        )
-        cap1.next_to(eq1, DOWN, buff=0.3).fix_in_frame()
+        self.play(Write(eq1), run_time=1)
 
-        self.play(Write(eq1), ShowCreation(cov), FadeIn(cov_lbl))
-        self.play(FadeIn(cap1))
+        self.play(Write(eq1), CreateStrokeArrow(cov), FadeIn(cov_lbl))
+
         # % mark the nearby solution where the residual vanishes
         self.next_slide()
         # There is a nearby point where the residual vanishes: the solution.
@@ -693,8 +733,10 @@ class LieGroups(SlideScene):
         ).add_updater(lambda m: m.next_to(star_dot, UP, buff=0.06))
         self.play(FadeIn(star_dot), FadeIn(star_lbl))
 
-        # % step 2: Newton -- assume the residual varies linearly and aim for its zero.
-        self.next_slide()
+        # % step 2: assume the residual varies linearly and aim for its zero.
+        self.next_slide(
+            notes="And we are going to assume that the residual changes linearly."
+        )
         eq2 = Tex(
             r"r_k(g_k \tau(\delta\xi)) \approx r_k + \widetilde{\mathcal{D}}_k \delta\xi = 0",
             font_size=40,
@@ -708,12 +750,14 @@ class LieGroups(SlideScene):
         )
         cap2.next_to(eq2, DOWN, buff=0.3).fix_in_frame()
 
-        self.play(TransformMatchingTex(eq1, eq2), FadeOut(cap1))
+        self.play(TransformMatchingTex(eq1, eq2))
         self.play(FadeIn(cap2), Indicate(star_dot, color=GREEN_B, scale_factor=1.6))
 
         # % step 3: linearize = extend the local look of the residual outward, then
         # read the correction off the surface.
-        self.next_slide()
+        self.next_slide(
+            notes="This is the expression we get for this solve, and the resulting update. Notice that this linearization is not the same as the linearization of a tangent space we saw earlier. The way to think about linearizing the residual is [...]"
+        )
         eq3 = Tex(
             r"\widetilde{\mathcal{D}}_k \delta\xi = -\widetilde r_k \qquad \text{in } \mathfrak{g}",
             font_size=36,
@@ -734,7 +778,16 @@ class LieGroups(SlideScene):
         )
         cap3.next_to(eq3D, DOWN, buff=0.6).fix_in_frame()
 
-        # Linear (Newton) model of the residual around g_k, in tangent coords (a, b).
+        self.play(
+            FadeOut(VGroup(cap2, gk_lbl_d, cov_lbl, cov)),
+            TransformMatchingTex(eq2, eq3),
+        )
+        self.play(Write(eq3D), Write(cap3))
+
+        # % linearity visualization
+        self.next_slide(
+            notes="[...] taking a small neighborhood around us, and extrapolating it to the rest of the manifold."
+        )
         r0 = residual_val(n_gk)
         eps = 1e-3
 
@@ -784,229 +837,52 @@ class LieGroups(SlideScene):
             Tex(r"\delta\xi", font_size=46, color=COLOR_LIE_GROUPS)
         ).add_updater(lambda m: m.next_to(dxi_geo, DOWN, buff=0.05))
 
-        self.play(
-            FadeOut(VGroup(cap2, gk_lbl_d, cov_lbl, cov)),
-            TransformMatchingTex(eq2, eq3),
-        )
-        self.play(Write(eq3D), Write(cap3))
         # Strip the sphere's color down to a small cap around g_k (the local residual),
         # then extend that local look outward under the linear model.
         self.play(sphere_d.animate.set_color(GREY_B), FadeIn(disk))
         self.play(Transform(disk, disk_big), run_time=2.0)
         self.play(ShowCreation(dxi_geo), FadeIn(dxi_geo_lbl))
 
-        # % step 4a: the dropped curvature term is proportional to r_k.
-        # The true Lie-algebra Hessian diagonal is D_k (the pulled-back Hessian of
-        # L_d, what the Newton step uses) plus a retraction-curvature term r_k * D^2 tau.
-        # That extra term is *weighted by the residual*, so it vanishes at the solution.
-        # We show it as the gap between two corrections -- one that drops the term
-        # (Newton) and one that keeps it (exact) -- and slide g_k in until the gap closes.
-        self.next_slide()
+        # % step 4, pullbacks
+        # TODO: show the sphere rotating g to the identity to show that computations are done there.
 
-        # Bring the residual field back (step 3 greyed it) so the warm->cool change
-        # under the sliding g_k reads; drop the linear cap and the single correction.
-        self.play(
-            FadeOut(disk),
-            FadeOut(dxi_geo),
-            FadeOut(dxi_geo_lbl),
-        )
-        self.play(
-            sphere_d.animate.color_by_uv_function(
-                lambda u, v: residual_color(residual_val(_sph_dir(u, v)))
-            ),
-        )
-
-        L = 0.55  # arc length of each correction arrow (radians)
-        THETA_MAX = 0.6  # max angular splay between the two corrections (radians)
-        r0_gk = residual_val(n_gk)  # residual at the starting iterate (for normalizing)
-        s_tracker = ValueTracker(0.0)  # 0 = start, 1 = at the solution n_star
-
-        def gk_dir(s):
-            # unit direction of g_k, slerped from n_gk toward the solution n_star
-            ang = np.arccos(np.clip(np.dot(n_gk, n_star), -1.0, 1.0))
-            if ang < 1e-6:
-                return n_gk
-            return (np.sin((1 - s) * ang) * n_gk + np.sin(s * ang) * n_star) / np.sin(
-                ang
-            )
-
-        def tangent_toward(s):
-            # in-plane unit tangent of the travel great circle at g_k, pointing along
-            # the direction of motion (stays defined at s=1, unlike n_star - n).
-            n = gk_dir(s)
-            d = gk_dir(s + 1e-3) - n
-            return normalize(d - np.dot(d, n) * n)
-
-        def theta_gap(s):
-            # splay proportional to the residual: full when warm, 0 at the solution.
-            return THETA_MAX * residual_val(gk_dir(s)) / r0_gk
-
-        def _arrow_to(dir_end, color, lift=1.0):
-            # `lift` pushes the arrow radially off the sphere; the two corrections
-            # get different lifts so they sit at distinct depths and don't z-fight
-            # each other (or the sphere) when the splay closes near the solution.
-            n = gk_dir(s_tracker.get_value())
-            n_end = normalize(np.cos(L) * n + np.sin(L) * dir_end)
-            pts = center_r + lift * (slerp_pts(n, n_end) - center_r)
-            return stroke_arrow(pts, color, up=n_end, tail_width=0.09)
-
-        def build_true():
-            # exact correction (keeps the curvature term): aims along the geodesic.
-            return _arrow_to(
-                tangent_toward(s_tracker.get_value()), COLOR_LIE_GROUPS, lift=1.02
-            )
-
-        def build_newton():
-            # Newton correction (drops the curvature term): splayed off by theta_gap.
-            s = s_tracker.get_value()
-            n = gk_dir(s)
-            u = tangent_toward(s)
-            th = theta_gap(s)
-            return _arrow_to(
-                np.cos(th) * u + np.sin(th) * normalize(np.cross(n, u)),
-                RED_D,
-                lift=1.01,
-            )
-
-        def build_gap():
-            # short arc bridging the two arrowheads; fades out with the residual.
-            s = s_tracker.get_value()
-            n = gk_dir(s)
-            u = tangent_toward(s)
-            th = theta_gap(s)
-            n_t = normalize(np.cos(L) * n + np.sin(L) * u)
-            u_rot = np.cos(th) * u + np.sin(th) * normalize(np.cross(n, u))
-            n_n = normalize(np.cos(L) * n + np.sin(L) * u_rot)
-            pts = slerp_pts(n_n, n_t, n_pts=12)
-            if len(pts) < 2:
-                pts = np.array([center_r + radius * n_t] * 2) + np.array(
-                    [0.0, 0.0, 1e-3]
-                )
-            arc = VMobject().set_points_smoothly(pts)
-            arc.set_stroke(
-                YELLOW, 5, opacity=float(np.clip(residual_val(n) / r0_gk, 0, 1))
-            )
-            return arc
-
-        true_arrow = build_true()
-        newton_arrow = build_newton()
-        gap = build_gap()
-
-        newton_lbl = self.make_billboard(
-            Tex(r"\text{Newton: drop } r_k\mathrm{D}^2\tau", font_size=32, color=RED_D)
-        ).add_updater(
-            lambda m: m.next_to(newton_arrow[0].get_points()[-1], LEFT, buff=0.05)
-        )
-        true_lbl = self.make_billboard(
-            Tex(r"\text{exact}", font_size=40, color=COLOR_LIE_GROUPS)
-        ).add_updater(
-            lambda m: m.next_to(true_arrow[0].get_points()[-1], RIGHT, buff=0.05)
-        )
-        gap_lbl = self.make_billboard(Tex(r"\propto r_k", font_size=44, color=YELLOW))
-
-        def _gap_lbl_upd(m):
-            m.next_to(gap, UP, buff=0.05)
-            m.set_opacity(
-                float(
-                    np.clip(residual_val(gk_dir(s_tracker.get_value())) / r0_gk, 0, 1)
-                )
-            )
-
-        gap_lbl.add_updater(_gap_lbl_upd)
-
-        curv_eq = Tex(
-            r"\partial_{\delta \xi} r_k = \widetilde{\mathcal D}_k + r_k \mathrm{D}^2\tau",
-            font_size=34,
-            t2c={"r_k": RED, r"\widetilde{\mathcal D}_k": COLOR_LIE_GROUPS},
-        )
-        curv_eq.next_to(cap3, DOWN, buff=0.8).fix_in_frame()
-        curv_cap = TexText(
-            r"dropped term $\propto r_k \Rightarrow$ vanishes at the solution",
-            font_size=24,
-            color=GREY_B,
-        )
-        curv_cap.next_to(curv_eq, DOWN, buff=0.3).fix_in_frame()
-
-        # Intro at s = 0 (warm g_k, visible gap), then attach updaters for the slide.
-        self.play(
-            ShowCreation(newton_arrow),
-            ShowCreation(true_arrow),
-        )
-        self.play(
-            FadeIn(newton_lbl),
-            FadeIn(true_lbl),
-        )
-        self.play(ShowCreation(gap), Write(curv_eq))
-        self.play(FadeIn(curv_cap))
-
-        # % step 4b
-        true_arrow.add_updater(lambda m: m.become(build_true()))
-        newton_arrow.add_updater(lambda m: m.become(build_newton()))
-        gap.add_updater(lambda m: m.become(build_gap()))
-        gk_dot_d.add_updater(
-            lambda m: m.move_to(center_r + radius * gk_dir(s_tracker.get_value()))
-        )
-
-        # % slide g_k to the solution; the gap closes
-        self.next_slide()
-        self.play(
-            s_tracker.animate.set_value(1.0),
-            self.frame.animate.reorient(
-                162,
-                61,
-                0,
-                (np.float32(3.45), np.float32(-2.47), np.float32(-0.69)),
-                4.87,
-            ),
-            run_time=5,
-            rate_func=smooth,
-        )
-        self.play(Indicate(curv_eq, color=YELLOW))
-
-        # % step 5: consequence, and the reduction to the vector-space case.
+        # % step 5 reduction to the vector-space case.
         self.next_slide()
         conclusion = VGroup(
-            TexText(
-                r"$\Rightarrow$ fixed points are DEL solutions; local convergence.",
-                font_size=28,
-                color=COLOR_LIE_GROUPS,
-            ),
             TexText(
                 r"$G = \mathbb{R}^n \Rightarrow T_eL = \mathrm{Id}$: recovers the vector-space step.",
                 font_size=24,
                 color=GREY_B,
             ),
         ).arrange(DOWN, buff=0.3, aligned_edge=LEFT)
-        conclusion.move_to(np.array([LX, -2.2, 0])).fix_in_frame()
+        conclusion.move_to(
+            LX * RIGHT + BOTTOM + 0.5 * UP, aligned_edge=BOTTOM
+        ).fix_in_frame()
         self.play(
-            FadeOut(VGroup(curv_eq, curv_cap)),
             LaggedStartMap(FadeIn, conclusion, shift=0.2 * UP, lag_ratio=0.3),
         )
 
-        # Stop the billboard and arrow updaters so the auto-cleanup fade is clean.
+        # Clear updaters so the auto-cleanup fade is clean.
         for m in (
             gk_lbl_d,
             star_lbl,
             gk_dot_d,
-            true_arrow,
-            newton_arrow,
-            gap,
-            newton_lbl,
-            true_lbl,
-            gap_lbl,
         ):
             m.clear_updaters()
+
+        # % end
 
     def vanishing_terms(self):
         """The same r_k-weighted term appears in three separate derivative
         computations and vanishes at a solution, so all three land on D_k. A
         cautionary tale: the identity tempting a shortcut holds only at xi = 0."""
-        self.frame.restore()
         # The same "main term + (something) * r_k" split shows up in three separate
         # derivative computations in the convergence proof; the r_k-weighted piece
         # vanishes at a DEL solution, so all three land on the same block D_k.
         # % the same term vanishes three times
-        self.next_slide()
+        self.next_slide(
+            notes="When adapting the convergence criteria, we often get a main term and a retraction curvature term, but the convergence analysis is based on a solution, [...]"
+        )
         heading_three = Text(
             "The same term vanishes three times", font_size=34
         ).to_edge(UP, buff=0.5)
@@ -1063,12 +939,16 @@ class LieGroups(SlideScene):
         )
 
         # % highlight the three r_k-weighted terms together
-        self.next_slide()
+        self.next_slide(
+            notes="[...] and all curvature terms depend on the residual, [...]"
+        )
         self.play(*[Indicate(c) for c in corrs])
 
         # % delete retraction curvature terms
         # at a solution the residual is zero, so every correction term drops.
-        self.next_slide()
+        self.next_slide(
+            notes="[...] which is 0 at a solution, making these terms vanish."
+        )
         r_zero = TexText(
             r"at $\mathbf{g}^*$, $r_k(\mathbf{g}^*, g_k^*) = 0$",
             font_size=32,
@@ -1076,10 +956,12 @@ class LieGroups(SlideScene):
         )
         r_zero.to_edge(DOWN, buff=0.5).fix_in_frame()
         self.play(FadeIn(r_zero, shift=0.2 * UP))
-        self.play(corrs.animate.set_opacity(0.5))
+        self.play(corrs.animate.set_opacity(0.3))
 
         # % cautionary tale
-        self.next_slide()
+        self.next_slide(
+            notes="The work here is mostly in working out everything carefully. For instance, we have this expression (the residual of the Hessan in Lie-algebra coordinates is equal to the residual), which is true. And, ..., we can [...]"
+        )
         # Carry the two "matched at the origin" statements from the previous
         # slide into a banner -- the Hessian of the lifted action (col2) and the
         # derivative of the residual (col3) -- so they fly up as the grid
@@ -1117,7 +999,9 @@ class LieGroups(SlideScene):
         self.play(Write(heading), FadeIn(known, shift=0.2 * UP))
 
         # % tempting shortcut: just differentiate the identity once more
-        self.next_slide()
+        self.next_slide(
+            notes="[...] differentiate again to relate the Hessian to to the residual? Except that this is [...]"
+        )
         naive = Tex(
             r"\partial^2_{\xi_k}\Sigma(0) = \partial_{\xi_k}\widetilde{r}_k",
             font_size=44,
@@ -1129,7 +1013,9 @@ class LieGroups(SlideScene):
         self.play(GrowArrow(arrow), FadeIn(arrow_lbl), FadeIn(naive))
 
         # % the catch: the identity holds only at the single point xi = 0
-        self.next_slide()
+        self.next_slide(
+            notes="[...] completely wrong. At least in terms of procedure. You can't just pattern-match the syntax, you have to think about what these things mean. "
+        )
         cross = Cross(naive)
         warn = TexText(
             r"but $\partial_{\xi_k}\Sigma(0)=\widetilde{r}_k$ holds \emph{only} at $\xi=0$",
@@ -1139,7 +1025,9 @@ class LieGroups(SlideScene):
         self.play(ShowCreation(cross), FadeIn(warn))
 
         # % the right route: differentiate the general (all-xi) gradient
-        self.next_slide()
+        self.next_slide(
+            notes="The correct approach is to consider the general expression of the derivative of the Lie-algebra Hessian, [...]"
+        )
         self.play(FadeOut(VGroup(known, arrow, arrow_lbl, naive, cross, warn)))
         general = Tex(
             r"\partial_{\xi_k}\Sigma(\xi) = \Phi_k(\xi_k)^{*}\,\widetilde{r}_k\big(g_k\tau(\xi_k)\big)",
@@ -1154,7 +1042,9 @@ class LieGroups(SlideScene):
         self.play(Write(general), FadeIn(general_cap))
 
         # % differentiating it legitimately exposes the hidden r_k-weighted term
-        self.next_slide()
+        self.next_slide(
+            notes="and differentiate that, which gives you different expressions!"
+        )
         corr_dk = {**corr_t2c, DK: COLOR_LIE_GROUPS}
         hess_full = Tex(
             r"\partial^2_{\xi_k}\Sigma(0) = " + DK + r" + r_k\,\mathrm{D}^2\tau",
@@ -1181,7 +1071,9 @@ class LieGroups(SlideScene):
         self.play(FadeIn(diff_cap))
 
         # % but both r_k-weighted terms vanish at a solution -> the match returns
-        self.next_slide()
+        self.next_slide(
+            notes="...that, funnilly enough, do happen to match at a solution."
+        )
         hess_dk = Tex(
             r"\partial^2_{\xi_k} \Sigma(0) = " + DK,
             font_size=36,
@@ -1207,6 +1099,8 @@ class LieGroups(SlideScene):
             FadeIn(resolve),
         )
 
+        # % end
+
     def capstone(self):
         """One loose idea, made precise. The vector-space update and the Lie
         group update are the same procedure; a vector space is uniform for free,
@@ -1219,17 +1113,7 @@ class LieGroups(SlideScene):
         # one space); a Lie group earns the same uniformity by left-translating
         # everything into the algebra. The open third column tees up future work.
         self.next_slide(
-            notes="""
-                - The personal beat: 'that makes sense' vs 'of course it's this way'.
-                - Defensible version of the claim: the algorithm is invariant (residual,
-                  linearize, solve in a flat space, retract back). Only the retraction tau
-                  and the trivialization T_eL change between cases, and both are the
-                  identity for a vector space. Not 'the group is just notation' -- it is the
-                  same procedure, with the group symmetry supplying the uniformity the
-                  vector space has for free.
-                - conclusions.tex: the algorithm depends on locality (block-tridiagonal
-                  Jacobian), not on Q being a vector space; the extensions decouple it.
-            """
+            notes="And before closing out the presentation, I wanted to comment on the work at a slightly higher level. This is the update in the Lie group. But vector spaces are groups, right? What happens if we treat the vector space as a group?"
         )
         group_update = Tex(
             r"\bar g_k = g_k \cdot \tau(\delta\xi_k)",
@@ -1239,7 +1123,9 @@ class LieGroups(SlideScene):
         self.play(FadeIn(group_update, shift=0.2 * UP))
 
         # % capstone: the retraction collapses -- the vector-space update falls out
-        self.next_slide()
+        self.next_slide(
+            notes="Well, we get exactly the same update we had before. Now, in math (and in many things), there is a point where you understand something, where you say 'this makes sense'. And then there's a point where you _really_ understand it, when you say 'of course it's this way, why wouldn't it be?'. It's hard to trigger that feeling on command, but I wanted to share a moment where this sort of happened to me. You see, this... this makes sense."
+        )
         vec_update = Tex(
             r"\bar q_k = q_k + \delta q_k",
             font_size=48,
@@ -1258,7 +1144,9 @@ class LieGroups(SlideScene):
         )
 
         # % capstone: two makings-precise of one idea, side by side
-        self.next_slide()
+        self.next_slide(
+            notes="But, there is a different way we can think about it. See, both methods can be thought of as saying, in some sense, the same thing."
+        )
         X_VS, X_LG = -2.2, 2.2
         EQ_Y = 0.2
         self.play(
@@ -1275,16 +1163,18 @@ class LieGroups(SlideScene):
         self.play(FadeIn(vs_label, shift=0.1 * UP), FadeIn(lg_label, shift=0.1 * UP))
 
         # % capstone: both descend from one loose, human idea
-        self.next_slide()
-        loose = Text(
-            '"nudge where you are, toward the solution"', font_size=34
+        self.next_slide(
+            notes="We are computing an update to get closer to a solution. The vector space case is particularly convinient because [...]"
+        )
+        loose = TexText(
+            "``nudge where you are, toward the solution''", font_size=34
         ).move_to(UP * 2.7)
         line_l = (
             Line()
             .set_stroke(GREY_B, 1.5)
             .add_updater(
                 lambda m: m.set_points_by_ends(
-                    loose.get_bottom() + DOWN*0.15, vs_label.get_top() + UP * 0.15
+                    loose.get_bottom() + DOWN * 0.15, vs_label.get_top() + UP * 0.15
                 )
             )
         )
@@ -1293,7 +1183,7 @@ class LieGroups(SlideScene):
             .set_stroke(GREY_B, 1.5)
             .add_updater(
                 lambda m: m.set_points_by_ends(
-                    loose.get_bottom() + DOWN*0.15, lg_label.get_top() + UP * 0.15
+                    loose.get_bottom() + DOWN * 0.15, lg_label.get_top() + UP * 0.15
                 )
             )
         )
@@ -1304,7 +1194,9 @@ class LieGroups(SlideScene):
         )
 
         # % capstone: where each gets its uniformity
-        self.next_slide()
+        self.next_slide(
+            notes="[...] the space, the tangent space, and the cotangent space are structurally the same, even though nominally they're different. It's like not just canonically ismorphic, but super-canonically isomorphic. Moving between fibers is so uniform that we almost never even think about it. In a similar light, [...]"
+        )
         vs_cap = VGroup(
             TexText(
                 r"point $\cong$ tangent $\cong$ cotangent", font_size=32, color=GREY_B
@@ -1315,7 +1207,9 @@ class LieGroups(SlideScene):
         self.play(FadeIn(vs_cap, shift=UP * 0.1))
 
         # % where the Lie group gets its uniformity
-        self.next_slide()
+        self.next_slide(
+            notes="[...] even though groups are not _that_ uniform, they encode a notion of symmetry, which is precisely what we're using here. It gives us a way to talk in general about these transformations that span the manifold. That's the name of the game here, finding out what the right language is for working in these more abstract spaces."
+        )
         lg_cap = VGroup(
             TexText("group symmetry", font_size=32, color=GREY_B),
             TexText("everything to the algebra", font_size=22, color=GREY_B),
@@ -1324,7 +1218,9 @@ class LieGroups(SlideScene):
         self.play(FadeIn(lg_cap, shift=UP * 0.1))
 
         # % capstone: and when the space has no group of its own? (future work)
-        self.next_slide()
+        self.next_slide(
+            notes="Which of course begs the question, can this be generalized further? Or rather, what is the right language for homogeneous spaces, or Lie groupoid? Which brings us of course to future work."
+        )
         vs_col = VGroup(vs_label, vec_update, vs_cap)
         lg_col = VGroup(lg_label, group_update, lg_cap)
         q_mark = Tex("?", font_size=72, color=GREY_A).move_to(
@@ -1336,7 +1232,7 @@ class LieGroups(SlideScene):
             .set_stroke(GREY_B, 1.5)
             .add_updater(
                 lambda m: m.set_points_by_ends(
-                    loose.get_bottom() + DOWN*0.15, q_mark.get_top() + UP * 0.15
+                    loose.get_bottom() + DOWN * 0.15, q_mark.get_top() + UP * 0.15
                 )
             )
         )
@@ -1345,14 +1241,16 @@ class LieGroups(SlideScene):
             TexText("homogeneous spaces, groupoids", font_size=20, color=GREY_B),
         ).arrange(DOWN, buff=0.12)
         q_hint.next_to(q_mark, DOWN, buff=0.6)
-        q = VGroup(q_mark, q_hint).move_to(2*RIGHT_SIDE/3 + 0.2*DOWN)
+        q = VGroup(q_mark, q_hint).move_to(2 * RIGHT_SIDE / 3 + 0.2 * DOWN)
         self.play(
-            vs_col.animate.move_to(2 * LEFT_SIDE / 3 + 0.2*DOWN),
+            vs_col.animate.move_to(2 * LEFT_SIDE / 3 + 0.2 * DOWN),
             lg_col.animate.move_to(ORIGIN + DOWN),
             FadeIn(q, shift=0.6 * LEFT),
             ShowCreation(line_q, suspend_mobject_updating=True),
-            run_time=2
+            run_time=2,
         )
+
+        # % end
 
     slides = [
         rotations_dont_commute,
@@ -1361,8 +1259,3 @@ class LieGroups(SlideScene):
         vanishing_terms,
         capstone,
     ]
-
-    def construct(self):
-        self.play_slides(self.slides)
-
-        # % end

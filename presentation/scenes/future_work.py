@@ -17,11 +17,14 @@ class FutureWork(SlideScene):
             ("A general convergence criterion for forced systems", None),
             ("Forced systems and Lie groups together", None),
             ("Further configuration spaces", "e.g., homogeneous spaces, groupoids"),
-            ("Further kinds of Lagrangians", "e.g., constrained systems (holonomic and nonholonomic)"),
+            (
+                "Further kinds of Lagrangians",
+                "e.g., constrained systems (holonomic and nonholonomic)",
+            ),
         ]
 
         bullets = VGroup()
-        for (text, supplement) in items:
+        for text, supplement in items:
             dot = Dot(radius=0.06, color=GREY_B)
             label = VGroup(Text(text, font_size=36))
             bullets.add(VGroup(dot, label).arrange(RIGHT, buff=0.35))
@@ -43,6 +46,8 @@ class FutureWork(SlideScene):
                 run_time=2,
             ),
         )
+
+        # % end
 
     slides = [future_work]
 

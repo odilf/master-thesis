@@ -9,6 +9,7 @@ Run once (or whenever the parameters change):
 
     uv run python scripts/export_parachutist.py
 """
+
 import jax.numpy as jnp
 from pathlib import Path
 
@@ -21,7 +22,6 @@ REPETITIONS = 10000
 SNAPSHOTS = 60
 
 OUT = Path(__file__).resolve().parent.parent / "assets" / "parachutist.npz"
-
 
 
 def main() -> None:
@@ -50,9 +50,7 @@ def main() -> None:
     ys = np.linspace(0.0, 200.0, 21)
     gx, gy = np.meshgrid(xs, ys)
     wind_xy = np.stack([gx.ravel(), gy.ravel()], axis=1).astype(np.float32)
-    wind_uv = np.asarray(
-        [scene.wind(np.asarray(p)) for p in wind_xy], dtype=np.float32
-    )
+    wind_uv = np.asarray([scene.wind(np.asarray(p)) for p in wind_xy], dtype=np.float32)
 
     start = np.asarray(scene.startpoint, dtype=np.float32)
     end = np.asarray(scene.endpoint, dtype=np.float32)

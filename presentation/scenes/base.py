@@ -26,7 +26,9 @@ class SlideScene(InteractiveScene, Slide):
             self.frame.save_state()
             slide(self)
 
-            new_mobjects = [m for m in self.get_mobjects() if m not in starting_mobjects]
+            new_mobjects = [
+                m for m in self.get_mobjects() if m not in starting_mobjects
+            ]
             if new_mobjects:
                 self.play(*(FadeOut(m, shift=0.1 * DOWN) for m in new_mobjects))
 

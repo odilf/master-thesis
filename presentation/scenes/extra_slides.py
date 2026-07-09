@@ -43,12 +43,17 @@ def _bullets(items, font_size=28, buff=0.3, dot_color=GREY_B):
     col.arrange(DOWN, aligned_edge=LEFT, buff=buff)
     return col
 
+
 def _node_row(n=6, radius=0.12, buff=0.7):
     """A row of trajectory nodes joined by nearest-neighbor edges."""
     dots = VGroup(*(Dot(radius=radius) for _ in range(n))).arrange(RIGHT, buff=buff)
     edges = VGroup(
         *(
-            Line(dots[i].get_center() + radius*RIGHT, dots[i + 1].get_center() + radius*LEFT, stroke_width=2)
+            Line(
+                dots[i].get_center() + radius * RIGHT,
+                dots[i + 1].get_center() + radius * LEFT,
+                stroke_width=2,
+            )
             .set_color(GREY_B)
             .set_z_index(-1)
             for i in range(n - 1)
@@ -74,9 +79,9 @@ class ExtraSlides(SlideScene):
             axis_config={"stroke_color": GREY_B, "stroke_width": 2},
         ).shift(0.3 * DOWN)
 
-        e0 = DashedLine(
-            axes.c2p(0, 1.0), axes.c2p(10, 1.0), stroke_width=2
-        ).set_color(GREY_C)
+        e0 = DashedLine(axes.c2p(0, 1.0), axes.c2p(10, 1.0), stroke_width=2).set_color(
+            GREY_C
+        )
         e0_label = Text("true energy", font_size=22).set_color(GREY_B)
         e0_label.next_to(axes.c2p(10, 1.0), RIGHT, buff=0.1)
 
@@ -89,7 +94,9 @@ class ExtraSlides(SlideScene):
 
         x_label = Text("time", font_size=24).next_to(axes.x_axis, DOWN, buff=0.15)
         y_label = (
-            Text("energy", font_size=24).rotate(PI / 2).next_to(axes.y_axis, LEFT, buff=0.15)
+            Text("energy", font_size=24)
+            .rotate(PI / 2)
+            .next_to(axes.y_axis, LEFT, buff=0.15)
         )
 
         def legend_row(color, text):
@@ -112,8 +119,16 @@ class ExtraSlides(SlideScene):
         caption1.to_edge(DOWN, buff=0.5)
 
         self.show(
-            h1, axes, e0, e0_label, variational, rk4,
-            x_label, y_label, legend, caption1,
+            h1,
+            axes,
+            e0,
+            e0_label,
+            variational,
+            rk4,
+            x_label,
+            y_label,
+            legend,
+            caption1,
         )
 
     def forced_convergence_proven_open(self):
@@ -173,7 +188,7 @@ class ExtraSlides(SlideScene):
 
         note3 = Text(
             "Missing piece: a cheap global criterion, the forced analog of\n"
-            "\"the Hessian is positive definite.\"",
+            '"the Hessian is positive definite."',
             font_size=24,
             alignment="CENTER",
         ).set_color(GREY_C)
@@ -203,37 +218,64 @@ class ExtraSlides(SlideScene):
 
         # Left schematic: the direct route is a serial forward + back sweep.
         s_top = VGroup(
-            *(Dot(radius=0.09).set_fill(GREY_C, 1).set_stroke(GREY_B, 1) for _ in range(5))
+            *(
+                Dot(radius=0.09).set_fill(GREY_C, 1).set_stroke(GREY_B, 1)
+                for _ in range(5)
+            )
         ).arrange(RIGHT, buff=0.55)
         s_bot = s_top.copy().next_to(s_top, DOWN, buff=0.8)
         s_fwd = VGroup(
             *(
-                Arrow(s_top[i].get_center(), s_top[i + 1].get_center(), buff=0.14, thickness=2)
-                .set_color(GREY_D)
+                Arrow(
+                    s_top[i].get_center(),
+                    s_top[i + 1].get_center(),
+                    buff=0.14,
+                    thickness=2,
+                ).set_color(GREY_D)
                 for i in range(4)
             )
         )
         s_bwd = VGroup(
             *(
-                Arrow(s_bot[i + 1].get_center(), s_bot[i].get_center(), buff=0.14, thickness=2)
-                .set_color(GREY_D)
+                Arrow(
+                    s_bot[i + 1].get_center(),
+                    s_bot[i].get_center(),
+                    buff=0.14,
+                    thickness=2,
+                ).set_color(GREY_D)
                 for i in range(4)
             )
         )
-        s_f_lbl = Text("forward", font_size=18).set_color(GREY_C).next_to(s_top, RIGHT, buff=0.25)
-        s_b_lbl = Text("back", font_size=18).set_color(GREY_C).next_to(s_bot, RIGHT, buff=0.25)
+        s_f_lbl = (
+            Text("forward", font_size=18)
+            .set_color(GREY_C)
+            .next_to(s_top, RIGHT, buff=0.25)
+        )
+        s_b_lbl = (
+            Text("back", font_size=18)
+            .set_color(GREY_C)
+            .next_to(s_bot, RIGHT, buff=0.25)
+        )
         serial_schem = VGroup(s_fwd, s_bwd, s_top, s_bot, s_f_lbl, s_b_lbl)
 
         # Right schematic: block Jacobi updates every interior node at once.
         p_top = VGroup(
-            *(Dot(radius=0.09).set_fill(GREY_C, 1).set_stroke(GREY_B, 1) for _ in range(5))
+            *(
+                Dot(radius=0.09).set_fill(GREY_C, 1).set_stroke(GREY_B, 1)
+                for _ in range(5)
+            )
         ).arrange(RIGHT, buff=0.55)
         p_bot = p_top.copy().next_to(p_top, DOWN, buff=0.8)
         for k in range(1, 4):
             p_bot[k].set_fill(COLOR_PARALLEL, 1).set_stroke(WHITE, 1)
         p_fans = VGroup(
             *(
-                Arrow(p_top[s].get_center(), p_bot[k].get_center(), buff=0.12, thickness=1.6)
+                Arrow(
+                    p_top[s].get_center(),
+                    p_bot[k].get_center(),
+                    buff=0.12,
+                    thickness=1.6,
+                )
                 .set_color(COLOR_PARALLEL)
                 .set_opacity(0.85)
                 for k in range(1, 4)
@@ -264,11 +306,15 @@ class ExtraSlides(SlideScene):
             ],
             font_size=24,
         )
-        right_col = VGroup(right_header, parallel_schem, right_body).arrange(DOWN, buff=0.4)
+        right_col = VGroup(right_header, parallel_schem, right_body).arrange(
+            DOWN, buff=0.4
+        )
 
         cols4 = VGroup(left_col, right_col).arrange(RIGHT, buff=1.0, aligned_edge=UP)
         cols4.next_to(intro4, DOWN, buff=0.45)
-        divider4 = Line(cols4.get_top(), cols4.get_bottom(), stroke_width=1).set_color(GREY_D)
+        divider4 = Line(cols4.get_top(), cols4.get_bottom(), stroke_width=1).set_color(
+            GREY_D
+        )
         divider4.set_x((left_col.get_right()[0] + right_col.get_left()[0]) / 2)
 
         takeaway4 = Text(
@@ -288,7 +334,7 @@ class ExtraSlides(SlideScene):
         # % 5. boundary conditions: BVP vs IVP
         h5 = _heading("Boundary conditions: BVP vs. IVP", COLOR_PARALLEL)
 
-        # Left: BVP 
+        # Left: BVP
         bvp_row, bvp_dots = _node_row(n=6)
         for d in bvp_dots:
             d.set_fill(GREY_C, 1).set_stroke(GREY_B, 1)
@@ -344,7 +390,9 @@ class ExtraSlides(SlideScene):
         # % 6. retraction choice on Lie groups
         h6 = _heading("Retraction choice on Lie groups", COLOR_LIE_GROUPS)
 
-        exp_header = Text("exponential map", font_size=30, weight="bold").set_color(GREY_C)
+        exp_header = Text("exponential map", font_size=30, weight="bold").set_color(
+            GREY_C
+        )
         exp_body = _bullets(
             [
                 "exact: the one-parameter subgroup",
@@ -353,7 +401,9 @@ class ExtraSlides(SlideScene):
             ],
             font_size=26,
         )
-        exp_col = VGroup(exp_header, exp_body).arrange(DOWN, aligned_edge=LEFT, buff=0.35)
+        exp_col = VGroup(exp_header, exp_body).arrange(
+            DOWN, aligned_edge=LEFT, buff=0.35
+        )
 
         cay_header = Text("Cayley map", font_size=30, weight="bold").set_color(
             COLOR_LIE_GROUPS
@@ -371,7 +421,9 @@ class ExtraSlides(SlideScene):
                 font_size=26,
             ),
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.25)
-        cay_col = VGroup(cay_header, cay_body).arrange(DOWN, aligned_edge=LEFT, buff=0.35)
+        cay_col = VGroup(cay_header, cay_body).arrange(
+            DOWN, aligned_edge=LEFT, buff=0.35
+        )
 
         cols6 = VGroup(exp_col, cay_col).arrange(RIGHT, buff=1.2, aligned_edge=UP)
         cols6.next_to(h6, DOWN, buff=0.5)

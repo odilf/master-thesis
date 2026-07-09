@@ -318,7 +318,7 @@ class Parallel(SlideScene):
 
         # % Newton update and its Jacobian
         self.next_slide(
-            notes="[...] and find where its linear approximation would be $0$. We repeat Jacobi-Newton, Jacobi-Newton, until we get to a result. The overall method is called, unsurprisingly, Jacobi-Newton (iteration)"
+            notes="[...] and find where its linear approximation would be $0$. Notice, that to do this, we assume that $Q$ is a vector space. We repeat Jacobi-Newton, Jacobi-Newton, until we get to a result. The overall method is called, unsurprisingly, Jacobi-Newton (iteration)"
         )
         self.play(Write(newton))
         self.play(FadeIn(jac, shift=0.2 * UP))
@@ -661,7 +661,9 @@ class Parallel(SlideScene):
         self.play(FadeIn(overlap_note, shift=0.2 * UP))
 
         # % convergence criteria and closing summary
-        self.next_slide(notes="And now we can state the convergence criteria better. Namely")
+        self.next_slide(
+            notes="And now we can state the convergence criteria better. Namely"
+        )
         self.play(
             FadeOut(
                 VGroup(
@@ -701,15 +703,21 @@ class Parallel(SlideScene):
         self.play(FadeIn(criteria[0], shift=0.5 * RIGHT, run_time=1.0))
 
         # % convergence local hessian pd
-        self.next_slide(notes="And the global Hessian is p.d. if all local Hessians are too. This condition is quick to check (linear), but very conservative.")
+        self.next_slide(
+            notes="And the global Hessian is p.d. if all local Hessians are too. This condition is quick to check (linear), but very conservative."
+        )
         self.play(FadeIn(criteria[1], shift=0.5 * RIGHT, run_time=1.0))
 
         # % convergence quick iterative
-        self.next_slide(notes="So, finally, if and only if these recursively defined matrices are positive definite, the Hessian is p.d. and the method converges. This is a pretty full description of the parallel algorithm.")
+        self.next_slide(
+            notes="So, finally, if and only if these recursively defined matrices are positive definite, the Hessian is p.d. and the method converges. This is a pretty full description of the parallel algorithm."
+        )
         self.play(FadeIn(criteria[2], shift=0.5 * RIGHT, run_time=1.0))
 
         # % bridge to the extensions
-        self.next_slide(notes="The contribution of the thesis is in extending this algorithm to forced systems that are not symmetric, and to non-vector space configuration spaces.")
+        self.next_slide(
+            notes="The contribution of the thesis is in extending this algorithm to forced systems that are not symmetric, and to non-vector space configuration spaces."
+        )
 
         bridge = TexText(
             r"We ask: what if $H$ is not symmetric \\",
