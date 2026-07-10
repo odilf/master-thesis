@@ -401,8 +401,9 @@ class LieGroups(SlideScene):
             notes="The most important aspect of Lie groups for our purposes is that the group structure gives us a way to talk about any tangent space using the algebra. This idea is called trivialization. Namely, I often [...]"
         )
         self.play(
-            FadeOut(
-                Group(
+            *(
+                FadeOut(m)
+                for m in (
                     heading_newton_correction,
                     flat,
                     group,
@@ -834,7 +835,7 @@ class LieGroups(SlideScene):
         cap3.next_to(eq3D, DOWN, buff=0.6).fix_in_frame()
 
         self.play(
-            FadeOut(VGroup(cap2)),
+            FadeOut(cap2),
             TransformMatchingTex(eq2, eq3),
         )
         self.play(Write(eq3D), Write(cap3))
@@ -1070,7 +1071,12 @@ class LieGroups(SlideScene):
         self.next_slide(
             notes="The correct approach is to consider the general expression of the derivative of the Lie-algebra Hessian, [...]"
         )
-        self.play(FadeOut(VGroup(known, arrow, arrow_lbl, naive, cross, warn)))
+        self.play(
+            *(
+                FadeOut(m)
+                for m in (known, arrow, arrow_lbl, naive, cross, warn)
+            )
+        )
         general = Tex(
             r"\partial_{\xi_k}\Sigma(\xi) = \Phi_k(\xi_k)^{*}\,\widetilde{r}_k\big(g_k\tau(\xi_k)\big)",
             font_size=40,
@@ -1195,7 +1201,8 @@ class LieGroups(SlideScene):
         X_VS, X_LG = -2.2, 2.2
         EQ_Y = 0.2
         self.play(
-            FadeOut(VGroup(collapse_arrow, collapse_lbl)),
+            FadeOut(collapse_arrow),
+            FadeOut(collapse_lbl),
             vec_update.animate.scale(0.9).move_to(np.array([X_VS, EQ_Y, 0])),
             group_update.animate.scale(0.9).move_to(np.array([X_LG, EQ_Y, 0])),
         )

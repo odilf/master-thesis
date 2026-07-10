@@ -37,7 +37,7 @@ class Forced(SlideScene):
         the discrete DEL equations gain discrete forces f_d^+ and f_d^-."""
         # % continuous: force on the right
         self.next_slide(
-            notes="Forced Lagrangian systems are an alternative formulation for non-closed systems. Here, instead of the Euler-Lagrange equations [...]"
+            notes="Forced Lagrangian systems are an alternative formulation for non-closed systems. Here, instead of the Euler-Lagrange equations, [...]"
         )
         el_unforced = Tex(
             r"\frac{\textrm{d}}{\textrm{d}t}\frac{\partial L}{\partial \dot q} - \frac{\partial L}{\partial q} = \thickspace",
@@ -59,7 +59,7 @@ class Forced(SlideScene):
 
         # % add the force term and its type
         self.next_slide(
-            notes="We have an extra force on the right as a fibre-preserving function between tangent and cotangent spaces. This is the Lagrange-d'Alembert principle and allows us to model non-conservative forces, such as damping."
+            notes="[...] we have an extra force on the right as a fibre-preserving function between tangent and cotangent spaces. This is the Lagrange-d'Alembert principle and allows us to model non-conservative forces, such as damping."
         )
         self.play(
             LaggedStart(
@@ -147,7 +147,7 @@ class Forced(SlideScene):
         self.play(Write(del_eq.move_to(fdel_eq)), run_time=1)
 
         # % morph the DEL equation into its forced version
-        self.next_slide(notes="[...] except now we have a force. Or rather, [...]")
+        self.next_slide(notes="[...] except that now we have a force. Or rather, [...]")
         self.play(
             TransformMatchingTex(
                 del_eq,
@@ -163,7 +163,7 @@ class Forced(SlideScene):
 
         # % highlight pair
         self.next_slide(
-            notes="[...] a pair of forces, to model the continuous one properly."
+            notes="[...] a pair of forces, needed to model the continuous one properly."
         )
         self.play(
             LaggedStart(*(FlashUnder(f) for f in [fdel_eq["f_d^+"], fdel_eq["f_d^-"]])),
@@ -178,7 +178,7 @@ class Forced(SlideScene):
         f_d = 0 it recovers the unforced case and the same Jacobi-Newton sweep."""
         # % algorithm: one-line change to the residual
         self.next_slide(
-            notes="To adapt the algorithm, we just add the forces to the residual. That's it. Well, we have to check convergence, but I'm sure that will be very easy too!"
+            notes="To adapt the algorithm, we... just add the forces to the residual. That's it. I guess we have to check convergence, but I'm sure that will be very easy too! right?"
         )
         heading_algorithm = Text("Algorithm: one-line change", font_size=44).to_edge(
             UP, buff=1.0
@@ -212,7 +212,7 @@ class Forced(SlideScene):
         blocks, so the discrete 'Hessian' is no longer symmetric."""
         # % the catch: a non-symmetric Hessian
         self.next_slide(
-            notes="[*sigh*] You see, the forced formulation is no longer a critical point formulation, so there is not really a proper Hessian. We can try to adapt the unforced Hessian, [...]"
+            notes="[*sigh*] I'll try to be brief but, you see, the forced formulation is no longer a critical point formulation, so there is not really a proper Hessian. We can try to adapt the unforced Hessian, [...]"
         )
         t2c = {
             "L_d": COLOR_LD,
@@ -411,19 +411,19 @@ class Forced(SlideScene):
 
         # % condition 1bis
         self.next_slide(
-            notes="There's a global analog, and it seems to hold, but I couldn't quite figure out how to tackle the proof. This is pretty high priority as future work."
+            notes="There's a global analog, and it seems to hold, but I couldn't quite figure out how to tackle a proof. This would be pretty high priority for future work."
         )
         self.play(Write(cond1_open), run_time=1)
 
         # % condition 2
         self.next_slide(
-            notes="A more interesting condition is this bound on the size of forces you can add to a convergent system and keep it convergent. First we show it exists, and then we give the bound; but it is also kind of a conservative bound. Realistically, if you want to verify numerically the convergence of a particular system in front of you, [...]"
+            notes="A more interesting condition is this bound on the size of forces you can add to a convergent system and keep it convergent. First we show it exists, and then we give the bound; but honestly it is overly-conservative too. Realistically, if you want to verify numerically the convergence of a particular system in front of you, [...]"
         )
         self.play(FadeIn(cond2, shift=0.4 * RIGHT))
 
         # % condition 3
         self.next_slide(
-            notes="[...] your best bet might just be to compute this Jacobi-iteration matrix, and check its spectral radius, that is the fundamental tool behind most of these convergence results."
+            notes="[...] your best bet might just be to compute this Jacobi-iteration matrix, and check its spectral radius, which is the fundamental tool behind most of these convergence results."
         )
         self.play(FadeIn(cond3, shift=0.4 * RIGHT))
 

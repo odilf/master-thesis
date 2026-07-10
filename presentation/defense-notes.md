@@ -7,255 +7,270 @@
 > Auto-generated from the `next_slide(notes=...)` calls in `scenes/`.
 > Do not edit by hand; run `uv run python scripts/collect_notes.py` to regenerate.
 
+## Introduction
+
+[1] Hello everyone, thank you very much for being here; I'm Ody and today I will be presenting my work about parallel variational integrators for forced systems and Lie groups. My goal today with this presentation is to summarize the work and provide some visualizations that are hard to put on print, that are hopefully explicative (and interesting for the audience that is less familiar with the paper) as supplementary material.
+
+[2] I'll start by briefly reviewing the variational integration framework around Lagrangians, then I'll talk about the parallel variational integrator that was introduced by my supervisor, and finally I'll showcase the work I did in extending the algorithm to forced systems and Lie groups.
+
 ## Lagrangians & geometry
 
-[1] Many physical systems, everything from pendulums, to robotic arms, to electrons to black holes, can be modeled with <[2]> a configuration space (a smooth manifold that represents the possible states of the system), and <[3]> a Lagrangian, that encodes how the states evolve, <>.
+[3] Many physical systems, everything from pendulums, to robotic arms, to electrons to black holes, can be modeled with <[4]> a configuration space (a smooth manifold that represents the possible states of the system), and <[5]> a Lagrangian, that encodes how the states evolve, <[6]> with the Lagrangian being a function from TQ (the tangent bundle, the phase space), to a real number.
 
-[4] <> with the Lagrangian being a function from TQ (the tangent bundle, the phase space), to a real number.
+[7] Let's see how this works with the pendulum.
 
-[5] Let's take a closer look at the pendulum.
+[8] The configuration space is $S^1$, the circle, <[9]> where the position along the circle indicates the angle.
 
-[6] The configuration space is $S^1$, the circle, <[7]> where the position along the circle indicates the angle.
+[10] The Largangian also needs the tangent, which here is the angular velocity, <[11]> so at every point we have an extra $\mathbb{R}^1$ degree of freedom.
 
-[8] The Largangian also needs the tangent, which here is the angular velocity, <[9]> so at every point we have an extra $\mathbb{R}^1$ degree of freedom.
+[12] That is, the dynamics are determined on the phase space <[13]> which for a pendulum is represented by a cylinder (height corresponds with velocity).
 
-[10] That is, the dynamics are determined on the phase space <[11]> which for a pendulum can be represented as a cylinder (height corresponds with velocity).
+[14] On this phase space, the Lagrangian defines a _flow_, the way every point in TQ moves over time. The dynamics of the system are completely determined by this flow. And this flow has important geometric properties.
 
-[12] On this phase space, the Lagrangian defines a _flow_, the way every point in TQ moves over time. The dynamics of the system are completely determined by this flow. And this flow has important geometric properties.
+[15] For instance, if we color the phase space by energy, it turns out that all Lagrangian trajectories are level-curves. In other words, enegy is conserved. This is an instance of the well-known Noether's theorem, which relates each symmetry to a conservation law (in our case, energy comes from time-symmetry).
 
-[13] For instance, if we color the phase space by energy, it turns out that all Lagrangian trajectories are level-curves. That is, enegy is conserved. This is an instance of the well-known Noether's theorem, which relates each symmetry to a conservation law (in our case, energy comes from time-symmetry).
+[16] Another property is that small areas get conserved along the flow. This is symplecticity (there is a certain symplectic form that the Lagrangian flow conserves). Symplecticity gives you that trajectories in phase space never collapse, and is a stronger version of Louiville's theorem, which says essentially that volume in phase-space is conserved.
 
-[14] Another property is that small areas get conserved along the flow. This is symplecticity (there is a certain symplectic form that the Lagrangian flow conserves). Symplecticity gives you that trajectories in phase space never collapse, and is a stronger version of Louiville's theorem, which says essentially that volume in phase-space is conserved.
+[17] The Lagrangian flow is defined by Hamilton's theorem, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian). Following this variational principle <[18]> , we can derive the well-known Euler-Lagrange equations, that real trajectories must satisfy. These are very important, as they define the equations of motion for a system, your $f=ma$. But we often solve these systems numerically, which approximates a physical system and 'forgets' about the geometry. These generic integrators are not, a priori, symplectic, nor do they need to satisfy conservation laws. Long-running simulations, for instance, might see energy that keeps decreasing spontaneously. We can do better.
 
-[15] The Lagrangian flow is defined by Hamilton's theorem, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian). Following this variational principle <[16]> , we can derive the well-known Euler-Lagrange equations, that real trajectories must satisfy. These are very important, as they define the equations of motion for a system, your $f=ma$. But often we want to solve these systems numerically, and we are only approximating a physical system and we 'forget' about the geometry. Long-running simulations, for instance, might see energy that keeps decreasing spontaneously. We can do better.
+[19] See, I've stated the continuous formulation; but we can also formulate <[20]> Lagrangians mechanics discretly; with a discrete Largangian (where instead of a point and a vector we think about two nearby points). Then, <[21]> the action becomes a sum, <[22]> and its critial points give rise to the _discrete_ Euler-Lagrange (or DEL) equations. This formulation is (locally) equivalent and has all the geometric properties of the continuous one. Except that now it seems that the DEL equations can be solved numerically (up to float precision), right? A path is just a finite list of points. So where's the gotcha? Because, there is no such thing as a free lunch.
 
-[17] See, I've stated the continuous formulation; but we can also formulate <[18]> Lagrangians mechanics discretly; with a discrete Largangian (where instead of a point and a vector we think about two nearby points). Then, <[19]> the action becomes a sum, <[20]> and its critial points give rise to the _discrete_ Euler-Lagrange (or DEL) equations. But notice that the DEL equations can be solved numerically, a path is just a finite list of points. So where's the gotcha? Because, there is no free lunch.
+[23] Indeed, the problem is that an exact discrete Lagrangian <[24]> would need this $q_{0, 1}$ path, defined as the solution between $q_0$ and $q_1$, which is just as hard to find. But, here's the clever trick.
 
-[21] Indeed, the problem is that an exact discrete Lagrangian <[22]> would need this $q_{0, 1}$ path, defined as the solution between $q_0$ and $q_1$, which is just as hard to calculate. But, here's the clever trick.
+[25] We can just approximate the discrete Lagrangian, with some quadrature rule. And yes, it is still an approximation, but this approximation _is also_ a Lagrangian system, with all the exact geometric properties that we care about. This is the whole idea of variational integration. We discretize the principle instead of the equations of motion.
 
-[23] We can just approximate the exact discrete Lagrangian, with some quadrature rule. And yes, it is still an approximation, but this approximation _is also_ a Lagrangian system, with all the exact geometric properties that we care about. This is the whole idea of variational integration. We discretize the principle instead of the equations of motion.
-
-[24] Now, let's move on to methods for computing these solutions. Namely, I'll showcase the parallel algorithm that the thesis is based on.
+[26] So, let's see how we can actually compute these solutions. Namely, I'll showcase the parallel algorithm that the thesis is based on.
 
 ## Parallel algorithm
 
-[25] Take the DEL equations.
+[27] We start with the DEL equations.
 
-[26] This method deals with BVP, meaning the start and endpoints are fixed. The idea of the method is to start off with some guess, which probably doesn't satisfy the equations. Therefore, <[27]> let's call whatever this value happens to be, $r_k$, for the _residual_ at node $k$. Notice, that the residual for each node depends <[28]> only on itself and its two neighbours.
+[28] This method solves BVPs, meaning the start and endpoints are given as data. The method is to starts off with some guess, which probably doesn't satisfy the equations. Therefore, <[29]> let's call whatever this value happens to be, $r_k$, for the _residual_ at node $k$. Notice, that the residual for each node depends <[30]> only on itself and its two neighbours.
 
-[29] So, the idea is that we're going to make a new guess, with the endpoints fixed, <[30]> where we are going to find what value of a node will make its local resiudal $0$.
+[31] The idea is that we're going to improve the guess, <[32]> by finding out what value of a node will make its local resiudal $0$ given the current neighbors.
 
-[31] And we do this for every node at once. This gives us parallelism over time. Since the neighbors also changing we probably won't find a solution instantly, but we will get closer (under correct conditions). This is a Jacobi iteration.
+[33] And we do this for every node at once. This gives us parallelism over time. Since the neighbors also changed we won't find the solution instantly, but we will get closer to it (under correct conditions). This is a Jacobi iteration.
 
-[32] Now, to compute this solution we actually do a Newton-Raphson step.
+[34] Now, to compute this solution we actually do a Newton-Raphson step.
 
-[33] We take the residual <[34]> and find where its linear approximation would be $0$. Notice, that to do this, we assume that $Q$ is a vector space. We repeat Jacobi-Newton, Jacobi-Newton, until we get to a result. The overall method is called, unsurprisingly, Jacobi-Newton (iteration)
+[35] We take the residual <[36]> and find where its linear approximation would be $0$. Notice, that to do this, we assume that $Q$ is a vector space. And we repeat: Jacobi, Newton, Jacobi, Newton, until we get to a result. The overall method is called, unsurprisingly, Jacobi-Newton (iteration)
 
-[35] Let's quickly see this in action, with a simple free fall example. We have our boundary conditions, and we start with a straight line guess.
+[37] Let's quickly see this in action, with a simple free fall example. We have our boundary conditions, and we start with a straight line guess.
 
-[36] If we let the iteration run, we see that it quickly converges to a parabola, as expected (fun fact, this is the actualy implementation I wrote running here).
+[38] If we let the iteration run, we see that it quickly converges to a parabola, as expected (fun fact, this is the actualy implementation I wrote running here).
 
-[37] Of course, it's very important to see when these algorithms converge. In our case, the central piece is
+[39] Of course, it's very important to see when these algorithms converge. In our case, the central piece is
 
-[38] the Hessian of the (discrete) action.
+[40] the Hessian of the (discrete) action.
 
-[39] Namely, if this Hessian is positive-definite, there is local convergence for the method. There is a problem in that checking this has an N^3 runtime with respect to the length (or resolution) of the path. But luckily, we can get around that by exploiting the particular structure this Hessian has.
+[41] Namely, if this Hessian is positive-definite, there is local convergence for the method. The problem, however, is that checking this has an N^3 runtime with respect to the length (or resolution) of the path. But luckily, we can get around that by exploiting the particular structure this Hessian has.
 
-[40] Namely, the locality of the DEL equations make H block-tridiagonal.
+[42] Namely, the locality of the DEL equations make H block-tridiagonal.
 
-[41] And not only that, but each block corresponds to each second derivative of the Lagrangian at a node.
+[43] And not only that, but each block corresponds to each second derivative of the Lagrangian at a node.
 
-[42] The diagonal blocks are literally the Newton-correction terms, <[43]> and the off-diagonals are the remaining cross derivatives.
+[44] The diagonal blocks are literally the Newton-correction terms, <[45]> and the off-diagonals are the remaining cross derivatives.
 
-[44] In fact, we can think of the 'global' hessian as composed by a sum of 'local' hessians, just evaluated at different points.
+[46] In fact, we can think of the 'global' hessian as composed by a sum of 'local' hessians, just evaluated at different points.
 
-[45] And now we can state the convergence criteria better. Namely
+[47] And now we can state the convergence criteria better. Namely
 
-[46] We have local convergence if the global Hessian is p.d.
+[48] We have local convergence if the global Hessian is p.d.
 
-[47] And the global Hessian is p.d. if all local Hessians are too. This condition is quick to check (linear), but very conservative.
+[49] And the global Hessian is p.d. if all local Hessians are too. This condition is quick to check (linear), but very conservative.
 
-[48] So, finally, if and only if these recursively defined matrices are positive definite, the Hessian is p.d. and the method converges. This is a pretty full description of the parallel algorithm.
+[50] So, finally, the most practical condition is that, if and only if these recursively defined matrices are positive definite, the Hessian is p.d. and the method converges. That's what we need to know for the base method.
 
-[49] The contribution of the thesis is in extending this algorithm to forced systems that are not symmetric, and to non-vector space configuration spaces.
+[51] The contribution of the thesis is in extending this algorithm to forced systems that are not symmetric, and to non-vector space configuration manifolds.
 
-[50] Let's take a look at forced systems.
+[52] Let's start with forced systems.
 
 ## Forced systems
 
-[51] Forced Lagrangian systems are an alternative formulation for non-closed systems. Here, instead of the Euler-Lagrange equations <>
+[53] Forced Lagrangian systems are an alternative formulation for non-closed systems. Here, instead of the Euler-Lagrange equations, <[54]> we have an extra force on the right as a fibre-preserving function between tangent and cotangent spaces. This is the Lagrange-d'Alembert principle and allows us to model non-conservative forces, such as damping.
 
-[52] We have an extra force on the right as a fibre preserving function. This is the Lagrange-d'Alembert principle and allows us to model non-conservative forces, often used for damping.
+[55] We can again discretize this formulation, which leaves us with similar equations as before, <[56]> except that now we have a force. Or rather, <[57]> a pair of forces, needed to model the continuous one properly.
 
-[53] Just as before, we can take discretize this formulation, which leaves us with similar equations, <[54]> except now we have a force. Or rather, <[55]> a pair of forces, to model the continuous force properly.
+[58] To adapt the algorithm, we... just add the forces to the residual. That's it. I guess we have to check convergence, but I'm sure that will be very easy too! right?
 
-[56] To adapt the algorithm, we just add the forces to the residual. That's it. Well, we have to check convergence, but I'm sure that will be very easy too!
+[59] [*sigh*] I'll try to be brief but, you see, the forced formulation is no longer a critical point formulation, so there is not really a proper Hessian. We can try to adapt the unforced Hessian, <[60]> but it is no longer symmetric, because of <[61]> the force being a pair. So we can't state positive definiteness directly.
 
-[57] <sigh> You see, the forced formulation is no longer a critical point formulation, so there is not really a proper Hessian. We can try to adapt the unforced Hessian, <[58]> but it is no longer symmetric, because of <[59]> the force being a pair. So we can't state positive definiteness directly. And honestly it's hard to adapt the convergence condition.
+[62] And honestly it's hard to adapt the convergence conditions.
 
-[60] I did find this condition that is analogous to the local Hessians being positive definite, but (I guess it is indeed a good analog) it is very very conservative.
+[63] I did find this condition that is analogous to the local Hessians being positive definite, but (I guess it is indeed a good analog) it is very very conservative. Many convergent systems don't satisfy it.
 
-[61] There's a global analog that seems to hold, but I couldn't quite figure out how to tackle it. This is pretty high priority as future work.
+[64] There's a global analog, and it seems to hold, but I couldn't quite figure out how to tackle a proof. This would be pretty high priority for future work.
 
-[62] A more interesting condition is this bound on the size of forces you can add to a convergent system and keep it convergent. First we show it exists, and then we give the bound; but it is also kind of a conservative bound. Realistically, if you want to verify numerically convergence of a particular system in front of you, <[63]> your best bet might just be to compute this Jacobi-iteration matrix, that is the fundamental tool behind most of these convergence results.
+[65] A more interesting condition is this bound on the size of forces you can add to a convergent system and keep it convergent. First we show it exists, and then we give the bound; but honestly it is overly-conservative too. Realistically, if you want to verify numerically the convergence of a particular system in front of you, <[66]> your best bet might just be to compute this Jacobi-iteration matrix, and check its spectral radius, which is the fundamental tool behind most of these convergence results.
 
-[64] Finally, let's talk about Lie groups, which is my favorite part.
+[67] Finally, let's talk about Lie groups, which is my favorite part.
 
 ## Lie groups
 
-[65] See, Lie groups are smooth manifolds where we only assume a group strucutre. The classic example is $SO(3)$, the group of 3D rotations.
+[68] See, Lie groups are smooth manifolds where we only assume a group structure. The classic example is $SO(3)$, the group of 3D rotations.
 
-[66] To drive home the point, rotations don't commute. So if we turn <[67]> this a-way and that-away instead of the opposite, we get different results.
+[69] In this context you can no longer assume typical properties. For instance, rotations don't commute. If we turn <[70]> this a-way and that-away instead of the opposite, we get different results.
 
-[68] This alone discards vector space structure.
+[71] This alone discards vector space structure.
 
-[69] This means we need to change the Newton-Raphson step. We are no longer able to just 'add' tangent vectors. Instead, we compute the correction in the algebra and apply it via a retraction.
+[72] As a consequence, we need to change the Newton-Raphson step. We are no longer able to just 'add' tangent vectors.
 
-[70] Let's see what this means. The algebra is the tangent space of a Lie group at the identity (the sphere is not technically a Lie group, but it serves as a stand in for curved surfaces and a translation action)
+[73] Instead, we compute the correction in the algebra and apply it via a retraction.
 
-[71] Now, zooming in, the retraction associates an algebra element (that is, a tangent vector at the identity), <[72]> to a group element whose group action somehow corresponds to the 'movement' of the tangent vector.
+[74] Let's see what this means. The algebra is the tangent space of a Lie group at the identity (note that the sphere is not technically a Lie group, but it does serve as a stand in for curved surfaces and a translation action)
 
-[73] There is no one true retraction, we just need it to have the correct signature, to associate 0 vectors with, well, not doing anything (so, the identity); and for it to be linear around the origin. The general example is the exponential map, but for matrix Lie groups (such as SO(3) and SE(3)), we often use the Cayley map.
+[75] Now, zooming in, the retraction associates an algebra element (that is, a tangent vector at the identity), <[76]> to a group element whose group action somehow corresponds to the 'movement' of the tangent vector.
 
-[74] The most important aspect of Lie group for our purposes is that the group structure gives us a way to talk about any tangent space using the algebra. This idea is called trivialization. Namely, I often <[75]> compute corrections and directions in the algebra. If I want to 'apply' them at I point, I can push them forward <[76]> with the differential of the left translation operator. This does exactly what you think it should do.
+[77] There is no one true retraction, we just need it to have the correct signature, to associate 0 vectors with, well, not doing anything (so, the identity); and for it to be linear around the origin. The general example is the exponential map, but for matrix Lie groups (such as SO(3) and SE(3)), we often use the Cayley map (since it's more convenient).
 
-[77] Conversely (or contravariantly) if I have a _covector_ at a point $g$ (which we can think of as a linear form on $g$)
+[78] The most important aspect of Lie groups for our purposes is that the group structure gives us a way to talk about any tangent space using the algebra. This idea is called trivialization. Namely, I often <[79]> compute corrections and directions in the algebra. If I want to 'apply' them at I point, I can push them forward <[80]> with the differential of the left translation operator. This does exactly what you think it should do.
 
-[78] <> I can apply it to a vector in the identity <[79]> if I just push it forward beforehand.
+[81] Conversely (or contravariantly) if I have a _covector_ at a point $g$ (which we can think of as a linear form on $g$)
 
-[80] The aggregate 'machine' is now a covector at the identity. A coalgebra element.
+[82] <> I can apply it to a vector in the identity <[83]> if I just push it forward beforehand.
 
-[81] We pushforward tangent vectors, and pullback cotangent vectors.
+[84] The aggregate 'machine' is now a covector at the identity. A coalgebra element.
 
-[82] So let's see how the Newton correction is computed in the algebra. I've colored here the residual.
+[85] We pushforward tangent vectors, and pullback cotangent vectors.
 
-[83] This is what we want to solve.
+[86] So let's see how the Newton correction is computed in the algebra. I've colored here the residual.
 
-[84] And we are going to assume that the residual changes linearly.
+[87] This is what we want to solve.
 
-[85] This is the expression we get for this solve, and the resulting update. Notice that this linearization is not the same as the linearization of a tangent space we saw earlier. The way to think about linearizing the residual is <[86]> taking a small neighborhood around us, and extrapolating it to the rest of the manifold.
+[88] This is where the solution is.
 
-[87] When adapting the convergence criteria, we often get a main term and a retraction curvature term, but the convergence analysis is based on a solution, <[88]> and all curvature terms depend on the residual, <[89]> which is 0 at a solution, making these terms vanish.
+[89] We are going to assume that the residual changes linearly, as so.
 
-[90] The work here is mostly in working out everything carefully. For instance, we have this expression (the residual of the Hessan in Lie-algebra coordinates is equal to the residual), which is true. And, ..., we can <[91]> differentiate again to relate the Hessian to to the residual? Except that this is <[92]> completely wrong. At least in terms of procedure. You can't just pattern-match the syntax, you have to think about what these things mean.
+[90] This is the expression we get for this solve, and the resulting update. Notice that this linearization is not the same as the linearization of a tangent space we saw earlier. The way to think about linearizing the residual is <[91]> taking a small neighborhood around us, <[92]> and extrapolating it to the rest of the manifold.
 
-[93] The correct approach is to consider the general expression of the derivative of the Lie-algebra Hessian, <>
+[93] When adapting the convergence criteria, we often get a main term and a retraction curvature term, but the convergence analysis is based on a solution, <[94]> and all curvature terms depend on the residual, <[95]> which is 0 at a solution, making these terms vanish.
 
-[94] and differentiate that, which gives you different expressions!
+[96] The work here is mostly in working out everything carefully. For instance, we have this expression (the residual of the Hessan in Lie-algebra coordinates is equal to the residual), which is true. And, ..., we can <[97]> differentiate again to relate the Hessian to to the residual? Except that this is <[98]> completely wrong. At least in terms of procedure, these are constants. You can't just pattern-match the syntax, you have to think about what these things mean.
 
-[95] ...that, funnilly enough, do happen to match at a solution.
+[99] The correct approach is to consider the general expression of the derivative of the Lie-algebra Hessian, <>
 
-[96] And before closing out the presentation, I wanted to comment on the work at a slightly higher level. This is the update in the Lie group. But vector spaces are groups, right? What happens if we treat the vector space as a group?
+[100] and differentiate that, which gives you different expressions!
 
-[97] Well, we get exactly the same update we had before. Now, in math (and in many things), there is a point where you understand something, where you say 'this makes sense'. And then there's a point where you _really_ understand it, when you say 'of course it's this way, why wouldn't it be?'. It's hard to trigger that feeling on command, but I wanted to share a moment where this sort of happened to me. You see, this... this makes sense.
+[101] ...that, funnilly enough, do happen to collapse to the thing at a solution. In the end, the convergence criteria are the same, but in Lie algebra coordinates.
 
-[98] But, there is a different way we can think about it. See, both methods can be thought of as saying, in some sense, the same thing.
+[102] And before closing out, I to make one final observation.
 
-[99] We are computing an update to get closer to a solution. The vector space case is particularly convinient because <[100]> the space, the tangent space, and the cotangent space are structurally the same, even though nominally they're different. It's like not just canonically ismorphic, but super-canonically isomorphic. Moving between fibers is so uniform that we almost never even think about it. In a similar light, <[101]> even though groups are not _that_ uniform, they encode a notion of symmetry, which is precisely what we're using here. It gives us a way to talk in general about these transformations that span the manifold. That's the name of the game here, finding out what the right language is for working in these more abstract spaces.
+[103] This is the update in the Lie group. But vector spaces are groups, right? What happens if we treat the vector space as a group?
 
-[102] Which of course begs the question, can this be generalized further? Or rather, what is the right language for homogeneous spaces, or Lie groupoid? Which brings us of course to future work.
+[104] Well, we get exactly the same update we had before. Now, in math (and in many things), there is a point where you understand something, where you say 'this makes sense'. And then there's a point where you _really_ understand something, when you say 'of course it's this way, why wouldn't it be? It makes so much sense.'. It's not easy to trigger that feeling on command, but I wanted to share a small instance where this sort of happened to me during this work. You see, this... this makes sense.
+
+[105] But, there is a different way we can think about it. See, both methods can be thought of as saying, in some sense, a similar thing.
+
+[106] We are computing an update to get closer to a solution. The vector space case is particularly convinient because <[107]> the space, the tangent space, and the cotangent space are structurally identical, even though nominally they're different. It's not that they're canonically ismorphic, but like ultra-canonically isomorphic. Moving between fibers is so uniform that we almost never even think about it. In a similar light, even though groups are not _that_ uniform, <[108]> they encode this notion of symmetry, which is precisely what we're using for the algorithm. It's because it gives us a way to talk in general about these transformations that span the manifold, across fibers. And that's ultimately the name of the game here, finding out what the right language is for working in these more abstract spaces. Which of course begs the question, <[109]> can this be generalized further? Or rather, I would argue, the question is 'what is the right language for...' homogeneous spaces, or Lie groupoids. And with that I'll move swiftly to future work.
 
 ---
 
-[1]: scenes/lagrangians.py:19
-[2]: scenes/lagrangians.py:216
-[3]: scenes/lagrangians.py:222
-[4]: scenes/lagrangians.py:226
-[5]: scenes/lagrangians.py:233
-[6]: scenes/lagrangians.py:266
-[7]: scenes/lagrangians.py:271
-[8]: scenes/lagrangians.py:279
-[9]: scenes/lagrangians.py:304
-[10]: scenes/lagrangians.py:316
-[11]: scenes/lagrangians.py:332
-[12]: scenes/lagrangians.py:367
-[13]: scenes/lagrangians.py:473
-[14]: scenes/lagrangians.py:489
-[15]: scenes/lagrangians.py:560
-[16]: scenes/lagrangians.py:591
-[17]: scenes/lagrangians.py:597
-[18]: scenes/lagrangians.py:628
-[19]: scenes/lagrangians.py:634
-[20]: scenes/lagrangians.py:638
-[21]: scenes/lagrangians.py:656
-[22]: scenes/lagrangians.py:662
-[23]: scenes/lagrangians.py:668
-[24]: main.py:129
-[25]: scenes/parallel.py:45
-[26]: scenes/parallel.py:69
-[27]: scenes/parallel.py:114
-[28]: scenes/parallel.py:120
-[29]: scenes/parallel.py:152
-[30]: scenes/parallel.py:204
-[31]: scenes/parallel.py:234
-[32]: scenes/parallel.py:285
-[33]: scenes/parallel.py:316
-[34]: scenes/parallel.py:320
-[35]: scenes/parallel.py:332
-[36]: scenes/parallel.py:433
-[37]: scenes/parallel.py:452
-[38]: scenes/parallel.py:475
-[39]: scenes/parallel.py:479
-[40]: scenes/parallel.py:490
-[41]: scenes/parallel.py:520
-[42]: scenes/parallel.py:554
-[43]: scenes/parallel.py:571
-[44]: scenes/parallel.py:587
-[45]: scenes/parallel.py:664
-[46]: scenes/parallel.py:702
-[47]: scenes/parallel.py:706
-[48]: scenes/parallel.py:712
-[49]: scenes/parallel.py:718
-[50]: main.py:146
-[51]: scenes/forced.py:39
-[52]: scenes/forced.py:61
-[53]: scenes/forced.py:93
-[54]: scenes/forced.py:150
-[55]: scenes/forced.py:165
-[56]: scenes/forced.py:180
-[57]: scenes/forced.py:213
-[58]: scenes/forced.py:297
-[59]: scenes/forced.py:336
-[60]: scenes/forced.py:347
-[61]: scenes/forced.py:405
-[62]: scenes/forced.py:411
-[63]: scenes/forced.py:417
-[64]: main.py:161
-[65]: scenes/lie_groups.py:117
-[66]: scenes/lie_groups.py:129
-[67]: scenes/lie_groups.py:164
-[68]: scenes/lie_groups.py:180
-[69]: scenes/lie_groups.py:205
-[70]: scenes/lie_groups.py:242
-[71]: scenes/lie_groups.py:324
-[72]: scenes/lie_groups.py:341
-[73]: scenes/lie_groups.py:361
-[74]: scenes/lie_groups.py:394
-[75]: scenes/lie_groups.py:484
-[76]: scenes/lie_groups.py:490
-[77]: scenes/lie_groups.py:513
-[78]: scenes/lie_groups.py:590
-[79]: scenes/lie_groups.py:596
-[80]: scenes/lie_groups.py:619
-[81]: scenes/lie_groups.py:637
-[82]: scenes/lie_groups.py:661
-[83]: scenes/lie_groups.py:768
-[84]: scenes/lie_groups.py:788
-[85]: scenes/lie_groups.py:809
-[86]: scenes/lie_groups.py:839
-[87]: scenes/lie_groups.py:934
-[88]: scenes/lie_groups.py:993
-[89]: scenes/lie_groups.py:1000
-[90]: scenes/lie_groups.py:1013
-[91]: scenes/lie_groups.py:1053
-[92]: scenes/lie_groups.py:1067
-[93]: scenes/lie_groups.py:1079
-[94]: scenes/lie_groups.py:1096
-[95]: scenes/lie_groups.py:1125
-[96]: scenes/lie_groups.py:1166
-[97]: scenes/lie_groups.py:1177
-[98]: scenes/lie_groups.py:1198
-[99]: scenes/lie_groups.py:1217
-[100]: scenes/lie_groups.py:1248
-[101]: scenes/lie_groups.py:1261
-[102]: scenes/lie_groups.py:1272
+[1]: main.py:29
+[2]: main.py:83
+[3]: scenes/lagrangians.py:19
+[4]: scenes/lagrangians.py:216
+[5]: scenes/lagrangians.py:222
+[6]: scenes/lagrangians.py:226
+[7]: scenes/lagrangians.py:233
+[8]: scenes/lagrangians.py:266
+[9]: scenes/lagrangians.py:271
+[10]: scenes/lagrangians.py:279
+[11]: scenes/lagrangians.py:304
+[12]: scenes/lagrangians.py:316
+[13]: scenes/lagrangians.py:332
+[14]: scenes/lagrangians.py:367
+[15]: scenes/lagrangians.py:473
+[16]: scenes/lagrangians.py:489
+[17]: scenes/lagrangians.py:560
+[18]: scenes/lagrangians.py:591
+[19]: scenes/lagrangians.py:597
+[20]: scenes/lagrangians.py:628
+[21]: scenes/lagrangians.py:634
+[22]: scenes/lagrangians.py:638
+[23]: scenes/lagrangians.py:656
+[24]: scenes/lagrangians.py:662
+[25]: scenes/lagrangians.py:668
+[26]: main.py:134
+[27]: scenes/parallel.py:45
+[28]: scenes/parallel.py:69
+[29]: scenes/parallel.py:114
+[30]: scenes/parallel.py:120
+[31]: scenes/parallel.py:152
+[32]: scenes/parallel.py:204
+[33]: scenes/parallel.py:234
+[34]: scenes/parallel.py:285
+[35]: scenes/parallel.py:316
+[36]: scenes/parallel.py:320
+[37]: scenes/parallel.py:332
+[38]: scenes/parallel.py:433
+[39]: scenes/parallel.py:452
+[40]: scenes/parallel.py:475
+[41]: scenes/parallel.py:479
+[42]: scenes/parallel.py:490
+[43]: scenes/parallel.py:520
+[44]: scenes/parallel.py:554
+[45]: scenes/parallel.py:571
+[46]: scenes/parallel.py:587
+[47]: scenes/parallel.py:664
+[48]: scenes/parallel.py:702
+[49]: scenes/parallel.py:706
+[50]: scenes/parallel.py:712
+[51]: scenes/parallel.py:718
+[52]: main.py:151
+[53]: scenes/forced.py:39
+[54]: scenes/forced.py:61
+[55]: scenes/forced.py:93
+[56]: scenes/forced.py:150
+[57]: scenes/forced.py:165
+[58]: scenes/forced.py:180
+[59]: scenes/forced.py:214
+[60]: scenes/forced.py:298
+[61]: scenes/forced.py:337
+[62]: scenes/forced.py:348
+[63]: scenes/forced.py:407
+[64]: scenes/forced.py:413
+[65]: scenes/forced.py:419
+[66]: scenes/forced.py:425
+[67]: main.py:166
+[68]: scenes/lie_groups.py:117
+[69]: scenes/lie_groups.py:129
+[70]: scenes/lie_groups.py:164
+[71]: scenes/lie_groups.py:180
+[72]: scenes/lie_groups.py:205
+[73]: scenes/lie_groups.py:240
+[74]: scenes/lie_groups.py:248
+[75]: scenes/lie_groups.py:330
+[76]: scenes/lie_groups.py:347
+[77]: scenes/lie_groups.py:367
+[78]: scenes/lie_groups.py:400
+[79]: scenes/lie_groups.py:490
+[80]: scenes/lie_groups.py:496
+[81]: scenes/lie_groups.py:519
+[82]: scenes/lie_groups.py:596
+[83]: scenes/lie_groups.py:602
+[84]: scenes/lie_groups.py:625
+[85]: scenes/lie_groups.py:643
+[86]: scenes/lie_groups.py:667
+[87]: scenes/lie_groups.py:774
+[88]: scenes/lie_groups.py:784
+[89]: scenes/lie_groups.py:792
+[90]: scenes/lie_groups.py:813
+[91]: scenes/lie_groups.py:843
+[92]: scenes/lie_groups.py:900
+[93]: scenes/lie_groups.py:925
+[94]: scenes/lie_groups.py:984
+[95]: scenes/lie_groups.py:991
+[96]: scenes/lie_groups.py:1004
+[97]: scenes/lie_groups.py:1044
+[98]: scenes/lie_groups.py:1058
+[99]: scenes/lie_groups.py:1070
+[100]: scenes/lie_groups.py:1087
+[101]: scenes/lie_groups.py:1116
+[102]: scenes/lie_groups.py:1157
+[103]: scenes/lie_groups.py:1167
+[104]: scenes/lie_groups.py:1171
+[105]: scenes/lie_groups.py:1192
+[106]: scenes/lie_groups.py:1211
+[107]: scenes/lie_groups.py:1242
+[108]: scenes/lie_groups.py:1255
+[109]: scenes/lie_groups.py:1266

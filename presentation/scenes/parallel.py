@@ -42,7 +42,7 @@ class Parallel(SlideScene):
         node; each node couples only to its two neighbours, so one Jacobi sweep
         updates every interior node at once. Parallel over time."""
         # % the DEL system over the whole trajectory
-        self.next_slide(notes="Take the DEL equations.")
+        self.next_slide(notes="We start with the DEL equations.")
         t2c = {
             "L_d": COLOR_LD,
             "q_k": COLOR_PARALLEL,
@@ -67,7 +67,7 @@ class Parallel(SlideScene):
 
         # % the discrete path as a row of nodes
         self.next_slide(
-            notes="This method deals with BVP, meaning the start and endpoints are fixed. The idea of the method is to start off with some guess, which probably doesn't satisfy the equations. Therefore, [...]"
+            notes="This method solves BVPs, meaning the start and endpoints are given as data. The method starts off with some guess, which probably doesn't satisfy the equations. Therefore, [...]"
         )
         y = -0.6
         xs = {
@@ -150,7 +150,7 @@ class Parallel(SlideScene):
 
         # % jacobi-iteration
         self.next_slide(
-            notes="So, the idea is that we're going to make a new guess, with the endpoints fixed, [...]"
+            notes="The idea is that we're going to improve the guess, [...]"
         )
         top = nodes
         top_group = VGroup(*top.values(), pathline)  # ty:ignore[invalid-argument-type]
@@ -202,7 +202,7 @@ class Parallel(SlideScene):
 
         # % one node from its two neighbours + its old self
         self.next_slide(
-            notes="[...] where we are going to find what value of a node will make its local resiudal $0$."
+            notes="[...] by finding out what value of a node will make its local resiudal $0$ given the current neighbors."
         )
 
         def fan(target_key, src_keys, **stroke):
@@ -232,7 +232,7 @@ class Parallel(SlideScene):
 
         # % ...all interior nodes at once (the Jacobi iteration = parallelism)
         self.next_slide(
-            notes="And we do this for every node at once. This gives us parallelism over time. Since the neighbors also changing we probably won't find a solution instantly, but we will get closer (under correct conditions). This is a Jacobi iteration."
+            notes="And we do this for every node at once. This gives us parallelism over time. Since the neighbors also changed we won't find the solution instantly, but we will get closer to it (under correct conditions). This is a Jacobi iteration."
         )
         remaining = {
             "q_1": ["q_0", "q_1", "q_2"],
@@ -318,7 +318,7 @@ class Parallel(SlideScene):
 
         # % Newton update and its Jacobian
         self.next_slide(
-            notes="[...] and find where its linear approximation would be $0$. Notice, that to do this, we assume that $Q$ is a vector space. We repeat Jacobi-Newton, Jacobi-Newton, until we get to a result. The overall method is called, unsurprisingly, Jacobi-Newton (iteration)"
+            notes="[...] and find where its linear approximation would be $0$. Notice, that to do this, we assume that $Q$ is a vector space. And we repeat: Jacobi, Newton, Jacobi, Newton, until we get to a result. The overall method is called, unsurprisingly, Jacobi-Newton (iteration)"
         )
         self.play(Write(newton))
         self.play(FadeIn(jac, shift=0.2 * UP))
@@ -477,7 +477,7 @@ class Parallel(SlideScene):
 
         # % positive definite gives local convergence
         self.next_slide(
-            notes="Namely, if this Hessian is positive-definite, there is local convergence for the method. There is a problem in that checking this has an N^3 runtime with respect to the length (or resolution) of the path. But luckily, we can get around that by exploiting the particular structure this Hessian has."
+            notes="Namely, if this Hessian is positive-definite, there is local convergence for the method. The problem, however, is that checking this has an N^3 runtime with respect to the length (or resolution) of the path. But luckily, we can get around that by exploiting the particular structure this Hessian has."
         )
         converge_note = Tex(
             r"H \succ 0 \enspace \Rightarrow \enspace \text{local convergence}",
@@ -490,7 +490,9 @@ class Parallel(SlideScene):
         self.next_slide(
             notes="Namely, the locality of the DEL equations make H block-tridiagonal."
         )
-        self.play(FadeOut(VGroup(action_eq, h_def, converge_note)), run_time=0.8)
+        self.play(
+            *(FadeOut(m) for m in (action_eq, h_def, converge_note)), run_time=0.8
+        )
 
         locality_eq = Tex(
             r"r_k \text{ depends only on } q_{k-1}, q_k, q_{k+1}",
@@ -519,7 +521,8 @@ class Parallel(SlideScene):
         # % the block-tridiagonal matrix
         self.next_slide(notes="And not only that, but each block corresponds to each second derivative of the Lagrangian at a node.")
         self.play(
-            FadeOut(VGroup(locality_eq, sparsity_eq, tridiag_label)), run_time=0.5
+            *(FadeOut(m) for m in (locality_eq, sparsity_eq, tridiag_label)),
+            run_time=0.5,
         )
 
         cell = 0.8
@@ -665,8 +668,9 @@ class Parallel(SlideScene):
             notes="And now we can state the convergence criteria better. Namely"
         )
         self.play(
-            FadeOut(
-                VGroup(
+            *(
+                FadeOut(m)
+                for m in (
                     heading,
                     H_label,
                     local_edge_sqs,
@@ -710,7 +714,7 @@ class Parallel(SlideScene):
 
         # % convergence quick iterative
         self.next_slide(
-            notes="So, finally, if and only if these recursively defined matrices are positive definite, the Hessian is p.d. and the method converges. This is a pretty full description of the parallel algorithm."
+            notes="So, finally, the most practical condition is that, if and only if these recursively defined matrices are positive definite, the Hessian is p.d. and the method converges. That's what we need to know for the base method."
         )
         self.play(FadeIn(criteria[2], shift=0.5 * RIGHT, run_time=1.0))
 

@@ -230,7 +230,7 @@ class Lagrangians(SlideScene):
         self.play(Write(L_def))
 
         # % Pendulum example
-        self.next_slide(notes="Let's take a closer look at the pendulum.")
+        self.next_slide(notes="Let's see how this works with the pendulum.")
         other_ex = VGroup(
             visuals[0][0],
             *visuals[1:],
@@ -330,7 +330,7 @@ class Lagrangians(SlideScene):
 
         # % Cylinder: TQ = S^1xR
         self.next_slide(
-            notes="[...] which for a pendulum can be represented as a cylinder (height corresponds with velocity)."
+            notes="[...] which for a pendulum is represented by a cylinder (height corresponds with velocity)."
         )
         R = state_space.get_radius()
         cyl_center = state_space.get_center()
@@ -471,7 +471,7 @@ class Lagrangians(SlideScene):
 
         # % color the cylinder by energy level
         self.next_slide(
-            notes="For instance, if we color the phase space by energy, it turns out that all Lagrangian trajectories are level-curves. That is, enegy is conserved. This is an instance of the well-known Noether's theorem, which relates each symmetry to a conservation law (in our case, energy comes from time-symmetry)."
+            notes="For instance, if we color the phase space by energy, it turns out that all Lagrangian trajectories are level-curves. In other words, enegy is conserved. This is an instance of the well-known Noether's theorem, which relates each symmetry to a conservation law (in our case, energy comes from time-symmetry)."
         )
 
         colored_cyl = cyl.copy()
@@ -558,7 +558,7 @@ class Lagrangians(SlideScene):
         equations, then the exact vs approximate discrete Lagrangian."""
         # % continuous action
         self.next_slide(
-            notes="The Lagrangian flow is defined by Hamilton's theorem, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian). Following this variational principle [...]"
+            notes="The Lagrangian flow is derived from Hamilton's principle, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian). Following this variational principle [...]"
         )
         t2c = {
             "L": COLOR_LAGRANGIANS,
@@ -568,11 +568,13 @@ class Lagrangians(SlideScene):
 
         cont_header = Text("Continuous", font_size=54, color=GREY_B)
         L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=72, t2c=t2c)
-        action_cont = Tex(r"S = \int_0^T L(q(t), \dot{q}(t)) \textrm{d} t", t2c=t2c)
-        el_eq = Tex(
+        action_cont_orig = Tex(r"S = \int_0^T L(q(t), \dot{q}(t)) \textrm{d} t", t2c=t2c)
+        action_cont = action_cont_orig.copy()
+        el_eq_orig = Tex(
             r"\frac{\partial L}{\partial q} - \frac{\textrm{d}}{\textrm{d}t} \frac{\partial L}{\partial \dot{q}} = 0",
             t2c=t2c,
         )
+        el_eq = el_eq_orig.copy()
 
         disc_header = Text("Discrete", font_size=54, color=GREY_B)
         Ld_def = Tex(r"L_d : Q \times Q \to \mathbb{R}", font_size=72, t2c=t2c)
@@ -583,15 +585,15 @@ class Lagrangians(SlideScene):
             t2c=t2c,
         )
 
-        sneak = VGroup(action_cont, el_eq).arrange(DOWN, buff=0.3)
+        sneak = VGroup(action_cont_orig, el_eq_orig).arrange(DOWN, buff=0.3)
 
-        self.play(Write(action_cont), run_time=1)
+        self.play(Write(action_cont_orig), run_time=1)
 
         # % Euler-Lagrange equations
         self.next_slide(
-            notes="[...], we can derive the well-known Euler-Lagrange equations, that real trajectories must satisfy. These are very important, as they define the equations of motion for a system, your $f=ma$. But often we want to solve these systems numerically, and we are only approximating a physical system and we 'forget' about the geometry. Long-running simulations, for instance, might see energy that keeps decreasing spontaneously. We can do better."
+            notes="[...], we can derive the well-known Euler-Lagrange equations, that real trajectories must satisfy. These are very important, as they define the equations of motion for a system, your $f=ma$. But we often solve these systems numerically, which approximates a physical system and 'forgets' about the geometry. These generic integrators are not, a priori, symplectic, nor do they need to satisfy conservation laws. Long-running simulations, for instance, might see energy that keeps decreasing spontaneously. We can do better."
         )
-        self.play(Write(el_eq), run_time=1)
+        self.play(Write(el_eq_orig), run_time=1)
 
         # % split screen
         self.next_slide(
@@ -615,12 +617,11 @@ class Lagrangians(SlideScene):
         eqs = VGroup(el_eq.move_to(LEFT_SIDE / 2), del_eq.move_to(RIGHT_SIDE / 2))
         eqs.align_to(actions.get_bottom() + DOWN * BUFF, direction=UP)
 
-        # self.add(headers, defs, actions, eqs)
-
         self.play(
             Write(cont_header),
             Write(L_def),
-            # cont.animate.move_to(LEFT_SIDE / 2 + UP),
+            Transform(el_eq_orig, el_eq),
+            Transform(action_cont_orig, action_cont),
             ShowCreation(divider),
         )
 
@@ -636,7 +637,7 @@ class Lagrangians(SlideScene):
 
         # % discrete Euler-Lagrange
         self.next_slide(
-            notes="[...] and its critial points give rise to the _discrete_ Euler-Lagrange (or DEL) equations. But notice that the DEL equations can be solved numerically, a path is just a finite list of points. So where's the gotcha? Because, there is no free lunch."
+            notes="[...] and its critial points give rise to the _discrete_ Euler-Lagrange (or DEL) equations. This formulation is (locally) equivalent and has all the geometric properties of the continuous one. Except that now it seems that the DEL equations can be solved numerically (up to float precision), right? A path is just a finite list of points. So where's the gotcha? Because, there is no such thing as a free lunch."
         )
         self.play(Write(del_eq))
 
@@ -660,13 +661,13 @@ class Lagrangians(SlideScene):
 
         # % highlight the unknown path
         self.next_slide(
-            notes="[...] would need this $q_{0, 1}$ path, defined as the solution between $q_0$ and $q_1$, which is just as hard to calculate. But, here's the clever trick."
+            notes="[...] would need this $q_{0, 1}$ path, defined as the solution between $q_0$ and $q_1$, which is just as hard to find. But, here's the clever trick."
         )
         self.play(Indicate(Ld_exact["q_{0, 1}"]))
 
         # % approximate discrete Lagrangian
         self.next_slide(
-            notes="We can just approximate the exact discrete Lagrangian, with some quadrature rule. And yes, it is still an approximation, but this approximation _is also_ a Lagrangian system, with all the exact geometric properties that we care about. This is the whole idea of variational integration. We discretize the principle instead of the equations of motion."
+            notes="We can just approximate the discrete Lagrangian, with some quadrature rule. And yes, it is still an approximation, but this approximation _is also_ a Lagrangian system, with all the exact geometric properties that we care about. This is the whole idea of variational integration. We discretize the principle instead of the equations of motion."
         )
         self.play(Write(Ld_approx, run_time=1))
         # % end

@@ -26,6 +26,9 @@ class Defense(SlideScene):
         # what a section adds, so the persistent outline is left untouched.
 
         # % Title slide
+        self.next_slide(
+            notes="Hello everyone, thank you very much for being here; I'm Ody and today I will be presenting my work about parallel variational integrators on forced systems and Lie groups. So, my goal with this presentation is to summarize the work, but also provide some visualizations (that are hard to put on print) which are insightful or explicative as supplementary material to the main work (and that hopefully is interesting for the audience that is less familiar with the paper)."
+        )
         title = Text(
             "Parallel variational integrators\non forced systems and Lie groups",
             font_size=54,
@@ -77,7 +80,9 @@ class Defense(SlideScene):
         title_slide = VGroup(title, author, advisors, footer)
 
         # % Outline slide
-        self.next_slide()
+        self.next_slide(
+            notes="I'll start by briefly reviewing the variational integration framework around Lagrangians, then I'll talk about the parallel variational integrator that was introduced by my supervisor and collaborators, and finally I'll showcase the work I did in extending the algorithm to forced systems and Lie groups."
+        )
         self.play(FadeOut(title_slide))
         heading = Text("Today:", font_size=60)
         heading.to_edge(UP, buff=1.0)
@@ -112,7 +117,7 @@ class Defense(SlideScene):
         outline_slide = VGroup(heading, lines)
 
         # % Lagrangians & geometry
-        self.next_slide()
+        self.next_slide(notes="Let's start with Lagrangian mechanics.")
         self.play(
             lines[0].animate.scale(1.1),
             lines[1].animate.set_opacity(0.3),
@@ -127,7 +132,7 @@ class Defense(SlideScene):
 
         # % Parallel algorithm
         self.next_slide(
-            notes="Now, let's move on to methods for computing these solutions. Namely, I'll showcase the parallel algorithm that the thesis is based on."
+            notes="So, let's see how we can actually compute these solutions. Namely, I'll showcase the parallel algorithm that the thesis is based on."
         )
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
@@ -143,7 +148,7 @@ class Defense(SlideScene):
         self.play_slides(Parallel.slides, section="Parallel algorithm")
 
         # % Forced systems
-        self.next_slide(notes="Let's take a look at forced systems.")
+        self.next_slide(notes="Let's start with forced systems.")
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
             lines[0].animate.set_opacity(0.3),
