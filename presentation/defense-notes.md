@@ -9,49 +9,43 @@
 
 ## Lagrangians & geometry
 
-[1] Many physical systems, everything from pendulums, to robotic arms, to electrons to black holes, can be modeled with <[2]> a configuration space (a smooth manifold that represents the possible states of the system), and <[3]> a Lagrangian, that encodes how the states evolve.
+[1] Many physical systems, everything from pendulums, to robotic arms, to electrons to black holes, can be modeled with <[2]> a configuration space (a smooth manifold that represents the possible states of the system), and <[3]> a Lagrangian, that encodes how the states evolve, <>.
 
-[4] Where the Lagrangian is a function from TQ (the tangent bundle, the phase space), to a real number.
+[4] <> with the Lagrangian being a function from TQ (the tangent bundle, the phase space), to a real number.
 
-[5] Let's look to the pendulum as an example.
+[5] Let's take a closer look at the pendulum.
 
-[6] The configuration space is $S^1$, the circle, <[7]> where the position along the circle indicates the angle
+[6] The configuration space is $S^1$, the circle, <[7]> where the position along the circle indicates the angle.
 
-[8] The largangian acts also on the tangent, which here is the angular velocity
+[8] The Largangian also needs the tangent, which here is the angular velocity, <[9]> so at every point we have an extra $\mathbb{R}^1$ degree of freedom.
 
-[9] So at every point we have an extra $\mathbb{R}^1$ degree of freedom.
+[10] That is, the dynamics are determined on the phase space <[11]> which for a pendulum can be represented as a cylinder (height corresponds with velocity).
 
-[10] That is, the dynamics are determined on the phase space <[11]> which for a pendulum can be represented as a cylinder. (the height corresponds with velocity)
-
-[12] On the phase space, the Lagrangian defines a _flow_, how every point in TQ moves over time. The dynamics of the system are completely determined by this flow. And this flow has important geometric properties.
+[12] On this phase space, the Lagrangian defines a _flow_, the way every point in TQ moves over time. The dynamics of the system are completely determined by this flow. And this flow has important geometric properties.
 
 [13] For instance, if we color the phase space by energy, it turns out that all Lagrangian trajectories are level-curves. That is, enegy is conserved. This is an instance of the well-known Noether's theorem, which relates each symmetry to a conservation law (in our case, energy comes from time-symmetry).
 
-[14] Another property is that small areas get conserved along the flow. This is symplecticity, since there is a certain symplectic form that the Lagrangian flow conserves. Symplecity gives you that trajectories in phase space never collapse, and is a stronger version of Louiville's theorem, which says essentially that volume in phase-space is conserved.
+[14] Another property is that small areas get conserved along the flow. This is symplecticity (there is a certain symplectic form that the Lagrangian flow conserves). Symplecticity gives you that trajectories in phase space never collapse, and is a stronger version of Louiville's theorem, which says essentially that volume in phase-space is conserved.
 
-[15] The Lagrangian flow is defined by Hamilton's theorem, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian), known as Hamilton's principle. Following this variational principle <[16]> , we can derive the well-known Euler-Lagrange equations, that real trajectories must satisfy. These are very important, as they define the equations of motion for a system, your $f=ma$. But often we want to solve these systems numerically, and we are only approximating a physical system and we 'forget' about the geometry. Long-running simulations, for instance, might see energy that keeps decreasing spontaneously. So we can do better.
+[15] The Lagrangian flow is defined by Hamilton's theorem, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian). Following this variational principle <[16]> , we can derive the well-known Euler-Lagrange equations, that real trajectories must satisfy. These are very important, as they define the equations of motion for a system, your $f=ma$. But often we want to solve these systems numerically, and we are only approximating a physical system and we 'forget' about the geometry. Long-running simulations, for instance, might see energy that keeps decreasing spontaneously. We can do better.
 
-[17] See, this is the continuous formulation, but we can also formulate Lagrangians mechanics <[18]> formulate Lagrangians mechanics discretly, with a discrete Largangian (where we think instead of a point and a vector, two nearby points).
+[17] See, I've stated the continuous formulation; but we can also formulate <[18]> Lagrangians mechanics discretly; with a discrete Largangian (where instead of a point and a vector we think about two nearby points). Then, <[19]> the action becomes a sum, <[20]> and its critial points give rise to the _discrete_ Euler-Lagrange (or DEL) equations. But notice that the DEL equations can be solved numerically, a path is just a finite list of points. So where's the gotcha? Because, there is no free lunch.
 
-[19] The action becomes a sum.
-
-[20] And its critial points give rise to the _discrete_ Euler-Lagrange equations. But notice that the discrete Euler-Lagrange equations can be solved numerically, a path is just a finite list of points. So what's the catch? Because, there is no free lunch.
-
-[21] Indeed, the problem is that an exact discrete Lagrangian <[22]> needs this $q_{0, 1}$ path which is defined as the solution between $q_0$ and $q_1$, which is just as hard to calculate. But, here's the clever trick.
+[21] Indeed, the problem is that an exact discrete Lagrangian <[22]> would need this $q_{0, 1}$ path, defined as the solution between $q_0$ and $q_1$, which is just as hard to calculate. But, here's the clever trick.
 
 [23] We can just approximate the exact discrete Lagrangian, with some quadrature rule. And yes, it is still an approximation, but this approximation _is also_ a Lagrangian system, with all the exact geometric properties that we care about. This is the whole idea of variational integration. We discretize the principle instead of the equations of motion.
 
-[24] But how do we actually compute these solutions. Let's briefly talk about the parallel algorithm to do so, which is what my work is based on.
+[24] Now, let's move on to methods for computing these solutions. Namely, I'll showcase the parallel algorithm that the thesis is based on.
 
 ## Parallel algorithm
 
-[25] Let's take the discrete Euler-Lagrange equations.
+[25] Take the DEL equations.
 
-[26] We're interested in BVP, meaning the start and endpoints are fixed. The idea of the method is to start off with some guess, which probably doesn't satisfy the equations. Therefore, <[27]> let's call whatever this value is, $r_k$, for the _residual_ at node $k$. Notice, that the residual for each node depends <[28]> only on itself and its two neighbours
+[26] This method deals with BVP, meaning the start and endpoints are fixed. The idea of the method is to start off with some guess, which probably doesn't satisfy the equations. Therefore, <[27]> let's call whatever this value happens to be, $r_k$, for the _residual_ at node $k$. Notice, that the residual for each node depends <[28]> only on itself and its two neighbours.
 
-[29] So, the idea is that we're going to make a new guess, with the endpoints fixed, <[30]> and where we are going to find what value of a node will make its own resiudal $0$.
+[29] So, the idea is that we're going to make a new guess, with the endpoints fixed, <[30]> where we are going to find what value of a node will make its local resiudal $0$.
 
-[31] For every node at the same time. This gives us parallelism over time. Since the neighbors we're probably not getting to $0$ instantly, but we will if we repeat it. This is a Jacobi iteration.
+[31] And we do this for every node at once. This gives us parallelism over time. Since the neighbors also changing we probably won't find a solution instantly, but we will get closer (under correct conditions). This is a Jacobi iteration.
 
 [32] Now, to compute this solution we actually do a Newton-Raphson step.
 
@@ -59,17 +53,19 @@
 
 [35] Let's quickly see this in action, with a simple free fall example. We have our boundary conditions, and we start with a straight line guess.
 
-[36] If we let the iteration run, we see that it quickly converges to a parabola, as expected. Fun fact, this is the actualy implementation I wrote running.
+[36] If we let the iteration run, we see that it quickly converges to a parabola, as expected (fun fact, this is the actualy implementation I wrote running here).
 
 [37] Of course, it's very important to see when these algorithms converge. In our case, the central piece is
 
 [38] the Hessian of the (discrete) action.
 
-[39] Namely, if this Hessian is positive-definite, there is local convergence for the method. There is a problem in that checking this has an N^3 runtime with respect to the length (or resolution) of the path. But luckily, we can get around that by exploint the particular structure this Hessian has.
+[39] Namely, if this Hessian is positive-definite, there is local convergence for the method. There is a problem in that checking this has an N^3 runtime with respect to the length (or resolution) of the path. But luckily, we can get around that by exploiting the particular structure this Hessian has.
 
 [40] Namely, the locality of the DEL equations make H block-tridiagonal.
 
-[41] And not only that, but each block corresponds <[42]> to each second derivative of the Lagrangian at a node. The diagonal blocks are literally the Newton-correction terms, <[43]> and the off-diagonals are the remaining cross derivatives.
+[41] And not only that, but each block corresponds to each second derivative of the Lagrangian at a node.
+
+[42] The diagonal blocks are literally the Newton-correction terms, <[43]> and the off-diagonals are the remaining cross derivatives.
 
 [44] In fact, we can think of the 'global' hessian as composed by a sum of 'local' hessians, just evaluated at different points.
 

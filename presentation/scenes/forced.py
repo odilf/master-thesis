@@ -59,7 +59,7 @@ class Forced(SlideScene):
 
         # % add the force term and its type
         self.next_slide(
-            notes="We have an extra force on the right as a fibre preserving function. This is the Lagrange-d'Alembert principle and allows us to model non-conservative forces, often used for damping."
+            notes="We have an extra force on the right as a fibre-preserving function between tangent and cotangent spaces. This is the Lagrange-d'Alembert principle and allows us to model non-conservative forces, such as damping."
         )
         self.play(
             LaggedStart(
@@ -91,7 +91,7 @@ class Forced(SlideScene):
 
         # % discrete analogs
         self.next_slide(
-            notes="Just as before, we can take discretize this formulation, which leaves us with similar equations, [...]"
+            notes="We can again discretize this formulation, which leaves us with similar equations as before, [...]"
         )
         self.play(
             LaggedStartMap(
@@ -163,12 +163,12 @@ class Forced(SlideScene):
 
         # % highlight pair
         self.next_slide(
-            notes="[...] a pair of forces, to model the continuous force properly."
+            notes="[...] a pair of forces, to model the continuous one properly."
         )
         self.play(
-            *(FlashUnder(f) for f in [fdel_eq["f_d^+"], fdel_eq["f_d^-"]]),
+            LaggedStart(*(FlashUnder(f) for f in [fdel_eq["f_d^+"], fdel_eq["f_d^-"]])),
             rate_func=lambda t: smooth(t, 2),
-            run_time=2,
+            run_time=3,
         )
 
         # % end
@@ -201,6 +201,7 @@ class Forced(SlideScene):
                 Write(res_eq),
                 FadeIn(same, shift=0.2 * UP),
                 lag_ratio=0.6,
+                run_time=2,
             )
         )
 
@@ -211,7 +212,7 @@ class Forced(SlideScene):
         blocks, so the discrete 'Hessian' is no longer symmetric."""
         # % the catch: a non-symmetric Hessian
         self.next_slide(
-            notes="<sigh> You see, the forced formulation is no longer a critical point formulation, so there is not really a proper Hessian. We can try to adapt the unforced Hessian, [...]"
+            notes="[*sigh*] You see, the forced formulation is no longer a critical point formulation, so there is not really a proper Hessian. We can try to adapt the unforced Hessian, [...]"
         )
         t2c = {
             "L_d": COLOR_LD,
@@ -334,7 +335,7 @@ class Forced(SlideScene):
 
         # % point at the two discrete force terms
         self.next_slide(
-            notes="[...] the force being a pair. So we can't state positive definiteness directly. And honestly it's hard to adapt the convergence condition."
+            notes="[...] the force being a pair. So we can't state positive definiteness directly."
         )
         self.play(Indicate(forced_note["f_d^-"]), Indicate(forced_note["f_d^+"]))
 
@@ -345,11 +346,14 @@ class Forced(SlideScene):
         forcing, plus the spectral test; the general case stays open."""
         # % when does it still converge?
         self.next_slide(
-            notes="I did find this condition that is analogous to the local Hessians being positive definite, but (I guess it is indeed a good analog) it is very very conservative."
+            notes="And honestly it's hard to adapt the convergence conditions."
         )
+
         heading_convergence = Text(
             "When does it still converge?", font_size=42
         ).to_edge(UP, buff=1.0)
+        self.play(Write(heading_convergence), run_time=1)
+
         cond1 = VGroup(
             Text("edge dominance", font_size=28, color=COLOR_FORCED),
             Tex(
@@ -398,24 +402,28 @@ class Forced(SlideScene):
             .move_to(RIGHT_SIDE / 2)
         )
 
-        self.play(Write(heading_convergence), run_time=1)
+
+        # % condition 1
+        self.next_slide(
+            notes="I did find this condition that is analogous to the local Hessians being positive definite, but (I guess it is indeed a good analog) it is very very conservative. Many convergent systems don't satisfy it."
+        )
         self.play(FadeIn(cond1, shift=0.4 * RIGHT))
 
         # % condition 1bis
         self.next_slide(
-            notes="There's a global analog that seems to hold, but I couldn't quite figure out how to tackle it. This is pretty high priority as future work."
+            notes="There's a global analog, and it seems to hold, but I couldn't quite figure out how to tackle the proof. This is pretty high priority as future work."
         )
         self.play(Write(cond1_open), run_time=1)
 
         # % condition 2
         self.next_slide(
-            notes="A more interesting condition is this bound on the size of forces you can add to a convergent system and keep it convergent. First we show it exists, and then we give the bound; but it is also kind of a conservative bound. Realistically, if you want to verify numerically convergence of a particular system in front of you, [...]"
+            notes="A more interesting condition is this bound on the size of forces you can add to a convergent system and keep it convergent. First we show it exists, and then we give the bound; but it is also kind of a conservative bound. Realistically, if you want to verify numerically the convergence of a particular system in front of you, [...]"
         )
         self.play(FadeIn(cond2, shift=0.4 * RIGHT))
 
         # % condition 3
         self.next_slide(
-            notes="[...] your best bet might just be to compute this Jacobi-iteration matrix, that is the fundamental tool behind most of these convergence results."
+            notes="[...] your best bet might just be to compute this Jacobi-iteration matrix, and check its spectral radius, that is the fundamental tool behind most of these convergence results."
         )
         self.play(FadeIn(cond3, shift=0.4 * RIGHT))
 
@@ -554,8 +562,9 @@ class Forced(SlideScene):
 
         self.play(
             Write(heading_example),
-            ShowCreation(axes),
+            FadeIn(axes),
             LaggedStartMap(GrowArrow, wind, lag_ratio=0.02, run_time=2.5),  # ty:ignore[invalid-argument-type]
+            run_time=1
         )
         self.play(
             ShowCreation(guess),

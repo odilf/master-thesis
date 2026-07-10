@@ -127,7 +127,7 @@ class Defense(SlideScene):
 
         # % Parallel algorithm
         self.next_slide(
-            notes="But how do we actually compute these solutions. Let's briefly talk about the parallel algorithm to do so, which is what my work is based on."
+            notes="Now, let's move on to methods for computing these solutions. Namely, I'll showcase the parallel algorithm that the thesis is based on."
         )
         self.play(
             FadeIn(outline_slide, shift=RIGHT),
@@ -175,6 +175,7 @@ class Defense(SlideScene):
         self.play_slides(LieGroups.slides, section="Lie groups")
 
         # % future work
+        self.next_slide()
         self.play_slides(FutureWork.slides, section="Future work")
 
         # % ending: thanks and questions

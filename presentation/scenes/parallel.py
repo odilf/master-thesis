@@ -42,7 +42,7 @@ class Parallel(SlideScene):
         node; each node couples only to its two neighbours, so one Jacobi sweep
         updates every interior node at once. Parallel over time."""
         # % the DEL system over the whole trajectory
-        self.next_slide(notes="Let's take the discrete Euler-Lagrange equations.")
+        self.next_slide(notes="Take the DEL equations.")
         t2c = {
             "L_d": COLOR_LD,
             "q_k": COLOR_PARALLEL,
@@ -67,7 +67,7 @@ class Parallel(SlideScene):
 
         # % the discrete path as a row of nodes
         self.next_slide(
-            notes="We're interested in BVP, meaning the start and endpoints are fixed. The idea of the method is to start off with some guess, which probably doesn't satisfy the equations. Therefore, [...]"
+            notes="This method deals with BVP, meaning the start and endpoints are fixed. The idea of the method is to start off with some guess, which probably doesn't satisfy the equations. Therefore, [...]"
         )
         y = -0.6
         xs = {
@@ -112,12 +112,12 @@ class Parallel(SlideScene):
 
         # % del -> residual
         self.next_slide(
-            notes="[...] let's call whatever this value is, $r_k$, for the _residual_ at node $k$. Notice, that the residual for each node depends [...]"
+            notes="[...] let's call whatever this value happens to be, $r_k$, for the _residual_ at node $k$. Notice, that the residual for each node depends [...]"
         )
         self.play(TransformMatchingTex(del_eq_original, del_eq, key_map={"0": "r_k"}))
 
         # % locality: q_k's equation only touches its two neighbours
-        self.next_slide(notes="[...] only on itself and its two neighbours")
+        self.next_slide(notes="[...] only on itself and its two neighbours.")
         focus = nodes["q_2"]
         neighbors = VGroup(nodes["q_1"], nodes["q_3"])
         couple = VGroup(
@@ -144,7 +144,7 @@ class Parallel(SlideScene):
                 for n in [del_eq["q_{k-1}"], del_eq["q_{k+1}"]]
             ),
             *(ShowCreation(c, rate_func=there_and_back) for c in couple),
-            run_time=3,
+            run_time=2,
         )
         self.play(FadeOut(couple), focus[0].animate.restore())
 
@@ -202,7 +202,7 @@ class Parallel(SlideScene):
 
         # % one node from its two neighbours + its old self
         self.next_slide(
-            notes="[...] and where we are going to find what value of a node will make its own resiudal $0$."
+            notes="[...] where we are going to find what value of a node will make its local resiudal $0$."
         )
 
         def fan(target_key, src_keys, **stroke):
@@ -232,7 +232,7 @@ class Parallel(SlideScene):
 
         # % ...all interior nodes at once (the Jacobi iteration = parallelism)
         self.next_slide(
-            notes="For every node at the same time. This gives us parallelism over time. Since the neighbors we're probably not getting to $0$ instantly, but we will if we repeat it. This is a Jacobi iteration."
+            notes="And we do this for every node at once. This gives us parallelism over time. Since the neighbors also changing we probably won't find a solution instantly, but we will get closer (under correct conditions). This is a Jacobi iteration."
         )
         remaining = {
             "q_1": ["q_0", "q_1", "q_2"],
@@ -432,7 +432,7 @@ class Parallel(SlideScene):
         # % relax the guess to the physical arc
         self.next_slide(
             loop=True,
-            notes="If we let the iteration run, we see that it quickly converges to a parabola, as expected. Fun fact, this is the actualy implementation I wrote running.",
+            notes="If we let the iteration run, we see that it quickly converges to a parabola, as expected (fun fact, this is the actualy implementation I wrote running here).",
         )
         self.play(frame.animate.set_value(n_frames - 1), run_time=5, rate_func=linear)
 
@@ -477,7 +477,7 @@ class Parallel(SlideScene):
 
         # % positive definite gives local convergence
         self.next_slide(
-            notes="Namely, if this Hessian is positive-definite, there is local convergence for the method. There is a problem in that checking this has an N^3 runtime with respect to the length (or resolution) of the path. But luckily, we can get around that by exploint the particular structure this Hessian has."
+            notes="Namely, if this Hessian is positive-definite, there is local convergence for the method. There is a problem in that checking this has an N^3 runtime with respect to the length (or resolution) of the path. But luckily, we can get around that by exploiting the particular structure this Hessian has."
         )
         converge_note = Tex(
             r"H \succ 0 \enspace \Rightarrow \enspace \text{local convergence}",
@@ -517,7 +517,7 @@ class Parallel(SlideScene):
         )
 
         # % the block-tridiagonal matrix
-        self.next_slide(notes="And not only that, but each block corresponds [...]")
+        self.next_slide(notes="And not only that, but each block corresponds to each second derivative of the Lagrangian at a node.")
         self.play(
             FadeOut(VGroup(locality_eq, sparsity_eq, tridiag_label)), run_time=0.5
         )
@@ -552,7 +552,7 @@ class Parallel(SlideScene):
 
         # % label the diagonal and off-diagonal blocks with actual second derivatives
         self.next_slide(
-            notes="[...] to each second derivative of the Lagrangian at a node. The diagonal blocks are literally the Newton-correction terms, [...]"
+            notes="The diagonal blocks are literally the Newton-correction terms, [...]"
         )
 
         diag_label = Tex(
@@ -716,7 +716,7 @@ class Parallel(SlideScene):
 
         # % bridge to the extensions
         self.next_slide(
-            notes="The contribution of the thesis is in extending this algorithm to forced systems that are not symmetric, and to non-vector space configuration spaces."
+            notes="The contribution of the thesis is in extending this algorithm to forced systems that are not symmetric, and to non-vector space configuration manifolds."
         )
 
         bridge = TexText(

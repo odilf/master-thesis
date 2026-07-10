@@ -219,18 +219,18 @@ class Lagrangians(SlideScene):
         self.play(LaggedStartMap(Write, VGroup(state_spaces)))
 
         # % Lagrangians
-        self.next_slide(notes="[...] a Lagrangian, that encodes how the states evolve.")
+        self.next_slide(notes="[...] a Lagrangian, that encodes how the states evolve, [...]")
         self.play(LaggedStartMap(Write, VGroup(lagrangians), lag_ratio=0.2))
 
         # % Lagrangian as a map TQ -> R
         self.next_slide(
-            notes="Where the Lagrangian is a function from TQ (the tangent bundle, the phase space), to a real number."
+            notes="[...] with the Lagrangian being a function from TQ (the tangent bundle, the phase space), to a real number."
         )
         L_def = Tex(r"L : TQ \to \mathbb{R}", font_size=68).shift(2 * DOWN)
         self.play(Write(L_def))
 
         # % Pendulum example
-        self.next_slide(notes="Let's look to the pendulum as an example.")
+        self.next_slide(notes="Let's take a closer look at the pendulum.")
         other_ex = VGroup(
             visuals[0][0],
             *visuals[1:],
@@ -268,7 +268,7 @@ class Lagrangians(SlideScene):
         self.play(FadeIn(state_space_dot))
 
         # % play with angle
-        self.next_slide(notes="[...] where the position along the circle indicates the angle")
+        self.next_slide(notes="[...] where the position along the circle indicates the angle.")
         self.play(
             theta.animate.set_value(PI / 3),
             rate_func=lambda t: wiggle(t, 4),
@@ -277,7 +277,7 @@ class Lagrangians(SlideScene):
 
         # % omega
         self.next_slide(
-            notes="The largangian acts also on the tangent, which here is the angular velocity"
+            notes="The Largangian also needs the tangent, which here is the angular velocity, [...]"
         )
         omega = ValueTracker(1.0)
         omega_arrow = Arrow(
@@ -302,7 +302,7 @@ class Lagrangians(SlideScene):
 
         # % sweep angle and angular velocity
         self.next_slide(
-            notes=r"So at every point we have an extra $\mathbb{R}^1$ degree of freedom."
+            notes=r"[...] so at every point we have an extra $\mathbb{R}^1$ degree of freedom."
         )
         self.play(theta.animate.set_value(PI * 0.8), omega.animate.set_value(3.0))
         self.play(
@@ -330,7 +330,7 @@ class Lagrangians(SlideScene):
 
         # % Cylinder: TQ = S^1xR
         self.next_slide(
-            notes="[...] which for a pendulum can be represented as a cylinder. (the height corresponds with velocity)"
+            notes="[...] which for a pendulum can be represented as a cylinder (height corresponds with velocity)."
         )
         R = state_space.get_radius()
         cyl_center = state_space.get_center()
@@ -365,7 +365,7 @@ class Lagrangians(SlideScene):
 
         # % Lagrangian flow: energy level curves E = omega^2/2 − cos(theta) = const
         self.next_slide(
-            notes="On the phase space, the Lagrangian defines a _flow_, how every point in TQ moves over time. The dynamics of the system are completely determined by this flow. And this flow has important geometric properties."
+            notes="On this phase space, the Lagrangian defines a _flow_, the way every point in TQ moves over time. The dynamics of the system are completely determined by this flow. And this flow has important geometric properties."
         )
 
         def to_cyl_pt(th, om):
@@ -487,7 +487,7 @@ class Lagrangians(SlideScene):
 
         # % symplecticity
         self.next_slide(
-            notes="Another property is that small areas get conserved along the flow. This is symplecticity, since there is a certain symplectic form that the Lagrangian flow conserves. Symplecity gives you that trajectories in phase space never collapse, and is a stronger version of Louiville's theorem, which says essentially that volume in phase-space is conserved."
+            notes="Another property is that small areas get conserved along the flow. This is symplecticity (there is a certain symplectic form that the Lagrangian flow conserves). Symplecticity gives you that trajectories in phase space never collapse, and is a stronger version of Louiville's theorem, which says essentially that volume in phase-space is conserved."
         )
         self.play(FadeOut(flow, lag_ratio=0.3), run_time=1)
 
@@ -558,7 +558,7 @@ class Lagrangians(SlideScene):
         equations, then the exact vs approximate discrete Lagrangian."""
         # % continuous action
         self.next_slide(
-            notes="The Lagrangian flow is defined by Hamilton's theorem, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian), known as Hamilton's principle. Following this variational principle [...]"
+            notes="The Lagrangian flow is defined by Hamilton's theorem, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian). Following this variational principle [...]"
         )
         t2c = {
             "L": COLOR_LAGRANGIANS,
@@ -589,13 +589,13 @@ class Lagrangians(SlideScene):
 
         # % Euler-Lagrange equations
         self.next_slide(
-            notes="[...], we can derive the well-known Euler-Lagrange equations, that real trajectories must satisfy. These are very important, as they define the equations of motion for a system, your $f=ma$. But often we want to solve these systems numerically, and we are only approximating a physical system and we 'forget' about the geometry. Long-running simulations, for instance, might see energy that keeps decreasing spontaneously. So we can do better."
+            notes="[...], we can derive the well-known Euler-Lagrange equations, that real trajectories must satisfy. These are very important, as they define the equations of motion for a system, your $f=ma$. But often we want to solve these systems numerically, and we are only approximating a physical system and we 'forget' about the geometry. Long-running simulations, for instance, might see energy that keeps decreasing spontaneously. We can do better."
         )
         self.play(Write(el_eq), run_time=1)
 
         # % split screen
         self.next_slide(
-            notes="See, this is the continuous formulation, but we can also formulate Lagrangians mechanics [...]"
+            notes="See, I've stated the continuous formulation; but we can also formulate [...]"
         )
         divider = Line(
             TOP + 0.4 * DOWN, BOTTOM + 2.3 * UP, color=GREY_B, stroke_width=1
@@ -626,17 +626,17 @@ class Lagrangians(SlideScene):
 
         # % discrete Lagrangian
         self.next_slide(
-            notes="[...] formulate Lagrangians mechanics discretly, with a discrete Largangian (where we think instead of a point and a vector, two nearby points)."
+            notes="[...] Lagrangians mechanics discretly; with a discrete Largangian (where instead of a point and a vector we think about two nearby points). Then, [...]"
         )
         self.play(Write(Ld_def), Write(disc_header))
 
         # % discrete action
-        self.next_slide(notes="The action becomes a sum.")
+        self.next_slide(notes="[...] the action becomes a sum, [...]")
         self.play(Write(action_disc))
 
         # % discrete Euler-Lagrange
         self.next_slide(
-            notes="And its critial points give rise to the _discrete_ Euler-Lagrange equations. But notice that the discrete Euler-Lagrange equations can be solved numerically, a path is just a finite list of points. So what's the catch? Because, there is no free lunch."
+            notes="[...] and its critial points give rise to the _discrete_ Euler-Lagrange (or DEL) equations. But notice that the DEL equations can be solved numerically, a path is just a finite list of points. So where's the gotcha? Because, there is no free lunch."
         )
         self.play(Write(del_eq))
 
@@ -660,7 +660,7 @@ class Lagrangians(SlideScene):
 
         # % highlight the unknown path
         self.next_slide(
-            notes="[...] needs this $q_{0, 1}$ path which is defined as the solution between $q_0$ and $q_1$, which is just as hard to calculate. But, here's the clever trick."
+            notes="[...] would need this $q_{0, 1}$ path, defined as the solution between $q_0$ and $q_1$, which is just as hard to calculate. But, here's the clever trick."
         )
         self.play(Indicate(Ld_exact["q_{0, 1}"]))
 

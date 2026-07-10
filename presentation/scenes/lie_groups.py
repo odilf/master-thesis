@@ -115,7 +115,7 @@ class LieGroups(SlideScene):
         different orientations."""
         # % title: bridge from "Q is not a vector space"
         self.next_slide(
-            notes="See, Lie groups are smooth manifolds where we only assume a group strucutre. The classic example is $SO(3)$, the group of 3D rotations."
+            notes="See, Lie groups are smooth manifolds where we only assume a group structure. The classic example is $SO(3)$, the group of 3D rotations."
         )
         self.frame.save_state()
         subtitle = TexText(
@@ -127,7 +127,7 @@ class LieGroups(SlideScene):
 
         # % non-commutativity: rotations have no vector-space "+"
         self.next_slide(
-            notes="To drive home the point, rotations don't commute. So if we turn [...]"
+            notes="In this context you can no longer assume typical properties. For instance, rotations don't commute. If we turn [...]"
         )
         heading_rotation_dont_commute = (
             Text("Rotations do not commute", font_size=44)
@@ -203,7 +203,7 @@ class LieGroups(SlideScene):
         back, so a function on T_g G becomes one on the algebra."""
         # % the Newton correction lives in the Lie algebra
         self.next_slide(
-            notes="This means we need to change the Newton-Raphson step. We are no longer able to just 'add' tangent vectors. Instead, we compute the correction in the algebra and apply it via a retraction."
+            notes="As a consequence, we need to change the Newton-Raphson step. We are no longer able to just 'add' tangent vectors."
         )
         heading_newton_correction = (
             Text("The Newton correction lives in the Lie algebra", font_size=40)
@@ -234,13 +234,19 @@ class LieGroups(SlideScene):
         group.move_to(RIGHT_SIDE * 0.7)
         group.fix_in_frame()
 
-        self.play(LaggedStartMap(Write, VGroup(flat, group), lag_ratio=0.5))
+        self.play(Write(flat))
+
+        # % group update
+        self.next_slide(
+            notes="Instead, we compute the correction in the algebra and apply it via a retraction."
+        )
+        self.play(Write(group))
 
         # % sphere schematic
         # A schematic sphere standing in for the curved group, with a tangent
         # plane (the Lie algebra), a correction vector, and the retraction.
         self.next_slide(
-            notes="Let's see what this means. The algebra is the tangent space of a Lie group at the identity (the sphere is not technically a Lie group, but it serves as a stand in for curved surfaces and a translation action)"
+            notes="Let's see what this means. The algebra is the tangent space of a Lie group at the identity (note that the sphere is not technically a Lie group, but it does serve as a stand in for curved surfaces and a translation action)"
         )
         sphere = (
             Sphere(radius=1.6, resolution=(51, 26)).set_color(GREY_A).set_opacity(1)
@@ -334,7 +340,7 @@ class LieGroups(SlideScene):
                     2.20,
                 ),
                 CreateStrokeArrow(xi_vec),
-                lag_ratio=0.2
+                lag_ratio=0.2,
             )
         )
         # % retract xi back down onto the sphere
@@ -359,7 +365,7 @@ class LieGroups(SlideScene):
         # % retraction choice
         # The retraction's defining properties and the two concrete choices.
         self.next_slide(
-            notes="There is no one true retraction, we just need it to have the correct signature, to associate 0 vectors with, well, not doing anything (so, the identity); and for it to be linear around the origin. The general example is the exponential map, but for matrix Lie groups (such as SO(3) and SE(3)), we often use the Cayley map."
+            notes="There is no one true retraction, we just need it to have the correct signature, to associate 0 vectors with, well, not doing anything (so, the identity); and for it to be linear around the origin. The general example is the exponential map, but for matrix Lie groups (such as SO(3) and SE(3)), we often use the Cayley map (since it's more convenient)."
         )
         tau_props = Tex(
             r"\tau : \mathfrak{g} \to G, \quad \tau(0) = e, \quad T_0\tau = \mathrm{Id}",
@@ -392,7 +398,7 @@ class LieGroups(SlideScene):
 
         # % vectors and pushforward
         self.next_slide(
-            notes="The most important aspect of Lie group for our purposes is that the group structure gives us a way to talk about any tangent space using the algebra. This idea is called trivialization. Namely, I often [...]"
+            notes="The most important aspect of Lie groups for our purposes is that the group structure gives us a way to talk about any tangent space using the algebra. This idea is called trivialization. Namely, I often [...]"
         )
         self.play(
             FadeOut(
@@ -756,7 +762,7 @@ class LieGroups(SlideScene):
             ShowCreation(mesh_d),
             FadeIn(gk_dot_d),
             FadeIn(gk_lbl_d),
-            ShowCreation(cov),
+            CreateStrokeArrow(cov),
             FadeIn(cov_lbl),
             run_time=1.2,
         )
@@ -774,10 +780,8 @@ class LieGroups(SlideScene):
         eq1.move_to(np.array([LX, 1.2, 0])).fix_in_frame()
         self.play(Write(eq1), run_time=1)
 
-        self.play(Write(eq1), CreateStrokeArrow(cov), FadeIn(cov_lbl))
-
         # % mark the nearby solution where the residual vanishes
-        self.next_slide()
+        self.next_slide(notes="This is where the solution is.")
         # There is a nearby point where the residual vanishes: the solution.
         star_lbl = self.make_billboard(
             Tex(r"r_k = 0", font_size=44, color=GREEN_B)
@@ -786,7 +790,7 @@ class LieGroups(SlideScene):
 
         # % step 2: assume the residual varies linearly and aim for its zero.
         self.next_slide(
-            notes="And we are going to assume that the residual changes linearly."
+            notes="We are going to assume that the residual changes linearly, as so."
         )
         eq2 = Tex(
             r"r_k(g_k \tau(\delta\xi)) \approx r_k + \widetilde{\mathcal{D}}_k \delta\xi = 0",
@@ -830,14 +834,14 @@ class LieGroups(SlideScene):
         cap3.next_to(eq3D, DOWN, buff=0.6).fix_in_frame()
 
         self.play(
-            FadeOut(VGroup(cap2, gk_lbl_d, cov_lbl, cov)),
+            FadeOut(VGroup(cap2)),
             TransformMatchingTex(eq2, eq3),
         )
         self.play(Write(eq3D), Write(cap3))
 
         # % linearity visualization
         self.next_slide(
-            notes="[...] taking a small neighborhood around us, and extrapolating it to the rest of the manifold."
+            notes="[...] taking a small neighborhood around us, [...]"
         )
         r0 = residual_val(n_gk)
         eps = 1e-3
@@ -854,7 +858,7 @@ class LieGroups(SlideScene):
 
         # A colored cap around g_k. Small = "what the residual looks like locally";
         # grown outward with the *linear* model = "assume it continues linearly".
-        def disk_of_radius(rmax, res=(10, 48)):
+        def disk_of_radius(rmax, res=(10, 48)) -> ParametricSurface:
             def disk_uv(r, phi):
                 return center_r + radius * 1.005 * normalize(
                     n_gk + r * np.cos(phi) * t1 + r * np.sin(phi) * t2
@@ -877,8 +881,8 @@ class LieGroups(SlideScene):
             d.set_shading(0, 0, 0)
             return d
 
-        disk = disk_of_radius(0.2)
-        disk_big = disk_of_radius(1.7)
+        disk = disk_of_radius(0.2).set_z_index(-1)
+        disk_big = disk_of_radius(1.7).set_z_index(-1)
 
         # The correction, drawn on the surface: a geodesic from g_k to the zero.
         dxi_geo = stroke_arrow(
@@ -890,28 +894,15 @@ class LieGroups(SlideScene):
 
         # Strip the sphere's color down to a small cap around g_k (the local residual),
         # then extend that local look outward under the linear model.
-        self.play(sphere_d.animate.set_color(GREY_B), FadeIn(disk))
+        self.play(sphere_d.animate.set_color(GREY_B), FadeIn(disk, scale=100))
+
+        # % step 3b: extrapolate linear approximation
+        self.next_slide(notes="[...] and extrapolating it to the rest of the manifold.")
         self.play(Transform(disk, disk_big), run_time=2.0)
         self.play(CreateStrokeArrow(dxi_geo), FadeIn(dxi_geo_lbl))
 
         # % step 4, pullbacks
         # TODO: show the sphere rotating g to the identity to show that computations are done there.
-
-        # % step 5 reduction to the vector-space case.
-        self.next_slide()
-        conclusion = VGroup(
-            TexText(
-                r"$G = \mathbb{R}^n \Rightarrow T_eL = \mathrm{Id}$: recovers the vector-space step.",
-                font_size=24,
-                color=GREY_B,
-            ),
-        ).arrange(DOWN, buff=0.3, aligned_edge=LEFT)
-        conclusion.move_to(
-            LX * RIGHT + BOTTOM + 0.5 * UP, aligned_edge=BOTTOM
-        ).fix_in_frame()
-        self.play(
-            LaggedStartMap(FadeIn, conclusion, shift=0.2 * UP, lag_ratio=0.3),
-        )
 
         # Clear updaters so the auto-cleanup fade is clean.
         for m in (
@@ -985,7 +976,7 @@ class LieGroups(SlideScene):
 
         self.play(
             LaggedStartMap(
-                FadeIn, VGroup(heading_three, *cols), lag_ratio=0.05, run_time=1.5
+                FadeIn, VGroup(heading_three, *cols), lag_ratio=0.05, run_time=1.5, shift=0.1*UP
             )
         )
 
@@ -1065,7 +1056,7 @@ class LieGroups(SlideScene):
 
         # % the catch: the identity holds only at the single point xi = 0
         self.next_slide(
-            notes="[...] completely wrong. At least in terms of procedure. You can't just pattern-match the syntax, you have to think about what these things mean. "
+            notes="[...] completely wrong. At least in terms of procedure, these are constants. You can't just pattern-match the syntax, you have to think about what these things mean. "
         )
         cross = Cross(naive)
         warn = TexText(
@@ -1123,7 +1114,7 @@ class LieGroups(SlideScene):
 
         # % but both r_k-weighted terms vanish at a solution -> the match returns
         self.next_slide(
-            notes="...that, funnilly enough, do happen to match at a solution."
+            notes="...that, funnilly enough, do happen to collapse to the thing at a solution. In the end, the convergence criteria are the same, but in Lie algebra coordinates."
         )
         hess_dk = Tex(
             r"\partial^2_{\xi_k} \Sigma(0) = " + DK,
@@ -1164,18 +1155,21 @@ class LieGroups(SlideScene):
         # one space); a Lie group earns the same uniformity by left-translating
         # everything into the algebra. The open third column tees up future work.
         self.next_slide(
-            notes="And before closing out the presentation, I wanted to comment on the work at a slightly higher level. This is the update in the Lie group. But vector spaces are groups, right? What happens if we treat the vector space as a group?"
+            notes="And before closing out, I to make one final observation."
         )
         group_update = Tex(
             r"\bar g_k = g_k \cdot \tau(\delta\xi_k)",
             font_size=48,
             t2c={r"\tau": COLOR_LIE_GROUPS, r"\delta\xi_k": COLOR_LIE_GROUPS},
         ).move_to(UP * 0.8)
+
+        # % lie algebra update
+        self.next_slide(notes="This is the update in the Lie group. But vector spaces are groups, right? What happens if we treat the vector space as a group?")
         self.play(FadeIn(group_update, shift=0.2 * UP))
 
         # % capstone: the retraction collapses -- the vector-space update falls out
         self.next_slide(
-            notes="Well, we get exactly the same update we had before. Now, in math (and in many things), there is a point where you understand something, where you say 'this makes sense'. And then there's a point where you _really_ understand it, when you say 'of course it's this way, why wouldn't it be?'. It's hard to trigger that feeling on command, but I wanted to share a moment where this sort of happened to me. You see, this... this makes sense."
+            notes="Well, we get exactly the same update we had before. Now, in math (and in many things), there is a point where you understand something, where you say 'this makes sense'. And then there's a point where you _really_ understand something, when you say 'of course it's this way, why wouldn't it be? It makes so much sense.'. It's not easy to trigger that feeling on command, but I wanted to share a small instance where this sort of happened to me during this work. You see, this... this makes sense."
         )
         vec_update = Tex(
             r"\bar q_k = q_k + \delta q_k",
@@ -1196,7 +1190,7 @@ class LieGroups(SlideScene):
 
         # % capstone: two makings-precise of one idea, side by side
         self.next_slide(
-            notes="But, there is a different way we can think about it. See, both methods can be thought of as saying, in some sense, the same thing."
+            notes="But, there is a different way we can think about it. See, both methods can be thought of as saying, in some sense, a similar thing."
         )
         X_VS, X_LG = -2.2, 2.2
         EQ_Y = 0.2
@@ -1246,7 +1240,7 @@ class LieGroups(SlideScene):
 
         # % capstone: where each gets its uniformity
         self.next_slide(
-            notes="[...] the space, the tangent space, and the cotangent space are structurally the same, even though nominally they're different. It's like not just canonically ismorphic, but super-canonically isomorphic. Moving between fibers is so uniform that we almost never even think about it. In a similar light, [...]"
+            notes="[...] the space, the tangent space, and the cotangent space are structurally identical, even though nominally they're different. It's not that they're canonically ismorphic, but like ultra-canonically isomorphic. Moving between fibers is so uniform that we almost never even think about it. In a similar light, even though groups are not _that_ uniform, [...]"
         )
         vs_cap = VGroup(
             TexText(
@@ -1259,7 +1253,7 @@ class LieGroups(SlideScene):
 
         # % where the Lie group gets its uniformity
         self.next_slide(
-            notes="[...] even though groups are not _that_ uniform, they encode a notion of symmetry, which is precisely what we're using here. It gives us a way to talk in general about these transformations that span the manifold. That's the name of the game here, finding out what the right language is for working in these more abstract spaces."
+            notes="[...] they encode this notion of symmetry, which is precisely what we're using for the algorithm. It's because it gives us a way to talk in general about these transformations that span the manifold, across fibers. And that's ultimately the name of the game here, finding out what the right language is for working in these more abstract spaces. Which of course begs the question, [...]"
         )
         lg_cap = VGroup(
             TexText("group symmetry", font_size=32, color=GREY_B),
@@ -1270,7 +1264,7 @@ class LieGroups(SlideScene):
 
         # % capstone: and when the space has no group of its own? (future work)
         self.next_slide(
-            notes="Which of course begs the question, can this be generalized further? Or rather, what is the right language for homogeneous spaces, or Lie groupoid? Which brings us of course to future work."
+            notes="[...] can this be generalized further? Or rather, I would argue, the question is 'what is the right language for...' homogeneous spaces, or Lie groupoids. And with that I'll move swiftly to future work."
         )
         vs_col = VGroup(vs_label, vec_update, vs_cap)
         lg_col = VGroup(lg_label, group_update, lg_cap)
