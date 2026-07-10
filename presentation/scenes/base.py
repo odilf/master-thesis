@@ -22,8 +22,15 @@ INLINE_TRANSITION = "<>"
 MARKER = re.compile(r"\[\.{1,}\]")
 LEADING_MARKER = re.compile(r"^\s*\[\.{1,}\]")
 
-# How many trailing words of the previous note to echo when a note continues it.
-PEEK_WORDS = 6
+# Character budget for the backward/forward peek lines (trimmed at a word
+# boundary, never mid-word).
+PEEK_CHAR_LIMIT = 80
+
+# Colors (as HTML hex, used in <span style="color:...">) for the two kinds of
+# peek line: the faint echo of the previous note's tail, and the preview of
+# what's coming up next.
+TAIL_COLOR = "#777777"
+PEEK_COLOR = "#6fa8dc"
 
 # When set (by scripts/collect_notes.py), scenes record presenter notes instead
 # of rendering: no window opens and animations are skipped. See that script.
@@ -34,10 +41,7 @@ COLLECTING_NOTES = os.environ.get("COLLECT_NOTES") == "1"
 # pass cannot know on its own. `scripts/collect_notes.py` runs the deck ahead of
 # time in collection mode and dumps this file (an ordered list of every slide and
 # its notes); the `just render` recipe regenerates it before every render.
-SLIDE_DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "slides-data.json")
-
-# How many words of the next slide's notes to preview in the presenter view.
-PEEK_AHEAD_WORDS = 16
+SLIDE_DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "slides", "slides-data.json")
 
 
 def load_slide_data() -> dict:
@@ -82,10 +86,35 @@ def _record_note(text: str) -> None:
     note_sections[-1]["notes"].append({"text": text, "file": path, "line": line})
 
 
-def _tail_words(text: str) -> str:
-    """The last few words of a note, with any continuation markers removed."""
+def _fit_chars(words: list[str], limit: int) -> list[str]:
+    """The longest prefix of `words` that joins to at most `limit` characters."""
+    out: list[str] = []
+    length = 0
+    for word in words:
+        length += len(word) + (1 if out else 0)
+        if length > limit:
+            break
+        out.append(word)
+    return out
+
+
+def _tail_text(text: str, limit: int) -> str:
+    """The end of a note, up to `limit` characters, markers removed. Left-padded
+    with periods so the backward peek always occupies exactly `limit` characters
+    (the padding stands in for the part of the note that got cut off)."""
     words = MARKER.sub("", text).split()
-    return " ".join(words[-PEEK_WORDS:])
+    words.reverse()
+    tail = " ".join(reversed(_fit_chars(words, limit)))
+    return "." * (limit - len(tail)) + tail
+
+
+def _head_text(text: str, limit: int) -> str:
+    """The start of a note, up to `limit` characters, markers removed. Ends
+    with an ellipsis if it had to be cut short."""
+    words = MARKER.sub("", text).split()
+    fitted = _fit_chars(words, limit)
+    suffix = "..." if len(fitted) < len(words) else ""
+    return " ".join(fitted) + suffix
 
 
 class SlideScene(InteractiveScene, Slide):
@@ -167,20 +196,39 @@ class SlideScene(InteractiveScene, Slide):
         self.add(bar)
         self._progress_fill = fill
 
-    def _peek_ahead(self) -> str:
-        """The notes of the next slide that actually says something, trimmed to a
-        preview. `_slide_index` is the 0-based index of the slide we are entering,
-        so the following non-empty note is the one to preview."""
+    def _next_note(self) -> tuple[str, bool]:
+        """The next non-empty note ahead of `_slide_index`, and whether it opens
+        with a continuation marker (i.e. continues straight on from this one).
+        Returns ("", False) once there is no more spoken content."""
         slides = self._get_slide_data().get("slides", [])
         for entry in slides[self._slide_index + 1:]:
-            text = MARKER.sub("", entry.get("text", "")).strip()
+            raw = entry.get("text", "")
+            text = MARKER.sub("", raw).strip()
             if text:
-                words = text.split()
-                preview = " ".join(words[:PEEK_AHEAD_WORDS])
-                if len(words) > PEEK_AHEAD_WORDS:
-                    preview += "..."
-                return preview
-        return ""
+                return text, bool(LEADING_MARKER.match(raw))
+        return "", False
+
+    def _decorate_notes(self, raw: str) -> str:
+        """The note text shown to the presenter: a faint echo of the previous
+        note's tail if this one continues it, the note itself, and a peek at
+        what's coming up next (its continuation, or a "Next:" preview)."""
+        if LEADING_MARKER.match(raw) and self._prev_note:
+            tail = _tail_text(self._prev_note, PEEK_CHAR_LIMIT)
+            backward = f'<span style="color:{TAIL_COLOR}">... {tail}</span>'
+        else:
+            backward = ""
+        lines = [backward, MARKER.sub("", raw).strip()]
+
+        if raw.strip():
+            self._prev_note = raw
+
+        next_text, continues = self._next_note()
+        if next_text:
+            preview = _head_text(next_text, PEEK_CHAR_LIMIT)
+            label = "" if continues else "**Next:** "
+            lines.append(f'<span style="color:{PEEK_COLOR}">{label}{preview}</span>')
+
+        return "\n\n".join(lines)
 
     def next_slide(self, *args, **kwargs) -> None:
         # `note` is a typo that appears in one call; accept it too so the note is
@@ -190,20 +238,7 @@ class SlideScene(InteractiveScene, Slide):
             _record_note(raw)
             return
 
-        # When a note continues the previous one (it opens with a [...] marker),
-        # replace that marker with the tail of the previous note in brackets, so
-        # while presenting you can peek at what you were just saying.
-        notes = raw
-        match = LEADING_MARKER.match(notes)
-        if match and self._prev_note:
-            notes = f"[{_tail_words(self._prev_note)}]" + notes[match.end():]
-        if raw.strip():
-            self._prev_note = raw
-
-        # Preview what comes next so the presenter can look forward while talking.
-        peek = self._peek_ahead()
-        if peek:
-            notes = f"{notes}\n\n_next:_ {peek}".lstrip()
+        notes = self._decorate_notes(raw)
 
         self._slide_index += 1
         self._ensure_progress_bar()
