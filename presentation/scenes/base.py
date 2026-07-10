@@ -31,6 +31,7 @@ PEEK_CHAR_LIMIT = 80
 # what's coming up next.
 TAIL_COLOR = "#777777"
 PEEK_COLOR = "#6fa8dc"
+PEEK_COLOR_FAINT = "#3a71a5"
 
 # When set (by scripts/collect_notes.py), scenes record presenter notes instead
 # of rendering: no window opens and animations are skipped. See that script.
@@ -99,13 +100,12 @@ def _fit_chars(words: list[str], limit: int) -> list[str]:
 
 
 def _tail_text(text: str, limit: int) -> str:
-    """The end of a note, up to `limit` characters, markers removed. Left-padded
-    with periods so the backward peek always occupies exactly `limit` characters
-    (the padding stands in for the part of the note that got cut off)."""
+    """The end of a note, up to `limit` characters, markers removed. Begins with
+    an ellipsis if it had to be cut short (the mirror of `_head_text`)."""
     words = MARKER.sub("", text).split()
-    words.reverse()
-    tail = " ".join(reversed(_fit_chars(words, limit)))
-    return "." * (limit - len(tail)) + tail
+    fitted = list(reversed(_fit_chars(list(reversed(words)), limit)))
+    prefix = "..." if len(fitted) < len(words) else ""
+    return prefix + " ".join(fitted)
 
 
 def _head_text(text: str, limit: int) -> str:
@@ -118,9 +118,6 @@ def _head_text(text: str, limit: int) -> str:
 
 
 class SlideScene(InteractiveScene, Slide):
-    # The last non-empty note we saw, so a continuation can echo its tail.
-    _prev_note = ""
-
     # A subtle progress bar, built lazily on the first `next_slide`. Its fill
     # width is driven by an updater reading `_slide_index`, so it re-derives
     # itself every frame and survives `play_slides`' state save/restore for free.
@@ -175,7 +172,7 @@ class SlideScene(InteractiveScene, Slide):
         track.move_to(POSITION)
 
         fill = Rectangle(width=FRAME_WIDTH, height=height)
-        fill.set_fill(LIGHT_PINK, opacity=0.6)
+        fill.set_fill(LIGHT_PINK, opacity=0.3)
         fill.set_stroke(width=0)
 
         # Fall back to counting our own indices when the data file is missing, so
@@ -208,27 +205,48 @@ class SlideScene(InteractiveScene, Slide):
                 return text, bool(LEADING_MARKER.match(raw))
         return "", False
 
+    def _prev_note(self, current_raw: str) -> tuple[str, bool]:
+        """The previous non-empty note behind `_slide_index`, and whether the
+        current note continues straight on from it (i.e. `current_raw` opens with
+        a continuation marker). Returns ("", False) at the start of the deck.
+        The mirror of `_next_note`, so it skips silent click-throughs too."""
+        slides = self._get_slide_data().get("slides", [])
+        for entry in reversed(slides[:self._slide_index]):
+            raw = entry.get("text", "")
+            text = MARKER.sub("", raw).strip()
+            if text:
+                return text, bool(LEADING_MARKER.match(current_raw))
+        return "", False
+
     def _decorate_notes(self, raw: str) -> str:
-        """The note text shown to the presenter: a faint echo of the previous
-        note's tail if this one continues it, the note itself, and a peek at
-        what's coming up next (its continuation, or a "Next:" preview)."""
-        if LEADING_MARKER.match(raw) and self._prev_note:
-            tail = _tail_text(self._prev_note, PEEK_CHAR_LIMIT)
-            backward = f'<span style="color:{TAIL_COLOR}">... {tail}</span>'
+        """The note text shown to the presenter, always three blocks so the middle
+        (current) block sits at a fixed spot to read from: a faint echo of the
+        previous note's tail, the note itself, and a peek at what's next. A "..."
+        connector means the line flows from/into the same logical slide; a bold
+        "Prev:"/"Next:" label means it is a separate slide."""
+        prev_text, continues_prev = self._prev_note(raw)
+        if prev_text:
+            tail = _tail_text(prev_text, PEEK_CHAR_LIMIT)
+            lead = "... " if continues_prev else "**Prev:** "
+            backward = f'<span style="color:{TAIL_COLOR}">{lead}{tail}</span>'
         else:
-            backward = ""
-        lines = [backward, MARKER.sub("", raw).strip()]
+            backward = f'<span style="color:{TAIL_COLOR}">(start of deck)</span>'
 
-        if raw.strip():
-            self._prev_note = raw
+        # On a silent click-through (empty note) echo the previous note dimmed, so
+        # the anchor line is never blank and context does not vanish mid-slide.
+        current = MARKER.sub("", raw).strip()
+        if not current and prev_text:
+            current = f'<span style="color:{TAIL_COLOR}">{prev_text}</span>'
 
-        next_text, continues = self._next_note()
+        next_text, continues_next = self._next_note()
         if next_text:
             preview = _head_text(next_text, PEEK_CHAR_LIMIT)
-            label = "" if continues else "**Next:** "
-            lines.append(f'<span style="color:{PEEK_COLOR}">{label}{preview}</span>')
+            lead = "... " if continues_next else f'<b style="color:{PEEK_COLOR_FAINT}">Next:</b> '
+            forward = f'<span style="color:{PEEK_COLOR}">{lead}{preview}</span>'
+        else:
+            forward = f'<span style="color:{PEEK_COLOR}">(end of deck)</span>'
 
-        return "\n\n".join(lines)
+        return "\n\n".join([backward, current, forward])
 
     def next_slide(self, *args, **kwargs) -> None:
         # `note` is a typo that appears in one call; accept it too so the note is
