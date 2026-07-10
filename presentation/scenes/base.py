@@ -122,6 +122,9 @@ class SlideScene(InteractiveScene, Slide):
     # width is driven by an updater reading `_slide_index`, so it re-derives
     # itself every frame and survives `play_slides`' state save/restore for free.
     _progress_fill = None
+    # Smoothed fill fraction the bar actually draws. It eases toward the raw
+    # index-derived target every frame so clicks glide instead of snapping.
+    _progress_value = 0.0
 
     # 0-based index of the current slide, and the pre-computed slide data (total
     # count and the ordered notes used for forward peeking). Both are filled from
@@ -164,7 +167,7 @@ class SlideScene(InteractiveScene, Slide):
 
         left = LEFT_SIDE  # left frame edge, in screen coordinates
         height = 0.1
-        POSITION = BOTTOM + height*UP/2
+        POSITION = BOTTOM + height*UP*0.2
 
         track = Rectangle(width=FRAME_WIDTH, height=height)
         track.set_fill(GREY, opacity=0.12)
@@ -179,9 +182,17 @@ class SlideScene(InteractiveScene, Slide):
         # the bar still advances (it just cannot know how close to the end it is).
         total = self._get_slide_data().get("slide_count", 0)
 
-        def update_fill(mob):
+        # How fast the drawn fraction catches up to the target (per second);
+        # ~8 settles the glide in roughly 0.3-0.5s.
+        SPEED = 2.0
+
+        def update_fill(mob, dt):
             denom = max(total, self._slide_index, 1)
-            frac = min(self._slide_index / denom, 1.0)
+            target = min(self._slide_index / denom, 1.0)
+            cur = self._progress_value
+            cur += (target - cur) * min(dt * SPEED, 1.0)
+            self._progress_value = cur
+            frac = cur
             mob.set_width(max(FRAME_WIDTH * frac, 1e-4), stretch=True)
             mob.set_height(height, stretch=True)
             mob.move_to(POSITION + RIGHT*(left[0] + mob.get_width() / 2))
