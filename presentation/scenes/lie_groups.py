@@ -76,7 +76,61 @@ class CreateStrokeArrow(Animation):
         self.tip.set_points_as_corners(
             [pos, pos - tan * tl + wid * tw, pos - tan * tl - wid * tw, pos]
         )
-        self.tip.set_opacity(min(alpha / self.fade_frac, 1.0))
+        self.tip.set_opacity(min(alpha / 0.45, 1.0))
+
+
+class RollGrowArrow(Animation):
+    """Grow a geodesic arrow from `n_a` to `n_b` on a sphere while rolling it about
+    `axis` by frac*theta, so the advancing tip stays pinned at the identity for every
+    partial length. Mutates the arrow's points in place (no per-frame reallocation or
+    `become`), so it stays cheap enough for live playback."""
+
+    def __init__(
+        self,
+        arrow: VGroup,
+        n_a,
+        n_b,
+        center,
+        radius,
+        axis,
+        theta,
+        tail_length=0.15,
+        tail_width=0.09,
+        n_pts=20,
+        **kwargs,
+    ):
+        self.stroke, self.tip = arrow
+        self.n_a, self.n_b = normalize(n_a), normalize(n_b)
+        self.center, self.radius = center, radius
+        self.axis, self.theta = normalize(axis), theta
+        self.tl, self.tw, self.n_pts = tail_length, tail_width, n_pts
+        self.ang = float(np.arccos(np.clip(np.dot(self.n_a, self.n_b), -1.0, 1.0)))
+        super().__init__(arrow, **kwargs)
+
+    def _dir(self, s):
+        if self.ang < 1e-6:
+            return self.n_a
+        return (
+            np.sin((1 - s) * self.ang) * self.n_a + np.sin(s * self.ang) * self.n_b
+        ) / np.sin(self.ang)
+
+    def interpolate_mobject(self, alpha: float) -> None:
+        frac = max(self.rate_func(self.time_spanned_alpha(alpha)), 1e-3)
+        ss = np.linspace(0, frac, self.n_pts)
+        dirs = np.array([self._dir(s) for s in ss])
+        pts = self.center + self.radius * 1.005 * dirs
+        R = rotation_matrix(frac * self.theta, self.axis)[:3, :3]
+        pts = (pts - self.center) @ R.T + self.center
+        self.stroke.set_points_as_corners(pts[:-2])
+
+        tan = normalize(pts[-1] - pts[-2])
+        up = R @ self._dir(frac)
+        wid = normalize(np.cross(up, tan))
+        tip = pts[-1]
+        self.tip.set_points_as_corners(
+            [tip, tip - tan * self.tl + wid * self.tw, tip - tan * self.tl - wid * self.tw, tip]
+        )
+        self.tip.set_opacity(min(alpha / 0.25, 1.0))
 
 
 def make_brick(dims=(2.0, 1.2, 0.5)) -> Prism:
@@ -698,7 +752,7 @@ class LieGroups(SlideScene):
             return float(np.clip(ang / spread, 0.0, 1.0))
 
         def residual_color(val):
-            return interpolate_color(BLUE_E, RED_D, val, interp_by_hsl=True)
+            return interpolate_color(BLUE_D, RED_D, val, interp_by_hsl=True)
 
         sphere_d = Sphere(radius=radius, resolution=(101, 51)).move_to(center_r)
         sphere_d.color_by_uv_function(
@@ -715,7 +769,7 @@ class LieGroups(SlideScene):
 
         gk_pt = center_r + n_gk * radius
         star_pt = center_r + n_star * radius
-        gk_dot_d = Sphere(radius=0.05).set_color(WHITE).move_to(gk_pt)
+        gk_dot_d = Sphere(radius=0.05).set_color(WHITE).move_to(gk_pt).set_z_index(10)
         gk_lbl_d = self.make_billboard(
             Tex("g_k", font_size=46, color=WHITE)
         ).add_updater(lambda m: m.next_to(gk_dot_d, UP, buff=0.06))
@@ -840,7 +894,7 @@ class LieGroups(SlideScene):
         )
         self.play(Write(eq3D), Write(cap3))
 
-        # % linearity visualization
+        # % step3: linearity visualization
         self.next_slide(
             notes="[...] taking a small neighborhood around us, [...]"
         )
@@ -882,35 +936,123 @@ class LieGroups(SlideScene):
             d.set_shading(0, 0, 0)
             return d
 
-        disk = disk_of_radius(0.2).set_z_index(-1)
-        disk_big = disk_of_radius(1.7).set_z_index(-1)
-
-        # The correction, drawn on the surface: a geodesic from g_k to the zero.
-        dxi_geo = stroke_arrow(
-            slerp_pts(n_gk, n_star_almost), COLOR_LIE_GROUPS, up=n_star, tail_width=0.09
-        )
-        dxi_geo_lbl = self.make_billboard(
-            Tex(r"\delta\xi", font_size=46, color=COLOR_LIE_GROUPS)
-        ).add_updater(lambda m: m.next_to(dxi_geo, DOWN, buff=0.05))
+        disk = disk_of_radius(0.2).set_z_index(-2)
+        disk_big = disk_of_radius(1.7).set_z_index(-2)
 
         # Strip the sphere's color down to a small cap around g_k (the local residual),
         # then extend that local look outward under the linear model.
         self.play(sphere_d.animate.set_color(GREY_B), FadeIn(disk, scale=100))
 
         # % step 3b: extrapolate linear approximation
-        self.next_slide(notes="[...] and extrapolating it to the rest of the manifold.")
+        self.next_slide(notes="[...] and extrapolating it to the rest of the manifold.You can see that here we have a pullback and a pushforward.")
         self.play(Transform(disk, disk_big), run_time=2.0)
-        self.play(CreateStrokeArrow(dxi_geo), FadeIn(dxi_geo_lbl))
 
-        # % step 4, pullbacks
-        # TODO: show the sphere rotating g to the identity to show that computations are done there.
+        # % step 4: build the correction in the algebra.
+        # Now we actually compute the update. We mark the identity e (with its algebra
+        # plane g = T_eG), then left-translate g_k onto e and grow the correction
+        # delta-xi there -- so the whole correction is read off at the identity.
+        self.next_slide(
+            notes="This is because the update itself is computed in the algebra."
+        )
 
-        # Clear updaters so the auto-cleanup fade is clean.
-        for m in (
-            gk_lbl_d,
-            star_lbl,
-            gk_dot_d,
-        ):
+        n_id = np.array([0, 0, 1])
+        id_pt = center_r + radius * n_id
+        e_plane = (
+            Square(side_length=1.3)
+            .set_stroke(COLOR_LIE_GROUPS, 2)
+            .set_fill(COLOR_LIE_GROUPS, 0.06)
+            .apply_matrix(z_to_vector(n_id))
+            .move_to(id_pt)
+        )
+        e_dot = Sphere(radius=0.06).set_color(WHITE).move_to(id_pt)
+        e_lbl = (
+            self.make_billboard(Tex("e", font_size=40, color=WHITE))
+            .move_to(id_pt)
+            .shift(0.2 * OUT)
+        )
+
+        alg_cap = Tex(
+            r"\delta\xi \in \mathfrak{g} = T_eG",
+            font_size=34,
+            t2c={r"\delta\xi": COLOR_LIE_GROUPS},
+        )
+        alg_cap.move_to(np.array([LX, -1.9, 0])).fix_in_frame()
+        alg_note = TexText(
+            r"the update is computed in the algebra", font_size=24, color=GREY_B
+        )
+        alg_note.next_to(alg_cap, DOWN, buff=0.25).fix_in_frame()
+
+        self.play(
+            ShowCreation(e_plane),
+            FadeIn(e_dot),
+            # FadeIn(e_lbl),
+            Write(alg_cap),
+            FadeIn(alg_note),
+        )
+
+        # % step 4b: pull back to the algebra -- left-translate g_k onto the identity.
+        # Rotate the whole manifold (and everything riding on it) so g_k lands on e.
+        # The identity marker e and its algebra plane stay put: they do NOT rotate.
+        self.next_slide(
+            notes="We can think of it as moving everything to the algebra [...]"
+        )
+        pullback_angle = float(np.arccos(np.clip(np.dot(n_gk, n_id), -1.0, 1.0)))
+        pullback_axis = normalize(np.cross(n_gk, n_id))
+        R_pb = rotation_matrix(pullback_angle, pullback_axis)[:3, :3]
+        # where the solution direction ends up once g_k has been carried to e.
+        n_star_pb = normalize(R_pb @ n_star_almost)
+
+        manifold = Group(cov, gk_dot_d, star_dot)
+        self.play(
+            *(FadeOut(v) for v in [alg_cap, alg_note, eq3, eq3D, cap3, divider]),
+            Rotate(disk, pullback_angle, axis=pullback_axis, about_point=center_r),
+            Rotate(sphere_d, pullback_angle, axis=pullback_axis, about_point=center_r),
+            Rotate(manifold, pullback_angle, axis=pullback_axis, about_point=center_r),
+            self.frame.animate.reorient(125, 39, 0, (np.float32(1.52), np.float32(-1.11), np.float32(-0.75)), 3.65),
+            run_time=2,
+        )
+
+        # % step 4c: grow the correction in the algebra, rolling the manifold beneath.
+        # g_k sits at e now; we grow delta-xi while rolling the manifold about roll_axis
+        # so the *advancing tip* stays pinned at the identity -- the whole correction is
+        # read off at e while G turns underneath.
+        self.next_slide(
+            notes="[...] and compute the update in the algebra too."
+        )
+        # angle/axis of the pulled-back geodesic; == the original g_k->solution angle,
+        # since the pullback rotation preserves it. Positive rotation about
+        # cross(n_star_pb, n_id) maps the geodesic tip back onto n_id = the identity.
+        theta = float(np.arccos(np.clip(np.dot(n_id, n_star_pb), -1.0, 1.0)))
+        roll_axis = normalize(np.cross(n_star_pb, n_id))
+        rotating = Group(cov, gk_dot_d, star_dot)
+
+        # Seed arrow; RollGrowArrow overwrites its points in place every frame (cheap,
+        # no per-frame reallocation) so this stays smooth for live playback.
+        dxi_geo = stroke_arrow(
+            np.array([id_pt, id_pt + 1e-2 * OUT]),
+            COLOR_LIE_GROUPS,
+            up=n_id,
+            tail_width=0.09,
+        )
+        self.add(dxi_geo)
+        dxi_lbl = self.make_billboard(
+            Tex(r"\delta\xi", font_size=46, color=COLOR_LIE_GROUPS)
+        ).add_updater(lambda m: m.next_to(dxi_geo, LEFT, buff=0.08))
+
+        # Rotate and grow share one linear clock, so tip and roll are locked in step.
+        self.play(
+            FadeIn(dxi_lbl, run_time=0.5),
+            Rotate(disk, theta, axis=roll_axis, about_point=center_r, run_time=3),
+            Rotate(sphere_d, theta, axis=roll_axis, about_point=center_r, run_time=3),
+            Rotate(rotating, theta, axis=roll_axis, about_point=center_r, run_time=3),
+            RollGrowArrow(
+                dxi_geo, n_id, n_star_pb, center_r, radius, roll_axis, theta, run_time=3
+            ),
+            self.frame.animate(run_time=3).reorient(75, 43, 0, (np.float32(1.85), np.float32(-0.15), np.float32(-0.44)), 3.65),
+        )
+
+        dxi_lbl.clear_updaters()
+        for m in (gk_lbl_d, star_lbl, gk_dot_d):
             m.clear_updaters()
 
         # % end
