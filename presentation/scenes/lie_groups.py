@@ -169,7 +169,7 @@ class LieGroups(SlideScene):
         different orientations."""
         # % title: bridge from "Q is not a vector space"
         self.next_slide(
-            notes="See, Lie groups are smooth manifolds where we only assume a group structure. The classic example is $SO(3)$, the group of 3D rotations."
+            notes="See, Lie groups are smooth manifolds where we only assume a group structure. The classic example is $SO(3)$, the group of 3D rotations. This restricts many things we take for granted, and sometimes it feels like you have to forget everything you think you know and really think through every step."
         )
         self.frame.save_state()
         subtitle = TexText(
@@ -181,7 +181,7 @@ class LieGroups(SlideScene):
 
         # % non-commutativity: rotations have no vector-space "+"
         self.next_slide(
-            notes="In this context you can no longer assume typical properties. For instance, rotations don't commute. If we turn [...]"
+            notes="As an example in SO(3), rotations don't commute. If we turn [...]"
         )
         heading_rotation_dont_commute = (
             Text("Rotations do not commute", font_size=44)
@@ -216,7 +216,7 @@ class LieGroups(SlideScene):
 
         # % apply the two rotations in each order
         self.next_slide(
-            notes="[...] this a-way and that-away instead of the opposite, we get different results."
+            notes="[...] this a-way and that-away instead of the opposite, we get different results. This alone discards vector space structure."
         )
         # Left brick: first about x, then about z. Right brick: reverse order.
         self.play(
@@ -230,8 +230,7 @@ class LieGroups(SlideScene):
             run_time=1.2,
         )
 
-        # % the two orders disagree
-        self.next_slide(notes="This alone discards vector space structure.")
+        # the two orders disagree
         neq = Tex(
             r"R_z R_x \neq R_x R_z",
             font_size=48,
@@ -257,7 +256,7 @@ class LieGroups(SlideScene):
         back, so a function on T_g G becomes one on the algebra."""
         # % the Newton correction lives in the Lie algebra
         self.next_slide(
-            notes="As a consequence, we need to change the Newton-Raphson step. We are no longer able to just 'add' tangent vectors."
+            notes="As you might remember, the Jacobi step is still the same, but we need to change the Newton-Raphson step, since we are no longer able to just add tangent 'correction' vectors."
         )
         heading_newton_correction = (
             Text("The Newton correction lives in the Lie algebra", font_size=40)
@@ -300,7 +299,7 @@ class LieGroups(SlideScene):
         # A schematic sphere standing in for the curved group, with a tangent
         # plane (the Lie algebra), a correction vector, and the retraction.
         self.next_slide(
-            notes="Let's see what this means. The algebra is the tangent space of a Lie group at the identity (note that the sphere is not technically a Lie group, but it does serve as a stand in for curved surfaces and a translation action)"
+            notes="Let's see what this means. The algebra is the tangent space of a Lie group at the identity, a linear approximation of the manifold at the identity (just to clarify, a the sphere is not technically a Lie group, but it does serve as a stand in for curved surfaces that has some translation action)"
         )
         sphere = (
             Sphere(radius=1.6, resolution=(51, 26)).set_color(GREY_A).set_opacity(1)
@@ -419,7 +418,7 @@ class LieGroups(SlideScene):
         # % retraction choice
         # The retraction's defining properties and the two concrete choices.
         self.next_slide(
-            notes="There is no one true retraction, we just need it to have the correct signature, to associate 0 vectors with, well, not doing anything (so, the identity); and for it to be linear around the origin. The general example is the exponential map, but for matrix Lie groups (such as SO(3) and SE(3)), we often use the Cayley map (since it's more convenient)."
+            notes="There is no one true retraction, we just need it (for our purposes) to have the correct signature, to associate 0 vectors with, well, not doing anything (so, the identity); and for it to be linear around the origin. The general example is the exponential map, but for matrix Lie groups (such as SO(3) and SE(3)), we often use the Cayley map (since it's more convenient). The specifics are not important, we only care about this local association."
         )
         tau_props = Tex(
             r"\tau : \mathfrak{g} \to G, \quad \tau(0) = e, \quad T_0\tau = \mathrm{Id}",
@@ -452,7 +451,7 @@ class LieGroups(SlideScene):
 
         # % vectors and pushforward
         self.next_slide(
-            notes="The most important aspect of Lie groups for our purposes is that the group structure gives us a way to talk about any tangent space using the algebra. This idea is called trivialization. Namely, I often [...]"
+            notes="The most important aspect of Lie groups for our purposes is that the group structure gives us a canonical way to talk about any tangent space using the algebra. This idea is called trivialization. Namely, I often [...]"
         )
         self.play(
             *(
@@ -678,7 +677,7 @@ class LieGroups(SlideScene):
 
         # % pullback: the two machines are one machine on the algebra
         self.next_slide(
-            notes="The aggregate 'machine' is now a covector at the identity. A coalgebra element."
+            notes="The aggregate 'machine' is now a covector at the identity. A coalgebra element. This is a pullback, that allows us to also move computations o the algebra."
         )
         combo = SurroundingRectangle(
             VGroup(push_mach, push_lbl, bob), color=GOLD_D, buff=0.35
@@ -696,7 +695,7 @@ class LieGroups(SlideScene):
 
         # % pullback name reveal
         self.next_slide(
-            notes="We pushforward tangent vectors, and pullback cotangent vectors."
+            notes="We pushforward tangents, and pullback cotangents."
         )
         pull_cap = (
             TexText(
@@ -845,7 +844,7 @@ class LieGroups(SlideScene):
 
         # % step 2: assume the residual varies linearly and aim for its zero.
         self.next_slide(
-            notes="We are going to assume that the residual changes linearly, as so."
+            notes="We are going to assume that the residual changes linearly, as so, and solve that."
         )
         eq2 = Tex(
             r"r_k(g_k \tau(\delta\xi)) \approx r_k + \widetilde{\mathcal{D}}_k \delta\xi = 0",
@@ -866,7 +865,7 @@ class LieGroups(SlideScene):
         # % step 3: linearize = extend the local look of the residual outward, then
         # read the correction off the surface.
         self.next_slide(
-            notes="This is the expression we get for this solve, and the resulting update. Notice that this linearization is not the same as the linearization of a tangent space we saw earlier. The way to think about linearizing the residual is [...]"
+            notes="Analytically, this is the expression we get for this solve, and the resulting update. But it might be nice to think about how we can visualize this. Notice that this linearization is not the same as the linearization of a manifold given by a tangent space we saw earlier. Rather, the way to think about linearizing the residual is [...]"
         )
         eq3 = Tex(
             r"\widetilde{\mathcal{D}}_k \delta\xi = -\widetilde r_k \qquad \text{in } \mathfrak{g}",

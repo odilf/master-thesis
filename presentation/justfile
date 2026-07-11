@@ -6,7 +6,8 @@ notes:
 
 # Refresh the slide data (via `notes`), then render the slides.
 render scene=scene: notes
-    uv run manim-slides render --GL --fps 60 --uhd main.py {{scene}}
+    uv run manim-slides render --GL --fps 30 --hd main.py {{scene}}
+    # uv run manim-slides render --GL --fps 60 --uhd main.py {{scene}}
 
 render-quick scene=scene: notes
     uv run manim-slides render --GL --fps 30 --medium_quality main.py {{scene}}

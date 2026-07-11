@@ -81,7 +81,7 @@ class Defense(SlideScene):
 
         # % Outline slide
         self.next_slide(
-            notes="I'll start by briefly reviewing the variational integration framework around Lagrangians, then I'll talk about the parallel variational integrator that was introduced by my supervisor and collaborators, and finally I'll showcase the work I did in extending the algorithm to forced systems and Lie groups."
+            notes="I'll start by reviewing the variational integration framework around Lagrangians, then I'll talk about the parallel variational integrator that was introduced by my supervisor and collaborators, and finally I'll showcase the work I did in extending the algorithm to forced systems and Lie groups."
         )
         self.play(FadeOut(title_slide))
         heading = Text("Today:", font_size=60)

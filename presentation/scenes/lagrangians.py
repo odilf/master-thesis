@@ -249,6 +249,10 @@ class Lagrangians(SlideScene):
         self.play(
             pendulum_vis.animate.center().scale(2).shift(3.5 * LEFT),
         )
+        # Re-enable the pendulum updaters (suspended during the grid layout) so it
+        # tracks theta again and reflects the motion of the state-space dot.
+        for m in [rod, bob, angle_arc, theta_label]:
+            m.resume_updating()
 
         # state space
         state_space = Circle(radius=2, stroke_color=COLOR_LAGRANGIANS).move_to(
@@ -313,7 +317,7 @@ class Lagrangians(SlideScene):
         )
 
         # % phase space reveal
-        self.next_slide(notes="That is, the dynamics are determined on the phase space [...]")
+        self.next_slide(notes="That is, the dynamics are not determined on the circle, but rather on the phase space [...]")
         angle_arc.suspend_updating()
         self.frame.save_state()
         pendulum_gizmo = Group(
@@ -343,15 +347,15 @@ class Lagrangians(SlideScene):
                 radius=R, height=cyl_height, resolution=(101, 101), shading=(0, 0, 0)
             )
             .shift(cyl_center)
-            .set_color(GREY_C)
-            .set_opacity(0.05)
+            .set_color("#eeeeee")
+            .set_opacity(1)
         )
         cyl_mesh = SurfaceMesh(
             cyl,
             resolution=(12, 7),
             stroke_color=GREY_D,
             stroke_width=1,
-            stroke_opacity=0.3,
+            stroke_opacity=0.8,
             depth_test=False,
         )
 
@@ -365,11 +369,10 @@ class Lagrangians(SlideScene):
 
         # % Lagrangian flow: energy level curves E = omega^2/2 − cos(theta) = const
         self.next_slide(
-            notes="On this phase space, the Lagrangian defines a _flow_, the way every point in TQ moves over time. The dynamics of the system are completely determined by this flow. And this flow has important geometric properties."
+            notes="Here, the Lagrangian defines a _flow_, the way every point in TQ moves over time. The dynamics of the system are completely determined by this flow. And this flow has important geometric properties."
         )
 
         def to_cyl_pt(th, om):
-            # depth_fix = 1.05
             depth_fix = 1
             return np.array(
                 [
@@ -389,9 +392,6 @@ class Lagrangians(SlideScene):
 
         def angular_momentum(_theta, omega):
             return omega
-            # om = omega * cyl_height / 2 / omega_scale
-            # print(omega, om, cyl_height, omega_scale)
-            # return om
 
         def consv_color(
             momentum_map: Callable[[float, float], float],
@@ -454,7 +454,6 @@ class Lagrangians(SlideScene):
         )
         flow = VGroup(*(make_curve(theta, omega) for theta, omega in rand_starts))
         self.add(tails)
-        flow_time = 15
         self.play(
             FadeIn(dots, run_time=3),
             ShowCreation(
@@ -558,7 +557,7 @@ class Lagrangians(SlideScene):
         equations, then the exact vs approximate discrete Lagrangian."""
         # % continuous action
         self.next_slide(
-            notes="The Lagrangian flow is derived from Hamilton's principle, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian). Following this variational principle [...]"
+            notes="Now, where does lhe Lagrangian flow come from? Well, it derived from Hamilton's principle, which as you probably already know says that physically realizable trajectories are stationary points of the action (the intergral of the Lagrangian). Following this variational principle [...]"
         )
         t2c = {
             "L": COLOR_LAGRANGIANS,
@@ -627,7 +626,7 @@ class Lagrangians(SlideScene):
 
         # % discrete Lagrangian
         self.next_slide(
-            notes="[...] Lagrangians mechanics discretly; with a discrete Largangian (where instead of a point and a vector we think about two nearby points). Then, [...]"
+            notes="[...] Lagrangians mechanics discretly; with a discrete Largangian (where instead of a point and a vector we think about two nearby points). Then, a path becomes a sequence of points, [...]"
         )
         self.play(Write(Ld_def), Write(disc_header))
 
@@ -643,7 +642,7 @@ class Lagrangians(SlideScene):
 
         # % exact discrete Lagrangian
         Ld_exact = Tex(
-            r"L^\text{ex.}_d (q_0, q_1) = \int_0^h q_{0, 1} (q_0, q_1)",
+            r"L^\text{ex.}_d (q_0, q_1) = \int_0^h q_{0, 1} (t) \textrm{d}t",
             t2c={**t2c, r"L^\text{ex.}_d": MAROON_D},
             isolate=[r"q_{0, 1}"],
         ).move_to(LEFT_SIDE / 2 + BOTTOM + UP * BUFF)

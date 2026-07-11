@@ -163,10 +163,10 @@ class Forced(SlideScene):
 
         # % highlight pair
         self.next_slide(
-            notes="[...] a pair of forces, needed to model the continuous one properly."
+            notes="[...] a pair of forces, which are needed to model the continuous one properly."
         )
         self.play(
-            LaggedStart(*(FlashUnder(f) for f in [fdel_eq["f_d^+"], fdel_eq["f_d^-"]])),
+            LaggedStart(*(Indicate(f) for f in [fdel_eq["f_d^+"], fdel_eq["f_d^-"]])),
             rate_func=lambda t: smooth(t, 2),
             run_time=3,
         )
@@ -212,7 +212,7 @@ class Forced(SlideScene):
         blocks, so the discrete 'Hessian' is no longer symmetric."""
         # % the catch: a non-symmetric Hessian
         self.next_slide(
-            notes="[*sigh*] I'll try to be brief but, you see, the forced formulation is no longer a critical point formulation, so there is not really a proper Hessian. We can try to adapt the unforced Hessian, [...]"
+            notes="Now, there is a catch [small sigh]. The forced formulation is no longer a critical-point formulation, so there isn't a proper Hessian anymore, and we can't state anything about positive definiteness. We can still get the idea of the unforced Hessian by deriving the residual, [...]"
         )
         t2c = {
             "L_d": COLOR_LD,
@@ -335,7 +335,7 @@ class Forced(SlideScene):
 
         # % point at the two discrete force terms
         self.next_slide(
-            notes="[...] the force being a pair. So we can't state positive definiteness directly."
+            notes="[...] we have two distinct forces."
         )
         self.play(Indicate(forced_note["f_d^-"]), Indicate(forced_note["f_d^+"]))
 
@@ -346,7 +346,7 @@ class Forced(SlideScene):
         forcing, plus the spectral test; the general case stays open."""
         # % when does it still converge?
         self.next_slide(
-            notes="And honestly it's hard to adapt the convergence conditions."
+            notes="We have to find some different analog, which is non-trivial."
         )
 
         heading_convergence = Text(
@@ -405,13 +405,13 @@ class Forced(SlideScene):
 
         # % condition 1
         self.next_slide(
-            notes="I did find this condition that is analogous to the local Hessians being positive definite, but (I guess it is indeed a good analog) it is very very conservative. Many convergent systems don't satisfy it."
+            notes="This condition is the closest to being a direct analog, but it's an analog of the local Hessians being positive definite. The idea is that if the diagonal dominates the off-diagonals, we converge. And, I guess it is indeed a good analog, because it is very conservative, like in the vector-space case, in the sense that many convergent systems don't satisfy it."
         )
         self.play(FadeIn(cond1, shift=0.4 * RIGHT))
 
         # % condition 1bis
         self.next_slide(
-            notes="There's a global analog, and it seems to hold, but I couldn't quite figure out how to tackle a proof. This would be pretty high priority for future work."
+            notes="There's a global analog, and it seems to be true (it held for every system we tested), but I couldn't quite figure out how to tackle a proof. This would be pretty high priority for future work."
         )
         self.play(Write(cond1_open), run_time=1)
 
@@ -423,7 +423,7 @@ class Forced(SlideScene):
 
         # % condition 3
         self.next_slide(
-            notes="[...] your best bet might just be to compute this Jacobi-iteration matrix, and check its spectral radius, which is the fundamental tool behind most of these convergence results."
+            notes="[...] your best bet might just be to compute this Jacobi-iteration matrix, and check its spectral radius, which is the tool that underpins all other criteria shown today. These are useful in a more analytical context, this one is more practical numerically."
         )
         self.play(FadeIn(cond3, shift=0.4 * RIGHT))
 

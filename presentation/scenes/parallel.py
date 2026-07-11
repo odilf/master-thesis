@@ -318,7 +318,7 @@ class Parallel(SlideScene):
 
         # % Newton update and its Jacobian
         self.next_slide(
-            notes="[...] and find where its linear approximation would be $0$. Notice, that to do this, we assume that $Q$ is a vector space. And we repeat: Jacobi, Newton, Jacobi, Newton, until we get to a result. The overall method is called, unsurprisingly, Jacobi-Newton (iteration)"
+            notes="[...] and find where its linear approximation would be $0$. Notice, that to do this, we assume that $Q$ is a vector space. And we repeat: Jacobi, Newton, Jacobi, Newton, until we get to a result. The overall method is called, appropriately, Jacobi-Newton (iteration)"
         )
         self.play(Write(newton))
         self.play(FadeIn(jac, shift=0.2 * UP))
