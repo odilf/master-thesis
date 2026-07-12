@@ -347,8 +347,8 @@ class Lagrangians(SlideScene):
                 radius=R, height=cyl_height, resolution=(101, 101), shading=(0, 0, 0)
             )
             .shift(cyl_center)
-            .set_color("#eeeeee")
-            .set_opacity(1)
+            .set_color(GREY_D)
+            .set_opacity(0.05)
         )
         cyl_mesh = SurfaceMesh(
             cyl,
@@ -437,13 +437,44 @@ class Lagrangians(SlideScene):
                 .set_fill(None)
                 .set_stroke(opacity=0.03)
             )
+            def move_and_dim(dot):
+                dot.move_to(c.get_end())
+                # Same front/back test as the tail: dim the dot while it is on
+                # the far side of the cylinder (radial normal facing away from
+                # the camera).
+                p = dot.get_center()
+                cam = self.frame.get_implied_camera_location()
+                normal = np.array([p[0] - cx, p[1] - cy, 0.0])
+                facing = np.dot(cam - p, normal) > 0
+                dot.set_opacity(1.0 if facing else 0.15)
+
             dot = (
                 GlowDot(color=color, radius=0.05)
                 .move_to(pts[0])
-                .add_updater(lambda dot: dot.move_to(c.get_end()), call=False)
+                .add_updater(move_and_dim, call=False)
             )
-            tail = TracingTail(dot, time_traced=3, stroke_color=color, stroke_width=2)
+            tail = TracingTail(dot, time_traced=2, stroke_color=color, stroke_width=2)
             tail.traced_points.clear()
+
+            # Dim the stretch of tail that is on the far side of the cylinder. A
+            # surface point is camera-facing when its outward radial normal (in
+            # the xy-plane, since the cylinder axis is vertical) points toward the
+            # camera. We multiply the built-in fade-out gradient by this factor
+            # instead of using depth_test, which breaks the render. Runs after
+            # TracingTail's own updater, which rewrites the opacity every frame.
+            def dim_behind(m):
+                pts = m.get_points()
+                if len(pts) == 0:
+                    return
+                cam = self.frame.get_implied_camera_location()
+                normal = pts - cyl_center
+                normal[:, 2] = 0.0
+                facing = ((cam - pts) * normal).sum(axis=1) > 0
+                opacity = m.get_stroke_opacities().copy()
+                opacity[~facing] *= 0.15
+                m.set_stroke(opacity=opacity)
+
+            tail.add_updater(dim_behind)
             dots.add(dot)
             tails.add(tail)
             return c
