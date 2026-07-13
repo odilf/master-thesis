@@ -159,19 +159,19 @@
 
 [105] And before closing out, I to make one final observation.
 
-[106] This is the update in the Lie group. But vector spaces are groups, right? What happens if we treat the vector space as a group?
+[106] This is the update in the Lie group. And I show in the paper that if you consider the group action of vector spaces, <[107]> the Lie update desugars exactly to the vector-space update. And this makes sense, it seems to point that we have done the work correctly. But... why?
 
-[107] Well, we get exactly the same update we had before. Now, in math (and in many things), there is a point where you understand something, where you say 'this makes sense'. And then there's a point where you _really_ understand something, when you say 'of course it's this way, why wouldn't it be? It makes so much sense.'. It's not easy to trigger that feeling on command, but I wanted to share a small instance where this sort of happened to me during this work. You see, this... this makes sense.
+[108] Well, I would say both versions are saying, in some sense, the same thing.
 
-[108] But, there is a different way we can think about it. See, both methods can be thought of as saying, in some sense, a similar thing.
+[109] We are computing an update to get closer to a solution. The vector space case is particularly convinient because <[110]> the space, the tangent space, and the cotangent space are structurally identical, and we move between fibers without ever even thinking about it. But, nominally, a point and a vector are different. In the Lie group case this just becomes more obvious, but it's not fundamentally that different.
 
-[109] We are computing an update to get closer to a solution. The vector space case is particularly convinient because <[110]> the space, the tangent space, and the cotangent space are structurally identical, even though nominally they're different. It's not that they're canonically ismorphic, but like ultra-canonically isomorphic. Moving between fibers is so uniform that we almost never even think about it. In a similar light, even though groups are not _that_ uniform, <[111]> they encode this notion of symmetry, which is precisely what we're using for the algorithm. It's because it gives us a way to talk in general about these transformations that span the manifold, across fibers. And that's ultimately the name of the game here, finding out what the right language is for working in these more abstract spaces. Which of course begs the question, <[112]> can this be generalized further? Or rather, I would argue, the question is 'what is the right language for...' homogeneous spaces, or Lie groupoids. And with that I'll move swiftly to future work.
+[111] It's just that now we're taking advantage of the notion of symmetry of the group to trivialize the tangent space and talk about these transformations that span the manifold in a uniform way. That's why we see curvature terms, and why they don't meaninfully change the result. Ultimately, the name of the game here is finding out what the right language is for working in these more abstract spaces. Which of course begs the question, <[112]> can this be generalized further? Or rather, I would argue, the question is 'what is the right language for...' homogeneous spaces, or Lie groupoids. And that brings us nicely to future work.
 
 ---
 
-[1]: main.py:29
-[2]: main.py:83
-[3]: main.py:120
+[1]: main.py:30
+[2]: main.py:84
+[3]: main.py:121
 [4]: scenes/lagrangians.py:19
 [5]: scenes/lagrangians.py:216
 [6]: scenes/lagrangians.py:222
@@ -184,18 +184,18 @@
 [13]: scenes/lagrangians.py:320
 [14]: scenes/lagrangians.py:336
 [15]: scenes/lagrangians.py:371
-[16]: scenes/lagrangians.py:473
-[17]: scenes/lagrangians.py:489
-[18]: scenes/lagrangians.py:560
-[19]: scenes/lagrangians.py:593
-[20]: scenes/lagrangians.py:599
-[21]: scenes/lagrangians.py:629
-[22]: scenes/lagrangians.py:635
-[23]: scenes/lagrangians.py:639
-[24]: scenes/lagrangians.py:657
-[25]: scenes/lagrangians.py:663
-[26]: scenes/lagrangians.py:669
-[27]: main.py:134
+[16]: scenes/lagrangians.py:503
+[17]: scenes/lagrangians.py:519
+[18]: scenes/lagrangians.py:590
+[19]: scenes/lagrangians.py:623
+[20]: scenes/lagrangians.py:629
+[21]: scenes/lagrangians.py:659
+[22]: scenes/lagrangians.py:665
+[23]: scenes/lagrangians.py:669
+[24]: scenes/lagrangians.py:687
+[25]: scenes/lagrangians.py:693
+[26]: scenes/lagrangians.py:699
+[27]: main.py:135
 [28]: scenes/parallel.py:45
 [29]: scenes/parallel.py:69
 [30]: scenes/parallel.py:114
@@ -221,7 +221,7 @@
 [50]: scenes/parallel.py:710
 [51]: scenes/parallel.py:716
 [52]: scenes/parallel.py:722
-[53]: main.py:151
+[53]: main.py:152
 [54]: scenes/forced.py:39
 [55]: scenes/forced.py:61
 [56]: scenes/forced.py:93
@@ -236,7 +236,7 @@
 [65]: scenes/forced.py:413
 [66]: scenes/forced.py:419
 [67]: scenes/forced.py:425
-[68]: main.py:166
+[68]: main.py:167
 [69]: scenes/lie_groups.py:171
 [70]: scenes/lie_groups.py:183
 [71]: scenes/lie_groups.py:218

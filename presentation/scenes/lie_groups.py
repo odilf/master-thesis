@@ -1311,12 +1311,12 @@ class LieGroups(SlideScene):
         ).move_to(UP * 0.8)
 
         # % lie algebra update
-        self.next_slide(notes="This is the update in the Lie group. But vector spaces are groups, right? What happens if we treat the vector space as a group?")
+        self.next_slide(notes="This is the update in the Lie group. And I show in the paper that if you consider the group action of vector spaces, [...]")
         self.play(FadeIn(group_update, shift=0.2 * UP))
 
         # % capstone: the retraction collapses -- the vector-space update falls out
         self.next_slide(
-            notes="Well, we get exactly the same update we had before. Now, in math (and in many things), there is a point where you understand something, where you say 'this makes sense'. And then there's a point where you _really_ understand something, when you say 'of course it's this way, why wouldn't it be? It makes so much sense.'. It's not easy to trigger that feeling on command, but I wanted to share a small instance where this sort of happened to me during this work. You see, this... this makes sense."
+            notes="[...] the Lie update desugars exactly to the vector-space update. And this makes sense, it seems to point that we have done the work correctly. But... why?"
         )
         vec_update = Tex(
             r"\bar q_k = q_k + \delta q_k",
@@ -1337,7 +1337,7 @@ class LieGroups(SlideScene):
 
         # % capstone: two makings-precise of one idea, side by side
         self.next_slide(
-            notes="But, there is a different way we can think about it. See, both methods can be thought of as saying, in some sense, a similar thing."
+            notes="Well, I would say both versions are saying, in some sense, the same thing."
         )
         X_VS, X_LG = -2.2, 2.2
         EQ_Y = 0.2
@@ -1388,7 +1388,7 @@ class LieGroups(SlideScene):
 
         # % capstone: where each gets its uniformity
         self.next_slide(
-            notes="[...] the space, the tangent space, and the cotangent space are structurally identical, even though nominally they're different. It's not that they're canonically ismorphic, but like ultra-canonically isomorphic. Moving between fibers is so uniform that we almost never even think about it. In a similar light, even though groups are not _that_ uniform, [...]"
+            notes="[...] the space, the tangent space, and the cotangent space are structurally identical, and we move between fibers without ever even thinking about it. But, nominally, a point and a vector are different. In the Lie group case this just becomes more obvious, but it's not fundamentally that different."
         )
         vs_cap = VGroup(
             TexText(
@@ -1401,7 +1401,7 @@ class LieGroups(SlideScene):
 
         # % where the Lie group gets its uniformity
         self.next_slide(
-            notes="[...] they encode this notion of symmetry, which is precisely what we're using for the algorithm. It's because it gives us a way to talk in general about these transformations that span the manifold, across fibers. And that's ultimately the name of the game here, finding out what the right language is for working in these more abstract spaces. Which of course begs the question, [...]"
+            notes="It's just that now we're taking advantage of the notion of symmetry of the group to trivialize the tangent space and talk about these transformations that span the manifold in a uniform way. That's why we see curvature terms, and why they don't meaninfully change the result. Ultimately, the name of the game here is finding out what the right language is for working in these more abstract spaces. Which of course begs the question, [...]"
         )
         lg_cap = VGroup(
             TexText("group symmetry", font_size=32, color=GREY_B),
@@ -1412,7 +1412,7 @@ class LieGroups(SlideScene):
 
         # % capstone: and when the space has no group of its own? (future work)
         self.next_slide(
-            notes="[...] can this be generalized further? Or rather, I would argue, the question is 'what is the right language for...' homogeneous spaces, or Lie groupoids. And with that I'll move swiftly to future work."
+            notes="[...] can this be generalized further? Or rather, I would argue, the question is 'what is the right language for...' homogeneous spaces, or Lie groupoids. And that brings us nicely to future work."
         )
         vs_col = VGroup(vs_label, vec_update, vs_cap)
         lg_col = VGroup(lg_label, group_update, lg_cap)

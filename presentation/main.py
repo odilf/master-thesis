@@ -24,6 +24,7 @@ class Defense(SlideScene):
         # the outline as connective tissue: it is faded out before a section and
         # back in after, with the next topic highlighted. `play_slides` only fades
         # what a section adds, so the persistent outline is left untouched.
+        self.next_slide()
 
         # % Title slide
         self.next_slide(
